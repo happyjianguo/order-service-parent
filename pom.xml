@@ -19,6 +19,7 @@
 
 	<modules>
 		<module>order-service</module>
+		<module>order-service-sdk</module>
 	</modules>
 
 	<properties>
