@@ -75,9 +75,6 @@ public class TransitionDepartureApplyApi {
     @RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
     public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
-            if (transitionDepartureApply.getModifyTime() == null) {
-                transitionDepartureApply.setModifyTime(LocalDateTime.now());
-            }
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             e.printStackTrace();

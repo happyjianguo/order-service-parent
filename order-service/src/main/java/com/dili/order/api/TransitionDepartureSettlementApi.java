@@ -70,9 +70,6 @@ public class TransitionDepartureSettlementApi {
     @RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
     public BaseOutput update(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         try {
-            if (transitionDepartureSettlement.getModifyTime() == null) {
-                transitionDepartureSettlement.setModifyTime(LocalDateTime.now());
-            }
             transitionDepartureSettlementService.updateSelective(transitionDepartureSettlement);
             return BaseOutput.success("修改成功");
         } catch (Exception e) {
