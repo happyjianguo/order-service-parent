@@ -3,10 +3,13 @@ package com.dili.order.api;
 import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.order.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -25,9 +28,22 @@ public class TransitionDepartureApplyApi {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/listPage", method = {RequestMethod.POST})
     public String listPage(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
         return transitionDepartureApplyService.listEasyuiPageByExample(transitionDepartureApply, true).toString();
+    }
+
+    /**
+     * 根据参数查询数据
+     *
+     * @param transitionDepartureApply
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
+    public String listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
+        List<TransitionDepartureApply> transitionDepartureApplyList = transitionDepartureApplyService.listByQueryParams(transitionDepartureApply);
+        return new EasyuiPageOutput(transitionDepartureApplyList.size(), ValueProviderUtils.buildDataByProvider(transitionDepartureApply, transitionDepartureApplyList)).toString();
     }
 
     /**
@@ -36,7 +52,7 @@ public class TransitionDepartureApplyApi {
      * @param transitionDepartureApply
      * @return BaseOutput
      */
-    @RequestMapping(value = "/insert", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/insert", method = {RequestMethod.POST})
     public BaseOutput insert(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             if (transitionDepartureApply.getOriginatorTime() == null) {
@@ -56,7 +72,7 @@ public class TransitionDepartureApplyApi {
      * @param transitionDepartureApply
      * @return BaseOutput
      */
-    @RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/update", method = {RequestMethod.POST})
     public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
@@ -114,7 +130,7 @@ public class TransitionDepartureApplyApi {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/getOneByCustomerID", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/getOneByCustomerID", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureApply> getOneByCustomerID(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             return BaseOutput.successData(transitionDepartureApplyService.getOneByCustomerID(transitionDepartureApply));
@@ -123,5 +139,6 @@ public class TransitionDepartureApplyApi {
             return BaseOutput.failure("查询失败" + e.getMessage());
         }
     }
+
 
 }

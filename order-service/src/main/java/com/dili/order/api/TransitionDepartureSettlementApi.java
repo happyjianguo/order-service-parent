@@ -1,8 +1,11 @@
 package com.dili.order.api;
 
+import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.order.domain.TransitionDepartureSettlement;
 import com.dili.order.service.TransitionDepartureSettlementService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -33,6 +37,21 @@ public class TransitionDepartureSettlementApi {
         return transitionDepartureSettlementService.listEasyuiPageByExample(transitionDepartureSettlement, true).toString();
 
     }
+
+
+    /**
+     * 根据参数查询数据
+     *
+     * @param transitionDepartureSettlement
+     * @return String
+     * @throws Exception
+     */
+    @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.GET, RequestMethod.POST})
+    public String listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) throws Exception {
+        List<TransitionDepartureSettlement> transitionDepartureSettlementList = transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
+        return new EasyuiPageOutput(transitionDepartureSettlementList.size(), ValueProviderUtils.buildDataByProvider(transitionDepartureSettlement, transitionDepartureSettlementList)).toString();
+    }
+
 
     /**
      * 新增TransitionDepartureSettlement
