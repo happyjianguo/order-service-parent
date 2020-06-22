@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -30,14 +29,8 @@ public class TransitionDepartureSettlementApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<List<TransitionDepartureSettlement>> listPage(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
-        try {
-            transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
-            return BaseOutput.successData(transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BaseOutput.failure("查询失败" + e.getMessage());
-        }
+    public String listPage(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) throws Exception {
+        return transitionDepartureSettlementService.listEasyuiPageByExample(transitionDepartureSettlement, true).toString();
 
     }
 

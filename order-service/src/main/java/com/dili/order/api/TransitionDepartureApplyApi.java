@@ -1,24 +1,12 @@
 package com.dili.order.api;
 
-import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.CarTypeDTO;
-import com.dili.assets.sdk.dto.CarTypePublicDTO;
-import com.dili.order.domain.Orders;
 import com.dili.order.domain.TransitionDepartureApply;
-import com.dili.order.rpc.AssetsRpc;
 import com.dili.order.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.dto.DTOUtils;
-import com.dili.ss.metadata.ValueProviderUtils;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -38,12 +26,8 @@ public class TransitionDepartureApplyApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<List<TransitionDepartureApply>> listPage(@RequestBody TransitionDepartureApply transitionDepartureApply) {
-        try {
-            return BaseOutput.successData(transitionDepartureApplyService.listByQueryParams(transitionDepartureApply));
-        } catch (Exception e) {
-            return BaseOutput.failure("查询失败" + e.getMessage());
-        }
+    public String listPage(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
+        return transitionDepartureApplyService.listEasyuiPageByExample(transitionDepartureApply, true).toString();
     }
 
     /**
