@@ -90,14 +90,17 @@ public class TransitionDepartureApplyApi {
     /**
      * 根据id查询出对应申请单,包含需要使用的provider，申请单详细页面
      *
-     * @param transitionDepartureApply
+     * @param id
      * @return
      */
 
     @RequestMapping(value = "/getOneByID", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getOneByID(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    public BaseOutput<TransitionDepartureApply> getOneByID(Long id) {
         try {
-            return BaseOutput.successData(transitionDepartureApplyService.get(transitionDepartureApply.getId()));
+            if (id == null) {
+                return BaseOutput.failure("查询失败,id不能为空");
+            }
+            return BaseOutput.successData(transitionDepartureApplyService.get(id));
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("查询失败" + e.getMessage());
