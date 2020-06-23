@@ -37,6 +37,9 @@ public class CarTypeProvider implements ValueProvider {
 
     @Override
     public String getDisplayText(Object object, Map metaMap, FieldMeta fieldMeta) {
+        if (object == null) {
+            return null;
+        }
         CarTypePublicDTO carTypePublicDTO = new CarTypePublicDTO();
         carTypePublicDTO.setMarketId(3l);
         //获取所有车型

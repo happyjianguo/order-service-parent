@@ -1,6 +1,5 @@
 package com.dili.order.api;
 
-import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.order.domain.TransitionDepartureSettlement;
 import com.dili.order.service.TransitionDepartureSettlementService;
 import com.dili.ss.domain.BaseOutput;

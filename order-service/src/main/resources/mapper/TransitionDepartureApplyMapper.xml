@@ -178,6 +178,8 @@
         <result column="category_name" jdbcType="VARCHAR" property="categoryName"/>
         <result column="plate" jdbcType="VARCHAR" property="plate"/>
         <result column="biz_type" jdbcType="INTEGER" property="bizType"/>
+        <result column="car_type_id" jdbcType="INTEGER" property="carTypeId"/>
+        <result column="car_type_name" jdbcType="INTEGER" property="carTypeName"/>
         <association property="transitionDepartureSettlement"
                      javaType="com.dili.order.domain.TransitionDepartureSettlement">
             <id column="sid" jdbcType="BIGINT" property="id"></id>
@@ -200,6 +202,8 @@
           a.trans_type_id,
           a.category_id,
           a.category_name,
+          a.car_type_id,
+          a.car_type_name,
           if(s.pay_status=1,s.id,null) AS 'sid',
           if(s.pay_status=1,s.gross_weight,null) AS 'sgross_weight',
           if(s.pay_status=1,s.net_weight,null) AS 'snet_weight',
@@ -216,7 +220,9 @@
           a.trans_type_id,
           a.category_id,
           a.category_name,
-          a.approval_time
+          a.approval_time,
+          a.car_type_id,
+          a.car_type_name
         FROM transition_departure_apply a
         WHERE 1 = 1
           AND a.approval_state = 2
