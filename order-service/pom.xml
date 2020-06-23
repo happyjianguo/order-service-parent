@@ -89,6 +89,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dili</groupId>
+			<artifactId>ss-redis</artifactId>
+			<version>${sharp-sword.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dili</groupId>
 			<artifactId>assets-sdk</artifactId>
 			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
