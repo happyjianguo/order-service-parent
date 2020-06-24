@@ -53,17 +53,17 @@ public class TransitionDepartureApplyApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.POST})
-    public BaseOutput insert(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    public BaseOutput<TransitionDepartureApply> insert(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             if (transitionDepartureApply.getOriginatorTime() == null) {
                 transitionDepartureApply.setOriginatorTime(LocalDateTime.now());
             }
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
+            return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("新增失败" + e.getMessage());
         }
-        return BaseOutput.success("新增成功");
     }
 
     /**

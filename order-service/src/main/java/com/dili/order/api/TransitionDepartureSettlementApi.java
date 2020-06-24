@@ -59,13 +59,13 @@ public class TransitionDepartureSettlementApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput insert(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
+    public BaseOutput<TransitionDepartureSettlement> insert(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         try {
             if (transitionDepartureSettlement.getCreateTime() == null) {
                 transitionDepartureSettlement.setCreateTime(LocalDateTime.now());
             }
             transitionDepartureSettlementService.insertSelective(transitionDepartureSettlement);
-            return BaseOutput.success("新增成功");
+            return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("新增失败" + e.getMessage());
