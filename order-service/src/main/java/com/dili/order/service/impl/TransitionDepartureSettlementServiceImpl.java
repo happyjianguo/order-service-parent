@@ -52,6 +52,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //查询日期使用的是Date类型
         transitionDepartureSettlement.setBeginTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("beginTime")));
         transitionDepartureSettlement.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("endTime")));
+        //根据日期筛选出前一天的所有未结算的单子
         List<TransitionDepartureSettlement> list = getActualDao().scheduleUpdateSelect(transitionDepartureSettlement);
         HashSet<Long> applyIds = new HashSet<>();
         HashSet<Long> settlementIds = new HashSet<>();
