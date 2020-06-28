@@ -215,6 +215,17 @@ public class TransitionDepartureApply extends BaseDomain {
     private TransitionDepartureSettlement transitionDepartureSettlement;
 
     /**
+     * 查询使用，用户id
+     */
+    @Transient
+    private Long userId;
+    /**
+     * 查询使用，部门ids
+     */
+    @Transient
+    private List<Integer> departments;
+
+    /**
      * 查询使用，开始时间
      */
     @Transient
@@ -884,5 +895,21 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setOriginator(String originator) {
         this.originator = originator;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public List<Integer> getDepartments() {
+        return departments;
+    }
+
+    public void setDepartments(List<Integer> departments) {
+        this.departments = departments;
     }
 }
