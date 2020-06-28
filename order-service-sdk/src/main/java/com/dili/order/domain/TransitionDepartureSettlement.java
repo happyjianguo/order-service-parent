@@ -214,6 +214,18 @@ public class TransitionDepartureSettlement extends BaseDomain {
     private String paymentNo;
 
     /**
+     * 车辆类型编号(关联数据字典)
+     */
+    @Column(name = "`car_type_id`")
+    private Long carTypeId;
+
+    /**
+     * 车辆类型名称(关联数据字典)
+     */
+    @Column(name = "`car_type_name`")
+    private String carTypeName;
+
+    /**
      * 是否删除（逻辑删除）
      */
     @Column(name = "`del`")
@@ -249,6 +261,12 @@ public class TransitionDepartureSettlement extends BaseDomain {
      */
     @Transient
     private String operator;
+
+    /**
+     * 查询使用，用户id
+     */
+    @Transient
+    private Long userId;
 
 
     /**
@@ -851,6 +869,22 @@ public class TransitionDepartureSettlement extends BaseDomain {
         this.paymentNo = paymentNo;
     }
 
+    public Long getCarTypeId() {
+        return carTypeId;
+    }
+
+    public void setCarTypeId(Long carTypeId) {
+        this.carTypeId = carTypeId;
+    }
+
+    public String getCarTypeName() {
+        return carTypeName;
+    }
+
+    public void setCarTypeName(String carTypeName) {
+        this.carTypeName = carTypeName;
+    }
+
     /**
      * 获取是否删除（逻辑删除）
      *
@@ -901,5 +935,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
