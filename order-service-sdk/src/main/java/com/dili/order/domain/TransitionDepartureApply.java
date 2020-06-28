@@ -219,6 +219,11 @@ public class TransitionDepartureApply extends BaseDomain {
      */
     @Transient
     private Long userId;
+    /**
+     * 查询使用，部门ids
+     */
+    @Transient
+    private List<Integer> departments;
 
     /**
      * 查询使用，开始时间
@@ -898,5 +903,13 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public List<Integer> getDepartments() {
+        return departments;
+    }
+
+    public void setDepartments(List<Integer> departments) {
+        this.departments = departments;
     }
 }

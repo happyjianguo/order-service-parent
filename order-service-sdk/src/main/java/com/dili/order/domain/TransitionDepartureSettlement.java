@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -267,6 +268,12 @@ public class TransitionDepartureSettlement extends BaseDomain {
      */
     @Transient
     private Long userId;
+
+    /**
+     * 查询使用，部门ids
+     */
+    @Transient
+    private List<Integer> departments;
 
 
     /**
@@ -943,5 +950,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public List<Integer> getDepartments() {
+        return departments;
+    }
+
+    public void setDepartments(List<Integer> departments) {
+        this.departments = departments;
     }
 }
