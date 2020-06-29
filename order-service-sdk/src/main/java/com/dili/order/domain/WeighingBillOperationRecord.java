@@ -37,9 +37,9 @@ public interface WeighingBillOperationRecord extends IBaseDomain {
     @Column(name = "`operation_type`")
     @FieldDef(label="操作类型", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getOperationType();
+    Integer getOperationType();
 
-    void setOperationType(String operationType);
+    void setOperationType(Integer operationType);
 
     @Column(name = "`operation_type_name`")
     @FieldDef(label="操作类型名称", maxLength = 50)

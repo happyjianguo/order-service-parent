@@ -17,24 +17,23 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 由MyBatis Generator工具自动生成
  */
 @SpringBootApplication
-@MapperScan(basePackages = {"com.dili.order.mapper", "com.dili.ss.dao"})
-@ComponentScan(basePackages={"com.dili.ss","com.dili.order"})
-@RestfulScan({"com.dili.order.rpc"})
-@DTOScan(value={"com.dili.ss", "com.dili.order.domain"})
+@MapperScan(basePackages = { "com.dili.order.mapper", "com.dili.ss.dao" })
+@ComponentScan(basePackages = { "com.dili.ss", "com.dili.order" })
+@RestfulScan({ "com.dili.order.rpc", "com.dili.uap.sdk.rpc" })
+@DTOScan(value = { "com.dili.ss", "com.dili.order.domain" })
 @EnableDiscoveryClient
 @EnableFeignClients
 
 public class Application extends SpringBootServletInitializer {
 
-    @LoadBalanced
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+	@LoadBalanced
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
 
 }
