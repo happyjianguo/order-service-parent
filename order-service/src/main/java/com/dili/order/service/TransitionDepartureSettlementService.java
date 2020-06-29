@@ -1,7 +1,9 @@
 package com.dili.order.service;
 
+import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.order.domain.TransitionDepartureSettlement;
 import com.dili.ss.base.BaseService;
+import com.dili.ss.domain.PageOutput;
 
 import java.text.ParseException;
 import java.util.List;
@@ -17,7 +19,7 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
      * @param transitionDepartureSettlement
      * @return
      */
-    List<TransitionDepartureSettlement> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement);
+    PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement);
 
     /**
      * 定时任务，每天凌晨12点更新当天为结算的单子，支付状态更改为已关闭状态

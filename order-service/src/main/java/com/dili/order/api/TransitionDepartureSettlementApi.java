@@ -4,6 +4,7 @@ import com.dili.order.domain.TransitionDepartureSettlement;
 import com.dili.order.service.TransitionDepartureSettlementService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.domain.PageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,9 +47,8 @@ public class TransitionDepartureSettlementApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.GET, RequestMethod.POST})
-    public String listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) throws Exception {
-        List<TransitionDepartureSettlement> transitionDepartureSettlementList = transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
-        return new EasyuiPageOutput(transitionDepartureSettlementList.size(), ValueProviderUtils.buildDataByProvider(transitionDepartureSettlement, transitionDepartureSettlementList)).toString();
+    public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) throws Exception {
+        return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
 
