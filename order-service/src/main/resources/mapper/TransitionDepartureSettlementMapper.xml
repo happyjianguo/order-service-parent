@@ -169,14 +169,14 @@
         <if test="carTypeId != null">
             AND car_type_id = #{carTypeId}
         </if>
-        <if test="customer != null and customer != ''">
-            AND (customer_name like concat('%',#{customer},'%') or customer_code like concat('%',#{customer},'%'))
+        <if test="customerId != null">
+            AND customer_id=#{customerId}
         </if>
         <if test="plate != null and plate != ''">
             AND plate like concat('%',#{plate},'%')
         </if>
-        <if test="operator != null and operator != ''">
-            AND (operator_code like concat('%',#{operator},'%') or operator_name like concat('%',#{operator},'%'))
+        <if test="operatorId != null">
+            AND operator_id=#{operatorId}
         </if>
         <if test="beginTime != null">
             AND pay_time  <![CDATA[>=]]> #{beginTime}

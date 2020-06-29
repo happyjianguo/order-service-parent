@@ -249,18 +249,17 @@
         <if test="bizType != null">
             AND biz_type = #{bizType}
         </if>
-        <if test="customer != null and customer != ''">
-            AND (customer_name like concat('%',#{customer},'%') or customer_code like concat('%',#{customer},'%'))
+        <if test="customerId != null">
+            AND customer_id=#{customerId}
         </if>
         <if test="plate != null and plate != ''">
             AND plate like concat('%',#{plate},'%')
         </if>
-        <if test="originator != null and originator != ''">
-            AND (originator_name like concat('%',#{originator},'%') or originator_code like
-            concat('%',#{originator},'%'))
+        <if test="originatorId != null">
+            AND originator_id=#{originatorId}
         </if>
-        <if test="operator != null and operator != ''">
-            AND (approval_code like concat('%',#{operator},'%') or approval_name like concat('%',#{operator},'%'))
+        <if test="approvalId != null">
+            AND approval_id=#{approvalId}
         </if>
         <if test="beginTime != null">
             AND originator_time  <![CDATA[>=]]> #{beginTime}
