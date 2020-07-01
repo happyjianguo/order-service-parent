@@ -110,8 +110,8 @@ public class TransitionDepartureApplyApi {
      * @return
      */
 
-    @RequestMapping(value = "/getOneByID", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getOneByID(Long id) {
+    @RequestMapping(value = "/getOneByID/{id}", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getOneByID(@PathVariable(value = "id") Long id) {
         try {
             if (id == null) {
                 return BaseOutput.failure("查询失败,id不能为空");
