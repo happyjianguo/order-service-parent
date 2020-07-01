@@ -1,15 +1,16 @@
 package com.dili.order.api;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.order.domain.WeighingBill;
+import com.dili.order.dto.WeighingBillQueryDto;
 import com.dili.order.dto.WeighingBillUpdateDto;
 import com.dili.order.service.WeighingBillService;
 import com.dili.ss.domain.BaseOutput;
@@ -19,7 +20,7 @@ import com.dili.ss.domain.BaseOutput;
  */
 @RestController
 @RequestMapping("/api/weighingBill")
-public class WeighingBillController {
+public class WeighingBillApi {
 	@Autowired
 	WeighingBillService weighingBillService;
 
@@ -31,8 +32,21 @@ public class WeighingBillController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/listPage", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String listPage(WeighingBill weighingBill) throws Exception {
+	public @ResponseBody String listPage(WeighingBillQueryDto weighingBill) throws Exception {
 		return weighingBillService.listEasyuiPageByExample(weighingBill, true).toString();
+	}
+
+	/**
+	 * 根据条件查询过磅单
+	 * 
+	 * @param weighingBill
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/listByExample", method = { RequestMethod.POST })
+	public @ResponseBody BaseOutput<List<WeighingBill>> listByExample(@RequestBody WeighingBillQueryDto weighingBill) throws Exception {
+		List<WeighingBill> list = weighingBillService.listByExample(weighingBill);
+		return BaseOutput.success().setData(list);
 	}
 
 	/**
@@ -95,6 +109,17 @@ public class WeighingBillController {
 	@RequestMapping(value = "/invalidate", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
 		return this.weighingBillService.invalidate(serialNo, buyerPassword, sellerPassword, operatorId);
+	}
+
+	/**
+	 * 关闭
+	 * 
+	 * @param serialNo
+	 * @return
+	 */
+	@RequestMapping(value = "/close", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseOutput<Object> close(String serialNo) {
+		return this.weighingBillService.close(serialNo);
 	}
 
 	/**

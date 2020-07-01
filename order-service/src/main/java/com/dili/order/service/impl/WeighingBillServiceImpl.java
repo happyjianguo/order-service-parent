@@ -138,7 +138,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
-		WeighingBillOperationRecord wbor = DTOUtils.newInstance(WeighingBillOperationRecord.class);
+		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
 		wbor.setWeighingBillId(weighingBill.getId());
 		wbor.setOperationType(WeighingOperationType.SETTLE.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.SETTLE.getName());

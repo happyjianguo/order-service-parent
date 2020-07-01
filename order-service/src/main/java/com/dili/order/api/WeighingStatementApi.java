@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/weighingStatement")
-public class WeighingStatementController {
+public class WeighingStatementApi {
     @Autowired
     WeighingStatementService weighingStatementService;
 
