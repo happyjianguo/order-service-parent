@@ -1,34 +1,31 @@
 package com.dili.order.provider;
 
-import com.dili.assets.sdk.dto.CarTypeDTO;
-import com.dili.assets.sdk.dto.CarTypePublicDTO;
-import com.dili.order.rpc.AssetsRpc;
-import com.dili.ss.metadata.FieldMeta;
-import com.dili.ss.metadata.ValuePair;
-import com.dili.ss.metadata.ValuePairImpl;
-import com.dili.ss.metadata.ValueProvider;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-/**
- * 转离场申请单，结算单的车辆类型
- */
+import com.dili.order.rpc.AssetsRpc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.dili.assets.sdk.dto.CarTypeDTO;
+import com.dili.assets.sdk.dto.CarTypePublicDTO;
+import com.dili.ss.metadata.FieldMeta;
+import com.dili.ss.metadata.ValuePair;
+import com.dili.ss.metadata.ValuePairImpl;
+import com.dili.ss.metadata.ValueProvider;
+import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.session.SessionContext;
 
 @Component
-@Scope("prototype")
-public class CarTypeProvider implements ValueProvider {
+public class CarTypePublicProvider implements ValueProvider {
+
     private static final List<ValuePair<?>> BUFFER = new ArrayList<>();
 
     @Autowired
     AssetsRpc assetsRpc;
-
 
     @Override
     public List<ValuePair<?>> getLookupList(Object val, Map metaMap, FieldMeta fieldMeta) {
@@ -37,21 +34,22 @@ public class CarTypeProvider implements ValueProvider {
 
     @Override
     public String getDisplayText(Object object, Map metaMap, FieldMeta fieldMeta) {
-        if (object == null) {
+        if (null == object) {
             return null;
         }
+        UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         CarTypePublicDTO carTypePublicDTO = new CarTypePublicDTO();
-        carTypePublicDTO.setMarketId(3l);
-        //获取所有车型
+        carTypePublicDTO.setMarketId(userTicket.getFirmId());
         List<CarTypeDTO> list = assetsRpc.listCarType(carTypePublicDTO).getData();
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-        BUFFER.addAll(list.stream().map(e -> new ValuePairImpl<>(e.getName(), e.getId().toString())).collect(Collectors.toList()));
+        BUFFER.addAll(Stream.of(list.toArray(new CarTypeDTO[list.size()]))
+                .map(e -> new ValuePairImpl<>(e.getName(), e.getId().toString()))
+                .collect(Collectors.toList()));
         ValuePair<?> valuePair = BUFFER.stream().filter(val -> object.toString().equals(val.getValue())).findFirst().orElseGet(null);
         if (null != valuePair) {
             return valuePair.getText();
         }
         return null;
+
     }
+
 }

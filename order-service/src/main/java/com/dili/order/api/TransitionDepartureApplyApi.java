@@ -4,6 +4,7 @@ import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.order.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.domain.PageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,9 +42,8 @@ public class TransitionDepartureApplyApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
-    public String listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
-        List<TransitionDepartureApply> transitionDepartureApplyList = transitionDepartureApplyService.listByQueryParams(transitionDepartureApply);
-        return new EasyuiPageOutput(transitionDepartureApplyList.size(), ValueProviderUtils.buildDataByProvider(transitionDepartureApply, transitionDepartureApplyList)).toString();
+    public PageOutput<List<TransitionDepartureApply>> listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
+        return transitionDepartureApplyService.listByQueryParams(transitionDepartureApply);
     }
 
     /**

@@ -1,14 +1,14 @@
 package com.dili.order.service.impl;
 
-import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.order.domain.TransitionDepartureSettlement;
 import com.dili.order.mapper.TransitionDepartureApplyMapper;
 import com.dili.order.mapper.TransitionDepartureSettlementMapper;
 import com.dili.order.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.domain.PageOutput;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -37,10 +35,19 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     private TransitionDepartureApplyMapper transitionDepartureApplyMapper;
 
     @Override
-    public List<TransitionDepartureSettlement> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
-
-        PageHelper.startPage(transitionDepartureSettlement.getPage() == null ? 1 : transitionDepartureSettlement.getPage(), transitionDepartureSettlement.getRows() == null ? 10 : transitionDepartureSettlement.getRows());
-        return getActualDao().listByQueryParams(transitionDepartureSettlement);
+    public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
+        Integer page = transitionDepartureSettlement.getPage();
+        page = (page == null) ? Integer.valueOf(1) : page;
+        if (transitionDepartureSettlement.getRows() != null && transitionDepartureSettlement.getRows() >= 1) {
+            PageHelper.startPage(page, transitionDepartureSettlement.getRows());
+        }
+        List<TransitionDepartureSettlement> list = getActualDao().listByQueryParams(transitionDepartureSettlement);
+        Long total = list instanceof Page ? ((Page) list).getTotal() : list.size();
+        int totalPage = list instanceof Page ? ((Page) list).getPages() : 1;
+        int pageNum = list instanceof Page ? ((Page) list).getPageNum() : 1;
+        PageOutput<List<TransitionDepartureSettlement>> output = PageOutput.success();
+        output.setData(list).setPageNum(pageNum).setTotal(total.intValue()).setPageSize(transitionDepartureSettlement.getPage()).setPages(totalPage);
+        return output;
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.dili.order.service;
 
 import com.dili.order.domain.TransitionDepartureApply;
 import com.dili.ss.base.BaseService;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.domain.PageOutput;
 
 import java.util.List;
 
@@ -24,5 +26,5 @@ public interface TransitionDepartureApplyService extends BaseService<TransitionD
      * @param transitionDepartureApply
      * @return
      */
-    List<TransitionDepartureApply> listByQueryParams(TransitionDepartureApply transitionDepartureApply);
+    PageOutput<List<TransitionDepartureApply>> listByQueryParams(TransitionDepartureApply transitionDepartureApply);
 }
