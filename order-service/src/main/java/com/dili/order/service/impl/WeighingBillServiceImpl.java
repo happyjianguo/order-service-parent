@@ -41,8 +41,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 //	@Autowired
 //	private AccountRpc accountRpc;
-	@Autowired
-	private JmsfRpc jsmfRpc;
+//	@Autowired
+//	private JmsfRpc jsmfRpc;
 	@Autowired
 	private WeighingBillOperationRecordMapper wbrMapper;
 	@Autowired
