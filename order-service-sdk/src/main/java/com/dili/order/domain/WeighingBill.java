@@ -1,247 +1,953 @@
 package com.dili.order.domain;
 
-import com.dili.ss.dto.IBaseDomain;
-import com.dili.ss.metadata.FieldEditor;
-import com.dili.ss.metadata.annotation.EditMode;
-import com.dili.ss.metadata.annotation.FieldDef;
-import java.math.BigDecimal;
-import java.util.Date;
-import javax.persistence.*;
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.dili.ss.domain.BaseDomain;
+import com.dili.ss.metadata.FieldEditor;
+import com.dili.ss.metadata.annotation.EditMode;
+import com.dili.ss.metadata.annotation.FieldDef;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-19 14:20:28.
+ * This file was generated on 2020-06-23 11:33:35.
  */
 @Table(name = "`weighing_bill`")
-public interface WeighingBill extends IBaseDomain {
+public class WeighingBill extends BaseDomain {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /**
+     * 过磅单号
+     */
+    @Column(name = "`serial_no`")
+    private String serialNo;
+
+    /**
+     * 计量方式
+     */
+    @Column(name = "`measure_type`")
+    private String measureType;
+
+    /**
+     * 交易类型
+     */
+    @Column(name = "`trade_type`")
+    private String tradeType;
+
+    /**
+     * 买方id
+     */
+    @Column(name = "`buyer_id`")
+    private Long buyerId;
+
+    /**
+     * 买方卡号
+     */
+    @Column(name = "`buyer_card_no`")
+    private String buyerCardNo;
+
+    /**
+     * 买方支付账号
+     */
+    @Column(name = "`buyer_account`")
+    private String buyerAccount;
+
+    /**
+     * 买方姓名
+     */
+    @Column(name = "`buyer_name`")
+    private String buyerName;
+
+    /**
+     * 卖方id
+     */
+    @Column(name = "`seller_id`")
+    private Long sellerId;
+
+    /**
+     * 卖方卡号
+     */
+    @Column(name = "`seller_card_no`")
+    private String sellerCardNo;
+
+    /**
+     * 卖方支付账号
+     */
+    @Column(name = "`seller_account`")
+    private String sellerAccount;
+
+    /**
+     * 卖方姓名
+     */
+    @Column(name = "`seller_name`")
+    private String sellerName;
+
+    /**
+     * 商品id
+     */
+    @Column(name = "`goods_id`")
+    private Long goodsId;
+
+    /**
+     * 商品名称
+     */
+    @Column(name = "`goods_name`")
+    private String goodsName;
+
+    /**
+     * 商品产地id
+     */
+    @Column(name = "`goods_origin_city_id`")
+    private Long goodsOriginCityId;
+
+    /**
+     * 商品产地名称
+     */
+    @Column(name = "`goods_origin_city_name`")
+    private String goodsOriginCityName;
+
+    /**
+     * 件数
+     */
+    @Column(name = "`unit_amount`")
+    private Integer unitAmount;
+
+    /**
+     * 单价（分）
+     */
+    @Column(name = "`unit_price`")
+    private Long unitPrice;
+
+    /**
+     * 件重(2位小数，转化需要除以100)
+     */
+    @Column(name = "`unit_weight`")
+    private Integer unitWeight;
+
+    /**
+     * 取重(2位小数，转化需要除以100)
+     */
+    @Column(name = "`fetched_weight`")
+    private Integer fetchedWeight;
+
+    /**
+     * 取重时间
+     */
+    @Column(name = "`fetch_weight_time`")
+    private LocalDateTime fetchWeightTime;
+
+    /**
+     * 毛重(2位小数，转化需要除以100)
+     */
+    @Column(name = "`rough_weight`")
+    private Integer roughWeight;
+
+    /**
+     * 净重(2位小数，转化需要除以100)
+     */
+    @Column(name = "`net_weight`")
+    private Integer netWeight;
+
+    /**
+     * 车牌号
+     */
+    @Column(name = "`plate_number`")
+    private String plateNumber;
+
+    /**
+     * 皮重(2位小数，转化需要除以100)
+     */
+    @Column(name = "`tare_weight`")
+    private Integer tareWeight;
+
+    /**
+     * 除杂比例（百分比，转换需除以100）
+     */
+    @Column(name = "`subtraction_rate`")
+    private Integer subtractionRate;
+
+    /**
+     * 除杂重量(2位小数，转化需要除以100)
+     */
+    @Column(name = "`subtraction_weight`")
+    private Integer subtractionWeight;
+
+    /**
+     * 估计净重(2位小数，转化需要除以100)
+     */
+    @Column(name = "`estimated_net_weight`")
+    private Integer estimatedNetWeight;
+
+    /**
+     * 冻结金额(分)
+     */
+    @Column(name = "`frozen_amount`")
+    private Long frozenAmount;
+
+    /**
+     * 皮重单据号
+     */
+    @Column(name = "`tare_bill_number`")
+    private String tareBillNumber;
+
+    /**
+     * 状态
+     */
+    @Column(name = "`state`")
+    private Integer state;
+
+    /**
+     * 创建时间
+     */
+    @Column(name = "`created_time`")
+    private LocalDateTime createdTime;
+
+    /**
+     * 修改时间
+     */
+    @Column(name = "`modified_time`")
+    private LocalDateTime modifiedTime;
+
+    /**
+     * 结算时间
+     */
+    @Column(name = "`settlement_time`")
+    private LocalDateTime settlementTime;
+
+    /**
+     * 创建人id
+     */
+    @Column(name = "`creator_id`")
+    private Long creatorId;
+
+    /**
+     * 修改人id
+     */
+    @Column(name = "`modifier_id`")
+    private Long modifierId;
+
+    /**
+     * @return id
+     */
     @FieldDef(label="id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getId();
+    public Long getId() {
+        return id;
+    }
 
-    void setId(Long id);
+    /**
+     * @param id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    @Column(name = "`measure_type`")
+    /**
+     * 获取过磅单号
+     *
+     * @return serial_no - 过磅单号
+     */
+    @FieldDef(label="过磅单号", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = true)
+    public String getSerialNo() {
+        return serialNo;
+    }
+
+    /**
+     * 设置过磅单号
+     *
+     * @param serialNo 过磅单号
+     */
+    public void setSerialNo(String serialNo) {
+        this.serialNo = serialNo;
+    }
+
+    /**
+     * 获取计量方式
+     *
+     * @return measure_type - 计量方式
+     */
     @FieldDef(label="计量方式", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getMeasureType();
+    public String getMeasureType() {
+        return measureType;
+    }
 
-    void setMeasureType(String measureType);
+    /**
+     * 设置计量方式
+     *
+     * @param measureType 计量方式
+     */
+    public void setMeasureType(String measureType) {
+        this.measureType = measureType;
+    }
 
-    @Column(name = "`trade_type`")
+    /**
+     * 获取交易类型
+     *
+     * @return trade_type - 交易类型
+     */
     @FieldDef(label="交易类型", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getTradeType();
+    public String getTradeType() {
+        return tradeType;
+    }
 
-    void setTradeType(String tradeType);
+    /**
+     * 设置交易类型
+     *
+     * @param tradeType 交易类型
+     */
+    public void setTradeType(String tradeType) {
+        this.tradeType = tradeType;
+    }
 
-    @Column(name = "`buyer_id`")
+    /**
+     * 获取买方id
+     *
+     * @return buyer_id - 买方id
+     */
     @FieldDef(label="买方id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getBuyerId();
+    public Long getBuyerId() {
+        return buyerId;
+    }
 
-    void setBuyerId(Long buyerId);
+    /**
+     * 设置买方id
+     *
+     * @param buyerId 买方id
+     */
+    public void setBuyerId(Long buyerId) {
+        this.buyerId = buyerId;
+    }
 
-    @Column(name = "`buyer_card_number`")
+    /**
+     * 获取买方卡号
+     *
+     * @return buyer_card_no - 买方卡号
+     */
     @FieldDef(label="买方卡号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getBuyerCardNumber();
+    public String getBuyerCardNo() {
+        return buyerCardNo;
+    }
 
-    void setBuyerCardNumber(String buyerCardNumber);
+    /**
+     * 设置买方卡号
+     *
+     * @param buyerCardNo 买方卡号
+     */
+    public void setBuyerCardNo(String buyerCardNo) {
+        this.buyerCardNo = buyerCardNo;
+    }
 
-    @Column(name = "`buyer_account`")
+    /**
+     * 获取买方支付账号
+     *
+     * @return buyer_account - 买方支付账号
+     */
     @FieldDef(label="买方支付账号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getBuyerAccount();
+    public String getBuyerAccount() {
+        return buyerAccount;
+    }
 
-    void setBuyerAccount(String buyerAccount);
+    /**
+     * 设置买方支付账号
+     *
+     * @param buyerAccount 买方支付账号
+     */
+    public void setBuyerAccount(String buyerAccount) {
+        this.buyerAccount = buyerAccount;
+    }
 
-    @Column(name = "`buyer_name`")
+    /**
+     * 获取买方姓名
+     *
+     * @return buyer_name - 买方姓名
+     */
     @FieldDef(label="买方姓名", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getBuyerName();
+    public String getBuyerName() {
+        return buyerName;
+    }
 
-    void setBuyerName(String buyerName);
+    /**
+     * 设置买方姓名
+     *
+     * @param buyerName 买方姓名
+     */
+    public void setBuyerName(String buyerName) {
+        this.buyerName = buyerName;
+    }
 
-    @Column(name = "`seller_id`")
+    /**
+     * 获取卖方id
+     *
+     * @return seller_id - 卖方id
+     */
     @FieldDef(label="卖方id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getSellerId();
+    public Long getSellerId() {
+        return sellerId;
+    }
 
-    void setSellerId(Long sellerId);
+    /**
+     * 设置卖方id
+     *
+     * @param sellerId 卖方id
+     */
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
+    }
 
-    @Column(name = "`seller_card_number`")
+    /**
+     * 获取卖方卡号
+     *
+     * @return seller_card_no - 卖方卡号
+     */
     @FieldDef(label="卖方卡号", maxLength = 255)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getSellerCardNumber();
+    public String getSellerCardNo() {
+        return sellerCardNo;
+    }
 
-    void setSellerCardNumber(String sellerCardNumber);
+    /**
+     * 设置卖方卡号
+     *
+     * @param sellerCardNo 卖方卡号
+     */
+    public void setSellerCardNo(String sellerCardNo) {
+        this.sellerCardNo = sellerCardNo;
+    }
 
-    @Column(name = "`seller_account`")
+    /**
+     * 获取卖方支付账号
+     *
+     * @return seller_account - 卖方支付账号
+     */
     @FieldDef(label="卖方支付账号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getSellerAccount();
+    public String getSellerAccount() {
+        return sellerAccount;
+    }
 
-    void setSellerAccount(String sellerAccount);
+    /**
+     * 设置卖方支付账号
+     *
+     * @param sellerAccount 卖方支付账号
+     */
+    public void setSellerAccount(String sellerAccount) {
+        this.sellerAccount = sellerAccount;
+    }
 
-    @Column(name = "`seller_name`")
+    /**
+     * 获取卖方姓名
+     *
+     * @return seller_name - 卖方姓名
+     */
     @FieldDef(label="卖方姓名", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = true)
-    String getSellerName();
+    public String getSellerName() {
+        return sellerName;
+    }
 
-    void setSellerName(String sellerName);
+    /**
+     * 设置卖方姓名
+     *
+     * @param sellerName 卖方姓名
+     */
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
+    }
 
-    @Column(name = "`goods_id`")
+    /**
+     * 获取商品id
+     *
+     * @return goods_id - 商品id
+     */
     @FieldDef(label="商品id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getGoodsId();
+    public Long getGoodsId() {
+        return goodsId;
+    }
 
-    void setGoodsId(Long goodsId);
+    /**
+     * 设置商品id
+     *
+     * @param goodsId 商品id
+     */
+    public void setGoodsId(Long goodsId) {
+        this.goodsId = goodsId;
+    }
 
-    @Column(name = "`goods_origin`")
-    @FieldDef(label="商品产地")
+    /**
+     * 获取商品名称
+     *
+     * @return goods_name - 商品名称
+     */
+    @FieldDef(label="商品名称", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getGoodsName() {
+        return goodsName;
+    }
+
+    /**
+     * 设置商品名称
+     *
+     * @param goodsName 商品名称
+     */
+    public void setGoodsName(String goodsName) {
+        this.goodsName = goodsName;
+    }
+
+    /**
+     * 获取商品产地id
+     *
+     * @return goods_origin_city_id - 商品产地id
+     */
+    @FieldDef(label="商品产地id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getGoodsOrigin();
+    public Long getGoodsOriginCityId() {
+        return goodsOriginCityId;
+    }
 
-    void setGoodsOrigin(Long goodsOrigin);
+    /**
+     * 设置商品产地id
+     *
+     * @param goodsOriginCityId 商品产地id
+     */
+    public void setGoodsOriginCityId(Long goodsOriginCityId) {
+        this.goodsOriginCityId = goodsOriginCityId;
+    }
 
-    @Column(name = "`unit_amount`")
+    /**
+     * 获取商品产地名称
+     *
+     * @return goods_origin_city_name - 商品产地名称
+     */
+    @FieldDef(label="商品产地名称", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getGoodsOriginCityName() {
+        return goodsOriginCityName;
+    }
+
+    /**
+     * 设置商品产地名称
+     *
+     * @param goodsOriginCityName 商品产地名称
+     */
+    public void setGoodsOriginCityName(String goodsOriginCityName) {
+        this.goodsOriginCityName = goodsOriginCityName;
+    }
+
+    /**
+     * 获取件数
+     *
+     * @return unit_amount - 件数
+     */
     @FieldDef(label="件数")
     @EditMode(editor = FieldEditor.Number, required = false)
-    Integer getUnitAmount();
+    public Integer getUnitAmount() {
+        return unitAmount;
+    }
 
-    void setUnitAmount(Integer unitAmount);
+    /**
+     * 设置件数
+     *
+     * @param unitAmount 件数
+     */
+    public void setUnitAmount(Integer unitAmount) {
+        this.unitAmount = unitAmount;
+    }
 
-    @Column(name = "`unit_price`")
-    @FieldDef(label="单价")
-    @EditMode(editor = FieldEditor.Text, required = true)
-    BigDecimal getUnitPrice();
+    /**
+     * 获取单价（分）
+     *
+     * @return unit_price - 单价（分）
+     */
+    @FieldDef(label="单价（分）")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Long getUnitPrice() {
+        return unitPrice;
+    }
 
-    void setUnitPrice(BigDecimal unitPrice);
+    /**
+     * 设置单价（分）
+     *
+     * @param unitPrice 单价（分）
+     */
+    public void setUnitPrice(Long unitPrice) {
+        this.unitPrice = unitPrice;
+    }
 
-    @Column(name = "`unit_weight`")
-    @FieldDef(label="件重")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getUnitWeight();
+    /**
+     * 获取件重(2位小数，转化需要除以100)
+     *
+     * @return unit_weight - 件重(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="件重(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getUnitWeight() {
+        return unitWeight;
+    }
 
-    void setUnitWeight(BigDecimal unitWeight);
+    /**
+     * 设置件重(2位小数，转化需要除以100)
+     *
+     * @param unitWeight 件重(2位小数，转化需要除以100)
+     */
+    public void setUnitWeight(Integer unitWeight) {
+        this.unitWeight = unitWeight;
+    }
 
-    @Column(name = "`fetched_weight`")
-    @FieldDef(label="取重")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getFetchedWeight();
+    /**
+     * 获取取重(2位小数，转化需要除以100)
+     *
+     * @return fetched_weight - 取重(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="取重(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getFetchedWeight() {
+        return fetchedWeight;
+    }
 
-    void setFetchedWeight(BigDecimal fetchedWeight);
+    /**
+     * 设置取重(2位小数，转化需要除以100)
+     *
+     * @param fetchedWeight 取重(2位小数，转化需要除以100)
+     */
+    public void setFetchedWeight(Integer fetchedWeight) {
+        this.fetchedWeight = fetchedWeight;
+    }
 
-    @Column(name = "`fetch_weight_time`")
+    /**
+     * 获取取重时间
+     *
+     * @return fetch_weight_time - 取重时间
+     */
     @FieldDef(label="取重时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getFetchWeightTime();
+    public LocalDateTime getFetchWeightTime() {
+        return fetchWeightTime;
+    }
 
-    void setFetchWeightTime(Date fetchWeightTime);
+    /**
+     * 设置取重时间
+     *
+     * @param fetchWeightTime 取重时间
+     */
+    public void setFetchWeightTime(LocalDateTime fetchWeightTime) {
+        this.fetchWeightTime = fetchWeightTime;
+    }
 
-    @Column(name = "`rough_weight`")
-    @FieldDef(label="毛重")
-    @EditMode(editor = FieldEditor.Text, required = true)
-    BigDecimal getRoughWeight();
+    /**
+     * 获取毛重(2位小数，转化需要除以100)
+     *
+     * @return rough_weight - 毛重(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="毛重(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Integer getRoughWeight() {
+        return roughWeight;
+    }
 
-    void setRoughWeight(BigDecimal roughWeight);
+    /**
+     * 设置毛重(2位小数，转化需要除以100)
+     *
+     * @param roughWeight 毛重(2位小数，转化需要除以100)
+     */
+    public void setRoughWeight(Integer roughWeight) {
+        this.roughWeight = roughWeight;
+    }
 
-    @Column(name = "`net_weight`")
-    @FieldDef(label="净重")
-    @EditMode(editor = FieldEditor.Text, required = true)
-    BigDecimal getNetWeight();
+    /**
+     * 获取净重(2位小数，转化需要除以100)
+     *
+     * @return net_weight - 净重(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="净重(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Integer getNetWeight() {
+        return netWeight;
+    }
 
-    void setNetWeight(BigDecimal netWeight);
+    /**
+     * 设置净重(2位小数，转化需要除以100)
+     *
+     * @param netWeight 净重(2位小数，转化需要除以100)
+     */
+    public void setNetWeight(Integer netWeight) {
+        this.netWeight = netWeight;
+    }
 
-    @Column(name = "`plate_number`")
+    /**
+     * 获取车牌号
+     *
+     * @return plate_number - 车牌号
+     */
     @FieldDef(label="车牌号", maxLength = 15)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getPlateNumber();
+    public String getPlateNumber() {
+        return plateNumber;
+    }
 
-    void setPlateNumber(String plateNumber);
+    /**
+     * 设置车牌号
+     *
+     * @param plateNumber 车牌号
+     */
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
+    }
 
-    @Column(name = "`tare_weight`")
-    @FieldDef(label="皮重")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getTareWeight();
+    /**
+     * 获取皮重(2位小数，转化需要除以100)
+     *
+     * @return tare_weight - 皮重(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="皮重(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getTareWeight() {
+        return tareWeight;
+    }
 
-    void setTareWeight(BigDecimal tareWeight);
+    /**
+     * 设置皮重(2位小数，转化需要除以100)
+     *
+     * @param tareWeight 皮重(2位小数，转化需要除以100)
+     */
+    public void setTareWeight(Integer tareWeight) {
+        this.tareWeight = tareWeight;
+    }
 
-    @Column(name = "`subtraction_rate`")
-    @FieldDef(label="除杂比例")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getSubtractionRate();
+    /**
+     * 获取除杂比例（百分比，转换需除以100）
+     *
+     * @return subtraction_rate - 除杂比例（百分比，转换需除以100）
+     */
+    @FieldDef(label="除杂比例（百分比，转换需除以100）")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getSubtractionRate() {
+        return subtractionRate;
+    }
 
-    void setSubtractionRate(BigDecimal subtractionRate);
+    /**
+     * 设置除杂比例（百分比，转换需除以100）
+     *
+     * @param subtractionRate 除杂比例（百分比，转换需除以100）
+     */
+    public void setSubtractionRate(Integer subtractionRate) {
+        this.subtractionRate = subtractionRate;
+    }
 
-    @Column(name = "`subtraction_weight`")
-    @FieldDef(label="除杂重量")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getSubtractionWeight();
+    /**
+     * 获取除杂重量(2位小数，转化需要除以100)
+     *
+     * @return subtraction_weight - 除杂重量(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="除杂重量(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getSubtractionWeight() {
+        return subtractionWeight;
+    }
 
-    void setSubtractionWeight(BigDecimal subtractionWeight);
+    /**
+     * 设置除杂重量(2位小数，转化需要除以100)
+     *
+     * @param subtractionWeight 除杂重量(2位小数，转化需要除以100)
+     */
+    public void setSubtractionWeight(Integer subtractionWeight) {
+        this.subtractionWeight = subtractionWeight;
+    }
 
-    @Column(name = "`estimated_net_weight`")
-    @FieldDef(label="估计净重")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getEstimatedNetWeight();
+    /**
+     * 获取估计净重(2位小数，转化需要除以100)
+     *
+     * @return estimated_net_weight - 估计净重(2位小数，转化需要除以100)
+     */
+    @FieldDef(label="估计净重(2位小数，转化需要除以100)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getEstimatedNetWeight() {
+        return estimatedNetWeight;
+    }
 
-    void setEstimatedNetWeight(BigDecimal estimatedNetWeight);
+    /**
+     * 设置估计净重(2位小数，转化需要除以100)
+     *
+     * @param estimatedNetWeight 估计净重(2位小数，转化需要除以100)
+     */
+    public void setEstimatedNetWeight(Integer estimatedNetWeight) {
+        this.estimatedNetWeight = estimatedNetWeight;
+    }
 
-    @Column(name = "`frozen_amount`")
-    @FieldDef(label="冻结金额")
-    @EditMode(editor = FieldEditor.Text, required = false)
-    BigDecimal getFrozenAmount();
+    /**
+     * 获取冻结金额(分)
+     *
+     * @return frozen_amount - 冻结金额(分)
+     */
+    @FieldDef(label="冻结金额(分)")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getFrozenAmount() {
+        return frozenAmount;
+    }
 
-    void setFrozenAmount(BigDecimal frozenAmount);
+    /**
+     * 设置冻结金额(分)
+     *
+     * @param frozenAmount 冻结金额(分)
+     */
+    public void setFrozenAmount(Long frozenAmount) {
+        this.frozenAmount = frozenAmount;
+    }
 
-    @Column(name = "`tare_bill_number`")
+    /**
+     * 获取皮重单据号
+     *
+     * @return tare_bill_number - 皮重单据号
+     */
     @FieldDef(label="皮重单据号", maxLength = 50)
     @EditMode(editor = FieldEditor.Text, required = false)
-    String getTareBillNumber();
+    public String getTareBillNumber() {
+        return tareBillNumber;
+    }
 
-    void setTareBillNumber(String tareBillNumber);
+    /**
+     * 设置皮重单据号
+     *
+     * @param tareBillNumber 皮重单据号
+     */
+    public void setTareBillNumber(String tareBillNumber) {
+        this.tareBillNumber = tareBillNumber;
+    }
 
-    @Column(name = "`state`")
+    /**
+     * 获取状态
+     *
+     * @return state - 状态
+     */
     @FieldDef(label="状态")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Integer getState();
+    public Integer getState() {
+        return state;
+    }
 
-    void setState(Integer state);
+    /**
+     * 设置状态
+     *
+     * @param state 状态
+     */
+    public void setState(Integer state) {
+        this.state = state;
+    }
 
-    @Column(name = "`created_time`")
+    /**
+     * 获取创建时间
+     *
+     * @return created_time - 创建时间
+     */
     @FieldDef(label="创建时间")
     @EditMode(editor = FieldEditor.Datetime, required = true)
-    Date getCreatedTime();
+    public LocalDateTime getCreatedTime() {
+        return createdTime;
+    }
 
-    void setCreatedTime(Date createdTime);
+    /**
+     * 设置创建时间
+     *
+     * @param createdTime 创建时间
+     */
+    public void setCreatedTime(LocalDateTime createdTime) {
+        this.createdTime = createdTime;
+    }
 
-    @Column(name = "`modified_time`")
+    /**
+     * 获取修改时间
+     *
+     * @return modified_time - 修改时间
+     */
     @FieldDef(label="修改时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getModifiedTime();
+    public LocalDateTime getModifiedTime() {
+        return modifiedTime;
+    }
 
-    void setModifiedTime(Date modifiedTime);
+    /**
+     * 设置修改时间
+     *
+     * @param modifiedTime 修改时间
+     */
+    public void setModifiedTime(LocalDateTime modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
 
-    @Column(name = "`settlement_time`")
+    /**
+     * 获取结算时间
+     *
+     * @return settlement_time - 结算时间
+     */
     @FieldDef(label="结算时间")
     @EditMode(editor = FieldEditor.Datetime, required = false)
-    Date getSettlementTime();
+    public LocalDateTime getSettlementTime() {
+        return settlementTime;
+    }
 
-    void setSettlementTime(Date settlementTime);
+    /**
+     * 设置结算时间
+     *
+     * @param settlementTime 结算时间
+     */
+    public void setSettlementTime(LocalDateTime settlementTime) {
+        this.settlementTime = settlementTime;
+    }
 
-    @Column(name = "`creator_id`")
+    /**
+     * 获取创建人id
+     *
+     * @return creator_id - 创建人id
+     */
     @FieldDef(label="创建人id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    Long getCreatorId();
+    public Long getCreatorId() {
+        return creatorId;
+    }
 
-    void setCreatorId(Long creatorId);
+    /**
+     * 设置创建人id
+     *
+     * @param creatorId 创建人id
+     */
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    /**
+     * 获取修改人id
+     *
+     * @return modifier_id - 修改人id
+     */
+    @FieldDef(label="修改人id")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getModifierId() {
+        return modifierId;
+    }
+
+    /**
+     * 设置修改人id
+     *
+     * @param modifierId 修改人id
+     */
+    public void setModifierId(Long modifierId) {
+        this.modifierId = modifierId;
+    }
 }
