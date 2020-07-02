@@ -170,6 +170,7 @@
     <!--按道理是一个申请单对应多个结算单，但是为了方便，我在这里搞成一对一，因为只查询一个最新的申请单，然后对应的一个未结算的结算单，所以最后是一对一的-->
     <resultMap id="BaseResultMap_oneToOne" type="com.dili.order.domain.TransitionDepartureApply">
         <id column="aid" jdbcType="BIGINT" property="id"/>
+        <result column="code" property="code"/>
         <result column="customer_id" jdbcType="BIGINT" property="customerId"/>
         <result column="customer_code" jdbcType="VARCHAR" property="customerCode"/>
         <result column="customer_name" jdbcType="VARCHAR" property="customerName"/>
@@ -194,6 +195,7 @@
             resultMap="BaseResultMap_oneToOne">
         select
           a.id AS 'aid',
+          a.code,
           a.customer_id,
           a.customer_code,
           a.customer_name,
@@ -212,6 +214,7 @@
         FROM
         (SELECT
           a.id,
+          a.code,
           a.customer_id,
           a.customer_code,
           a.customer_name,
