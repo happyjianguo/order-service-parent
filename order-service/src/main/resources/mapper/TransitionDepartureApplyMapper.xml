@@ -230,9 +230,9 @@
           AND a.approval_time=
           (
           SELECT max( a.approval_time ) FROM transition_departure_apply a
-          Where 1 = 1 AND a.customer_id = #{customerId} GROUP BY a.customer_id
+          Where 1 = 1 AND a.customer_card_no = #{customerCardNo} GROUP BY a.customer_id
           )
-          AND a.customer_id = #{customerId})a
+          AND a.customer_card_no = #{customerCardNo})a
         LEFT JOIN transition_departure_settlement s ON s.apply_id=a.id
         GROUP BY a.id
     </select>

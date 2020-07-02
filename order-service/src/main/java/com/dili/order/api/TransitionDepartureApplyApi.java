@@ -130,8 +130,8 @@ public class TransitionDepartureApplyApi {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/getOneByCustomerID", method = {RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getOneByCustomerID(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    @RequestMapping(value = "/getOneByCustomerCardNo", method = {RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getOneByCustomerCardNo(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             return BaseOutput.successData(transitionDepartureApplyService.getOneByCustomerID(transitionDepartureApply));
         } catch (Exception e) {
