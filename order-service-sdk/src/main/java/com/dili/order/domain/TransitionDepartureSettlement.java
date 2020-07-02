@@ -467,7 +467,7 @@ public class TransitionDepartureSettlement extends BaseDomain {
      *
      * @return trans_type_id - 交易类型id（外省菜，省内菜等）（数据字典）
      */
-    @FieldDef(label = "交易类型id（外省菜，省内菜等）（数据字典）")
+    @FieldDef(label = "交易类型id（外省菜，省内菜等）（数据字典）",maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     public String getTransTypeId() {
         return transTypeId;
