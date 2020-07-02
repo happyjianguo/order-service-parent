@@ -226,7 +226,7 @@
         FROM transition_departure_apply a
         WHERE 1 = 1
           AND a.approval_state = 2
-          AND a.pay_status IN ( 1, 3 )
+          AND (a.pay_status IN ( 1, 3 ) or a.pay_status is null)
           AND a.approval_time=
           (
           SELECT max( a.approval_time ) FROM transition_departure_apply a
