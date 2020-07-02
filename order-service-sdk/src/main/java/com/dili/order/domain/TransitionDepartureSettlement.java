@@ -41,6 +41,12 @@ public class TransitionDepartureSettlement extends BaseDomain {
     private Long applyId;
 
     /**
+     * 转离场申请单code
+     */
+    @Column(name = "`apply_code`")
+    private Long applyCode;
+
+    /**
      * 客户id
      */
     @Column(name = "`customer_id`")
@@ -958,5 +964,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setDepartments(List<Integer> departments) {
         this.departments = departments;
+    }
+
+    public Long getApplyCode() {
+        return applyCode;
+    }
+
+    public void setApplyCode(Long applyCode) {
+        this.applyCode = applyCode;
     }
 }
