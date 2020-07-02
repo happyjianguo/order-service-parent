@@ -14,7 +14,7 @@
         <result column="customer_card_no" jdbcType="VARCHAR" property="customerCardNo"/>
         <result column="customer_department_id" jdbcType="BIGINT" property="customerDepartmentId"/>
         <result column="customer_department_name" jdbcType="VARCHAR" property="customerDepartmentName"/>
-        <result column="trans_type_id" jdbcType="BIGINT" property="transTypeId"/>
+        <result column="trans_type_id" property="transTypeId"/>
         <result column="category_id" jdbcType="BIGINT" property="categoryId"/>
         <result column="category_name" jdbcType="VARCHAR" property="categoryName"/>
         <result column="plate" jdbcType="VARCHAR" property="plate"/>
@@ -84,8 +84,8 @@
             <if test="customerDepartmentName != null">
                 customer_department_name = #{customerDepartmentName,jdbcType=VARCHAR},
             </if>
-            <if test="transTypeId != null">
-                trans_type_id = #{transTypeId,jdbcType=BIGINT},
+            <if test="transTypeId != null and transTypeId!=''">
+                trans_type_id = #{transTypeId,jdbcType=VARCHAR},
             </if>
             <if test="categoryId != null">
                 category_id = #{categoryId,jdbcType=BIGINT},
