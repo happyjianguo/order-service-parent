@@ -86,7 +86,7 @@ public class TransitionDepartureSettlement extends BaseDomain {
      * 交易类型id（外省菜，省内菜等）（数据字典）
      */
     @Column(name = "`trans_type_id`")
-    private Long transTypeId;
+    private String transTypeId;
 
     /**
      * 商品id
@@ -468,8 +468,8 @@ public class TransitionDepartureSettlement extends BaseDomain {
      * @return trans_type_id - 交易类型id（外省菜，省内菜等）（数据字典）
      */
     @FieldDef(label = "交易类型id（外省菜，省内菜等）（数据字典）")
-    @EditMode(editor = FieldEditor.Number, required = false)
-    public Long getTransTypeId() {
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getTransTypeId() {
         return transTypeId;
     }
 
@@ -478,7 +478,7 @@ public class TransitionDepartureSettlement extends BaseDomain {
      *
      * @param transTypeId 交易类型id（外省菜，省内菜等）（数据字典）
      */
-    public void setTransTypeId(Long transTypeId) {
+    public void setTransTypeId(String transTypeId) {
         this.transTypeId = transTypeId;
     }
 
