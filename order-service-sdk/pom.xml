@@ -74,7 +74,11 @@
 	</build>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>com.dili</groupId>
+			<artifactId>rule-sdk</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<!-- spring boot 基类 -->
 		<dependency>
 			<groupId>com.dili</groupId>
