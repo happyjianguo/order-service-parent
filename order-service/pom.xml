@@ -30,6 +30,7 @@
 	</parent>
 
 	<build>
+		<finalName>orders-service</finalName>
 		<!-- 资源文件过滤 -->
 		<resources>
 			<resource>
