@@ -187,6 +187,9 @@
         <if test="userId != null">
             AND (operator_id=#{userId} or revocator_id=#{userId})
         </if>
+        <if test="paymentNo != null and paymentNo!=''">
+            AND payment_no = #{paymentNo}
+        </if>
         <if test="departments != null">
             AND customer_department_id IN
             (
