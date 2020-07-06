@@ -11,6 +11,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,6 +28,8 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
 
     @Override
     public TransitionDepartureApply getOneByCustomerID(TransitionDepartureApply transitionDepartureApply) {
+        transitionDepartureApply.setBeginTime(getTodayStart());
+        transitionDepartureApply.setEndTime(getTodayEnd());
         return getActualDao().getOneByCustomerID(transitionDepartureApply);
     }
 
@@ -44,4 +48,31 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         output.setData(list).setPageNum(pageNum).setTotal(total.intValue()).setPageSize(transitionDepartureApply.getPage()).setPages(totalPage);
         return output;
     }
+
+    /**
+     * 获取一天的开始时间
+     */
+    public Date getTodayStart() {
+        Calendar todayStart = Calendar.getInstance();
+        todayStart.set(Calendar.HOUR_OF_DAY, 0);
+        todayStart.set(Calendar.MINUTE, 0);
+        todayStart.set(Calendar.SECOND, 0);
+        todayStart.set(Calendar.MILLISECOND, 0);
+        return todayStart.getTime();
+
+    }
+
+    /**
+     * 获取一天的结束时间
+     */
+    public Date getTodayEnd() {
+        Calendar todayEnd = Calendar.getInstance();
+        todayEnd.set(Calendar.HOUR_OF_DAY, 23);
+        todayEnd.set(Calendar.MINUTE, 59);
+        todayEnd.set(Calendar.SECOND, 59);
+        todayEnd.set(Calendar.MILLISECOND, 999);
+        return todayEnd.getTime();
+    }
+
+
 }
