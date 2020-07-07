@@ -7,10 +7,7 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,6 +48,16 @@ public class TransitionDepartureSettlementApi {
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
+    /**
+     * 根据id查询结算单信息
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
+    BaseOutput<TransitionDepartureSettlement> getOneById(@PathVariable(value = "id") Long id) {
+        return BaseOutput.successData(transitionDepartureSettlementService.get(id));
+    }
 
     /**
      * 新增TransitionDepartureSettlement
@@ -82,7 +89,7 @@ public class TransitionDepartureSettlementApi {
     public BaseOutput update(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         try {
             transitionDepartureSettlementService.updateSelective(transitionDepartureSettlement);
-            return BaseOutput.success("修改成功");
+            return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("修改失败" + e.getMessage());

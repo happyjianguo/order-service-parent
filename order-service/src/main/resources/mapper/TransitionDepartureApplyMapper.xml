@@ -174,7 +174,7 @@
         <result column="customer_id" jdbcType="BIGINT" property="customerId"/>
         <result column="customer_code" jdbcType="VARCHAR" property="customerCode"/>
         <result column="customer_name" jdbcType="VARCHAR" property="customerName"/>
-        <result column="trans_type_id"  property="transTypeId"/>
+        <result column="trans_type_id" jdbcType="VARCHAR" property="transTypeId"/>
         <result column="category_id" jdbcType="BIGINT" property="categoryId"/>
         <result column="category_name" jdbcType="VARCHAR" property="categoryName"/>
         <result column="plate" jdbcType="VARCHAR" property="plate"/>
@@ -233,7 +233,11 @@
           AND a.approval_time=
           (
           SELECT max( a.approval_time ) FROM transition_departure_apply a
-          Where 1 = 1 AND a.customer_card_no = #{customerCardNo} GROUP BY a.customer_id
+          Where 1 = 1
+            AND a.customer_card_no = #{customerCardNo}
+            AND a.approval_time  <![CDATA[>=]]> #{beginTime}
+            AND a.approval_time  <![CDATA[<=]]> #{endTime}
+          GROUP BY a.customer_id
           )
           AND a.customer_card_no = #{customerCardNo})a
         LEFT JOIN transition_departure_settlement s ON s.apply_id=a.id
