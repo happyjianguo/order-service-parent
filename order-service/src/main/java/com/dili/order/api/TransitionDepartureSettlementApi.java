@@ -82,7 +82,7 @@ public class TransitionDepartureSettlementApi {
     public BaseOutput update(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         try {
             transitionDepartureSettlementService.updateSelective(transitionDepartureSettlement);
-            return BaseOutput.success("修改成功");
+            return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("修改失败" + e.getMessage());
