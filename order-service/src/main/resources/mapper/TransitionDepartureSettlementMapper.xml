@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dili.order.mapper.TransitionDepartureSettlementMapper">
-    <resultMap id="BaseResultMap" type="com.dili.order.domain.TransitionDepartureSettlement">
+<mapper namespace="com.dili.orders.mapper.TransitionDepartureSettlementMapper">
+    <resultMap id="BaseResultMap" type="com.dili.orders.domain.TransitionDepartureSettlement">
         <!--
           WARNING - @mbg.generated
         -->
@@ -57,7 +57,7 @@
         where id = #{id,jdbcType=BIGINT}
     </select>
 
-    <update id="updateBy" parameterType="com.dili.order.domain.TransitionDepartureSettlement">
+    <update id="updateBy" parameterType="com.dili.orders.domain.TransitionDepartureSettlement">
         update transition_departure_settlement
         <set>
             <if test="code != null">
@@ -154,7 +154,7 @@
         where id = #{id,jdbcType=BIGINT}
     </update>
 
-    <select id="listByQueryParams" resultType="com.dili.order.domain.TransitionDepartureSettlement">
+    <select id="listByQueryParams" resultType="com.dili.orders.domain.TransitionDepartureSettlement">
         SELECT
           *
         FROM transition_departure_settlement s
@@ -199,7 +199,7 @@
             )
         </if>
     </select>
-    <select id="scheduleUpdateSelect" resultType="com.dili.order.domain.TransitionDepartureSettlement">
+    <select id="scheduleUpdateSelect" resultType="com.dili.orders.domain.TransitionDepartureSettlement">
         SELECT
         *
         FROM transition_departure_settlement s

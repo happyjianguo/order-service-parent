@@ -28,11 +28,11 @@
 		<!-- MyBatis Generator -->
 		<!-- Java接口和实体类 -->
 		<targetJavaProject>${basedir}/src/main/java</targetJavaProject>
-		<targetMapperPackage>com.dili.order.mapper</targetMapperPackage>
-		<targetModelPackage>com.dili.order.domain</targetModelPackage>
-		<targetServicePackage>com.dili.order.service</targetServicePackage>
-		<targetProviderPackage>com.dili.order.provider</targetProviderPackage>
-		<targetControllerPackage>com.dili.order.api</targetControllerPackage>
+		<targetMapperPackage>com.dili.orders.mapper</targetMapperPackage>
+		<targetModelPackage>com.dili.orders.domain</targetModelPackage>
+		<targetServicePackage>com.dili.orders.service</targetServicePackage>
+		<targetProviderPackage>com.dili.orders.provider</targetProviderPackage>
+		<targetControllerPackage>com.dili.orders.api</targetControllerPackage>
 		<templateRootDir>${basedir}/mbg-templates</templateRootDir>
 		<projectdir>${basedir}</projectdir>
 

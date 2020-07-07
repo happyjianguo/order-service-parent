@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dili.order.mapper.WeighingStatementMapper">
-  <resultMap id="BaseResultMap" type="com.dili.order.domain.WeighingStatement">
+<mapper namespace="com.dili.orders.mapper.WeighingStatementMapper">
+  <resultMap id="BaseResultMap" type="com.dili.orders.domain.WeighingStatement">
     <!--
       WARNING - @mbg.generated
     -->
@@ -44,7 +44,7 @@
     from weighing_statement
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <update id="updateBy" parameterType="com.dili.order.domain.WeighingStatement">
+  <update id="updateBy" parameterType="com.dili.orders.domain.WeighingStatement">
     <!--
       WARNING - @mbg.generated
     -->
