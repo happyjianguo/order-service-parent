@@ -48,6 +48,12 @@ public class TransitionDepartureSettlementApi {
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
+    /**
+     * 根据id查询结算单信息
+     *
+     * @param id
+     * @return
+     */
     @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
     BaseOutput<TransitionDepartureSettlement> getOneById(@PathVariable(value = "id") Long id) {
         return BaseOutput.successData(transitionDepartureSettlementService.get(id));
