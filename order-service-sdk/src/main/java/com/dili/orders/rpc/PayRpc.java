@@ -1,4 +1,4 @@
-package com.dili.order.rpc;
+package com.dili.orders.rpc;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +13,7 @@ import com.dili.order.dto.PaymentTradeCommitDto;
 import com.dili.order.dto.PaymentPreauthorizedTradeCommitDto;
 import com.dili.order.dto.PaymentTradeCommitResponseDto;
 import com.dili.order.dto.PaymentTradePrepareDto;
+import com.dili.order.rpc.PaymentTradeConfirmDto;
 import com.dili.ss.domain.BaseOutput;
 
 import feign.Headers;

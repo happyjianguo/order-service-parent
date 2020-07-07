@@ -1,4 +1,4 @@
-package com.dili.order.rpc;
+package com.dili.orders.rpc;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
