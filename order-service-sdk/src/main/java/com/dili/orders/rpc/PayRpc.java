@@ -1,5 +1,6 @@
 package com.dili.orders.rpc;
 
+import com.dili.orders.config.PayServiceFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ import com.dili.ss.domain.BaseOutput;
 
 import feign.Headers;
 
-@FeignClient(name = "pay-service", contextId = "pay")
+@FeignClient(name = "pay-service", contextId = "pay", configuration = PayServiceFeignConfig.class)
 public interface PayRpc {
 
     /**
@@ -77,7 +78,6 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_PAY})
     @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> pay(@RequestBody PaymentTradeCommitDto dto);
 
@@ -87,7 +87,6 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_CANCEL_PAY})
     @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> cancel2(@RequestBody PaymentTradeCommitDto dto);
 }
