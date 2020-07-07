@@ -7,10 +7,7 @@ import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,6 +48,10 @@ public class TransitionDepartureSettlementApi {
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
+    @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
+    BaseOutput<TransitionDepartureSettlement> getOneById(@PathVariable(value = "id") Long id) {
+        return BaseOutput.successData(transitionDepartureSettlementService.get(id));
+    }
 
     /**
      * 新增TransitionDepartureSettlement
