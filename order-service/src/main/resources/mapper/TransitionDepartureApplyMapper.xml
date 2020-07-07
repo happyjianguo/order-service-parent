@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dili.order.mapper.TransitionDepartureApplyMapper">
-    <resultMap id="BaseResultMap" type="com.dili.order.domain.TransitionDepartureApply">
+<mapper namespace="com.dili.orders.mapper.TransitionDepartureApplyMapper">
+    <resultMap id="BaseResultMap" type="com.dili.orders.domain.TransitionDepartureApply">
         <!--
           WARNING - @mbg.generated
         -->
@@ -55,7 +55,7 @@
         where id = #{id,jdbcType=BIGINT}
     </select>
 
-    <update id="updateBy" parameterType="com.dili.order.domain.TransitionDepartureApply">
+    <update id="updateBy" parameterType="com.dili.orders.domain.TransitionDepartureApply">
         <!--
           WARNING - @mbg.generated
         -->
@@ -148,7 +148,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <resultMap id="BaseResultMap_PLUS" type="com.dili.order.domain.TransitionDepartureApply">
+    <resultMap id="BaseResultMap_PLUS" type="com.dili.orders.domain.TransitionDepartureApply">
         <id column="aid" jdbcType="BIGINT" property="id"/>
         <result column="customer_id" jdbcType="BIGINT" property="customerId"/>
         <result column="customer_code" jdbcType="VARCHAR" property="customerCode"/>
@@ -159,7 +159,7 @@
         <result column="plate" jdbcType="VARCHAR" property="plate"/>
         <result column="biz_type" jdbcType="INTEGER" property="bizType"/>
         <collection property="list" javaType="java.util.List"
-                    ofType="com.dili.order.domain.TransitionDepartureSettlement">
+                    ofType="com.dili.orders.domain.TransitionDepartureSettlement">
             <id column="sid" jdbcType="BIGINT" property="id"></id>
             <result column="sgross_weight" property="grossWeight"></result>
             <result column="snet_weight" property="netWeight"></result>
@@ -168,7 +168,7 @@
         </collection>
     </resultMap>
     <!--按道理是一个申请单对应多个结算单，但是为了方便，我在这里搞成一对一，因为只查询一个最新的申请单，然后对应的一个未结算的结算单，所以最后是一对一的-->
-    <resultMap id="BaseResultMap_oneToOne" type="com.dili.order.domain.TransitionDepartureApply">
+    <resultMap id="BaseResultMap_oneToOne" type="com.dili.orders.domain.TransitionDepartureApply">
         <id column="aid" jdbcType="BIGINT" property="id"/>
         <result column="code" property="code"/>
         <result column="customer_id" jdbcType="BIGINT" property="customerId"/>
@@ -182,7 +182,7 @@
         <result column="car_type_id" jdbcType="INTEGER" property="carTypeId"/>
         <result column="car_type_name" jdbcType="INTEGER" property="carTypeName"/>
         <association property="transitionDepartureSettlement"
-                     javaType="com.dili.order.domain.TransitionDepartureSettlement">
+                     javaType="com.dili.orders.domain.TransitionDepartureSettlement">
             <id column="sid" jdbcType="BIGINT" property="id"></id>
             <result column="sgross_weight" property="grossWeight"></result>
             <result column="snet_weight" property="netWeight"></result>
@@ -191,7 +191,7 @@
         </association>
     </resultMap>
     <!--按道理是一个申请单对应多个结算单，但是为了方便，我在这里搞成一对一，因为只查询一个最新的申请单，然后对应的一个未结算的结算单，所以最后是一对一的-->
-    <select id="getOneByCustomerID" parameterType="com.dili.order.domain.TransitionDepartureApply"
+    <select id="getOneByCustomerID" parameterType="com.dili.orders.domain.TransitionDepartureApply"
             resultMap="BaseResultMap_oneToOne">
         select
           a.id AS 'aid',
@@ -244,8 +244,8 @@
         GROUP BY a.id
     </select>
 
-    <select id="listByQueryParams" parameterType="com.dili.order.domain.TransitionDepartureApply"
-            resultType="com.dili.order.domain.TransitionDepartureApply">
+    <select id="listByQueryParams" parameterType="com.dili.orders.domain.TransitionDepartureApply"
+            resultType="com.dili.orders.domain.TransitionDepartureApply">
         SELECT
         *
         FROM transition_departure_apply a

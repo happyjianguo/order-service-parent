@@ -17,10 +17,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 由MyBatis Generator工具自动生成
  */
 @SpringBootApplication
-@MapperScan(basePackages = { "com.dili.order.mapper", "com.dili.ss.dao" })
+@MapperScan(basePackages = { "com.dili.orders.mapper", "com.dili.ss.dao" })
 @ComponentScan(basePackages = { "com.dili.ss", "com.dili.order" })
-@RestfulScan({ "com.dili.order.rpc", "com.dili.uap.sdk.rpc" })
-@DTOScan(value = { "com.dili.ss", "com.dili.order.domain" })
+@RestfulScan({ "com.dili.orders.rpc", "com.dili.uap.sdk.rpc" })
+@DTOScan(value = { "com.dili.ss", "com.dili.orders.domain" })
 @EnableDiscoveryClient
 @EnableFeignClients
 
