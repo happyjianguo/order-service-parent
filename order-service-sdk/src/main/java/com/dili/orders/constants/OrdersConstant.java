@@ -42,4 +42,9 @@ public class OrdersConstant {
      */
     public static final String PAYMENT_TRADE_SERVICE_PAY = "payment.trade.service:commit4";
 
+    /**
+     * 撤销交易
+     */
+    public static final String PAYMENT_TRADE_SERVICE_CANCEL_PAY = "payment.trade.service:cancel2";
+
 }

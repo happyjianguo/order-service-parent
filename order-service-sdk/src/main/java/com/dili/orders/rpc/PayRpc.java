@@ -80,4 +80,14 @@ public interface PayRpc {
     @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_PAY})
     @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> pay(@RequestBody PaymentTradeCommitDto dto);
+
+    /**
+     * 撤销
+     *
+     * @param dto
+     * @return 交易号
+     */
+    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_CANCEL_PAY})
+    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    BaseOutput<PaymentTradeCommitResponseDto> cancel2(@RequestBody PaymentTradeCommitDto dto);
 }
