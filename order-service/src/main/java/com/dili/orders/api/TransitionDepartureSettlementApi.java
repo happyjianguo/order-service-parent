@@ -130,4 +130,15 @@ public class TransitionDepartureSettlementApi {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 新增一个结算单
+     *
+     * @param transitionDepartureSettlement
+     * @return
+     */
+    @RequestMapping(value = "/insertTransitionDepartureSettlement", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
+        return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement);
+    }
 }

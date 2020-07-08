@@ -3,6 +3,7 @@ package com.dili.orders.service;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.ss.base.BaseService;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 
 import java.text.ParseException;
@@ -23,8 +24,11 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
 
     /**
      * 定时任务，每天凌晨12点更新当天为结算的单子，支付状态更改为已关闭状态
-     *
-     * @param transitionDepartureSettlement
      */
     void scheduleUpdate() throws ParseException;
+
+    /**
+     * 支付
+     */
+    BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement);
 }

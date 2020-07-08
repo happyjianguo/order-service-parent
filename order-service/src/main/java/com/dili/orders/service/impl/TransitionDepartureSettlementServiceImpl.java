@@ -1,10 +1,20 @@
 package com.dili.orders.service.impl;
 
+import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
+import com.dili.orders.dto.CreateTradeResponseDto;
+import com.dili.orders.dto.PaymentTradePrepareDto;
+import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
+import com.dili.orders.rpc.AccountRpc;
+import com.dili.orders.rpc.JmsfRpc;
+import com.dili.orders.rpc.PayRpc;
+import com.dili.orders.rpc.UidRpc;
+import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -33,6 +43,21 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private TransitionDepartureApplyMapper transitionDepartureApplyMapper;
+
+    @Autowired
+    private TransitionDepartureApplyService transitionDepartureApplyService;
+
+    @Autowired
+    private UidRpc uidRpc;
+
+    @Autowired
+    private JmsfRpc jmsfRpc;
+
+    @Autowired
+    private AccountRpc accountRpc;
+
+    @Autowired
+    private PayRpc payRpc;
 
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
@@ -75,6 +100,40 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             transitionDepartureApplyMapper.scheduleUpdate(applyIds);
             getActualDao().scheduleUpdate(settlementIds);
         }
+    }
+
+    @Override
+    public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement) {
+        //设置支付状态为未结算
+        transitionDepartureSettlement.setPayStatus(1);
+        //根据申请单id拿到申请单，修改申请单的支付状态为1（未结算）
+        TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
+        if (Objects.isNull(transitionDepartureApply)) {
+            throw new RuntimeException("转离场支付-->未找到相关申请单");
+        }
+        transitionDepartureApply.setPayStatus(1);
+        transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+        //更新完成之后，插入缴费单信息，必须在这之前发起请求，到支付系统，拿到支付单号
+        PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        if (!oneAccountCard.isSuccess()) {
+            throw new RuntimeException("转离场结算单新增-->根据卡号获取账户信息失败");
+        }
+        //请求与支付，两边的账户id对应关系如下
+        paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
+        paymentTradePrepareDto.setType(12);
+        paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
+        paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
+        BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepare(paymentTradePrepareDto);
+        if (!prepare.isSuccess()) {
+            throw new RuntimeException("转离场结算单新增-->创建交易失败");
+        }
+        //设置交易单号
+        transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
+        //根据uid设置结算单的code
+        transitionDepartureSettlement.setCode(uidRpc.getCode().getData());
+        getActualDao().insert(transitionDepartureSettlement);
+        return BaseOutput.successData(transitionDepartureSettlement);
     }
 
     /**
