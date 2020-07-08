@@ -26,5 +26,5 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
      *
      * @param transitionDepartureSettlement
      */
-    void scheduleUpdate(TransitionDepartureSettlement transitionDepartureSettlement) throws ParseException;
+    void scheduleUpdate() throws ParseException;
 }

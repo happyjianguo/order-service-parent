@@ -120,17 +120,14 @@ public class TransitionDepartureSettlementApi {
     /**
      * 定时任务，每天凌晨12点更新当天为结算的单子，支付状态更改为已关闭状态
      *
-     * @param transitionDepartureSettlement
      * @return
      */
     @RequestMapping(value = "/scheduleUpdate", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput scheduleUpdate(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
+    public void scheduleUpdate() {
         try {
-            transitionDepartureSettlementService.scheduleUpdate(transitionDepartureSettlement);
-            return BaseOutput.success();
+            transitionDepartureSettlementService.scheduleUpdate();
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("操作失败" + e.getMessage());
         }
     }
 }
