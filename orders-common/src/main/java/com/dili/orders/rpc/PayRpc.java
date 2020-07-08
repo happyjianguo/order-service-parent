@@ -1,15 +1,20 @@
 package com.dili.orders.rpc;
 
-import com.dili.orders.config.PayServiceFeignConfig;
-import com.dili.orders.constants.OrdersConstant;
-import com.dili.orders.dto.*;
-import com.dili.ss.domain.BaseOutput;
-import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.dili.orders.config.PayServiceFeignConfig;
+import com.dili.orders.dto.AccountBalanceDto;
+import com.dili.orders.dto.AccountRequestDto;
+import com.dili.orders.dto.CreateTradeResponseDto;
+import com.dili.orders.dto.PaymentTradeCancelDto;
+import com.dili.orders.dto.PaymentTradeCommitDto;
+import com.dili.orders.dto.PaymentTradeCommitResponseDto;
+import com.dili.orders.dto.PaymentTradeConfirmDto;
+import com.dili.orders.dto.PaymentTradePrepareDto;
+import com.dili.ss.domain.BaseOutput;
 
 @FeignClient(name = "pay-service", contextId = "pay", configuration = PayServiceFeignConfig.class)
 public interface PayRpc {
@@ -30,7 +35,7 @@ public interface PayRpc {
      * @return 交易号
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:prepare", method = RequestMethod.POST)
-    BaseOutput<CreateTradeResponseDto> prepare(@RequestBody PaymentTradePrepareDto dto);
+    BaseOutput<CreateTradeResponseDto> prepareTrade(@RequestBody PaymentTradePrepareDto dto);
 
     /**
      * 提交预授权交易
@@ -57,7 +62,7 @@ public interface PayRpc {
      * @return 交易号
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
-    BaseOutput<PaymentTradeCommitResponseDto> commit(@RequestBody PaymentTradeCommitDto dto);
+    BaseOutput<PaymentTradeCommitResponseDto> commitTrade(@RequestBody PaymentTradeCommitDto dto);
 
     /**
      * 缴费
@@ -66,7 +71,7 @@ public interface PayRpc {
      * @return 交易号
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
-    BaseOutput<PaymentTradeCommitResponseDto> commit4(@RequestBody PaymentTradeCommitDto dto);
+    BaseOutput<PaymentTradeCommitResponseDto> pay(@RequestBody PaymentTradeCommitDto dto);
 
     /**
      * 撤销
@@ -75,5 +80,5 @@ public interface PayRpc {
      * @return 交易号
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:confirm", method = RequestMethod.POST)
-    BaseOutput<PaymentTradeCommitResponseDto> cancel2(@RequestBody PaymentTradeCommitDto dto);
+    BaseOutput<PaymentTradeCommitResponseDto> cancel(@RequestBody PaymentTradeCommitDto dto);
 }

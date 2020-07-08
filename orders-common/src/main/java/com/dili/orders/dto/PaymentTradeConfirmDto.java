@@ -1,9 +1,6 @@
-package com.dili.orders.rpc;
+package com.dili.orders.dto;
 
 import java.util.List;
-
-import com.dili.orders.dto.AccountRequestDto;
-import com.dili.orders.dto.FeeDto;
 
 /**
  * 确认预授权交易请求参数类

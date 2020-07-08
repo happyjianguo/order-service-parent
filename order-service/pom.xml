@@ -90,6 +90,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dili</groupId>
+			<artifactId>orders-common</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dili</groupId>
 			<artifactId>jmsf-microservice-sdk</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
