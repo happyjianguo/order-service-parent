@@ -38,7 +38,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit7", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> confirm(@RequestBody PaymentTradeConfirmDto dto);
 
     /**
@@ -47,7 +47,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:cancel1", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:cancel", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> confirm(@RequestBody PaymentTradeCancelDto dto);
 
     /**
@@ -56,7 +56,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit5", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> commit(@RequestBody PaymentTradeCommitDto dto);
 
     /**
@@ -65,7 +65,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit4", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> commit4(@RequestBody PaymentTradeCommitDto dto);
 
     /**
@@ -74,6 +74,6 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:cancel2", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:confirm", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> cancel2(@RequestBody PaymentTradeCommitDto dto);
 }
