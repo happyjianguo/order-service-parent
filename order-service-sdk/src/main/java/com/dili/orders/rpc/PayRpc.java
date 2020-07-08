@@ -30,7 +30,7 @@ public interface PayRpc {
      * @return 交易号
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:prepare", method = RequestMethod.POST)
-    BaseOutput<String> prepare(@RequestBody PaymentTradePrepareDto dto);
+    BaseOutput<CreateTradeResponseDto> prepare(@RequestBody PaymentTradePrepareDto dto);
 
     /**
      * 提交预授权交易
