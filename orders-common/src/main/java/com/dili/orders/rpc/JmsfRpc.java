@@ -25,6 +25,6 @@ public interface JmsfRpc {
 	 * @return
 	 */
 	@RequestMapping("/api/truck/deleteById")
-	BaseOutput<Object> removeTareNumber(@RequestParam Long id);
+	BaseOutput<Object> removeTareNumber(@RequestParam(value = "id") Long id);
 
 }
