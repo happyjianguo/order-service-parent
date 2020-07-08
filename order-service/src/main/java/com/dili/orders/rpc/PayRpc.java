@@ -12,8 +12,8 @@ import com.dili.orders.dto.PaymentTradeCancelDto;
 import com.dili.orders.dto.PaymentTradeCommitDto;
 import com.dili.orders.dto.PaymentPreauthorizedTradeCommitDto;
 import com.dili.orders.dto.PaymentTradeCommitResponseDto;
+import com.dili.orders.dto.PaymentTradeConfirmDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
-import com.dili.orders.rpc.PaymentTradeConfirmDto;
 import com.dili.ss.domain.BaseOutput;
 
 import feign.Headers;
@@ -89,5 +89,5 @@ public interface PayRpc {
      */
     @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_CANCEL_PAY})
     @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
-    BaseOutput<PaymentTradeCommitResponseDto> cancel2(@RequestBody PaymentTradeCommitDto dto);
+    BaseOutput<PaymentTradeCommitResponseDto> cancel(@RequestBody PaymentTradeCommitDto dto);
 }
