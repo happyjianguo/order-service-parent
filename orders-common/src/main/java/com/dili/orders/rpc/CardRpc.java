@@ -11,7 +11,7 @@ import com.dili.ss.domain.BaseOutput;
 /**
  * 根据卡号获取账户信息
  */
-@FeignClient(name = "dili-card", contextId = "card", url = "10.28.1.185")
+@FeignClient(name = "dili-card", contextId = "card", url = "10.28.1.185:8385")
 public interface CardRpc {
     /**
      * 根据卡号获取账户信息
