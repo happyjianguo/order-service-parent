@@ -151,4 +151,14 @@ public class TransitionDepartureSettlementApi {
     public BaseOutput<TransitionDepartureSettlement> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password) {
         return transitionDepartureSettlementService.pay(id, password);
     }
+
+    /**
+     * 撤销交易
+     *
+     * @return
+     */
+    @RequestMapping(value = "/revocator", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
+        return transitionDepartureSettlementService.revocator(transitionDepartureSettlement);
+    }
 }

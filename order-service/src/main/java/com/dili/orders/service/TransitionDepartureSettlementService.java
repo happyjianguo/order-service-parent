@@ -36,4 +36,9 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
      * 支付
      */
     BaseOutput pay(Long id, String password);
+
+    /**
+     * 撤销
+     */
+    BaseOutput<TransitionDepartureSettlement> revocator(com.dili.orders.domain.TransitionDepartureSettlement transitionDepartureSettlement);
 }
