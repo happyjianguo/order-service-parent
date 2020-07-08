@@ -1,23 +1,14 @@
 package com.dili.orders.rpc;
 
 import com.dili.orders.config.PayServiceFeignConfig;
+import com.dili.orders.constants.OrdersConstant;
+import com.dili.orders.dto.*;
+import com.dili.ss.domain.BaseOutput;
+import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.dili.orders.constants.OrdersConstant;
-import com.dili.orders.dto.AccountBalanceDto;
-import com.dili.orders.dto.AccountRequestDto;
-import com.dili.orders.dto.PaymentTradeCancelDto;
-import com.dili.orders.dto.PaymentTradeCommitDto;
-import com.dili.orders.dto.PaymentPreauthorizedTradeCommitDto;
-import com.dili.orders.dto.PaymentTradeCommitResponseDto;
-import com.dili.orders.dto.PaymentTradePrepareDto;
-import com.dili.orders.rpc.PaymentTradeConfirmDto;
-import com.dili.ss.domain.BaseOutput;
-
-import feign.Headers;
 
 @FeignClient(name = "pay-service", contextId = "pay", configuration = PayServiceFeignConfig.class)
 public interface PayRpc {
@@ -38,7 +29,6 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_PREPARE})
     @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
     BaseOutput<String> prepare(@RequestBody PaymentTradePrepareDto dto);
 

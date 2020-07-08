@@ -44,7 +44,7 @@ public class TransitionDepartureSettlementApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.GET, RequestMethod.POST})
-    public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) throws Exception {
+    public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
