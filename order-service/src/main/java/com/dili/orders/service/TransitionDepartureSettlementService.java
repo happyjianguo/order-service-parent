@@ -28,7 +28,12 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
     void scheduleUpdate() throws ParseException;
 
     /**
-     * 支付
+     * 新增
      */
     BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement);
+
+    /**
+     * 支付
+     */
+    BaseOutput pay(Long id, String password);
 }

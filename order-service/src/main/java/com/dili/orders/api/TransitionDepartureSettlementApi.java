@@ -141,4 +141,14 @@ public class TransitionDepartureSettlementApi {
     public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement);
     }
+
+    /**
+     * 结算单支付
+     *
+     * @return
+     */
+    @RequestMapping(value = "/pay", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput<TransitionDepartureSettlement> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password) {
+        return transitionDepartureSettlementService.pay(id, password);
+    }
 }

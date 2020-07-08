@@ -2,9 +2,7 @@ package com.dili.orders.service.impl;
 
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
-import com.dili.orders.dto.CreateTradeResponseDto;
-import com.dili.orders.dto.PaymentTradePrepareDto;
-import com.dili.orders.dto.UserAccountCardResponseDto;
+import com.dili.orders.dto.*;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
 import com.dili.orders.rpc.AccountRpc;
@@ -19,6 +17,7 @@ import com.dili.ss.domain.PageOutput;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.codehaus.jackson.map.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -103,6 +103,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement) {
         //设置支付状态为未结算
         transitionDepartureSettlement.setPayStatus(1);
@@ -112,7 +113,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("转离场支付-->未找到相关申请单");
         }
         transitionDepartureApply.setPayStatus(1);
-        transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+        int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+        if (i <= 0) {
+            return BaseOutput.failure("转离场保存-->修改申请单失败");
+        }
         //更新完成之后，插入缴费单信息，必须在这之前发起请求，到支付系统，拿到支付单号
         PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
@@ -124,7 +128,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         paymentTradePrepareDto.setType(12);
         paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
         paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
-        BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepare(paymentTradePrepareDto);
+        BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
         if (!prepare.isSuccess()) {
             throw new RuntimeException("转离场结算单新增-->创建交易失败");
         }
@@ -132,7 +136,73 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
         //根据uid设置结算单的code
         transitionDepartureSettlement.setCode(uidRpc.getCode().getData());
-        getActualDao().insert(transitionDepartureSettlement);
+        int insert = getActualDao().insert(transitionDepartureSettlement);
+        if (insert <= 0) {
+            throw new RuntimeException("转离场结算单新增-->创建转离场结算单失败");
+        }
+        return BaseOutput.successData(transitionDepartureSettlement);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public BaseOutput pay(Long id, String password) {
+        //根据id获取当前的结算单信息
+        TransitionDepartureSettlement transitionDepartureSettlement = get(id);
+        //判断结算单的支付状态是否为1（未结算）,不是则直接返回
+        if (transitionDepartureSettlement.getPayStatus() != 1) {
+            return BaseOutput.failure("只有未结算的结算单可以结算");
+        }
+        //设置为已支付状态
+        transitionDepartureSettlement.setPayStatus(2);
+        //根据结算单apply_id获取到对应申请单
+        TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
+        //判断申请单是否存在
+        if (Objects.isNull(transitionDepartureApply)) {
+            return BaseOutput.failure("申请单不存在");
+        }
+        //获取到申请单
+        //设置申请单支付状态为已支付
+        transitionDepartureApply.setPayStatus(2);
+        int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+        if (i <= 0) {
+            return BaseOutput.failure("修改申请单状态失败");
+        }
+        transitionDepartureSettlement.setPayTime(LocalDateTime.now());
+        //修改结算单的支付状态
+        int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+        if (i1 <= 0) {
+            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
+        }
+        //再调用支付
+        //首先根据卡号拿倒账户信息
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        if (!oneAccountCard.isSuccess()) {
+            throw new RuntimeException("转离场结算单支付-->查询账户失败");
+        }
+        //构建支付对象
+        UserAccountCardResponseDto userAccountCardResponseDto = oneAccountCard.getData();
+        PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
+        //设置自己账户id
+        paymentTradeCommitDto.setAccountId(userAccountCardResponseDto.getFundAccountId());
+        //设置账户id
+        paymentTradeCommitDto.setBusinessId(userAccountCardResponseDto.getAccountId());
+        //设置密码
+        paymentTradeCommitDto.setPassword(password);
+        //设置交易单号
+        paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
+        //设置费用
+        List<FeeDto> feeDtos = new ArrayList();
+        FeeDto feeDto = new FeeDto();
+        feeDto.setAmount(transitionDepartureSettlement.getChargeAmount());
+        feeDto.setType(31);
+        feeDto.setTypeName("转离场收费");
+        feeDtos.add(feeDto);
+        paymentTradeCommitDto.setFees(feeDtos);
+        //调用rpc支付
+        BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.pay(paymentTradeCommitDto);
+        if (!pay.isSuccess()) {
+            throw new RuntimeException("转离场结算单支付-->支付rpc请求失败");
+        }
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
