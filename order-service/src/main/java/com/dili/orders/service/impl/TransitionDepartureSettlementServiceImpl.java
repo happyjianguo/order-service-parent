@@ -52,7 +52,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void scheduleUpdate(TransitionDepartureSettlement transitionDepartureSettlement) throws ParseException {
+    public void scheduleUpdate() throws ParseException {
+        TransitionDepartureSettlement transitionDepartureSettlement = new TransitionDepartureSettlement();
         //拿到前一天的0时和23:59:59时
         Map<String, String> beforeDate = getBeforeDate();
         //设置查询参数
