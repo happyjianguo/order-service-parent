@@ -7,6 +7,7 @@ import com.dili.ss.domain.BaseOutput;
 import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -19,8 +20,7 @@ public interface PayRpc {
      * @param query
      * @return
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_FUND_SERVICE_QUERY})
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.fund.service:query", method = RequestMethod.POST)
     BaseOutput<AccountBalanceDto> queryAccountBalance(@RequestBody AccountRequestDto query);
 
     /**
@@ -29,7 +29,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:prepare", method = RequestMethod.POST)
     BaseOutput<String> prepare(@RequestBody PaymentTradePrepareDto dto);
 
     /**
@@ -38,8 +38,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_CONFIRM})
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit7", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> confirm(@RequestBody PaymentTradeConfirmDto dto);
 
     /**
@@ -48,8 +47,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_CANCEL})
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:cancel1", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> confirm(@RequestBody PaymentTradeCancelDto dto);
 
     /**
@@ -58,8 +56,7 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @Headers({"Content-Type:application/json", "appid:" + OrdersConstant.PAYMENT_APP_ID, "token:" + OrdersConstant.PAYMENT_TOKEN, "service:" + OrdersConstant.PAYMENT_TRADE_SERVICE_COMMIT})
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit5", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> commit(@RequestBody PaymentTradeCommitDto dto);
 
     /**
@@ -68,8 +65,8 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
-    BaseOutput<PaymentTradeCommitResponseDto> pay(@RequestBody PaymentTradeCommitDto dto);
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit4", method = RequestMethod.POST)
+    BaseOutput<PaymentTradeCommitResponseDto> commit4(@RequestBody PaymentTradeCommitDto dto);
 
     /**
      * 撤销
@@ -77,6 +74,6 @@ public interface PayRpc {
      * @param dto
      * @return 交易号
      */
-    @RequestMapping(value = "/payment/api/gateway.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:cancel2", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> cancel2(@RequestBody PaymentTradeCommitDto dto);
 }
