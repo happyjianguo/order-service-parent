@@ -2,6 +2,8 @@ package com.dili.orders.api;
 
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.service.TransitionDepartureSettlementService;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
@@ -9,8 +11,11 @@ import com.dili.ss.metadata.ValueProviderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -22,6 +27,9 @@ public class TransitionDepartureSettlementApi {
 
     @Autowired
     TransitionDepartureSettlementService transitionDepartureSettlementService;
+
+    @Autowired
+    private ChargeRuleRpc chargeRuleRpc;
 
 
     /**
@@ -160,5 +168,31 @@ public class TransitionDepartureSettlementApi {
     @RequestMapping(value = "/revocator", method = {RequestMethod.GET, RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         return transitionDepartureSettlementService.revocator(transitionDepartureSettlement);
+    }
+
+
+    /**
+     * 获取计费规则所得到的的金额
+     *
+     * @return
+     */
+    @RequestMapping(value = "/fee", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput getFee(BigDecimal netWeight, Long marketId, Long departmentId) {
+        QueryFeeInput queryFeeInput = new QueryFeeInput();
+        Map<String, Object> map = new HashMap<>();
+        //设置市场id
+        queryFeeInput.setMarketId(marketId);
+        //设置业务类型
+        queryFeeInput.setBusinessType("ZLC_PAY");
+        //设置收费项id
+        queryFeeInput.setChargeItem(32L);
+        map.put("weight", netWeight);
+        queryFeeInput.setCalcParams(map);
+        //构建指标
+        Map<String, Object> map2 = new HashMap();
+        map2.put("id", departmentId);
+        map2.put("marketId", marketId);
+        queryFeeInput.setConditionParams(map2);
+        return chargeRuleRpc.queryFee(queryFeeInput);
     }
 }
