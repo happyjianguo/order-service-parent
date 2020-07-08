@@ -71,7 +71,7 @@ public interface PayRpc {
      * @return 交易号
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
-    BaseOutput<PaymentTradeCommitResponseDto> commit4(@RequestBody PaymentTradeCommitDto dto);
+    BaseOutput<PaymentTradeCommitResponseDto> pay(@RequestBody PaymentTradeCommitDto dto);
 
     /**
      * 撤销
