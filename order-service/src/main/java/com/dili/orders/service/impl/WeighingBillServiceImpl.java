@@ -74,7 +74,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private WeighingStatementMapper weighingStatementMapper;
 
 	@Override
-	public BaseOutput<String> addWeighingBill(WeighingBill weighingBill) {
+	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill) {
 		BaseOutput<String> output = this.uidRpc.getCode();
 		if (!output.isSuccess()) {
 			LOGGER.error(output.getMessage());

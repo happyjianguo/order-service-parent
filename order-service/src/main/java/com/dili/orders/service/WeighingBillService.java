@@ -1,6 +1,7 @@
 package com.dili.orders.service;
 
 import com.dili.orders.domain.WeighingBill;
+import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -16,7 +17,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param weighingBill
 	 * @return
 	 */
-	BaseOutput<String> addWeighingBill(WeighingBill weighingBill);
+	BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill);
 
 	/**
 	 * 修改过磅单

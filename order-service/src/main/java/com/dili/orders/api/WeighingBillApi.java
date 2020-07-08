@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.orders.domain.WeighingBill;
+import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.orders.service.WeighingBillService;
@@ -57,7 +58,7 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/insert", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill) {
-		BaseOutput<String> output = weighingBillService.addWeighingBill(weighingBill);
+		BaseOutput<WeighingStatement> output = weighingBillService.addWeighingBill(weighingBill);
 		return output;
 	}
 
