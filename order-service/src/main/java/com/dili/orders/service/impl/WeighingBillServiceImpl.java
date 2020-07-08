@@ -24,6 +24,7 @@ import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.domain.WeighingStatementState;
 import com.dili.orders.dto.AccountBalanceDto;
 import com.dili.orders.dto.AccountRequestDto;
+import com.dili.orders.dto.CreateTradeResponseDto;
 import com.dili.orders.dto.FeeDto;
 import com.dili.orders.dto.FeeType;
 import com.dili.orders.dto.FeeUse;
@@ -36,11 +37,11 @@ import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
 import com.dili.orders.mapper.WeighingStatementMapper;
-import com.dili.orders.service.WeighingBillService;
 import com.dili.orders.rpc.AccountRpc;
 import com.dili.orders.rpc.JmsfRpc;
 import com.dili.orders.rpc.PayRpc;
 import com.dili.orders.rpc.UidRpc;
+import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -400,9 +401,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			ws.setSellerActualAmount(ws.getFrozenAmount() - 100L);
 		} else {
 			if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-				ws.setTradeAmount(weighingBill.getNetWeight() * weighingBill.getUnitPrice() / 100);
+				ws.setTradeAmount(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2 / 100);
 			} else {
-				ws.setTradeAmount(weighingBill.getUnitAmount() * weighingBill.getUnitWeight() * weighingBill.getUnitPrice() / 100);
+				ws.setTradeAmount(weighingBill.getUnitAmount() * weighingBill.getUnitPrice() / 100);
 			}
 			ws.setBuyerActualAmount(ws.getTradeAmount() + 100L);
 			ws.setSellerActualAmount(ws.getTradeAmount() - 100L);
@@ -429,9 +430,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
 		prepareDto.setSerialNo(weighingBill.getSerialNo());
 		prepareDto.setType(PaymentTradeType.PREAUTHORIZED.getValue());
-		BaseOutput<String> paymentOutput = this.payRpc.prepare(prepareDto);
+		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
 		if (paymentOutput.isSuccess()) {
-			weighingStatement.setPayOrderNo(paymentOutput.getData());
+			weighingStatement.setPayOrderNo(paymentOutput.getData().getTradeId());
 		}
 		return paymentOutput;
 	}
@@ -446,7 +447,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
 		prepareDto.setSerialNo(weighingBill.getSerialNo());
 		prepareDto.setType(PaymentTradeType.TRADE.getValue());
-		BaseOutput<String> paymentOutput = this.payRpc.prepare(prepareDto);
+		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
 		if (!paymentOutput.isSuccess()) {
 			return paymentOutput;
 		}
@@ -476,7 +477,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerFee.setUseFor(FeeUse.BUYER.getValue());
 		fees.add(sellerFee);
 		dto.setFees(fees);
-		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commit(dto);
+		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commitTrade(dto);
 		return commitOutput;
 	}
 }

@@ -20,6 +20,7 @@
 	<modules>
 		<module>order-service</module>
 		<module>order-service-sdk</module>
+		<module>orders-common</module>
 	</modules>
 
 	<properties>
