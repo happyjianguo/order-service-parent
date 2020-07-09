@@ -242,11 +242,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //设置撤销交易的dto
         PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
-        //设置资金账户
-        paymentTradeCommitDto.setAccountId(oneAccountCard.getData().getFundAccountId());
-        //设置密码
-//        paymentTradeCommitDto.setPassword(password);
-        //设置交易号
         paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
         BaseOutput<PaymentTradeCommitResponseDto> paymentTradeCommitResponseDtoBaseOutput = payRpc.cancel(paymentTradeCommitDto);
         if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
@@ -254,6 +249,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         return BaseOutput.successData(transitionDepartureSettlement);
     }
+
 
     /**
      * 定时任务在次日的凌晨五分执行，拿到前一天的日期
