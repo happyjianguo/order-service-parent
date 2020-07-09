@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -53,6 +51,15 @@ public class TransitionDepartureSettlementApi {
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.GET, RequestMethod.POST})
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
+        //如果没有传入时间范围，那默认展示当天的数据
+        //设置开始时间
+        if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
+            transitionDepartureSettlement.setBeginTime(new Date());
+        }
+        //设置结束时间
+        if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
+            transitionDepartureSettlement.setEndTime(new Date());
+        }
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
