@@ -26,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -213,6 +215,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (transitionDepartureSettlement.getPayStatus() != 1) {
             return BaseOutput.failure("只有已结算的结算单可以撤销");
         }
+        //判断当前的这个结算单是否是今天的
+        LocalDate createTime = transitionDepartureSettlement.getCreateTime().toLocalDate();
+        //如果为0，则表示为当天
+        if (LocalDate.now().compareTo(createTime) != 0) {
+            return BaseOutput.failure("只有当天的结算单可以撤销");
+        }
         //设置为已撤销的支付状态
         transitionDepartureSettlement.setPayStatus(3);
         //根据结算单的apply_id拿到申请单信息
@@ -289,6 +297,20 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         map.put("endTime", defaultEndDate);
 
         return map;
+    }
+
+    /**
+     * test
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        LocalDate localDate = LocalDate.now();
+        //指定时间，注意，如果使用下面的这种获取方式，一定要注意必须为严格的yy-mm-dd,9月必须为09,1号必须为01，否则会报错
+        LocalDate localDate1 = LocalDate.parse("2020-07-10");
+        //获取两个日期的天数差，为前一个减去后一个，正数则为前面的日期较晚
+        int i = localDate.compareTo(localDate1);
+        System.out.println(i);
     }
 
 }
