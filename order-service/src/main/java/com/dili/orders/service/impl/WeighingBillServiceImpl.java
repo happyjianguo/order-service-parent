@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dili.customer.sdk.domain.Customer;
 import com.dili.customer.sdk.domain.dto.CustomerQueryInput;
 import com.dili.customer.sdk.rpc.CustomerRpc;
+import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.MeasureType;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingBillOperationRecord;
@@ -23,6 +24,7 @@ import com.dili.orders.domain.WeighingOperationType;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.domain.WeighingStatementState;
 import com.dili.orders.dto.AccountBalanceDto;
+import com.dili.orders.dto.AccountPasswordValidateDto;
 import com.dili.orders.dto.AccountRequestDto;
 import com.dili.orders.dto.CreateTradeResponseDto;
 import com.dili.orders.dto.FeeDto;
@@ -46,7 +48,9 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
+import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
+import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
 
 /**
@@ -68,6 +72,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private UidRpc uidRpc;
 	@Autowired
 	private UserRpc userRpc;
+	@Autowired
+	private FirmRpc firmRpc;
 	@Autowired
 	private WeighingBillOperationRecordMapper wbrMapper;
 	@Autowired
@@ -91,7 +97,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("查询买家账户信息失败");
 		}
 		// 查询卖家账户信息
-		BaseOutput<UserAccountCardResponseDto> sellerOutput = this.accountRpc.getOneAccountCard(weighingBill.getBuyerCardNo());
+		BaseOutput<UserAccountCardResponseDto> sellerOutput = this.accountRpc.getOneAccountCard(weighingBill.getSellerCardNo());
 		if (!sellerOutput.isSuccess()) {
 			LOGGER.error(buyerOutput.getMessage());
 			return BaseOutput.failure("查询卖家账户信息失败");
@@ -100,6 +106,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 查询买家卖家姓名
 		CustomerQueryInput customerQuery = new CustomerQueryInput();
 		customerQuery.setIdList(Arrays.asList(buyerOutput.getData().getCustomerId(), sellerOutput.getData().getCustomerId()));
+		BaseOutput<Firm> firmOutput = this.firmRpc.getByCode(OrdersConstant.SHOUGUANG_FIRM_CODE);
+		if (!firmOutput.isSuccess()) {
+			return BaseOutput.failure("查询市场信息失败");
+		}
+		customerQuery.setMarketId(firmOutput.getData().getId());
 		BaseOutput<List<Customer>> customerOutput = this.customerRpc.list(customerQuery);
 		if (!customerOutput.isSuccess()) {
 			LOGGER.error(customerOutput.getMessage());
@@ -112,16 +123,22 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerAccount(buyerOutput.getData().getFundAccountId());
 		weighingBill.setBuyerId(buyerOutput.getData().getCustomerId());
 		weighingBill.setBuyerName(buyerName);
+		weighingBill.setBuyerCardAccount(buyerOutput.getData().getAccountId());
 
 		// 设置卖家信息
 		weighingBill.setSellerAccount(sellerOutput.getData().getFundAccountId());
 		weighingBill.setSellerId(sellerOutput.getData().getCustomerId());
 		weighingBill.setSellerName(sellerName);
+		weighingBill.setSellerCardAccount(sellerOutput.getData().getAccountId());
 
 		int rows = this.getActualDao().insertSelective(weighingBill);
+		if (rows <= 0) {
+			throw new AppException("保存过磅单失败");
+		}
 
 		WeighingStatement ws = this.calculateBuyerAndSellerPoundage(weighingBill);
-		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
+		ws.setState(WeighingStatementState.UNPAID.getValue());
+		rows = this.weighingStatementMapper.insertSelective(ws);
 		if (rows <= 0) {
 			throw new AppException("保存结算单失败");
 		}
@@ -160,20 +177,24 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
 			return BaseOutput.failure("当前状态不能作废");
 		}
-//		BaseOutput<Boolean> output = this.accountRpc.validateAccountPassword(weighingBill.getBuyerAccount(), buyerPassword);
-//		if (!output.isSuccess()) {
-//			return BaseOutput.failure("验证买家密码请求失败");
-//		}
-//		if (!output.getData()) {
-//			return BaseOutput.failure("买家密码不正确");
-//		}
-//		output = this.accountRpc.validateAccountPassword(weighingBill.getSellerAccount(), sellerPassword);
-//		if (!output.isSuccess()) {
-//			return BaseOutput.failure("验证卖家密码请求失败");
-//		}
-//		if (!output.getData()) {
-//			return BaseOutput.failure("卖家密码不正确");
-//		}
+
+		// 校验买卖双方密码
+		AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
+		buyerPwdDto.setAccountId(weighingBill.getBuyerAccount());
+		buyerPwdDto.setPassword(buyerPassword);
+		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
+		if (!pwdOutput.isSuccess()) {
+			return BaseOutput.failure("买方密码错误");
+		}
+
+		AccountPasswordValidateDto sellerPwdDto = new AccountPasswordValidateDto();
+		sellerPwdDto.setAccountId(weighingBill.getSellerAccount());
+		sellerPwdDto.setPassword(sellerPassword);
+		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
+		if (!pwdOutput.isSuccess()) {
+			return BaseOutput.failure("卖方密码错误");
+		}
+
 		LocalDateTime now = LocalDateTime.now();
 		weighingBill.setState(WeighingBillState.INVALIDATED.getValue());
 		weighingBill.setModifiedTime(now);
@@ -200,7 +221,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	@Override
-	public BaseOutput<Object> settle(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
+	public BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId) {
 		WeighingBill query = new WeighingBill();
 		query.setSerialNo(serialNo);
 		WeighingBill weighingBill = this.getActualDao().selectOne(query);
@@ -229,10 +250,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
 		if (!balanceOutput.isSuccess()) {
 			LOGGER.error(balanceOutput.getMessage());
-			return null;
+			return BaseOutput.failure("查询买方余额失败");
 		}
 		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getBuyerActualAmount()) {
-			weighingBill.setState(WeighingBillState.FROZEN.getValue());
 			return BaseOutput.failure("买方余额不足");
 		}
 
@@ -241,7 +261,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 估计净重不为空，冻结交易
 			output = this.freeze(weighingBill, weighingStatement);
 		} else {
-			output = this.prepareTrade(weighingBill);
+			output = this.prepareTrade(weighingBill, weighingStatement);
 		}
 
 		if (!output.isSuccess()) {
@@ -339,14 +359,34 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("当前状态不能作废");
 		}
 
+		// 校验买卖双方密码
+		AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
+		buyerPwdDto.setAccountId(weighingBill.getBuyerAccount());
+		buyerPwdDto.setPassword(buyerPassword);
+		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
+		if (!pwdOutput.isSuccess()) {
+			return BaseOutput.failure("买方密码错误");
+		}
+
+		AccountPasswordValidateDto sellerPwdDto = new AccountPasswordValidateDto();
+		sellerPwdDto.setAccountId(weighingBill.getSellerAccount());
+		sellerPwdDto.setPassword(sellerPassword);
+		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
+		if (!pwdOutput.isSuccess()) {
+			return BaseOutput.failure("卖方密码错误");
+		}
+
 		LocalDateTime now = LocalDateTime.now();
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
 		weighingStatement.setModifiedTime(now);
-		this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
+		int rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
+		if (rows <= 0) {
+			return BaseOutput.failure("更新结算单状态失败");
+		}
 
 		weighingBill.setState(WeighingBillState.WITHDRAWN.getValue());
 		weighingBill.setModifiedTime(now);
-		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
@@ -368,9 +408,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		// 退款
 		PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
-		cancelDto.setAccountId(weighingBill.getBuyerAccount());
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
-		cancelDto.setPassword(buyerPassword);
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
 		if (!paymentOutput.isSuccess()) {
 			LOGGER.error(paymentOutput.getMessage());
@@ -437,7 +475,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return paymentOutput;
 	}
 
-	private BaseOutput<?> prepareTrade(WeighingBill weighingBill) {
+	private BaseOutput<?> prepareTrade(WeighingBill weighingBill, WeighingStatement ws) {
 		// 直接结算
 		Long buyerAmount = weighingBill.getNetWeight() * weighingBill.getUnitPrice();
 		// 创建支付订单
@@ -451,16 +489,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!paymentOutput.isSuccess()) {
 			return paymentOutput;
 		}
+		ws.setPayOrderNo(paymentOutput.getData().getTradeId());
+		ws.setState(WeighingStatementState.PAID.getValue());
 		return paymentOutput;
 	}
 
 	private BaseOutput<?> commitTrade(WeighingBill weighingBill, WeighingStatement weighingStatement, String password) {
 		// 提交支付订单
 		PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
-		dto.setAccountId(weighingBill.getSellerAccount());
+		dto.setAccountId(weighingBill.getBuyerAccount());
 		dto.setPassword(password);
 		dto.setTradeId(weighingStatement.getPayOrderNo());
-		dto.setBusinessId(weighingBill.getSellerCardAccount());
+		dto.setBusinessId(weighingBill.getBuyerCardAccount());
 		List<FeeDto> fees = new ArrayList<FeeDto>(2);
 		// 买家手续费
 		FeeDto buyerFee = new FeeDto();
@@ -474,7 +514,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerFee.setAmount(weighingStatement.getBuyerPoundage());
 		sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
 		sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
-		sellerFee.setUseFor(FeeUse.BUYER.getValue());
+		sellerFee.setUseFor(FeeUse.SELLER.getValue());
 		fees.add(sellerFee);
 		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commitTrade(dto);

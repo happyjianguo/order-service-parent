@@ -15,6 +15,8 @@ import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.PageOutput;
+import com.github.pagehelper.Page;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -33,8 +35,11 @@ public class WeighingBillApi {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/listPage", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String listPage(WeighingBillQueryDto weighingBill) throws Exception {
-		return weighingBillService.listEasyuiPageByExample(weighingBill, true).toString();
+	public @ResponseBody PageOutput<List<WeighingBill>> listPage(WeighingBillQueryDto weighingBill) throws Exception {
+		List<WeighingBill> list = weighingBillService.listByExample(weighingBill);
+		Page page = (Page) list;
+		return PageOutput.success().setData(page.getResult()).setPageNum(page.getPageNum()).setPageSize(page.getPageSize()).setTotal((int) page.getTotal());
+
 	}
 
 	/**
@@ -82,7 +87,7 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput settle(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
-		BaseOutput<Object> output = weighingBillService.settle(serialNo, buyerPassword, sellerPassword, operatorId);
+		BaseOutput<Object> output = weighingBillService.settle(serialNo, buyerPassword, operatorId);
 		return output;
 	}
 

@@ -124,7 +124,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         paymentTradePrepareDto.setType(12);
         paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
         paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
-        BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepare(paymentTradePrepareDto);
+        BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
         if (!prepare.isSuccess()) {
             throw new RuntimeException("转离场结算单新增-->创建交易失败");
         }

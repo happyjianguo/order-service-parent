@@ -32,11 +32,10 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * 
 	 * @param serialNo       过磅单号
 	 * @param buyerPassword  买家交易密码
-	 * @param sellerPassword 卖家交易密码
 	 * @param operatorId TODO
 	 * @return
 	 */
-	BaseOutput<Object> settle(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
+	BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId);
 
 	/**
 	 * 撤销过磅单
