@@ -35,6 +35,8 @@ import com.dili.orders.dto.PaymentTradeCommitResponseDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
 import com.dili.orders.dto.UserAccountCardResponseDto;
+import com.dili.orders.dto.WeighingBillListPageDto;
+import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
@@ -46,12 +48,17 @@ import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.EasyuiPageOutput;
+import com.dili.ss.domain.PageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
+import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -116,19 +123,20 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			LOGGER.error(customerOutput.getMessage());
 			return BaseOutput.failure("查询客户信息信息失败");
 		}
-		String buyerName = customerOutput.getData().stream().filter(c -> c.getId().equals(buyerOutput.getData().getCustomerId())).findFirst().get().getName();
-		String sellerName = customerOutput.getData().stream().filter(c -> c.getId().equals(sellerOutput.getData().getCustomerId())).findFirst().get().getName();
+		Customer buyer = customerOutput.getData().stream().filter(c -> c.getId().equals(buyerOutput.getData().getCustomerId())).findFirst().get();
+		Customer seller = customerOutput.getData().stream().filter(c -> c.getId().equals(sellerOutput.getData().getCustomerId())).findFirst().get();
 
 		// 设置买家信息
 		weighingBill.setBuyerAccount(buyerOutput.getData().getFundAccountId());
 		weighingBill.setBuyerId(buyerOutput.getData().getCustomerId());
-		weighingBill.setBuyerName(buyerName);
+		weighingBill.setBuyerCode(buyer.getCode());
+		weighingBill.setBuyerName(buyer.getName());
 		weighingBill.setBuyerCardAccount(buyerOutput.getData().getAccountId());
 
 		// 设置卖家信息
 		weighingBill.setSellerAccount(sellerOutput.getData().getFundAccountId());
 		weighingBill.setSellerId(sellerOutput.getData().getCustomerId());
-		weighingBill.setSellerName(sellerName);
+		weighingBill.setSellerName(seller.getName());
 		weighingBill.setSellerCardAccount(sellerOutput.getData().getAccountId());
 
 		int rows = this.getActualDao().insertSelective(weighingBill);
@@ -519,5 +527,19 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commitTrade(dto);
 		return commitOutput;
+	}
+
+	@Override
+	public PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query) {
+		Integer page = query.getPage();
+		page = (page == null) ? Integer.valueOf(1) : page;
+		if (query.getRows() != null && query.getRows() >= 1) {
+			// 为了线程安全,请勿改动下面两行代码的顺序
+			PageHelper.startPage(page, query.getRows());
+		}
+		List<WeighingBillListPageDto> list = this.getActualDao().listPage(query);
+		Page<WeighingBillListPageDto> pageList = (Page<WeighingBillListPageDto>) list;
+		long total = pageList.getTotal();
+		return PageOutput.success().setData(list).setTotal((int) total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
 	}
 }

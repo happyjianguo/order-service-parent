@@ -50,6 +50,12 @@ public class WeighingBill extends BaseDomain {
 	private Long buyerId;
 
 	/**
+	 * 买方id
+	 */
+	@Column(name = "`buyer_code`")
+	private String buyerCode;
+
+	/**
 	 * 买方卡号
 	 */
 	@Column(name = "`buyer_card_no`")
@@ -78,6 +84,12 @@ public class WeighingBill extends BaseDomain {
 	 */
 	@Column(name = "`seller_id`")
 	private Long sellerId;
+
+	/**
+	 * 卖方编码
+	 */
+	@Column(name = "`seller_code`")
+	private String sellerCode;
 
 	/**
 	 * 卖方卡账户
@@ -339,6 +351,26 @@ public class WeighingBill extends BaseDomain {
 	 *
 	 * @param buyerId 买方id
 	 */
+	public void setBuyerCode(String buyerCode) {
+		this.buyerCode = buyerCode;
+	}
+
+	/**
+	 * 获取买方id
+	 *
+	 * @return buyer_id - 买方id
+	 */
+	@FieldDef(label = "买方编号")
+	@EditMode(editor = FieldEditor.Number, required = true)
+	public String getBuyerCode() {
+		return buyerCode;
+	}
+
+	/**
+	 * 设置买方id
+	 *
+	 * @param buyerId 买方id
+	 */
 	public void setBuyerId(Long buyerId) {
 		this.buyerId = buyerId;
 	}
@@ -441,6 +473,26 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setSellerId(Long sellerId) {
 		this.sellerId = sellerId;
+	}
+
+	/**
+	 * 设置卖方id
+	 *
+	 * @param sellerCode 卖方编码
+	 */
+	public void setSellerCode(String sellerCode) {
+		this.sellerCode = sellerCode;
+	}
+
+	/**
+	 * 获取卖方id
+	 *
+	 * @return seller_id - 卖方id
+	 */
+	@FieldDef(label = "卖方编码")
+	@EditMode(editor = FieldEditor.Number, required = true)
+	public String getSellerCode() {
+		return sellerCode;
 	}
 
 	/**

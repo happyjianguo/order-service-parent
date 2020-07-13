@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 
 import com.dili.orders.domain.WeighingBill;
 import com.dili.ss.domain.annotation.Operator;
@@ -13,6 +14,7 @@ public class WeighingBillQueryDto extends WeighingBill {
 	/**
 	 * 
 	 */
+	@Transient
 	private static final long serialVersionUID = -789812465777179417L;
 	/**
 	 * 状态

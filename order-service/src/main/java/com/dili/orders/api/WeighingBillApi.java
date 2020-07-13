@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.orders.service.WeighingBillService;
@@ -34,11 +35,9 @@ public class WeighingBillApi {
 	 * @return String
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/listPage", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody PageOutput<List<WeighingBill>> listPage(WeighingBillQueryDto weighingBill) throws Exception {
-		List<WeighingBill> list = weighingBillService.listByExample(weighingBill);
-		Page page = (Page) list;
-		return PageOutput.success().setData(page.getResult()).setPageNum(page.getPageNum()).setPageSize(page.getPageSize()).setTotal((int) page.getTotal());
+	@RequestMapping(value = "/listPage", method = { RequestMethod.POST })
+	public @ResponseBody PageOutput<List<WeighingBillListPageDto>> listPage(@RequestBody WeighingBillQueryDto query) throws Exception {
+		return weighingBillService.listPage(query);
 
 	}
 

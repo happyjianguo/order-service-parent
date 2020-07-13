@@ -4,6 +4,9 @@ import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -52,8 +55,9 @@ public class WeighingBillOperationRecord extends BaseDomain {
     /**
      * 操作时间
      */
+    @JsonFormat
     @Column(name = "`operation_time`")
-    private Date operationTime;
+    private LocalDateTime operationTime;
 
     /**
      * @return id
@@ -178,7 +182,7 @@ public class WeighingBillOperationRecord extends BaseDomain {
      */
     @FieldDef(label="操作时间")
     @EditMode(editor = FieldEditor.Datetime, required = true)
-    public Date getOperationTime() {
+    public LocalDateTime getOperationTime() {
         return operationTime;
     }
 
@@ -187,7 +191,7 @@ public class WeighingBillOperationRecord extends BaseDomain {
      *
      * @param operationTime 操作时间
      */
-    public void setOperationTime(Date operationTime) {
+    public void setOperationTime(LocalDateTime operationTime) {
         this.operationTime = operationTime;
     }
 }
