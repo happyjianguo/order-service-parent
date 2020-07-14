@@ -35,7 +35,7 @@ public class TransitionDepartureSettlementApi {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/listPage", method = {RequestMethod.POST})
     public String listPage(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) throws Exception {
         return transitionDepartureSettlementService.listEasyuiPageByExample(transitionDepartureSettlement, true).toString();
 
@@ -49,7 +49,7 @@ public class TransitionDepartureSettlementApi {
      * @return String
      * @throws Exception
      */
-    @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         //如果没有传入时间范围，那默认展示当天的数据
         //设置开始时间
@@ -80,7 +80,7 @@ public class TransitionDepartureSettlementApi {
      * @param transitionDepartureSettlement
      * @return BaseOutput
      */
-    @RequestMapping(value = "/insert", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/insert", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> insert(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         try {
             if (transitionDepartureSettlement.getCreateTime() == null) {
@@ -100,7 +100,7 @@ public class TransitionDepartureSettlementApi {
      * @param transitionDepartureSettlement
      * @return BaseOutput
      */
-    @RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/update", method = {RequestMethod.POST})
     public BaseOutput update(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         try {
             transitionDepartureSettlementService.updateSelective(transitionDepartureSettlement);
@@ -118,7 +118,7 @@ public class TransitionDepartureSettlementApi {
      * @param id
      * @return BaseOutput
      */
-    @RequestMapping(value = "/delete", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/delete", method = {RequestMethod.POST})
     public BaseOutput delete(Long id) {
         if (id == null) {
             return BaseOutput.failure("删除失败，id不能为空");
@@ -152,7 +152,7 @@ public class TransitionDepartureSettlementApi {
      * @param transitionDepartureSettlement
      * @return
      */
-    @RequestMapping(value = "/insertTransitionDepartureSettlement", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/insertTransitionDepartureSettlement", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement);
     }
@@ -162,7 +162,7 @@ public class TransitionDepartureSettlementApi {
      *
      * @return
      */
-    @RequestMapping(value = "/pay", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/pay", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password) {
         return transitionDepartureSettlementService.pay(id, password);
     }
@@ -172,7 +172,7 @@ public class TransitionDepartureSettlementApi {
      *
      * @return
      */
-    @RequestMapping(value = "/revocator", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         return transitionDepartureSettlementService.revocator(transitionDepartureSettlement);
     }
