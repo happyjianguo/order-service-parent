@@ -89,7 +89,7 @@ public class TransitionDepartureApplyApi {
      * @param id
      * @return BaseOutput
      */
-    @RequestMapping(value = "/delete", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/delete", method = {RequestMethod.POST})
     public BaseOutput delete(Long id) {
         if (id == null) {
             return BaseOutput.failure("删除失败，id不能为空");
