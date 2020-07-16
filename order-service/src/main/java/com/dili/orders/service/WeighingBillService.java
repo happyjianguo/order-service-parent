@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
@@ -79,4 +80,12 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @return
 	 */
 	PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query);
+
+	/**
+	 * 过磅单详情
+	 * 
+	 * @param id
+	 * @return
+	 */
+	WeighingBillDetailDto detail(Long id);
 }
