@@ -238,6 +238,11 @@ public class TransitionDepartureSettlement extends BaseDomain {
     @Column(name = "`del`")
     private Integer del;
 
+    /**
+     * 是否删除（逻辑删除）
+     */
+    @Column(name = "`jmsf_id`")
+    private Long jmsfId;
 
     /**
      * 查询使用，开始时间
@@ -467,7 +472,7 @@ public class TransitionDepartureSettlement extends BaseDomain {
      *
      * @return trans_type_id - 交易类型id（外省菜，省内菜等）（数据字典）
      */
-    @FieldDef(label = "交易类型id（外省菜，省内菜等）（数据字典）",maxLength = 20)
+    @FieldDef(label = "交易类型id（外省菜，省内菜等）（数据字典）", maxLength = 20)
     @EditMode(editor = FieldEditor.Text, required = false)
     public String getTransTypeId() {
         return transTypeId;
@@ -972,5 +977,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setApplyCode(Long applyCode) {
         this.applyCode = applyCode;
+    }
+
+    public Long getJmsfId() {
+        return jmsfId;
+    }
+
+    public void setJmsfId(Long jmsfId) {
+        this.jmsfId = jmsfId;
     }
 }
