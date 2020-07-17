@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -59,11 +60,11 @@ public class TransitionDepartureSettlementApi {
         //如果没有传入时间范围，那默认展示当天的数据
         //设置开始时间
         if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
-            transitionDepartureSettlement.setBeginTime(new Date());
+            transitionDepartureSettlement.setBeginTime(getBeginDate());
         }
         //设置结束时间
         if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
-            transitionDepartureSettlement.setEndTime(new Date());
+            transitionDepartureSettlement.setEndTime(getEndDate());
         }
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
@@ -200,7 +201,7 @@ public class TransitionDepartureSettlementApi {
         //必须根据申请单来判定是转场还是离场，因为在新增结算单的时候，可能结算单还没有insert，所有是不存在的
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(id);
         if (Objects.isNull(transitionDepartureApply)) {
-            return BaseOutput.failure("未能找到对应结算单");
+            return BaseOutput.failure("未能找到对应申请单");
         }
         QueryFeeInput queryFeeInput = new QueryFeeInput();
         Map<String, Object> map = new HashMap<>();
@@ -211,17 +212,47 @@ public class TransitionDepartureSettlementApi {
         //判断是转场还是离场。收费项不同
         if (Objects.equals(transitionDepartureApply.getBizType(), 1)) {
             //设置收费项id
-            queryFeeInput.setChargeItem(58L);
+            queryFeeInput.setChargeItem(60L);
         } else if (Objects.equals(transitionDepartureApply.getBizType(), 2)) {
-            queryFeeInput.setChargeItem(59L);
+            queryFeeInput.setChargeItem(61L);
         }
         map.put("weight", netWeight);
         queryFeeInput.setCalcParams(map);
         //构建指标
         Map<String, Object> map2 = new HashMap();
-        map2.put("id", departmentId);
+        map2.put("departmentId", departmentId);
         map2.put("marketId", marketId);
         queryFeeInput.setConditionParams(map2);
         return chargeRuleRpc.queryFee(queryFeeInput);
+    }
+
+    /**
+     * 获取当天开始时间
+     *
+     * @return
+     */
+    private Date getBeginDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date zero = calendar.getTime();
+        return zero;
+    }
+
+    /**
+     * 获取当天结束时间
+     *
+     * @return
+     */
+    private Date getEndDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        Date zero = calendar.getTime();
+        return zero;
     }
 }
