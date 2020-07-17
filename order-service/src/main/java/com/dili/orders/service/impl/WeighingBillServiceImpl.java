@@ -35,6 +35,7 @@ import com.dili.orders.dto.PaymentTradeCommitResponseDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
 import com.dili.orders.dto.UserAccountCardResponseDto;
+import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
@@ -48,11 +49,9 @@ import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
-import com.dili.ss.metadata.ValueProviderUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.rpc.FirmRpc;
@@ -541,5 +540,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		Page<WeighingBillListPageDto> pageList = (Page<WeighingBillListPageDto>) list;
 		long total = pageList.getTotal();
 		return PageOutput.success().setData(list).setTotal((int) total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
+	}
+
+	@Override
+	public WeighingBillDetailDto detail(Long id) {
+		return this.getActualDao().selectDetailById(id);
 	}
 }

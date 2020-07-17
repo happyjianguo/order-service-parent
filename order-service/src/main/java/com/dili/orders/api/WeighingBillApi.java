@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingBillUpdateDto;
@@ -128,14 +129,15 @@ public class WeighingBillApi {
 	}
 
 	/**
-	 * 删除WeighingBill
+	 * 查询过磅单详情
 	 * 
 	 * @param id
-	 * @return BaseOutput
+	 * @return
 	 */
-	@RequestMapping(value = "/delete.action", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput delete(Long id) {
-		weighingBillService.delete(id);
-		return BaseOutput.success("删除成功");
+	@RequestMapping(value = "/detail")
+	public BaseOutput<WeighingBillDetailDto> detail(Long id) {
+		WeighingBillDetailDto dto = this.weighingBillService.detail(id);
+		return BaseOutput.success().setData(dto);
 	}
+
 }
