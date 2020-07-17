@@ -1,6 +1,8 @@
 package com.dili.orders.api;
 
+import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
+import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -28,6 +30,9 @@ public class TransitionDepartureSettlementApi {
 
     @Autowired
     private ChargeRuleRpc chargeRuleRpc;
+
+    @Autowired
+    private TransitionDepartureApplyService transitionDepartureApplyService;
 
 
     /**
@@ -181,15 +186,20 @@ public class TransitionDepartureSettlementApi {
     /**
      * 获取计费规则所得到的的金额
      *
+     * @param netWeight    净重
+     * @param marketId     市场id
+     * @param departmentId 部门id
+     * @param id           申请单id
      * @return
      */
     @RequestMapping(value = "/fee", method = {RequestMethod.GET, RequestMethod.POST})
     public BaseOutput getFee(BigDecimal netWeight, Long marketId, Long departmentId, Long id) {
         if (Objects.isNull(id)) {
-            return BaseOutput.failure("结算单id不能为空");
+            return BaseOutput.failure("申请单id不能为空");
         }
-        TransitionDepartureSettlement transitionDepartureSettlement = transitionDepartureSettlementService.get(id);
-        if (Objects.isNull(transitionDepartureSettlement)) {
+        //必须根据申请单来判定是转场还是离场，因为在新增结算单的时候，可能结算单还没有insert，所有是不存在的
+        TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(id);
+        if (Objects.isNull(transitionDepartureApply)) {
             return BaseOutput.failure("未能找到对应结算单");
         }
         QueryFeeInput queryFeeInput = new QueryFeeInput();
@@ -199,10 +209,10 @@ public class TransitionDepartureSettlementApi {
         //设置业务类型
         queryFeeInput.setBusinessType("ZLC_PAY");
         //判断是转场还是离场。收费项不同
-        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+        if (Objects.equals(transitionDepartureApply.getBizType(), 1)) {
             //设置收费项id
             queryFeeInput.setChargeItem(58L);
-        } else if (Objects.equals(transitionDepartureSettlement.getBizType(), 2)) {
+        } else if (Objects.equals(transitionDepartureApply.getBizType(), 2)) {
             queryFeeInput.setChargeItem(59L);
         }
         map.put("weight", netWeight);
