@@ -334,18 +334,4 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         return map;
     }
 
-    /**
-     * test
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        LocalDate localDate = LocalDate.now();
-        //指定时间，注意，如果使用下面的这种获取方式，一定要注意必须为严格的yy-mm-dd,9月必须为09,1号必须为01，否则会报错
-        LocalDate localDate1 = LocalDate.parse("2020-07-10");
-        //获取两个日期的天数差，为前一个减去后一个，正数则为前面的日期较晚
-        int i = localDate.compareTo(localDate1);
-        System.out.println(i);
-    }
-
 }
