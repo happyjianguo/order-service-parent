@@ -1,5 +1,6 @@
 package com.dili.orders.service.impl;
 
+import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
@@ -147,7 +148,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public BaseOutput pay(Long id, String password) {
+    public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName) {
         //根据id获取当前的结算单信息
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
@@ -169,7 +170,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (i <= 0) {
             return BaseOutput.failure("修改申请单状态失败");
         }
+        //设置支付时间
         transitionDepartureSettlement.setPayTime(LocalDateTime.now());
+        //更新操作员
+        transitionDepartureSettlement.setOperatorId(operatorId);
+        transitionDepartureSettlement.setOperatorName(operatorName);
+        transitionDepartureSettlement.setOperatorCode(operatorCode);
         //修改结算单的支付状态
         int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
         if (i1 <= 0) {
@@ -205,6 +211,35 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!pay.isSuccess()) {
             throw new RuntimeException("转离场结算单支付-->支付rpc请求失败");
         }
+        //设置进门收费相关信息，并调用新增
+        VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
+        vehicleAccessDTO.setMarketId(marketId);
+        vehicleAccessDTO.setPlateNumber(transitionDepartureSettlement.getPlate());
+        vehicleAccessDTO.setVehicleTypeId(transitionDepartureSettlement.getCarTypeId());
+        vehicleAccessDTO.setBarrierType(3);
+        vehicleAccessDTO.setEntryTime(new Date());
+        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
+        vehicleAccessDTO.setPayType(3);
+        vehicleAccessDTO.setCasherId(operatorId);
+        vehicleAccessDTO.setCasherName(operatorName);
+        vehicleAccessDTO.setCasherDepartmentId(departmentId);
+        vehicleAccessDTO.setPayTime(new Date());
+        vehicleAccessDTO.setOperatorId(operatorId);
+        vehicleAccessDTO.setOperatorName(operatorName);
+        vehicleAccessDTO.setCreated(new Date());
+        //判断进门收费新增是否成功
+        BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
+        if (!vehicleAccessDTOBaseOutput.isSuccess()) {
+            throw new RuntimeException("进门收费单-->新增失败");
+        }
+        //将进门收费返回的id设置到结算单中
+        transitionDepartureSettlement.setJmsfId(vehicleAccessDTOBaseOutput.getData().getId());
+        int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+        //判断是否修改成功
+        if (i2 <= 0) {
+            throw new RuntimeException("转离场结算单支付-->修改结算单失败，新增进门收费id");
+        }
+        //进门收费成功过后，拿到data，取出id，然后设置到结算单中去
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
