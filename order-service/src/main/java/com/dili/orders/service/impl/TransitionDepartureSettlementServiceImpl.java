@@ -18,6 +18,7 @@ import com.dili.ss.domain.PageOutput;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -252,25 +253,43 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement) {
+
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
         if (transitionDepartureSettlement.getPayStatus() != 1) {
             return BaseOutput.failure("只有已结算的结算单可以撤销");
         }
+
+        //根据jmsfid拿到进门单，判断是否已经出场，出场则不能撤销
+        BaseOutput<VehicleAccessDTO> access = jmsfRpc.getAccess(transitionDepartureSettlement.getJmsfId());
+        if (!access.isSuccess()) {
+            return BaseOutput.failure("进门数据请求失败");
+        }
+
+        //判断是否已经出场，2为已出场
+        if (Objects.equals(access.getData().getAccessStatus(), 2)) {
+            return BaseOutput.failure("车辆已出场，不能撤销");
+        }
+
         //判断当前的这个结算单是否是今天的
         LocalDate createTime = transitionDepartureSettlement.getCreateTime().toLocalDate();
+
         //如果为0，则表示为当天
         if (LocalDate.now().compareTo(createTime) != 0) {
             return BaseOutput.failure("只有当天的结算单可以撤销");
         }
+
         //设置为已撤销的支付状态
         transitionDepartureSettlement.setPayStatus(3);
+
         //根据结算单的apply_id拿到申请单信息
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
         if (Objects.isNull(transitionDepartureApply)) {
             return BaseOutput.failure("申请单不存在");
         }
+
         //设置申请单支付状态为已撤销
         transitionDepartureApply.setPayStatus(3);
+
         //先更新申请单，判断是否更新成功，没有更新成功则抛出异常
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         if (i <= 0) {
@@ -279,23 +298,30 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //修改结算单的支付状态
         transitionDepartureSettlement.setPayStatus(3);
         int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+
         //判断结算单修改是否成功，不成功则抛出异常
         if (i1 <= 0) {
             throw new RuntimeException("转离场结算单撤销-->结算单修改失败");
         }
-        //再掉卡务撤销交易
-        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-        //判断调用卡号拿到账户信息是否成功
-        if (!oneAccountCard.isSuccess()) {
-            throw new RuntimeException("转离场结算单撤销-->调用卡号拿到账户失败");
+        //判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
+        if (StringUtils.isNotBlank(transitionDepartureSettlement.getPaymentNo())) {
+            //再掉卡务撤销交易
+            BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+            //判断调用卡号拿到账户信息是否成功
+            if (!oneAccountCard.isSuccess()) {
+                throw new RuntimeException("转离场结算单撤销-->调用卡号拿到账户失败");
+            }
+            //设置撤销交易的dto
+            PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
+            paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
+            BaseOutput<PaymentTradeCommitResponseDto> paymentTradeCommitResponseDtoBaseOutput = payRpc.cancel(paymentTradeCommitDto);
+            if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
+                throw new RuntimeException("转离场结算单撤销-->调用撤销交易rpc失败");
+            }
         }
-        //设置撤销交易的dto
-        PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
-        paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
-        BaseOutput<PaymentTradeCommitResponseDto> paymentTradeCommitResponseDtoBaseOutput = payRpc.cancel(paymentTradeCommitDto);
-        if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
-            throw new RuntimeException("转离场结算单撤销-->调用撤销交易rpc失败");
-        }
+        //通知进门，将对应撤销的单子作废掉
+
+
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
