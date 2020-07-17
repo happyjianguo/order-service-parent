@@ -184,15 +184,27 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/fee", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput getFee(BigDecimal netWeight, Long marketId, Long departmentId) {
+    public BaseOutput getFee(BigDecimal netWeight, Long marketId, Long departmentId, Long id) {
+        if (Objects.isNull(id)) {
+            return BaseOutput.failure("结算单id不能为空");
+        }
+        TransitionDepartureSettlement transitionDepartureSettlement = transitionDepartureSettlementService.get(id);
+        if (Objects.isNull(transitionDepartureSettlement)) {
+            return BaseOutput.failure("未能找到对应结算单");
+        }
         QueryFeeInput queryFeeInput = new QueryFeeInput();
         Map<String, Object> map = new HashMap<>();
         //设置市场id
         queryFeeInput.setMarketId(marketId);
         //设置业务类型
         queryFeeInput.setBusinessType("ZLC_PAY");
-        //设置收费项id
-        queryFeeInput.setChargeItem(32L);
+        //判断是转场还是离场。收费项不同
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+            //设置收费项id
+            queryFeeInput.setChargeItem(58L);
+        } else if (Objects.equals(transitionDepartureSettlement.getBizType(), 2)) {
+            queryFeeInput.setChargeItem(59L);
+        }
         map.put("weight", netWeight);
         queryFeeInput.setCalcParams(map);
         //构建指标
