@@ -255,7 +255,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement) {
 
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
-        if (transitionDepartureSettlement.getPayStatus() != 1) {
+        if (transitionDepartureSettlement.getPayStatus() != 2) {
             return BaseOutput.failure("只有已结算的结算单可以撤销");
         }
 
