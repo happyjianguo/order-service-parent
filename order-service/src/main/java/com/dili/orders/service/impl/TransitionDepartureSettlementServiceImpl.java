@@ -6,10 +6,7 @@ import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
-import com.dili.orders.rpc.AccountRpc;
-import com.dili.orders.rpc.JmsfRpc;
-import com.dili.orders.rpc.PayRpc;
-import com.dili.orders.rpc.UidRpc;
+import com.dili.orders.rpc.*;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
@@ -28,8 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -62,6 +61,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private PayRpc payRpc;
+
+    @Autowired
+    private CardRpc cardRpc;
 
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
@@ -152,7 +154,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName) {
+    public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName) {
         //根据id获取当前的结算单信息
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
@@ -185,14 +187,17 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //        if (i1 <= 0) {
 //            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
 //        }
+
+        //再调用支付
+        //首先根据卡号拿倒账户信息
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        if (!oneAccountCard.isSuccess()) {
+            throw new RuntimeException("转离场结算单支付-->查询账户失败");
+        }
+        //新建支付返回实体，后面操作记录会用到
+        PaymentTradeCommitResponseDto data = null;
         //判断是否支付金额是否为0，不为零再走支付
         if (!Objects.equals(transitionDepartureSettlement.getChargeAmount(), 0L)) {
-            //再调用支付
-            //首先根据卡号拿倒账户信息
-            BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-            if (!oneAccountCard.isSuccess()) {
-                throw new RuntimeException("转离场结算单支付-->查询账户失败");
-            }
             //构建支付对象
             UserAccountCardResponseDto userAccountCardResponseDto = oneAccountCard.getData();
             PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
@@ -217,7 +222,54 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             if (!pay.isSuccess()) {
                 throw new RuntimeException("转离场结算单支付-->支付rpc请求失败");
             }
+            data = pay.getData();
         }
+
+        //支付请求成功之后，再调用新增操作记录的接口
+        SerialDto serialDto = new SerialDto();
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+        serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
+        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        serialRecordDo.setAction(ActionType.EXPENSE.getCode());
+        serialRecordDo.setOperatorId(operatorId);
+        serialRecordDo.setOperatorName(operatorName);
+        serialRecordDo.setOperatorNo(operatorUserName);
+        serialRecordDo.setFirmId(marketId);
+        //判断是转场还是离场1.转场 2.离场
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+            serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
+            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+        } else {
+            serialRecordDo.setNotes("车辆离场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
+            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
+        }
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setEndBalance(data.getBalance() - transitionDepartureSettlement.getChargeAmount());
+            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setOperateTime(data.getWhen());
+        } else {
+            BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+            if (!oneAccountCard1.isSuccess()) {
+                throw new RuntimeException("查询失败-->根据卡号查询账户信息，余额等");
+            }
+            serialRecordDo.setEndBalance(oneAccountCard1.getData().getAccountFund().getBalance());
+            serialRecordDo.setStartBalance(oneAccountCard1.getData().getAccountFund().getBalance());
+            serialRecordDo.setOperateTime(LocalDateTime.now());
+        }
+        serialRecordList.add(serialRecordDo);
+        serialDto.setSerialRecordList(serialRecordList);
+        BaseOutput baseOutput = accountRpc.batchSave(serialDto);
+        if (!baseOutput.isSuccess()) {
+            throw new RuntimeException("操作交易记录-->新增失败");
+        }
+
         //设置进门收费相关信息，并调用新增
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
         vehicleAccessDTO.setMarketId(marketId);
