@@ -321,8 +321,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //通知进门，将对应撤销的单子作废掉
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
+        //设置进门收费id
+        vehicleAccessDTO.setId(transitionDepartureSettlement.getJmsfId());
         //设置撤销人员id
-        vehicleAccessDTO.setId(transitionDepartureSettlement.getRevocatorId());
+        vehicleAccessDTO.setCancelId(transitionDepartureSettlement.getRevocatorId());
         //设置撤销人员姓名
         vehicleAccessDTO.setCancelName(transitionDepartureSettlement.getOperatorName());
         //设置撤销原因
