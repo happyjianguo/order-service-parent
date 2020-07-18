@@ -36,4 +36,10 @@ public interface JmsfRpc {
     @RequestMapping(value = "/api/vehicleAccess/get", method = RequestMethod.GET)
     BaseOutput<VehicleAccessDTO> getAccess(@RequestParam("id") Long id);
 
+    /**
+     * 取消作废
+     */
+    @RequestMapping(value = "/api/vehicleAccess/cancel", method = RequestMethod.POST)
+    BaseOutput<Integer> cancelAccess(@RequestBody VehicleAccessDTO accessDTO);
+
 }

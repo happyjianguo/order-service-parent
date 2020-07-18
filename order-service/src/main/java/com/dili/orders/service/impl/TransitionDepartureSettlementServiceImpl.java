@@ -181,10 +181,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         transitionDepartureSettlement.setOperatorName(operatorName);
         transitionDepartureSettlement.setOperatorCode(operatorCode);
         //修改结算单的支付状态
-        int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
-        if (i1 <= 0) {
-            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
-        }
+//        int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+//        if (i1 <= 0) {
+//            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
+//        }
         //判断是否支付金额是否为0，不为零再走支付
         if (!Objects.equals(transitionDepartureSettlement.getChargeAmount(), 0L)) {
             //再调用支付
@@ -244,7 +244,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
         //判断是否修改成功
         if (i2 <= 0) {
-            throw new RuntimeException("转离场结算单支付-->修改结算单失败，新增进门收费id");
+            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
         }
         //进门收费成功过后，拿到data，取出id，然后设置到结算单中去
         return BaseOutput.successData(transitionDepartureSettlement);
@@ -320,8 +320,17 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             }
         }
         //通知进门，将对应撤销的单子作废掉
-
-
+        VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
+        //设置撤销人员id
+        vehicleAccessDTO.setId(transitionDepartureSettlement.getRevocatorId());
+        //设置撤销人员姓名
+        vehicleAccessDTO.setCancelName(transitionDepartureSettlement.getOperatorName());
+        //设置撤销原因
+        vehicleAccessDTO.setCancelReason("转离场收费撤销");
+        BaseOutput<Integer> integerBaseOutput = jmsfRpc.cancelAccess(vehicleAccessDTO);
+        if (!integerBaseOutput.isSuccess()) {
+            throw new RuntimeException("进门收费-->撤销失败");
+        }
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
