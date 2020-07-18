@@ -142,7 +142,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
         }
         //根据uid设置结算单的code
-        transitionDepartureSettlement.setCode(uidRpc.getCode().getData());
+        transitionDepartureSettlement.setCode(uidRpc.bizNumber("sg_zlc_settlement").getData());
         int insert = getActualDao().insert(transitionDepartureSettlement);
         if (insert <= 0) {
             throw new RuntimeException("转离场结算单新增-->创建转离场结算单失败");
@@ -376,5 +376,4 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         return map;
     }
-
 }
