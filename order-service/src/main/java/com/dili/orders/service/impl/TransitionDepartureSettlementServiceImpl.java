@@ -355,14 +355,19 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (i1 <= 0) {
             throw new RuntimeException("转离场结算单撤销-->结算单修改失败");
         }
+
+        //调用卡号查询账户信息
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        //判断调用卡号拿到账户信息是否成功
+        if (!oneAccountCard.isSuccess()) {
+            throw new RuntimeException("转离场结算单撤销-->调用卡号拿到账户失败");
+        }
+        //新建支付返回实体，后面操作记录会用到
+        PaymentTradeCommitResponseDto data = null;
+
         //判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
         if (StringUtils.isNotBlank(transitionDepartureSettlement.getPaymentNo())) {
             //再掉卡务撤销交易
-            BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-            //判断调用卡号拿到账户信息是否成功
-            if (!oneAccountCard.isSuccess()) {
-                throw new RuntimeException("转离场结算单撤销-->调用卡号拿到账户失败");
-            }
             //设置撤销交易的dto
             PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
             paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
@@ -370,7 +375,54 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
                 throw new RuntimeException("转离场结算单撤销-->调用撤销交易rpc失败");
             }
+            data = paymentTradeCommitResponseDtoBaseOutput.getData();
         }
+        //支付请求成功之后，再调用新增操作记录的接口
+        SerialDto serialDto = new SerialDto();
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+        serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
+        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        serialRecordDo.setAction(ActionType.EXPENSE.getCode());
+        serialRecordDo.setOperatorId(transitionDepartureSettlement.getOperatorId());
+        serialRecordDo.setOperatorName(transitionDepartureSettlement.getOperatorName());
+        serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
+        serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
+
+        //判断是转场还是离场1.转场 2.离场
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+            serialRecordDo.setNotes("撤销车辆转场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
+            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+        } else {
+            serialRecordDo.setNotes("撤销车辆离场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
+            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
+        }
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setEndBalance(data.getBalance());
+            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setOperateTime(data.getWhen());
+        } else {
+            BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+            if (!oneAccountCard1.isSuccess()) {
+                throw new RuntimeException("查询失败-->根据卡号查询账户信息，余额等");
+            }
+            serialRecordDo.setEndBalance(oneAccountCard1.getData().getAccountFund().getBalance());
+            serialRecordDo.setStartBalance(oneAccountCard1.getData().getAccountFund().getBalance());
+            serialRecordDo.setOperateTime(LocalDateTime.now());
+        }
+        serialRecordList.add(serialRecordDo);
+        serialDto.setSerialRecordList(serialRecordList);
+        BaseOutput baseOutput = accountRpc.batchSave(serialDto);
+        if (!baseOutput.isSuccess()) {
+            throw new RuntimeException("操作交易记录-->新增失败");
+        }
+
         //通知进门，将对应撤销的单子作废掉
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
         //设置进门收费id
