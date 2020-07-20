@@ -9,6 +9,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.ss.domain.annotation.Operator;
 
@@ -74,6 +75,7 @@ public class WeighingBillQueryDto extends WeighingBill {
 		}
 	}
 
+	@JSONField(serialize = false)
 	public List<String> getGoodsNames() {
 		return goodsNames;
 	}

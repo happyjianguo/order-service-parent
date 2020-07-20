@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ import com.dili.orders.rpc.JmsfRpc;
 import com.dili.orders.rpc.PayRpc;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.WeighingBillService;
+import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
@@ -80,6 +85,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private UserRpc userRpc;
 	@Autowired
 	private FirmRpc firmRpc;
+	@Autowired
+	private ChargeRuleRpc chargeRuleRpc;
 	@Autowired
 	private WeighingBillOperationRecordMapper wbrMapper;
 	@Autowired
@@ -130,12 +137,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerId(buyerOutput.getData().getCustomerId());
 		weighingBill.setBuyerCode(buyer.getCode());
 		weighingBill.setBuyerName(buyer.getName());
+		weighingBill.setBuyerContact(buyer.getContactsPhone());
 		weighingBill.setBuyerCardAccount(buyerOutput.getData().getAccountId());
 
 		// 设置卖家信息
 		weighingBill.setSellerAccount(sellerOutput.getData().getFundAccountId());
 		weighingBill.setSellerId(sellerOutput.getData().getCustomerId());
 		weighingBill.setSellerName(seller.getName());
+		weighingBill.setSellerContact(seller.getContactsPhone());
 		weighingBill.setSellerCardAccount(sellerOutput.getData().getAccountId());
 
 		int rows = this.getActualDao().insertSelective(weighingBill);
@@ -143,13 +152,46 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存过磅单失败");
 		}
 
-		WeighingStatement ws = this.calculateBuyerAndSellerPoundage(weighingBill);
+		WeighingStatement ws = this.buildWeighingStatement(weighingBill, firmOutput.getData().getId());
 		ws.setState(WeighingStatementState.UNPAID.getValue());
 		rows = this.weighingStatementMapper.insertSelective(ws);
 		if (rows <= 0) {
 			throw new AppException("保存结算单失败");
 		}
+
+		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
+		wbor.setWeighingBillId(weighingBill.getId());
+		wbor.setOperationType(WeighingOperationType.CREATE.getValue());
+		wbor.setOperationTypeName(WeighingOperationType.CREATE.getName());
+		BaseOutput<User> opOutput = this.userRpc.get(weighingBill.getCreatorId());
+		if (!opOutput.isSuccess()) {
+			LOGGER.error(output.getMessage());
+			throw new AppException("查询用户信息失败");
+		}
+		wbor.setOperatorId(opOutput.getData().getId());
+		wbor.setOperatorName(opOutput.getData().getRealName());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
+		}
 		return rows > 0 ? BaseOutput.success().setData(output.getData()) : BaseOutput.failure("保存过磅单失败");
+	}
+
+	private BaseOutput<QueryFeeOutput> calculaterPoundage(WeighingStatement statement, Long marketId, String businessType) {
+		QueryFeeInput queryFeeInput = new QueryFeeInput();
+		Map<String, Object> map = new HashMap<>();
+		// 设置市场id
+		queryFeeInput.setMarketId(marketId);
+		// 设置业务类型
+		queryFeeInput.setBusinessType(businessType);
+		if (businessType.equals("WEIGHING_BILL_BUYER_POUNDAGE")) {
+			queryFeeInput.setChargeItem(64L);
+		} else {
+			queryFeeInput.setChargeItem(65L);
+		}
+		map.put("tradeAmount", statement.getTradeAmount());
+		queryFeeInput.setCalcParams(map);
+		return chargeRuleRpc.queryFee(queryFeeInput);
 	}
 
 	@Override
@@ -335,8 +377,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		copier.copy(dto, weighingBill, null);
 		weighingBill.setModifiedTime(LocalDateTime.now());
 		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
-
-		WeighingStatement ws = this.calculateBuyerAndSellerPoundage(weighingBill);
+		BaseOutput<Firm> firmOutput = this.firmRpc.getByCode(OrdersConstant.SHOUGUANG_FIRM_CODE);
+		if (!firmOutput.isSuccess()) {
+			return BaseOutput.failure("查询市场信息失败");
+		}
+		WeighingStatement ws = this.buildWeighingStatement(weighingBill, firmOutput.getData().getId());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
 
 		return rows > 0 ? BaseOutput.success() : BaseOutput.failure("更新过磅单失败");
@@ -425,7 +470,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
-	private WeighingStatement calculateBuyerAndSellerPoundage(WeighingBill weighingBill) {
+	private WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
 		WeighingStatement wsQuery = new WeighingStatement();
 		wsQuery.setWeighingBillId(weighingBill.getId());
 		WeighingStatement ws = this.weighingStatementMapper.selectOne(wsQuery);
@@ -440,27 +485,34 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setSerialNo(output.getData());
 		ws.setWeighingBillId(weighingBill.getId());
 		ws.setWeighingSerialNo(weighingBill.getSerialNo());
+
 		if (weighingBill.getEstimatedNetWeight() != null) {
 			ws.setFrozenAmount(weighingBill.getEstimatedNetWeight() * weighingBill.getUnitPrice());
-			ws.setBuyerActualAmount(ws.getFrozenAmount() + 100L);
-			ws.setSellerActualAmount(ws.getFrozenAmount() - 100L);
 		} else {
 			if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
 				ws.setTradeAmount(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2 / 100);
 			} else {
 				ws.setTradeAmount(weighingBill.getUnitAmount() * weighingBill.getUnitPrice() / 100);
 			}
-			ws.setBuyerActualAmount(ws.getTradeAmount() + 100L);
-			ws.setSellerActualAmount(ws.getTradeAmount() - 100L);
 		}
+		BaseOutput<QueryFeeOutput> buyerFeeOutput = this.calculaterPoundage(ws, marketId, "WEIGHING_BILL_BUYER_POUNDAGE");
+		if (!buyerFeeOutput.isSuccess()) {
+			throw new AppException("计算买家手续费失败");
+		}
+		ws.setBuyerActualAmount(ws.getTradeAmount() + buyerFeeOutput.getData().getTotalFee().longValue());
+		ws.setBuyerPoundage(buyerFeeOutput.getData().getTotalFee().longValue());
+		BaseOutput<QueryFeeOutput> sellerFeeOutput = this.calculaterPoundage(ws, marketId, "WEIGHING_BILL_SELLER_POUNDAGE");
+		if (!buyerFeeOutput.isSuccess()) {
+			throw new AppException("计算卖家手续费失败");
+		}
+		ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue());
+		ws.setSellerPoundage(sellerFeeOutput.getData().getTotalFee().longValue());
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
 		ws.setBuyerName(weighingBill.getBuyerName());
-		ws.setBuyerPoundage(100L);
 		ws.setSellerCardNo(weighingBill.getSellerCardNo());
 		ws.setSellerId(weighingBill.getSellerId());
 		ws.setSellerName(weighingBill.getSellerName());
-		ws.setSellerPoundage(100L);
 		return ws;
 
 	}
@@ -545,5 +597,116 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Override
 	public WeighingBillDetailDto detail(Long id) {
 		return this.getActualDao().selectDetailById(id);
+	}
+
+	@Override
+	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword) {
+		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
+		if (weighingBill == null) {
+			return BaseOutput.failure("过磅单不存在");
+		}
+		if (!weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+			return BaseOutput.failure("当前状态不能作废");
+		}
+
+		// 校验操作员密码
+		BaseOutput<Object> userOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
+		if (!userOutput.isSuccess()) {
+			return BaseOutput.failure("操作员密码错误");
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+		weighingBill.setState(WeighingBillState.INVALIDATED.getValue());
+		weighingBill.setModifiedTime(now);
+		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		if (rows <= 0) {
+			return BaseOutput.failure("更新过磅单状态失败");
+		}
+		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
+		wbor.setWeighingBillId(weighingBill.getId());
+		wbor.setOperationType(WeighingOperationType.INVALIDATE.getValue());
+		wbor.setOperationTypeName(WeighingOperationType.INVALIDATE.getName());
+		BaseOutput<User> output = this.userRpc.get(operatorId);
+		if (!output.isSuccess()) {
+			LOGGER.error(output.getMessage());
+			throw new AppException("查询用户信息失败");
+		}
+		wbor.setOperatorId(output.getData().getId());
+		wbor.setOperatorName(output.getData().getRealName());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
+		}
+		return BaseOutput.success();
+	}
+
+	@Override
+	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword) {
+		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
+		if (weighingBill == null) {
+			return BaseOutput.failure("过磅单不存在");
+		}
+		WeighingStatement wsQuery = new WeighingStatement();
+		wsQuery.setWeighingBillId(weighingBill.getId());
+		wsQuery.setState(WeighingStatementState.PAID.getValue());
+		WeighingStatement weighingStatement = this.weighingStatementMapper.selectOne(wsQuery);
+		if (weighingStatement == null) {
+			return BaseOutput.failure("结算单不存在");
+		}
+		LocalDate todayDate = LocalDate.now();
+		LocalDateTime opTime = weighingStatement.getModifiedTime() == null ? weighingStatement.getCreatedTime() : weighingStatement.getModifiedTime();
+		if (!todayDate.equals(opTime.toLocalDate())) {
+			return BaseOutput.failure("只能对当日的过磅交易进行撤销操作");
+		}
+		if (!weighingBill.getState().equals(WeighingBillState.SETTLED.getValue())) {
+			return BaseOutput.failure("当前状态不能作废");
+		}
+
+		// 校验操作员密码
+		BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
+		if (!pwdOutput.isSuccess()) {
+			return pwdOutput;
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
+		weighingStatement.setModifiedTime(now);
+		int rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
+		if (rows <= 0) {
+			return BaseOutput.failure("更新结算单状态失败");
+		}
+
+		weighingBill.setState(WeighingBillState.WITHDRAWN.getValue());
+		weighingBill.setModifiedTime(now);
+		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		if (rows <= 0) {
+			return BaseOutput.failure("更新过磅单状态失败");
+		}
+		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
+		wbor.setWeighingBillId(weighingBill.getId());
+		wbor.setOperationType(WeighingOperationType.WITHDRAW.getValue());
+		wbor.setOperationTypeName(WeighingOperationType.WITHDRAW.getName());
+		BaseOutput<User> output = this.userRpc.get(operatorId);
+		if (!output.isSuccess()) {
+			LOGGER.error(output.getMessage());
+			throw new AppException("查询用户信息失败");
+		}
+		wbor.setOperatorId(output.getData().getId());
+		wbor.setOperatorName(output.getData().getRealName());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
+		}
+
+		// 退款
+		PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
+		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+		if (!paymentOutput.isSuccess()) {
+			LOGGER.error(paymentOutput.getMessage());
+			throw new AppException("退款失败");
+		}
+
+		return BaseOutput.success();
 	}
 }
