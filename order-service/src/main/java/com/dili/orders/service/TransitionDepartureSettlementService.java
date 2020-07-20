@@ -35,7 +35,7 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
     /**
      * 支付
      */
-    BaseOutput pay(Long id, String password);
+    BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName);
 
     /**
      * 撤销
