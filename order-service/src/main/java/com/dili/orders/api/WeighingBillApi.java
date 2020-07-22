@@ -140,4 +140,29 @@ public class WeighingBillApi {
 		return BaseOutput.success().setData(dto);
 	}
 
+	/**
+	 * 操作员作废过磅单
+	 * 
+	 * @param id
+	 * @param operatorId
+	 * @param operatorPassword
+	 * @return
+	 */
+	@RequestMapping(value = "/operatorInvalidate")
+	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword) {
+		return this.weighingBillService.operatorInvalidate(id, operatorId, operatorPassword);
+	}
+	
+	/**
+	 * 操作员作废过磅单
+	 * 
+	 * @param id
+	 * @param operatorId
+	 * @param operatorPassword
+	 * @return
+	 */
+	@RequestMapping(value = "/operatorWithdraw")
+	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword) {
+		return this.weighingBillService.operatorWithdraw(id, operatorId, operatorPassword);
+	}
 }

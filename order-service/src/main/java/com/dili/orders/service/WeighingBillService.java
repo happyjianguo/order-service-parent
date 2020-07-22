@@ -60,10 +60,30 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param serialNo       过磅单号
 	 * @param buyerPassword  买家交易密码
 	 * @param sellerPassword 卖家交易密码
-	 * @param operatorId     TODO
+	 * @param operatorId     操作员id
 	 * @return
 	 */
 	BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
+
+	/**
+	 * 操作员作废过磅单
+	 * 
+	 * @param id               过磅id
+	 * @param operatorId       操作员id
+	 * @param operatorPassword 操作员登录密码
+	 * @return
+	 */
+	BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword);
+
+	/**
+	 * 操作员撤销过磅单
+	 * 
+	 * @param id               过磅id
+	 * @param operatorId       操作员id
+	 * @param operatorPassword 操作员登录密码
+	 * @return
+	 */
+	BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword);
 
 	/**
 	 * 关闭
@@ -88,4 +108,5 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @return
 	 */
 	WeighingBillDetailDto detail(Long id);
+
 }
