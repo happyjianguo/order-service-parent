@@ -223,7 +223,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}
-		if (!weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+		if (!weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue()) && !weighingBill.getState().equals(WeighingBillState.FROZEN.getValue())) {
 			return BaseOutput.failure("当前状态不能作废");
 		}
 
@@ -266,6 +266,25 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
+
+		// 解冻
+		if (weighingBill.getState().equals(WeighingBillState.FROZEN.getValue())) {
+			// 退款
+			WeighingStatement wsQuery = new WeighingStatement();
+			wsQuery.setWeighingBillId(weighingBill.getId());
+			WeighingStatement weighingStatement = this.weighingStatementMapper.selectOne(wsQuery);
+			if (weighingStatement == null) {
+				return BaseOutput.failure("未查询到结算单信息");
+			}
+			PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+			cancelDto.setTradeId(weighingStatement.getPayOrderNo());
+			BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(paymentOutput.getMessage());
+				throw new AppException("退款失败");
+			}
+		}
+
 		return BaseOutput.success();
 	}
 

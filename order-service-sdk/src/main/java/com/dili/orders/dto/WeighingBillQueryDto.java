@@ -1,5 +1,7 @@
 package com.dili.orders.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +41,16 @@ public class WeighingBillQueryDto extends WeighingBill {
 	private List<String> goodsNames;
 	@Transient
 	private String wsSerialNo;
+	@Transient
+	private Long operatorId;
+	@Transient
+	private String unitPriceStart;
+	@Transient
+	private Long unitPriceStartValue;
+	@Transient
+	private String unitPriceEnd;
+	@Transient
+	private Long unitPriceEndValue;
 
 	public List<Integer> getStates() {
 		return states;
@@ -86,6 +98,46 @@ public class WeighingBillQueryDto extends WeighingBill {
 
 	public void setWsSerialNo(String wsSerialNo) {
 		this.wsSerialNo = wsSerialNo;
+	}
+
+	public Long getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(Long operatorId) {
+		this.operatorId = operatorId;
+	}
+
+	public void setUnitPriceStart(String unitPriceStart) {
+		this.unitPriceStart = unitPriceStart;
+		if (unitPriceStart != null) {
+			this.unitPriceStartValue = new BigDecimal(unitPriceStart).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
+		}
+	}
+
+	public String getUnitPriceStart() {
+		return unitPriceStart;
+	}
+
+	public String getUnitPriceEnd() {
+		return unitPriceEnd;
+	}
+
+	public void setUnitPriceEnd(String unitPriceEnd) {
+		this.unitPriceEnd = unitPriceEnd;
+		if (unitPriceEnd != null) {
+			this.unitPriceEndValue = new BigDecimal(unitPriceEnd).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
+		}
+	}
+
+	@JSONField(serialize = false)
+	public Long getUnitPriceStartValue() {
+		return unitPriceStartValue;
+	}
+
+	@JSONField(serialize = false)
+	public Long getUnitPriceEndValue() {
+		return unitPriceEndValue;
 	}
 
 }
