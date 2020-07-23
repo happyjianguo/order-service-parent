@@ -93,19 +93,22 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         transitionDepartureSettlement.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("endTime")));
         //根据日期筛选出前一天的所有未结算的单子
         List<TransitionDepartureSettlement> list = getActualDao().scheduleUpdateSelect(transitionDepartureSettlement);
-        HashSet<Long> applyIds = new HashSet<>();
-        HashSet<Long> settlementIds = new HashSet<>();
-        //循环遍历，获取申请单id，更新拿到申请id和结算单id
-        for (int i = 0; i < list.size(); i++) {
-            TransitionDepartureSettlement transitionDepartureSettlement1 = list.get(i);
-            applyIds.add(transitionDepartureSettlement1.getApplyId());
-            settlementIds.add(transitionDepartureSettlement1.getId());
+        if (CollectionUtils.isNotEmpty(list)) {
+            HashSet<Long> applyIds = new HashSet<>();
+            HashSet<Long> settlementIds = new HashSet<>();
+            //循环遍历，获取申请单id，更新拿到申请id和结算单id
+            for (int i = 0; i < list.size(); i++) {
+                TransitionDepartureSettlement transitionDepartureSettlement1 = list.get(i);
+                applyIds.add(transitionDepartureSettlement1.getApplyId());
+                settlementIds.add(transitionDepartureSettlement1.getId());
+            }
+            //如果申请单id集合和结算单id集合不为空则更新
+            if (CollectionUtils.isNotEmpty(applyIds) && CollectionUtils.isNotEmpty(settlementIds)) {
+                transitionDepartureApplyMapper.scheduleUpdate(applyIds);
+                getActualDao().scheduleUpdate(settlementIds);
+            }
         }
-        //如果申请单id集合和结算单id集合不为空则更新
-        if (CollectionUtils.isNotEmpty(applyIds) && CollectionUtils.isNotEmpty(settlementIds)) {
-            transitionDepartureApplyMapper.scheduleUpdate(applyIds);
-            getActualDao().scheduleUpdate(settlementIds);
-        }
+
     }
 
     @Override
