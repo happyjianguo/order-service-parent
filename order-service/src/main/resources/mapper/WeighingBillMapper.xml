@@ -313,6 +313,26 @@
 		<if test="serialNo != null">
 			AND wb.serial_no = #{serialNo}
 		</if>
+		<if test="operatorId != null">
+			AND wb.creator_id = #{operatorId}
+		</if>
+		<if test="createdStart != null">
+			AND wb.created_time <![CDATA[>=]]>
+			#{createdStart}
+		</if>
+		<if test="createdEnd != null">
+			AND wb.created_time <![CDATA[<=]]>
+			#{createdEnd}
+		</if>
+		<if test="plateNumber != null">
+			AND wb.plate_number LIKE CONCAT('%',#{plateNumber},'%')
+		</if>
+		<if test="unitPriceStartValue != null">
+			AND wb.unit_price <![CDATA[>=]]> #{unitPriceStartValue}
+		</if>
+		<if test="unitPriceEndValue != null">
+			AND wb.unit_price <![CDATA[<=]]> #{unitPriceEndValue}
+		</if>
 	</select>
 
 	<select id="selectDetailById" parameterType="Long" resultMap="DetailResultMap">
