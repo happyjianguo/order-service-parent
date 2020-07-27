@@ -1,6 +1,5 @@
 package com.dili.orders.service;
 
-import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -40,5 +39,5 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
     /**
      * 撤销
      */
-    BaseOutput<TransitionDepartureSettlement> revocator(com.dili.orders.domain.TransitionDepartureSettlement transitionDepartureSettlement);
+    BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword);
 }

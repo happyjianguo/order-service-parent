@@ -12,6 +12,7 @@ import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.uap.sdk.rpc.UserRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -65,6 +66,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private CardRpc cardRpc;
+
+    @Autowired
+    private UserRpc userRpc;
 
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
@@ -307,7 +311,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement) {
+    public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
+
+        // 校验操作员密码
+        BaseOutput<Object> userOutput = this.userRpc.validatePassword(revocatorId, revocatorPassword);
+        if (!userOutput.isSuccess()) {
+            return BaseOutput.failure("操作员密码错误");
+        }
 
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
         if (transitionDepartureSettlement.getPayStatus() != 2) {
