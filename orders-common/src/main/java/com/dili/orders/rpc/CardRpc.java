@@ -11,7 +11,7 @@ import com.dili.ss.domain.BaseOutput;
 /**
  * 根据卡号获取账户信息
  */
-@FeignClient(name = "dili-card", contextId = "card")
+@FeignClient(name = "account-service", contextId = "card")
 public interface CardRpc {
     /**
      * 根据卡号获取账户信息
@@ -19,6 +19,6 @@ public interface CardRpc {
      * @param cardNo
      * @return
      */
-    @GetMapping("/accountQuery/simpleInfo.action")
+    @GetMapping("/api/account/simpleInfo")
     BaseOutput<AccountSimpleResponseDto> getOneAccountCard(@RequestParam(value = "cardNo") String cardNo);
 }
