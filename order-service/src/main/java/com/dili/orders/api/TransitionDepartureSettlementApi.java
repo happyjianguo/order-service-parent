@@ -179,8 +179,8 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
-    public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
-        return transitionDepartureSettlementService.revocator(transitionDepartureSettlement);
+    public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, @RequestParam(value = "revocatorId") Long revocatorId, @RequestParam(value = "revocatorPassword") String revocatorPassword) {
+        return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
     }
 
 
