@@ -24,7 +24,22 @@ public enum FundItem {
     TRANSFER(17, "转场费"),
     LEAVE(18, "离场费"),
     TRADE_SERVICE(19, "交易服务费"),
-    TRADE_PAYMENT(20, "交易货款");
+    TRADE_PAYMENT(20, "交易货款"),
+    RETURN_CARD_CHANGE(11, "退卡零钱"),
+    MANDATORY_FREEZE_FUND(12, "手动冻结资金"),
+    MANDATORY_UNFREEZE_FUND(13, "手动解冻资金"),
+    MANDATORY_FREEZE_ACCOUNT(14, "手动冻结账户"),
+    MANDATORY_UNFREEZE_ACCOUNT(15, "手动解冻账户"),
+    LOCAL_DELIVERY_FEE(16, "本地配送费"),
+    CAR_ENTRANCE_FEE(17, "车辆进场费"),
+    CAR_OUT_FEE(18, "车辆出场费"),
+    WEIGH_SERVICE_FEE(19, "称重服务费"),
+    TRANSFER_FEE(20, "车辆转场费"),
+    LEAVE_FEE(21, "车辆离场费"),
+    TRADE_SERVICE_FEE(23, "交易手续费"),
+    PASSPORT_MANAGE_FEE(24, "通行证管理费"),
+    TEST_FEE(25, "检测费"),
+    QUERY_FEE(26, "查询费");
     private int code;
     private String name;
 
