@@ -1,6 +1,9 @@
 package com.dili.orders.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
+import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
@@ -69,6 +72,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private UserRpc userRpc;
+
+    @Autowired
+    private RabbitMQMessageService rabbitMQMessageService;
 
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
@@ -190,56 +196,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         transitionDepartureSettlement.setOperatorId(operatorId);
         transitionDepartureSettlement.setOperatorName(operatorName);
         transitionDepartureSettlement.setOperatorCode(operatorCode);
-        //修改结算单的支付状态
-//        int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
-//        if (i1 <= 0) {
-//            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
-//        }
-
-        //支付请求成功之后，再调用新增操作记录的接口
-//        SerialDto serialDto = new SerialDto();
-//        List<SerialRecordDo> serialRecordList = new ArrayList<>();
-//        SerialRecordDo serialRecordDo = new SerialRecordDo();
-//        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
-//        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
-//        serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
-//        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
-//        serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
-//        serialRecordDo.setAction(ActionType.EXPENSE.getCode());
-//        serialRecordDo.setOperatorId(operatorId);
-//        serialRecordDo.setOperatorName(operatorName);
-//        serialRecordDo.setOperatorNo(operatorUserName);
-//        serialRecordDo.setFirmId(marketId);
-//        //判断是转场还是离场1.转场 2.离场
-//        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
-//            serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
-//            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
-//            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
-//        } else {
-//            serialRecordDo.setNotes("车辆离场" + transitionDepartureSettlement.getCode());
-//            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
-//            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
-//        }
-//        //判断是否走了支付
-//        if (Objects.nonNull(data)) {
-//            serialRecordDo.setEndBalance(data.getBalance() - transitionDepartureSettlement.getChargeAmount());
-//            serialRecordDo.setStartBalance(data.getBalance());
-//            serialRecordDo.setOperateTime(data.getWhen());
-//        } else {
-//            BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-//            if (!oneAccountCard1.isSuccess()) {
-//                throw new RuntimeException("查询失败-->根据卡号查询账户信息，余额等");
-//            }
-//            serialRecordDo.setEndBalance(oneAccountCard1.getData().getAccountFund().getBalance());
-//            serialRecordDo.setStartBalance(oneAccountCard1.getData().getAccountFund().getBalance());
-//            serialRecordDo.setOperateTime(LocalDateTime.now());
-//        }
-//        serialRecordList.add(serialRecordDo);
-//        serialDto.setSerialRecordList(serialRecordList);
-//        BaseOutput baseOutput = accountRpc.batchSave(serialDto);
-//        if (!baseOutput.isSuccess()) {
-//            throw new RuntimeException("操作交易记录-->新增失败");
-//        }
 
         //设置进门收费相关信息，并调用新增
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
@@ -257,6 +213,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setOperatorId(operatorId);
         vehicleAccessDTO.setOperatorName(operatorName);
         vehicleAccessDTO.setCreated(new Date());
+        vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
+//        vehicleAccessDTO.setMembershipCardId(transitionDepartureSettlement.getCustomerCardNo());
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
@@ -306,6 +264,38 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             }
             data = pay.getData();
         }
+        //对接操作记录
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+        serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
+        serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        serialRecordDo.setCustomerNo(transitionDepartureSettlement.getCustomerCode());
+        serialRecordDo.setOperatorId(operatorId);
+        serialRecordDo.setOperatorName(operatorName);
+        serialRecordDo.setOperatorNo(operatorUserName);
+        serialRecordDo.setFirmId(marketId);
+        //判断是转场还是离场1.转场 2.离场
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+            serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
+            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+        } else {
+            serialRecordDo.setNotes("车辆离场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
+            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
+        }
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setEndBalance(data.getBalance() - transitionDepartureSettlement.getChargeAmount());
+            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setOperateTime(data.getWhen());
+        }
+        serialRecordList.add(serialRecordDo);
+        rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
@@ -369,52 +359,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("转离场结算单撤销-->结算单修改失败");
         }
 
-        //支付请求成功之后，再调用新增操作记录的接口
-//        SerialDto serialDto = new SerialDto();
-//        List<SerialRecordDo> serialRecordList = new ArrayList<>();
-//        SerialRecordDo serialRecordDo = new SerialRecordDo();
-//        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
-//        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
-//        serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
-//        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
-//        serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
-//        serialRecordDo.setAction(ActionType.EXPENSE.getCode());
-//        serialRecordDo.setOperatorId(transitionDepartureSettlement.getOperatorId());
-//        serialRecordDo.setOperatorName(transitionDepartureSettlement.getOperatorName());
-//        serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
-//        serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
-//
-//        //判断是转场还是离场1.转场 2.离场
-//        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
-//            serialRecordDo.setNotes("撤销车辆转场" + transitionDepartureSettlement.getCode());
-//            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
-//            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
-//        } else {
-//            serialRecordDo.setNotes("撤销车辆离场" + transitionDepartureSettlement.getCode());
-//            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
-//            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
-//        }
-//        //判断是否走了支付
-//        if (Objects.nonNull(data)) {
-//            serialRecordDo.setEndBalance(data.getBalance());
-//            serialRecordDo.setStartBalance(data.getBalance());
-//            serialRecordDo.setOperateTime(data.getWhen());
-//        } else {
-//            BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-//            if (!oneAccountCard1.isSuccess()) {
-//                throw new RuntimeException("查询失败-->根据卡号查询账户信息，余额等");
-//            }
-//            serialRecordDo.setEndBalance(oneAccountCard1.getData().getAccountFund().getBalance());
-//            serialRecordDo.setStartBalance(oneAccountCard1.getData().getAccountFund().getBalance());
-//            serialRecordDo.setOperateTime(LocalDateTime.now());
-//        }
-//        serialRecordList.add(serialRecordDo);
-//        serialDto.setSerialRecordList(serialRecordList);
-//        BaseOutput baseOutput = accountRpc.batchSave(serialDto);
-//        if (!baseOutput.isSuccess()) {
-//            throw new RuntimeException("操作交易记录-->新增失败");
-//        }
-
         //通知进门，将对应撤销的单子作废掉
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
         //设置进门收费id
@@ -450,6 +394,45 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             }
             data = paymentTradeCommitResponseDtoBaseOutput.getData();
         }
+//        支付请求成功之后，再调用新增操作记录的接口
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+
+        //判断是否没有走支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
+        }
+        //判断是否没有走支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        }
+        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        serialRecordDo.setOperatorId(transitionDepartureSettlement.getOperatorId());
+        serialRecordDo.setOperatorName(transitionDepartureSettlement.getOperatorName());
+        serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
+        serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
+
+        //判断是转场还是离场1.转场 2.离场
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+            serialRecordDo.setNotes("撤销车辆转场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
+            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+        } else {
+            serialRecordDo.setNotes("撤销车辆离场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
+            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
+        }
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setEndBalance(data.getBalance());
+            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setOperateTime(data.getWhen());
+        }
+        serialRecordList.add(serialRecordDo);
+        rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
@@ -493,4 +476,5 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         return map;
     }
+
 }
