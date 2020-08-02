@@ -21,6 +21,11 @@ public class PaymentTradeConfirmDto extends AccountRequestDto {
 	private Long accountId;
 
 	/**
+	 * 业务账号ID
+	 */
+	private Long businessId;
+
+	/**
 	 * 交易金额
 	 */
 	private Long amount;
@@ -29,6 +34,11 @@ public class PaymentTradeConfirmDto extends AccountRequestDto {
 	 * 账户交易密码
 	 */
 	private String password;
+
+	/**
+	 * 只能是1-账户
+	 */
+	private final Integer channelId = 1;
 
 	/**
 	 * 买家、卖家手续费
@@ -49,6 +59,14 @@ public class PaymentTradeConfirmDto extends AccountRequestDto {
 
 	public void setAccountId(Long accountId) {
 		this.accountId = accountId;
+	}
+
+	public Long getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(Long businessId) {
+		this.businessId = businessId;
 	}
 
 	public Long getAmount() {
@@ -73,6 +91,10 @@ public class PaymentTradeConfirmDto extends AccountRequestDto {
 
 	public void setFees(List<FeeDto> fees) {
 		this.fees = fees;
+	}
+
+	public Integer getChannelId() {
+		return channelId;
 	}
 
 }

@@ -36,6 +36,11 @@ public class PaymentTradeCommitDto {
 	private String password;
 
 	/**
+	 * 金额
+	 */
+	private Long amount;
+
+	/**
 	 * 买卖家手续费
 	 */
 	private List<FeeDto> fees;
@@ -70,6 +75,14 @@ public class PaymentTradeCommitDto {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Long getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Long amount) {
+		this.amount = amount;
 	}
 
 	public List<FeeDto> getFees() {

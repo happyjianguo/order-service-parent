@@ -7,7 +7,6 @@ import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
-import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
@@ -26,33 +25,30 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill);
 
 	/**
-	 * 修改过磅单
+	 * 关闭
 	 * 
-	 * @param weighingBill
+	 * @param serialNo 过磅单号
 	 * @return
 	 */
-	BaseOutput<Object> updateWeighingBill(WeighingBillUpdateDto weighingBill);
+	BaseOutput<Object> close(String serialNo);
 
 	/**
-	 * 结算
+	 * 过磅单详情
 	 * 
-	 * @param serialNo      过磅单号
-	 * @param buyerPassword 买家交易密码
-	 * @param operatorId    TODO
+	 * @param id
 	 * @return
 	 */
-	BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId);
+	WeighingBillDetailDto detail(Long id);
 
 	/**
-	 * 撤销过磅单
+	 * 冻结过磅单
 	 * 
-	 * @param serialNo       过磅单号
-	 * @param buyerPassword  买家交易密码
-	 * @param sellerPassword 卖家交易密码
-	 * @param operatorId     TODO
+	 * @param serialNo
+	 * @param buyerPassword
+	 * @param operatorId
 	 * @return
 	 */
-	BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
+	BaseOutput<Object> freeze(String serialNo, String buyerPassword, Long operatorId);
 
 	/**
 	 * 作废过磅单
@@ -64,6 +60,14 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @return
 	 */
 	BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
+
+	/**
+	 * 分页查询
+	 * 
+	 * @param query
+	 * @return
+	 */
+	PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query);
 
 	/**
 	 * 操作员作废过磅单
@@ -86,27 +90,32 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword);
 
 	/**
-	 * 关闭
+	 * 结算
 	 * 
-	 * @param serialNo 过磅单号
+	 * @param serialNo      过磅单号
+	 * @param buyerPassword 买家交易密码
+	 * @param operatorId    TODO
 	 * @return
 	 */
-	BaseOutput<Object> close(String serialNo);
+	BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId);
 
 	/**
-	 * 分页查询
+	 * 修改过磅单
 	 * 
-	 * @param query
+	 * @param weighingBill
 	 * @return
 	 */
-	PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query);
+	BaseOutput<Object> updateWeighingBill(WeighingBill weighingBill);
 
 	/**
-	 * 过磅单详情
+	 * 撤销过磅单
 	 * 
-	 * @param id
+	 * @param serialNo       过磅单号
+	 * @param buyerPassword  买家交易密码
+	 * @param sellerPassword 卖家交易密码
+	 * @param operatorId     TODO
 	 * @return
 	 */
-	WeighingBillDetailDto detail(Long id);
+	BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
 
 }

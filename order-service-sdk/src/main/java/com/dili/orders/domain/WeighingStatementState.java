@@ -2,7 +2,7 @@ package com.dili.orders.domain;
 
 public enum WeighingStatementState {
 
-	UNPAID("待支付", 1), PAID("已支付", 2), REFUNDED("已退款", 3);
+	UNPAID("待支付", 1), PAID("已支付", 2), REFUNDED("已退款", 3), FROZEN("已冻结", 3);
 
 	private String name;
 	private Integer value;

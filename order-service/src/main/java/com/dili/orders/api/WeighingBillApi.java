@@ -74,7 +74,7 @@ public class WeighingBillApi {
 	 * @return BaseOutput
 	 */
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput update(@RequestBody WeighingBillUpdateDto weighingBill) {
+	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill) {
 		BaseOutput<Object> output = weighingBillService.updateWeighingBill(weighingBill);
 		return output;
 	}
@@ -152,7 +152,7 @@ public class WeighingBillApi {
 	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword) {
 		return this.weighingBillService.operatorInvalidate(id, operatorId, operatorPassword);
 	}
-	
+
 	/**
 	 * 操作员作废过磅单
 	 * 

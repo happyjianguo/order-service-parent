@@ -39,15 +39,6 @@ public interface PayRpc {
 	BaseOutput<CreateTradeResponseDto> prepareTrade(@RequestBody PaymentTradePrepareDto dto);
 
 	/**
-	 * 提交预授权交易
-	 *
-	 * @param dto
-	 * @return 交易号
-	 */
-	@RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
-	BaseOutput<PaymentTradeCommitResponseDto> confirm(@RequestBody PaymentTradeConfirmDto dto);
-
-	/**
 	 * 撤销预授权交易
 	 *
 	 * @param dto
@@ -57,13 +48,22 @@ public interface PayRpc {
 	BaseOutput<PaymentTradeCommitResponseDto> cancelTrade(@RequestBody PaymentTradeCancelDto dto);
 
 	/**
-	 * 提交即时交易
+	 * 提交即时交易或提交预授权交易
 	 *
 	 * @param dto
 	 * @return 交易号
 	 */
 	@RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
 	BaseOutput<PaymentTradeCommitResponseDto> commitTrade(@RequestBody PaymentTradeCommitDto dto);
+	
+	/**
+	 * 确认预授权
+	 *
+	 * @param dto
+	 * @return 交易号
+	 */
+	@RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:confirm", method = RequestMethod.POST)
+	BaseOutput<PaymentTradeCommitResponseDto> confirm(@RequestBody PaymentTradeCommitDto dto);
 
 	/**
 	 * 缴费
