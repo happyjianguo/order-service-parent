@@ -281,12 +281,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断是转场还是离场1.转场 2.离场
         if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
             serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
-            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
-            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+            serialRecordDo.setFundItem(FundItem.TRANSFER_FEE.getCode());
+            serialRecordDo.setFundItemName(FundItem.TRANSFER_FEE.getName());
         } else {
             serialRecordDo.setNotes("车辆离场" + transitionDepartureSettlement.getCode());
-            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
-            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
+            serialRecordDo.setFundItem(FundItem.LEAVE_FEE.getCode());
+            serialRecordDo.setFundItemName(FundItem.LEAVE_FEE.getName());
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
@@ -418,12 +418,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断是转场还是离场1.转场 2.离场
         if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
             serialRecordDo.setNotes("撤销车辆转场" + transitionDepartureSettlement.getCode());
-            serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
-            serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+            serialRecordDo.setFundItem(FundItem.TRANSFER_FEE.getCode());
+            serialRecordDo.setFundItemName(FundItem.TRANSFER_FEE.getName());
         } else {
             serialRecordDo.setNotes("撤销车辆离场" + transitionDepartureSettlement.getCode());
-            serialRecordDo.setFundItem(FundItem.LEAVE.getCode());
-            serialRecordDo.setFundItemName(FundItem.LEAVE.getName());
+            serialRecordDo.setFundItem(FundItem.LEAVE_FEE.getCode());
+            serialRecordDo.setFundItemName(FundItem.LEAVE_FEE.getName());
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
