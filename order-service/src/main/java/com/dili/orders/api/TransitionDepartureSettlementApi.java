@@ -218,9 +218,13 @@ public class TransitionDepartureSettlementApi {
             queryFeeInput.setBusinessType("ZC_PAY");
             //根据业务类型获取收费项
             BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+            //业务类型
             businessChargeItemDto.setBusinessType("ZC_PAY");
+            //是否必须
             businessChargeItemDto.setIsRequired(1);
+            //收费
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
+            //市场id
             businessChargeItemDto.setMarketId(marketId);
             BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
             //判断是否成功
