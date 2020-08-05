@@ -1,5 +1,8 @@
 package com.dili.orders.api;
 
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
+import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.service.TransitionDepartureApplyService;
@@ -35,6 +38,8 @@ public class TransitionDepartureSettlementApi {
     @Autowired
     private TransitionDepartureApplyService transitionDepartureApplyService;
 
+    @Autowired
+    private BusinessChargeItemRpc businessChargeItemRpc;
 
     /**
      * @param transitionDepartureSettlement
@@ -186,7 +191,7 @@ public class TransitionDepartureSettlementApi {
 
     /**
      * 获取计费规则所得到的的金额
-     *
+     * 目前设计的是，一个业务类型只对应一个收费项，将转场，离场分开的
      * @param netWeight    净重
      * @param marketId     市场id
      * @param departmentId 部门id
@@ -207,21 +212,50 @@ public class TransitionDepartureSettlementApi {
         Map<String, Object> map = new HashMap<>();
         //设置市场id
         queryFeeInput.setMarketId(marketId);
-        //设置业务类型
-        queryFeeInput.setBusinessType("ZLC_PAY");
         //判断是转场还是离场。收费项不同
         if (Objects.equals(transitionDepartureApply.getBizType(), 1)) {
+            //设置业务类型
+            queryFeeInput.setBusinessType("ZC_PAY");
+            //根据业务类型获取收费项
+            BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+            businessChargeItemDto.setBusinessType("ZC_PAY");
+            businessChargeItemDto.setIsRequired(1);
+            businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
+            businessChargeItemDto.setMarketId(marketId);
+            BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
+            //判断是否成功
+            if (!listBaseOutput.isSuccess()) {
+                return listBaseOutput;
+            }
             //设置收费项id
-            queryFeeInput.setChargeItem(60L);
+            queryFeeInput.setChargeItem(listBaseOutput.getData().get(0).getId());
         } else if (Objects.equals(transitionDepartureApply.getBizType(), 2)) {
-            queryFeeInput.setChargeItem(61L);
+            //设置业务类型
+            queryFeeInput.setBusinessType("LC_PAY");
+            //根据业务类型获取收费项
+            BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+            businessChargeItemDto.setBusinessType("LC_PAY");
+            businessChargeItemDto.setIsRequired(1);
+            businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
+            businessChargeItemDto.setMarketId(marketId);
+            BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
+            //判断是否成功
+            if (!listBaseOutput.isSuccess()) {
+                return listBaseOutput;
+            }
+            //设置收费项id
+            queryFeeInput.setChargeItem(listBaseOutput.getData().get(0).getId());
         }
         map.put("weight", netWeight);
         queryFeeInput.setCalcParams(map);
         //构建指标
         Map<String, Object> map2 = new HashMap();
+        //设置部门信息
         map2.put("departmentId", departmentId);
+        //设置市场信息
         map2.put("marketId", marketId);
+        //设置客户信息
+        map2.put("customerId", transitionDepartureApply.getCustomerId());
         queryFeeInput.setConditionParams(map2);
         return chargeRuleRpc.queryFee(queryFeeInput);
     }
