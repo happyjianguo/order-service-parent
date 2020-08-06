@@ -1,6 +1,7 @@
 package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
@@ -15,7 +16,9 @@ import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.UserRpc;
+import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,6 +75,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private UserRpc userRpc;
+
+    @Autowired
+    private AssetsRpc assetsRpc;
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
@@ -201,7 +207,22 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
         vehicleAccessDTO.setMarketId(marketId);
         vehicleAccessDTO.setPlateNumber(transitionDepartureSettlement.getPlate());
-        vehicleAccessDTO.setVehicleTypeId(transitionDepartureSettlement.getCarTypeId());
+
+        //进门收费新增需要保存车型明，车型code。车型id
+        CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
+        carTypeForJmsfDTO.setBusinessCode("jmsf");
+        carTypeForJmsfDTO.setMarketId(marketId);
+        carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        if (!listBaseOutput.isSuccess()) {
+            throw new RuntimeException("进门收费-->车型查询失败");
+        }
+        vehicleAccessDTO.setVehicleTypeId(listBaseOutput.getData().get(0).getId());
+        //新增车类型名
+        vehicleAccessDTO.setVehicleTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        //新增车类型code
+        vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
+
         vehicleAccessDTO.setBarrierType(3);
         vehicleAccessDTO.setEntryTime(new Date());
         vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
