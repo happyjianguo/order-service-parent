@@ -14,11 +14,10 @@ import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
-import com.dili.orders.dto.WeighingBillUpdateDto;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
-import com.github.pagehelper.Page;
+import com.dili.ss.exception.AppException;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -37,8 +36,12 @@ public class WeighingBillApi {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/listPage", method = { RequestMethod.POST })
-	public @ResponseBody PageOutput<List<WeighingBillListPageDto>> listPage(@RequestBody WeighingBillQueryDto query) throws Exception {
-		return weighingBillService.listPage(query);
+	public @ResponseBody BaseOutput<?> listPage(@RequestBody WeighingBillQueryDto query) throws Exception {
+		try {
+			return weighingBillService.listPage(query);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 
 	}
 
@@ -50,8 +53,8 @@ public class WeighingBillApi {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/listByExample", method = { RequestMethod.POST })
-	public @ResponseBody BaseOutput<List<WeighingBill>> listByExample(@RequestBody WeighingBillQueryDto weighingBill) throws Exception {
-		List<WeighingBill> list = weighingBillService.listByExample(weighingBill);
+	public @ResponseBody BaseOutput<List<WeighingBillListPageDto>> listByExample(@RequestBody WeighingBillQueryDto weighingBill) throws Exception {
+		List<WeighingBillListPageDto> list = weighingBillService.listByExampleModified(weighingBill);
 		return BaseOutput.success().setData(list);
 	}
 
@@ -63,8 +66,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/insert", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill) {
-		BaseOutput<WeighingStatement> output = weighingBillService.addWeighingBill(weighingBill);
-		return output;
+		try {
+			return weighingBillService.addWeighingBill(weighingBill);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -75,8 +81,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill) {
-		BaseOutput<Object> output = weighingBillService.updateWeighingBill(weighingBill);
-		return output;
+		try {
+			return weighingBillService.updateWeighingBill(weighingBill);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -87,8 +96,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput settle(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
-		BaseOutput<Object> output = weighingBillService.settle(serialNo, buyerPassword, operatorId);
-		return output;
+		try {
+			return weighingBillService.settle(serialNo, buyerPassword, operatorId);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -100,7 +112,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/withdraw", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
-		return this.weighingBillService.withdraw(serialNo, buyerPassword, sellerPassword, operatorId);
+		try {
+			return this.weighingBillService.withdraw(serialNo, buyerPassword, sellerPassword, operatorId);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -114,7 +130,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/invalidate", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
-		return this.weighingBillService.invalidate(serialNo, buyerPassword, sellerPassword, operatorId);
+		try {
+			return this.weighingBillService.invalidate(serialNo, buyerPassword, sellerPassword, operatorId);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -125,7 +145,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/close", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> close(String serialNo) {
-		return this.weighingBillService.close(serialNo);
+		try {
+			return this.weighingBillService.close(serialNo);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -150,7 +174,11 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/operatorInvalidate")
 	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword) {
-		return this.weighingBillService.operatorInvalidate(id, operatorId, operatorPassword);
+		try {
+			return this.weighingBillService.operatorInvalidate(id, operatorId, operatorPassword);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 
 	/**
@@ -163,6 +191,10 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/operatorWithdraw")
 	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword) {
-		return this.weighingBillService.operatorWithdraw(id, operatorId, operatorPassword);
+		try {
+			return this.weighingBillService.operatorWithdraw(id, operatorId, operatorPassword);
+		} catch (AppException e) {
+			return BaseOutput.failure(e.getMessage());
+		}
 	}
 }

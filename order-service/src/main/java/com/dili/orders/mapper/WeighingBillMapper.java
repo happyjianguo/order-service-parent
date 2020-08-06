@@ -13,4 +13,6 @@ public interface WeighingBillMapper extends MyMapper<WeighingBill> {
 	List<WeighingBillListPageDto> listPage(WeighingBillQueryDto query);
 	
 	WeighingBillDetailDto selectDetailById(Long id);
+
+	List<WeighingBillListPageDto> selectByExampleModified(WeighingBillQueryDto weighingBill);
 }

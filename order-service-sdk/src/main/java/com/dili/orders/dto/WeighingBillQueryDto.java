@@ -51,6 +51,12 @@ public class WeighingBillQueryDto extends WeighingBill {
 	private String unitPriceEnd;
 	@Transient
 	private Long unitPriceEndValue;
+	@Transient
+	private List<Integer> statementStates;
+	/**
+	 * 是否过滤掉价格异常数据
+	 */
+	private Boolean filterByPriceState = false;
 
 	public List<Integer> getStates() {
 		return states;
@@ -138,6 +144,22 @@ public class WeighingBillQueryDto extends WeighingBill {
 	@JSONField(serialize = false)
 	public Long getUnitPriceEndValue() {
 		return unitPriceEndValue;
+	}
+
+	public List<Integer> getStatementStates() {
+		return statementStates;
+	}
+
+	public void setStatementStates(List<Integer> statementStates) {
+		this.statementStates = statementStates;
+	}
+
+	public Boolean getFilterByPriceState() {
+		return filterByPriceState;
+	}
+
+	public void setFilterByPriceState(Boolean filterByPriceState) {
+		this.filterByPriceState = filterByPriceState;
 	}
 
 }
