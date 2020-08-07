@@ -118,4 +118,12 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 */
 	BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
 
+	/**
+	 * 自定义条件查询过磅单
+	 * 
+	 * @param weighingBill
+	 * @return
+	 */
+	List<WeighingBillListPageDto> listByExampleModified(WeighingBillQueryDto weighingBill);
+
 }

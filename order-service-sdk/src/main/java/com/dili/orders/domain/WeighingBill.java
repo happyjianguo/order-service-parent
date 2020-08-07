@@ -276,6 +276,12 @@ public class WeighingBill extends BaseDomain {
      */
     @Column(name = "`modifier_id`")
     private Long modifierId;
+    
+    /**
+     * 价格状态，1待审核，2审核通过，3审核拒绝
+     */
+    @Column(name = "`price_state`")
+    private Integer priceState;
 
     /**
      * @return id
