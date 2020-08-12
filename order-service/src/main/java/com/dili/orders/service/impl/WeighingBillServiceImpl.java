@@ -843,7 +843,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新结算单状态失败");
 		}
 
-		weighingBill.setState(WeighingBillState.WITHDRAWN.getValue());
+		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
 		weighingBill.setModifiedTime(now);
 		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
