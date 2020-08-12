@@ -131,9 +131,9 @@ public class TransitionDepartureApplyApi {
      * @throws Exception
      */
     @RequestMapping(value = "/getOneByCustomerCardNo", method = {RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getOneByCustomerCardNo(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    public BaseOutput<TransitionDepartureApply> getOneByCustomerCardNo(@RequestBody TransitionDepartureApply transitionDepartureApply, Long marketId, Long departmentId) {
         try {
-            return BaseOutput.successData(transitionDepartureApplyService.getOneByCustomerID(transitionDepartureApply));
+            return BaseOutput.successData(transitionDepartureApplyService.getOneByCustomerID(transitionDepartureApply, marketId, departmentId));
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("查询失败" + e.getMessage());

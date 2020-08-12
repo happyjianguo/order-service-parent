@@ -29,7 +29,7 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
     /**
      * 新增
      */
-    BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement);
+    BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId);
 
     /**
      * 支付

@@ -130,7 +130,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement) {
+    public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
         //设置支付状态为未结算
         transitionDepartureSettlement.setPayStatus(1);
         //根据申请单id拿到申请单，修改申请单的支付状态为1（未结算）
@@ -138,6 +138,18 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("转离场支付-->未找到相关申请单");
         }
+        //进门收费新增需要保存车型明，车型code。车型id
+        CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
+        carTypeForJmsfDTO.setBusinessCode("jmsf");
+        carTypeForJmsfDTO.setMarketId(marketId);
+        carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        if (!listBaseOutput.isSuccess()) {
+            throw new RuntimeException("进门收费-->车型查询失败");
+        }
+        //因为可以修改，所以需要从新获取车型id和名称
+        transitionDepartureApply.setCarTypeId(transitionDepartureSettlement.getCarTypeId());
+        transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         transitionDepartureApply.setPayStatus(1);
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         if (i <= 0) {
@@ -165,6 +177,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //根据uid设置结算单的code
         transitionDepartureSettlement.setCode(uidRpc.bizNumber("sg_zlc_settlement").getData());
+        transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         int insert = getActualDao().insert(transitionDepartureSettlement);
         if (insert <= 0) {
             throw new RuntimeException("转离场结算单新增-->创建转离场结算单失败");

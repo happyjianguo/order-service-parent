@@ -164,8 +164,8 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/insertTransitionDepartureSettlement", method = {RequestMethod.POST})
-    public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
-        return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement);
+    public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
+        return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
     }
 
     /**
@@ -192,6 +192,7 @@ public class TransitionDepartureSettlementApi {
     /**
      * 获取计费规则所得到的的金额
      * 目前设计的是，一个业务类型只对应一个收费项，将转场，离场分开的
+     *
      * @param netWeight    净重
      * @param marketId     市场id
      * @param departmentId 部门id

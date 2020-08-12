@@ -18,7 +18,7 @@ public interface TransitionDepartureApplyService extends BaseService<TransitionD
      * @param transitionDepartureApply
      * @return
      */
-    TransitionDepartureApply getOneByCustomerID(TransitionDepartureApply transitionDepartureApply);
+    TransitionDepartureApply getOneByCustomerID(TransitionDepartureApply transitionDepartureApply, Long marketId, Long departmentId);
 
     /**
      * 根据页面上的参数查询
