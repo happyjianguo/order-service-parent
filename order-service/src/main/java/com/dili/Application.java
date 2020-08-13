@@ -27,7 +27,7 @@ public class Application extends SpringBootServletInitializer {
 
 	@LoadBalanced
 	@Bean
-	public RestTemplate restTemplate() {
+	public RestTemplate restTemplate() {  
 		return new RestTemplate();
 	}
 
