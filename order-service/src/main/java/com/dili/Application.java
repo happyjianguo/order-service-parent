@@ -26,7 +26,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class Application extends SpringBootServletInitializer {
 
 	@LoadBalanced
-	@Bean
+	@Bean 
 	public RestTemplate restTemplate() {   
 		return new RestTemplate();
 	}
