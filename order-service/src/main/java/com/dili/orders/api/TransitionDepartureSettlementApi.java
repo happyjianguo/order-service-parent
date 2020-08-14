@@ -64,13 +64,13 @@ public class TransitionDepartureSettlementApi {
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
         //如果没有传入时间范围，那默认展示当天的数据
         //设置开始时间
-        if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
-            transitionDepartureSettlement.setBeginTime(getBeginDate());
-        }
-        //设置结束时间
-        if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
-            transitionDepartureSettlement.setEndTime(getEndDate());
-        }
+//        if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
+//            transitionDepartureSettlement.setBeginTime(getBeginDate());
+//        }
+//        //设置结束时间
+//        if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
+//            transitionDepartureSettlement.setEndTime(getEndDate());
+//        }
         return transitionDepartureSettlementService.listByQueryParams(transitionDepartureSettlement);
     }
 
