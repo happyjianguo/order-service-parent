@@ -1014,7 +1014,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			ws.setBuyerActualAmount(ws.getTradeAmount() + buyerFeeOutput.getData().getTotalFee().longValue());
 			ws.setBuyerPoundage(buyerFeeOutput.getData().getTotalFee().longValue());
 			BaseOutput<QueryFeeOutput> sellerFeeOutput = this.calculatePoundage(ws, marketId, "WEIGHING_BILL_SELLER_POUNDAGE");
-			if (!buyerFeeOutput.isSuccess()) {
+			if (!sellerFeeOutput.isSuccess()) {
 				throw new AppException("计算卖家手续费失败");
 			}
 			ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue());
