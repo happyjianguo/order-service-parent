@@ -16,14 +16,11 @@ import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
-import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,11 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -86,10 +80,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
         //判断是否传入日期，没有传入的话默认当天
         if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
-            transitionDepartureSettlement.setBeginTime(new Date());
+            transitionDepartureSettlement.setBeginTime(LocalDate.now());
         }
         if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
-            transitionDepartureSettlement.setEndTime(new Date());
+            transitionDepartureSettlement.setEndTime(LocalDate.now());
         }
         Integer page = transitionDepartureSettlement.getPage();
         page = (page == null) ? Integer.valueOf(1) : page;
@@ -113,8 +107,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         Map<String, String> beforeDate = getBeforeDate();
         //设置查询参数
         //查询日期使用的是Date类型
-        transitionDepartureSettlement.setBeginTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("beginTime")));
-        transitionDepartureSettlement.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("endTime")));
+        transitionDepartureSettlement.setBeginTime(LocalDate.now().plusDays(-1));
+        transitionDepartureSettlement.setEndTime(LocalDate.now().plusDays(-1));
         //根据日期筛选出前一天的所有未结算的单子
         List<TransitionDepartureSettlement> list = getActualDao().scheduleUpdateSelect(transitionDepartureSettlement);
         if (CollectionUtils.isNotEmpty(list)) {
