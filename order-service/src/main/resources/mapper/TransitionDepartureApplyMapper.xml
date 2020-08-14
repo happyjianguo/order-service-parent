@@ -277,6 +277,9 @@
         <if test="userId != null">
             AND (originator_id=#{userId} or approval_id=#{userId})
         </if>
+        <if test="customerCardNo != null and customerCardNo!=''">
+            AND customer_card_no = #{customerCardNo}
+        </if>
         <if test="departments != null">
             AND customer_department_id IN
             (
