@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -41,8 +43,8 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
 
     @Override
     public TransitionDepartureApply getOneByCustomerID(TransitionDepartureApply transitionDepartureApply, Long marketId, Long departmentId) {
-        transitionDepartureApply.setBeginTime(getTodayStart());
-        transitionDepartureApply.setEndTime(getTodayEnd());
+        transitionDepartureApply.setBeginTime(LocalDate.now());
+        transitionDepartureApply.setEndTime(LocalDate.now());
         TransitionDepartureApply oneByCustomerID = getActualDao().getOneByCustomerID(transitionDepartureApply);
         if (Objects.nonNull(oneByCustomerID.getTransitionDepartureSettlement()) && Objects.nonNull(oneByCustomerID.getTransitionDepartureSettlement().getNetWeight())) {
             oneByCustomerID.getTransitionDepartureSettlement().setChargeAmount(getFee(marketId, departmentId, oneByCustomerID, oneByCustomerID.getTransitionDepartureSettlement().getNetWeight()));
@@ -54,10 +56,10 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
     public PageOutput<List<TransitionDepartureApply>> listByQueryParams(TransitionDepartureApply transitionDepartureApply) {
         //需要默认为当天，如果时间不为空，则不设置
         if (Objects.isNull(transitionDepartureApply.getBeginTime())) {
-            transitionDepartureApply.setBeginTime(getTodayStart());
+            transitionDepartureApply.setBeginTime(LocalDate.now());
         }
         if (Objects.isNull(transitionDepartureApply.getEndTime())) {
-            transitionDepartureApply.setEndTime(getTodayEnd());
+            transitionDepartureApply.setEndTime(LocalDate.now());
         }
         Integer page = transitionDepartureApply.getPage();
         page = (page == null) ? Integer.valueOf(1) : page;

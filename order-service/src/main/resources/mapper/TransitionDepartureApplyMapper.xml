@@ -235,8 +235,8 @@
           SELECT max( a.approval_time ) FROM transition_departure_apply a
           Where 1 = 1
             AND a.customer_card_no = #{customerCardNo}
-            AND a.approval_time  <![CDATA[>=]]> #{beginTime}
-            AND a.approval_time  <![CDATA[<=]]> #{endTime}
+            AND a.approval_time  <![CDATA[>=]]> DATE_FORMAT(#{beginTime},'%Y-%m-%d 00:00:00')
+            AND a.approval_time  <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y-%m-%d 23:59:59')
           GROUP BY a.customer_id
           )
           AND a.customer_card_no = #{customerCardNo})a
