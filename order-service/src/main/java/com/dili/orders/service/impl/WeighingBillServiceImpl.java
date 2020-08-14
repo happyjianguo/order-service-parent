@@ -598,13 +598,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		// 删除皮重单
-		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
-			// 删除皮重单
-			BaseOutput<Object> jmsfOutput = this.jsmfRpc.removeTareNumber(Long.valueOf(weighingBill.getTareBillNumber()));
-			if (!jmsfOutput.isSuccess()) {
-				throw new AppException("删除过磅单失败");
-			}
-		}
+//		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
+//			// 删除皮重单
+//			BaseOutput<Object> jmsfOutput = this.jsmfRpc.removeTareNumber(Long.valueOf(weighingBill.getTareBillNumber()));
+//			if (!jmsfOutput.isSuccess()) {
+//				throw new AppException("删除过磅单失败");
+//			}
+//		}
 
 		Integer originalState = weighingBill.getState();
 
@@ -1112,12 +1112,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private BaseOutput<?> prepareTrade(WeighingBill weighingBill, WeighingStatement ws) {
-		// 直接结算
-		Long buyerAmount = weighingBill.getNetWeight() * weighingBill.getUnitPrice();
 		// 创建支付订单
 		PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
 		prepareDto.setAccountId(weighingBill.getSellerAccount());
-		prepareDto.setAmount(buyerAmount);
+		prepareDto.setAmount(ws.getTradeAmount());
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
 		prepareDto.setSerialNo(weighingBill.getSerialNo());
 		prepareDto.setType(PaymentTradeType.TRADE.getValue());

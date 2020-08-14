@@ -200,10 +200,12 @@
 		<association property="statement">
 			<result column="ws_serial_no" property="serialNo" />
 			<result column="trade_amount" property="tradeAmount" />
+			<result column="ws_frozen_amount" property="frozenAmount" />
 			<result column="buyer_poundage" property="buyerPoundage" />
 			<result column="buyer_actual_amount" property="buyerActualAmount" />
 			<result column="seller_poundage" property="sellerPoundage" />
 			<result column="seller_actual_amount" property="sellerActualAmount" />
+			<result column="ws_state" property="state" />
 		</association>
 		<association property="operationRecord">
 			<result column="operator_id" property="operatorId" />
@@ -258,10 +260,12 @@
 	<sql id="Ws_Join_Column_List">
 		ws.serial_no AS ws_serial_no,
 		ws.trade_amount,
+		ws.frozen_amount AS ws_frozen_amount,
 		ws.buyer_poundage,
 		ws.buyer_actual_amount,
 		ws.seller_poundage,
-		ws.seller_actual_amount
+		ws.seller_actual_amount,
+		ws.state AS ws_state
 	</sql>
 
 	<sql id="Wbor_Join_Column_List">

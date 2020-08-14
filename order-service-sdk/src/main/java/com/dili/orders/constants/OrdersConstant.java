@@ -52,4 +52,9 @@ public class OrdersConstant {
 	 */
 	public static final String SHOUGUANG_FIRM_CODE = "sg";
 
+	/**
+	 * 取重开关数据字典编码，用户查询数据字典，以确定取重按钮是否可用
+	 */
+	public static final String FETCH_WEIGHT_SWITCH_DD_CODE = "fetch_weight_switch";
+
 }
