@@ -179,10 +179,10 @@
             AND operator_id=#{operatorId}
         </if>
         <if test="beginTime != null">
-            AND pay_time  <![CDATA[>=]]> #{beginTime}
+            AND pay_time  <![CDATA[>=]]> DATE_FORMAT(#{beginTime},'%Y-%m-%d 00:00:00')
         </if>
         <if test="endTime != null">
-            AND pay_time  <![CDATA[<=]]> #{endTime}
+            AND pay_time  <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y-%m-%d 23:59:59')
         </if>
         <if test="userId != null">
             AND (operator_id=#{userId} or revocator_id=#{userId})

@@ -84,6 +84,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
+        //判断是否传入日期，没有传入的话默认当天
+        if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
+            transitionDepartureSettlement.setBeginTime(new Date());
+        }
+        if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
+            transitionDepartureSettlement.setEndTime(new Date());
+        }
         Integer page = transitionDepartureSettlement.getPage();
         page = (page == null) ? Integer.valueOf(1) : page;
         if (transitionDepartureSettlement.getRows() != null && transitionDepartureSettlement.getRows() >= 1) {
