@@ -52,6 +52,13 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
 
     @Override
     public PageOutput<List<TransitionDepartureApply>> listByQueryParams(TransitionDepartureApply transitionDepartureApply) {
+        //需要默认为当天，如果时间不为空，则不设置
+        if (Objects.isNull(transitionDepartureApply.getBeginTime())) {
+            transitionDepartureApply.setBeginTime(getTodayStart());
+        }
+        if (Objects.isNull(transitionDepartureApply.getEndTime())) {
+            transitionDepartureApply.setEndTime(getTodayEnd());
+        }
         Integer page = transitionDepartureApply.getPage();
         page = (page == null) ? Integer.valueOf(1) : page;
         if (transitionDepartureApply.getRows() != null && transitionDepartureApply.getRows() >= 1) {
