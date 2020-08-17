@@ -1,5 +1,6 @@
 package com.dili.orders.rpc;
 
+import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,24 @@ public interface JmsfRpc {
      */
     @RequestMapping("/api/truck/deleteById")
     BaseOutput<Object> removeTareNumber(@RequestParam(value = "id") Long id);
+
+    /**
+     * 获取皮重单
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping("/api/truck/getById")
+    BaseOutput<TruckDTO> getById(@RequestParam(value = "id") TruckDTO id);
+
+    /**
+     * 恢复皮重单
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping("/api/truck/recoverById")
+    BaseOutput<TruckDTO> recoverById(@RequestParam(value = "id") Long id);
 
     /**
      * 转离场获取单号，判断是否以及离场
