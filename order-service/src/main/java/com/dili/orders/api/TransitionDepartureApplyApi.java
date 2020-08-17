@@ -62,7 +62,7 @@ public class TransitionDepartureApplyApi {
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("新增失败" + e.getMessage());
+            return BaseOutput.failure("新增失败");
         }
     }
 
@@ -78,7 +78,7 @@ public class TransitionDepartureApplyApi {
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("修改失败" + e.getMessage());
+            return BaseOutput.failure("修改失败");
         }
         return BaseOutput.success("修改成功");
     }
@@ -98,7 +98,7 @@ public class TransitionDepartureApplyApi {
             transitionDepartureApplyService.delete(id);
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("删除失败" + e.getMessage());
+            return BaseOutput.failure("删除失败");
         }
         return BaseOutput.success("删除成功");
     }
@@ -119,7 +119,7 @@ public class TransitionDepartureApplyApi {
             return BaseOutput.successData(transitionDepartureApplyService.get(id));
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("查询失败" + e.getMessage());
+            return BaseOutput.failure("查询失败");
         }
     }
 
@@ -136,7 +136,7 @@ public class TransitionDepartureApplyApi {
             return BaseOutput.successData(transitionDepartureApplyService.getOneByCustomerID(transitionDepartureApply, marketId, departmentId));
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("查询失败" + e.getMessage());
+            return BaseOutput.failure("查询失败");
         }
     }
 
