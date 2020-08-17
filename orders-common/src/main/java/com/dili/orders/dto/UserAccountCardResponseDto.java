@@ -14,203 +14,259 @@ import java.util.List;
  * @Description: 卡账户响应Dto
  */
 public class UserAccountCardResponseDto implements Serializable {
-	/**
-	 * 市场id
-	 */
-	private Long firmId;
-	/**
-	 * 卡账号id
-	 */
-	private Long accountId;
-	/**
-	 * 父卡账号
-	 */
-	private Long parentAccountId;
-	/**
-	 * 卡交易类型: 1-买家 2-卖家 {@link com.dili.account.type.AccountType}
-	 */
-	private Integer accountType;
-	/**
-	 * 资金账号ID
-	 */
-	private Long fundAccountId;
-	/**
-	 * 客户id
-	 */
-	private Long customerId;
-	/**
-	 * 客户名称
-	 */
-	private String customerName;
-	/**
-	 * 使用权限(充值、提现、交费等) {@link com.dili.account.type.UsePermissionType}
-	 */
-	private List<String> permissionList;
-	/**
-	 * 卡ID
-	 */
-	private Long cardId;
-	/**
-	 * 卡号
-	 */
-	private String cardNo;
-	/**
-	 * 卡账户用途 {@link com.dili.account.type.AccountUsageType}
-	 */
-	private List<String> usageType;
-	/**
-	 * 卡类型-主/副/临时/联营 {@link com.dili.account.type.CardType}
-	 */
-	private Integer cardType;
-	/**
-	 * 卡片状态 {@link com.dili.account.type.CardStatus}
-	 */
-	private Integer cardState;
+    /**
+     * 市场id
+     */
+    private Long firmId;
+    /**
+     * 卡账号id
+     */
+    private Long accountId;
+    /**
+     * 父卡账号
+     */
+    private Long parentAccountId;
+    /**
+     * 卡交易类型: 1-买家 2-卖家 {@link com.dili.account.type.AccountType}
+     */
+    private Integer accountType;
+    /**
+     * 资金账号ID
+     */
+    private Long fundAccountId;
+    /**
+     * 客户id
+     */
+    private Long customerId;
+    /**
+     * 客户名称
+     */
+    private String customerName;
+    /**
+     * 客户编号
+     */
+    private String customerCode;
+    /**
+     * 客户编号类型
+     */
+    private String customerMarketType;
+    /**
+     * 客户身份类型
+     */
+    private String customerCertificateType;
+    /**
+     * 客户身份号
+     */
+    private String customerCertificateNumber;
+    /**
+     * 客户电话
+     */
+    private String customerContactsPhone;
+    /**
+     * 使用权限(充值、提现、交费等) {@link com.dili.account.type.UsePermissionType}
+     */
+    private List<String> permissionList;
+    /**
+     * 卡ID
+     */
+    private Long cardId;
+    /**
+     * 卡号
+     */
+    private String cardNo;
+    /**
+     * 卡账户用途 {@link com.dili.account.type.AccountUsageType}
+     */
+    private List<String> usageType;
+    /**
+     * 卡类型-主/副/临时/联营 {@link com.dili.card.type.CardType}
+     */
+    private Integer cardType;
+    /**
+     * 卡片状态 {@link com.dili.card.type.CardStatus}
+     */
+    private Integer cardState;
+    /**
+     * 账户状态 {@link com.dili.card.type.AccountStatus}
+     */
+    private Integer accountState;
+    /**
+     * 账户是否禁用 {@link com.dili.account.type.DisableState}
+     */
+    private Integer disabledState;
+    /**
+     * 开卡时间
+     */
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime cardCreateTime;
 
-	/**
-	 * 客户证件类型
-	 */
-	private String customerCertificateType;
+    public Long getFirmId() {
+        return firmId;
+    }
 
-	/**
-	 * 客户市场类型
-	 */
-	private String customerMarketType;
+    public void setFirmId(Long firmId) {
+        this.firmId = firmId;
+    }
 
-	/**
-	 * 开卡时间
-	 */
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime cardCreateTime;
+    public Long getAccountId() {
+        return accountId;
+    }
 
-	public Long getFirmId() {
-		return firmId;
-	}
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
 
-	public void setFirmId(Long firmId) {
-		this.firmId = firmId;
-	}
+    public Long getParentAccountId() {
+        return parentAccountId;
+    }
 
-	public Long getAccountId() {
-		return accountId;
-	}
+    public void setParentAccountId(Long parentAccountId) {
+        this.parentAccountId = parentAccountId;
+    }
 
-	public void setAccountId(Long accountId) {
-		this.accountId = accountId;
-	}
+    public Integer getAccountType() {
+        return accountType;
+    }
 
-	public Long getParentAccountId() {
-		return parentAccountId;
-	}
+    public void setAccountType(Integer accountType) {
+        this.accountType = accountType;
+    }
 
-	public void setParentAccountId(Long parentAccountId) {
-		this.parentAccountId = parentAccountId;
-	}
+    public Long getFundAccountId() {
+        return fundAccountId;
+    }
 
-	public Integer getAccountType() {
-		return accountType;
-	}
+    public void setFundAccountId(Long fundAccountId) {
+        this.fundAccountId = fundAccountId;
+    }
 
-	public void setAccountType(Integer accountType) {
-		this.accountType = accountType;
-	}
+    public Long getCustomerId() {
+        return customerId;
+    }
 
-	public Long getFundAccountId() {
-		return fundAccountId;
-	}
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
-	public void setFundAccountId(Long fundAccountId) {
-		this.fundAccountId = fundAccountId;
-	}
+    public String getCustomerName() {
+        return customerName;
+    }
 
-	public Long getCustomerId() {
-		return customerId;
-	}
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
-	}
+    public String getCustomerCode() {
+        return customerCode;
+    }
 
-	public String getCustomerName() {
-		return customerName;
-	}
+    public void setCustomerCode(String customerCode) {
+        this.customerCode = customerCode;
+    }
 
-	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
-	}
+    public String getCustomerMarketType() {
+        return customerMarketType;
+    }
 
-	public List<String> getPermissionList() {
-		return permissionList;
-	}
+    public void setCustomerMarketType(String customerMarketType) {
+        this.customerMarketType = customerMarketType;
+    }
 
-	public void setPermissionList(List<String> permissionList) {
-		this.permissionList = permissionList;
-	}
+    public String getCustomerCertificateType() {
+        return customerCertificateType;
+    }
 
-	public Long getCardId() {
-		return cardId;
-	}
+    public void setCustomerCertificateType(String customerCertificateType) {
+        this.customerCertificateType = customerCertificateType;
+    }
 
-	public void setCardId(Long cardId) {
-		this.cardId = cardId;
-	}
+    public String getCustomerCertificateNumber() {
+        return customerCertificateNumber;
+    }
 
-	public String getCardNo() {
-		return cardNo;
-	}
+    public void setCustomerCertificateNumber(String customerCertificateNumber) {
+        this.customerCertificateNumber = customerCertificateNumber;
+    }
 
-	public void setCardNo(String cardNo) {
-		this.cardNo = cardNo;
-	}
+    public String getCustomerContactsPhone() {
+        return customerContactsPhone;
+    }
 
-	public List<String> getUsageType() {
-		return usageType;
-	}
+    public void setCustomerContactsPhone(String customerContactsPhone) {
+        this.customerContactsPhone = customerContactsPhone;
+    }
 
-	public void setUsageType(List<String> usageType) {
-		this.usageType = usageType;
-	}
+    public List<String> getPermissionList() {
+        return permissionList;
+    }
 
-	public Integer getCardType() {
-		return cardType;
-	}
+    public void setPermissionList(List<String> permissionList) {
+        this.permissionList = permissionList;
+    }
 
-	public void setCardType(Integer cardType) {
-		this.cardType = cardType;
-	}
+    public Long getCardId() {
+        return cardId;
+    }
 
-	public Integer getCardState() {
-		return cardState;
-	}
+    public void setCardId(Long cardId) {
+        this.cardId = cardId;
+    }
 
-	public void setCardState(Integer cardState) {
-		this.cardState = cardState;
-	}
+    public String getCardNo() {
+        return cardNo;
+    }
 
-	public String getCustomerCertificateType() {
-		return customerCertificateType;
-	}
+    public void setCardNo(String cardNo) {
+        this.cardNo = cardNo;
+    }
 
-	public void setCustomerCertificateType(String customerCertificateType) {
-		this.customerCertificateType = customerCertificateType;
-	}
+    public List<String> getUsageType() {
+        return usageType;
+    }
 
-	public String getCustomerMarketType() {
-		return customerMarketType;
-	}
+    public void setUsageType(List<String> usageType) {
+        this.usageType = usageType;
+    }
 
-	public void setCustomerMarketType(String customerMarketType) {
-		this.customerMarketType = customerMarketType;
-	}
+    public Integer getCardType() {
+        return cardType;
+    }
 
-	public LocalDateTime getCardCreateTime() {
-		return cardCreateTime;
-	}
+    public void setCardType(Integer cardType) {
+        this.cardType = cardType;
+    }
 
-	public void setCardCreateTime(LocalDateTime cardCreateTime) {
-		this.cardCreateTime = cardCreateTime;
-	}
+    public Integer getCardState() {
+        return cardState;
+    }
 
+    public void setCardState(Integer cardState) {
+        this.cardState = cardState;
+    }
+
+    public Integer getAccountState() {
+        return accountState;
+    }
+
+    public void setAccountState(Integer accountState) {
+        this.accountState = accountState;
+    }
+
+    public Integer getDisabledState() {
+        return disabledState;
+    }
+
+    public void setDisabledState(Integer disabledState) {
+        this.disabledState = disabledState;
+    }
+
+    public LocalDateTime getCardCreateTime() {
+        return cardCreateTime;
+    }
+
+    public void setCardCreateTime(LocalDateTime cardCreateTime) {
+        this.cardCreateTime = cardCreateTime;
+    }
 }
