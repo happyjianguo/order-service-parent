@@ -101,7 +101,7 @@ public class TransitionDepartureSettlementApi {
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("新增失败" + e.getMessage());
+            return BaseOutput.failure("新增失败");
         }
     }
 
@@ -118,7 +118,7 @@ public class TransitionDepartureSettlementApi {
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("修改失败" + e.getMessage());
+            return BaseOutput.failure("修改失败");
         }
 
     }
@@ -139,7 +139,7 @@ public class TransitionDepartureSettlementApi {
             return BaseOutput.success("删除成功");
         } catch (Exception e) {
             e.printStackTrace();
-            return BaseOutput.failure("删除失败" + e.getMessage());
+            return BaseOutput.failure("删除失败");
         }
     }
 
