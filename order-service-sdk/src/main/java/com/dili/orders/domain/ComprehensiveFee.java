@@ -178,6 +178,12 @@ public class ComprehensiveFee extends BaseDomain {
     private Integer version;
 
     /**
+     * 支付单号
+     */
+    @Column(name = "`payment_no`")
+    private String paymentNo;
+
+    /**
      * 查询使用，用户id
      */
     @Transient
@@ -706,4 +712,18 @@ public class ComprehensiveFee extends BaseDomain {
         this.userId = userId;
     }
 
+    /**
+     * 获取支付单号
+     *
+     * @return payment_no - 支付单号
+     */
+    @FieldDef(label = "支付单号", maxLength = 40)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getPaymentNo() {
+        return paymentNo;
+    }
+
+    public void setPaymentNo(String paymentNo) {
+        this.paymentNo = paymentNo;
+    }
 }
