@@ -1,6 +1,7 @@
 package com.dili.orders.api;
 
 import com.dili.orders.domain.ComprehensiveFee;
+import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.service.ComprehensiveFeeService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
@@ -60,17 +61,6 @@ public class ComprehensiveFeeApi {
     }
 
     /**
-     * 根据id查询结算单信息
-     *
-     * @param id
-     * @return
-     */
-    @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
-    BaseOutput<ComprehensiveFee> getOneById(@PathVariable(value = "id") Long id) {
-        return BaseOutput.successData(comprehensiveFeeService.get(id));
-    }
-
-    /**
      * 新增comprehensiveFee
      *
      * @param comprehensiveFee
@@ -87,6 +77,41 @@ public class ComprehensiveFeeApi {
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("新增失败" + e.getMessage());
+        }
+    }
+
+    /**
+     * 根据id查询结算单信息
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
+    BaseOutput<ComprehensiveFee> getOneById(@PathVariable(value = "id") Long id) {
+        return BaseOutput.successData(comprehensiveFeeService.get(id));
+    }
+
+    /**
+     * 检测收费单支付
+     *
+     * @return
+     */
+    @RequestMapping(value = "/pay", method = {RequestMethod.POST})
+    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "departmentId") Long departmentId, @RequestParam(value = "operatorCode") String operatorCode, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) {
+        return comprehensiveFeeService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
+    }
+
+    /**
+     * 定时任务，每天凌晨12点更新当天为结算的单子，支付状态更改为已关闭状态
+     *
+     * @return
+     */
+    @RequestMapping(value = "/scheduleUpdate", method = {RequestMethod.GET, RequestMethod.POST})
+    public void scheduleUpdate() {
+        try {
+            comprehensiveFeeService.scheduleUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

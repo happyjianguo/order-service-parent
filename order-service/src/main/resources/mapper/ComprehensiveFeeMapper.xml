@@ -29,6 +29,7 @@
     <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
     <result column="modifier_id" jdbcType="BIGINT" property="modifierId" />
     <result column="version" jdbcType="INTEGER" property="version" />
+    <result column="payment_no" jdbcType="VARCHAR" property="paymentNo" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -37,7 +38,7 @@
     id, code, customer_id, customer_code, customer_name, customer_card_no, inspection_num, 
     charge_amount, plate, order_type, order_status, inspection_item, remark, operator_id, 
     operator_name, operator_time, revocator_id, revocator_name, revocator_time, created_time, 
-    creator_id, modified_time, modifier_id, version
+    creator_id, modified_time, modifier_id, version, payment_no
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -123,6 +124,9 @@
       <if test="version != null">
         version = #{version,jdbcType=INTEGER},
       </if>
+      <if test="paymentNo != null">
+        payment_no = #{paymentNo,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -150,10 +154,33 @@
       AND code = #{code}
     </if>
     <if test="userId != null">
-      AND operator_id=#{userId}
+      AND creator_id=#{userId}
     </if>
     <if test="customerCardNo != null">
       AND customer_card_no=#{customerCardNo}
     </if>
   </select>
+  <select id="scheduleUpdateSelect" resultType="com.dili.orders.domain.ComprehensiveFee">
+    SELECT
+    *
+    FROM comprehensive_fee s
+    WHERE 1 = 1
+    AND s.orderStatus=1
+    <if test="beginTime != null">
+      AND operator_time  <![CDATA[>=]]> #{operatorTimeStart}
+    </if>
+    <if test="endTime != null">
+      AND operator_time  <![CDATA[<=]]> #{operatorTimeEnd}
+    </if>
+  </select>
+  <update id="scheduleUpdate" parameterType="java.util.Set">
+    UPDATE comprehensive_fee
+    SET orderStatus=4
+    WHERE id IN
+    (
+    <foreach item="item" index="index" collection="set" open="" separator="," close="">
+      #{item}
+    </foreach>
+    )
+  </update>
 </mapper>
