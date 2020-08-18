@@ -339,6 +339,9 @@
 			AND wb.unit_price <![CDATA[<=]]>
 			#{unitPriceEndValue}
 		</if>
+		<if test="wsSerialNo != null and wsSerialNo!=''">
+			AND ws.serial_no = #{wsSerialNo}
+		</if>
 	</select>
 
 	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
