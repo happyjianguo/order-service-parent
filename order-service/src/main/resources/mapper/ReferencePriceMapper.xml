@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.orders.mapper.ReferencePriceMapper">
+
+    <select id="getReferencePriceByGoodsId" parameterType="Long" resultType="com.dili.orders.domain.WeighingReferencePrice" >
+        SELECT
+          goods_id goodsId,
+          total_avg_count totalAvgCount,
+          part_avg_count partAvgCount,
+          trans_count transCount,
+          trans_price_count transPriceCount
+        FROM
+          weighing_reference_price
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
+    </select>
+    
+    <select id="getGoodsRuleByGoodsId" parameterType="Long" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
+        SELECT
+          reference_rule referenceRule,
+          fixed_price fixedPrice
+        FROM
+          goods_reference_price_setting
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
+    </select>
+
+    <!--<select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
+        SELECT
+          COUNT(wb.id) cransCount,
+          wb.measure_type measureType,
+          SUM(ws.trade_amount) tradeAmount,
+          SUM(wb.net_weight) netWeight,
+          SUM(wb.unit_amount) unitAmount,
+          wb.unit_price unitPrice,
+          wb.unit_weight unitWeight
+        FROM
+          weighing_bill wb
+        JOIN weighing_statement ws ON wb.id = ws.weighing_bill_id
+        WHERE ws.state = #{state}
+        AND wb.goods_id = #{goodsId}
+        <![CDATA[
+        AND wb.settlement_time >= #{todayStartDate}
+        AND wb.settlement_time <= #{todayEndDate}
+        ]]>
+        &lt;!&ndash; AND wb.market_id = #{marketId,jdbcType=BIGINT} &ndash;&gt;
+        GROUP BY wb.measure_type,wb.unit_price,wb.unit_weight
+    </select>-->
+
+    <insert id="addTransDataTempInfo" useGeneratedKeys="true" parameterType="com.dili.orders.domain.WeighingSettlementBillTemp" >
+        INSERT INTO weighing_settlement_bill_temp(
+          serial_no,
+          measure_type,
+          market_id,
+          goods_id,
+          unit_amount,
+          unit_price,
+          unit_weight,
+          net_weight,
+          settlement_time,
+          trade_amount
+        ) VALUES (
+          #{serialNo},
+          #{measureType},
+          #{marketId},
+          #{goodsId},
+          #{unitAmount},
+          #{unitPrice},
+          #{unitWeight},
+          #{netWeight},
+          #{settlementTime},
+          #{tradeAmount}
+        )
+    </insert>
+
+    <select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
+        SELECT
+        COUNT(id) cransCount,
+        measure_type measureType,
+        SUM(trade_amount) tradeAmount,
+        SUM(net_weight) netWeight,
+        SUM(unit_amount) unitAmount,
+        unit_price unitPrice,
+        unit_weight unitWeight
+        FROM
+        weighing_settlement_bill_temp wsbt
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
+        <![CDATA[
+        AND settlement_time >= #{todayStartDate}
+        AND settlement_time <= #{todayEndDate}
+        ]]>
+        GROUP BY measure_type,unit_price,unit_weight
+
+    </select>
+
+    <select id="getReferencePriceCountByGoodsIdIsExists" resultType="int" parameterType="map">
+        SELECT
+          count(1)
+        FROM
+          weighing_reference_price
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
+    </select>
+
+    <update id="updateReferencePriceByGoods" parameterType="com.dili.orders.domain.WeighingReferencePrice" >
+        UPDATE weighing_reference_price
+        <set>
+            <if test="totalAvgCount != null">
+                total_avg_count = #{totalAvgCount,jdbcType=BIGINT},
+            </if>
+            <if test="partAvgCount != null">
+                part_avg_count = #{partAvgCount,jdbcType=BIGINT},
+            </if>
+            <if test="transCount != null">
+                trans_count = #{transCount,jdbcType=INTEGER},
+            </if>
+            <if test="transPriceCount != null">
+                trans_price_count = #{transPriceCount,jdbcType=INTEGER},
+            </if>
+        </set>
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+    </update>
+
+    
+</mapper>

@@ -27,6 +27,12 @@ public class GoodsReferencePriceSetting extends BaseDomain {
     private Long oid;
 
     /**
+     * 市场id
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
+
+    /**
      * 商品id
      */
     @Column(name = "`goods_id`")
@@ -110,6 +116,24 @@ public class GoodsReferencePriceSetting extends BaseDomain {
      */
     public void setOid(Long oid) {
         this.oid = oid;
+    }
+
+    /**
+     * 获取市场id
+     *
+     * @return market_id - 市场id
+     */
+    @FieldDef(label="市场id")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Long getMarketId() { return marketId; }
+
+    /**
+     * 设置市场id
+     *
+     * @param marketId 市场id
+     */
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
     }
 
     /**

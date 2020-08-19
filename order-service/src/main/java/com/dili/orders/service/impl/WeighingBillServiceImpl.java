@@ -475,7 +475,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!weighingBill.getState().equals(WeighingBillState.SETTLED.getValue())) {
 			return BaseOutput.failure("当前状态不能撤销");
 		}
-
 		// 校验操作员密码
 		BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
 		if (!pwdOutput.isSuccess()) {

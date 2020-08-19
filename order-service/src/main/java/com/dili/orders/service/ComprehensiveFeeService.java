@@ -25,6 +25,15 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	 * 新增
 	 */
 	BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee);
+	/**
+	 * 操作员撤销
+	 *
+	 * @param id               检测单id
+	 * @param operatorId       操作员id
+	 * @param operatorPassword 操作员登录密码
+	 * @return
+	 */
+	BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword);
 
 	/**
 	 * 支付
