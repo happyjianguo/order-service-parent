@@ -288,6 +288,7 @@
             </foreach>
             )
         </if>
+        ORDER BY a.originator_time DESC
     </select>
     <!--定时任务，修改当天的所有未结算的结算单状态为已关闭，同时也要修改对应申请单的状态为已关闭-->
     <update id="scheduleUpdate" parameterType="java.util.Set">
