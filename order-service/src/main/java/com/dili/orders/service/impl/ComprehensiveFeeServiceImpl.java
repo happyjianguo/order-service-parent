@@ -327,7 +327,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
         // 退款
         PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
-        cancelDto.setTradeId(comprehensiveFee.getCode());
+        cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
         BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
         if (!paymentOutput.isSuccess()) {
             LOGGER.error(paymentOutput.getMessage());
