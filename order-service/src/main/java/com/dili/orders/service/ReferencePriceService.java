@@ -1,6 +1,7 @@
 package com.dili.orders.service;
 
 import com.dili.orders.domain.WeighingReferencePrice;
+import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -13,11 +14,11 @@ public interface ReferencePriceService extends BaseService<WeighingReferencePric
      * @param goodsId
      * @return Long
      */
-    Long getReferencePriceByGoodsId(Long goodsId);
+    Long getReferencePriceByGoodsId(Long goodsId,Long marketId);
 
     /**
      * 根据商品计算参考价规则
-     * @param goodsId
+     * @param jsonStr
      */
-    void calcReferencePrice(Long goodsId);
+    void calcReferencePrice(String jsonStr);
 }

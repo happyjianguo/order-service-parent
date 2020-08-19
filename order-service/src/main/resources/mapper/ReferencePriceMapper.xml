@@ -12,6 +12,7 @@
         FROM
           weighing_reference_price
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
     </select>
     
     <select id="getGoodsRuleByGoodsId" parameterType="Long" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
@@ -21,9 +22,10 @@
         FROM
           goods_reference_price_setting
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
     </select>
 
-    <select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
+    <!--<select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
         SELECT
           COUNT(wb.id) cransCount,
           wb.measure_type measureType,
@@ -41,15 +43,64 @@
         AND wb.settlement_time >= #{todayStartDate}
         AND wb.settlement_time <= #{todayEndDate}
         ]]>
+        &lt;!&ndash; AND wb.market_id = #{marketId,jdbcType=BIGINT} &ndash;&gt;
         GROUP BY wb.measure_type,wb.unit_price,wb.unit_weight
+    </select>-->
+
+    <insert id="addTransDataTempInfo" useGeneratedKeys="true" parameterType="com.dili.orders.domain.WeighingSettlementBillTemp" >
+        INSERT INTO weighing_settlement_bill_temp(
+          serial_no,
+          measure_type,
+          market_id,
+          goods_id,
+          unit_amount,
+          unit_price,
+          unit_weight,
+          net_weight,
+          settlement_time,
+          trade_amount
+        ) VALUES (
+          #{serialNo},
+          #{measureType},
+          #{marketId},
+          #{goodsId},
+          #{unitAmount},
+          #{unitPrice},
+          #{unitWeight},
+          #{netWeight},
+          #{settlementTime},
+          #{tradeAmount}
+        )
+    </insert>
+
+    <select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
+        SELECT
+        COUNT(id) cransCount,
+        measure_type measureType,
+        SUM(trade_amount) tradeAmount,
+        SUM(net_weight) netWeight,
+        SUM(unit_amount) unitAmount,
+        unit_price unitPrice,
+        unit_weight unitWeight
+        FROM
+        weighing_settlement_bill_temp wsbt
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
+        <![CDATA[
+        AND settlement_time >= #{todayStartDate}
+        AND settlement_time <= #{todayEndDate}
+        ]]>
+        GROUP BY measure_type,unit_price,unit_weight
+
     </select>
 
-    <select id="getReferencePriceCountByGoodsIdIsExists" resultType="int" parameterType="Long">
+    <select id="getReferencePriceCountByGoodsIdIsExists" resultType="int" parameterType="map">
         SELECT
           count(1)
         FROM
           weighing_reference_price
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
     </select>
 
     <update id="updateReferencePriceByGoods" parameterType="com.dili.orders.domain.WeighingReferencePrice" >

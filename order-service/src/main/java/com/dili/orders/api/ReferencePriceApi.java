@@ -1,5 +1,7 @@
 package com.dili.orders.api;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.Objects;
 
 
@@ -30,13 +33,13 @@ public class ReferencePriceApi {
      * @param goodsId
      * @return BaseOutput<Object>
      */
-    @RequestMapping(value = "/getReferencePriceByGoodsId/{goodsId}", method = {RequestMethod.GET})
-    BaseOutput<Object> getReferencePriceByGoodsId(@PathVariable(value = "goodsId") Long goodsId) {
+    @RequestMapping(value = "/getReferencePriceByGoodsId/{goodsId}/{marketId}", method = {RequestMethod.GET})
+    BaseOutput<Object> getReferencePriceByGoodsId(@PathVariable(value = "goodsId") Long goodsId,@PathVariable(value = "goodsId") Long marketId) {
         if (Objects.isNull(goodsId)) {
             return BaseOutput.failure("请传入正确的商品ID");
         }
         try {
-            Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId);
+            Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId,marketId);
             if (referencePrice == null || referencePrice == 0) {
                 return BaseOutput.successData(0);
             }
@@ -57,7 +60,18 @@ public class ReferencePriceApi {
     void calcReferencePrice(Long goodsId) {
 
         try {
-            referencePriceService.calcReferencePrice(goodsId);
+            WeighingSettlementBillTemp temp = new WeighingSettlementBillTemp();
+            temp.setGoodsId(1L);
+            temp.setMarketId(2L);
+            temp.setMeasureType("1");
+            temp.setNetWeight(123);
+            temp.setSerialNo("321");
+            temp.setUnitAmount(3);
+            temp.setUnitPrice(4L);
+            temp.setUnitWeight(4);
+            temp.setTradeAmount(200L);
+            temp.setSettlementTime(new Date());
+            referencePriceService.calcReferencePrice(JSONObject.toJSONString(temp));
         } catch (Exception e) {
             e.printStackTrace();
         }
