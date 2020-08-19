@@ -2,11 +2,17 @@ package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
+
 import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
+
+import com.dili.orders.config.RabbitMQConfig;
+import com.dili.orders.constants.OrdersConstant;
+import com.dili.orders.domain.*;
+
 import com.dili.orders.dto.*;
 import com.dili.orders.mapper.ComprehensiveFeeMapper;
 import com.dili.orders.rpc.AccountRpc;
@@ -16,6 +22,10 @@ import com.dili.orders.service.ComprehensiveFeeService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.exception.AppException;
+import com.dili.uap.sdk.domain.Firm;
+import com.dili.uap.sdk.domain.User;
+import com.dili.uap.sdk.rpc.FirmRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,28 +34,50 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+import com.dili.uap.sdk.rpc.UserRpc;
+import com.dili.orders.rpc.PayRpc;
+import com.dili.uap.sdk.domain.Firm;
+import com.dili.orders.rpc.AccountRpc;
+
 @Service
-public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFee,Long> implements ComprehensiveFeeService {
+public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFee, Long> implements ComprehensiveFeeService {
 
     @Autowired
     private UidRpc uidRpc;
-
+    @Autowired
+    private UserRpc userRpc;
+    @Autowired
+    private ComprehensiveFeeMapper comprehensiveFeeMapper;
+    @Autowired
+    private PayRpc payRpc;
+    @Autowired
+    private FirmRpc firmRpc;
+    @Autowired
+    private RabbitMQMessageService mqService;
     @Autowired
     private AccountRpc accountRpc;
 
     @Autowired
-    private PayRpc payRpc;
-
-    @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
 
-    public ComprehensiveFeeMapper getActualDao(){return (ComprehensiveFeeMapper)getDao();}
+
+
+    public ComprehensiveFeeMapper getActualDao() {
+        return (ComprehensiveFeeMapper) getDao();
+    }
+
 
     @Override
     public PageOutput<List<ComprehensiveFee>> listByQueryParams(ComprehensiveFee comprehensiveFee) {
@@ -64,6 +96,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         return output;
     }
 
+
     @Override
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {
         //设置检查收费单为未结算
@@ -80,6 +113,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         return BaseOutput.successData(comprehensiveFee);
     }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -259,5 +293,96 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         map.put("endTime", defaultEndDate);
 
         return map;
+    }
+
+    /*
+     *撤销控制
+     * */
+
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword) {
+        //根据id获取到comprehensive对象
+        ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
+        if (comprehensiveFee == null) {
+            return BaseOutput.failure("检测单不存在");
+        }
+
+        LocalDate todayDate = LocalDate.now();
+        LocalDateTime opTime = comprehensiveFee.getModifiedTime() == null ? comprehensiveFee.getCreatedTime() : comprehensiveFee.getModifiedTime();
+        if (!todayDate.equals(opTime.toLocalDate())) {
+            return BaseOutput.failure("只能对当日的过磅交易进行撤销操作");
+        }
+        if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.SETTLED.getValue())) {
+            return BaseOutput.failure("当前状态不能撤销");
+        }
+
+        if ("".equals(operatorPassword)){
+            return BaseOutput.failure("请输入密码");
+        }
+        // 校验操作员密码
+        BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
+        if (!pwdOutput.isSuccess()) {
+            return BaseOutput.failure("操作员密码错误");
+        }
+
+
+        // 退款
+        PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+        cancelDto.setTradeId(comprehensiveFee.getCode());
+        BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+        if (!paymentOutput.isSuccess()) {
+            LOGGER.error(paymentOutput.getMessage());
+            throw new AppException("退款失败");
+        }
+        //更新检测单状态和修改时间
+        LocalDateTime now = LocalDateTime.now();
+        comprehensiveFee.setModifiedTime(now);
+        comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
+        //更新comprehensive
+        int rows = this.comprehensiveFeeMapper.updateByPrimaryKeySelective(comprehensiveFee);
+        if (rows <= 0) {
+            return BaseOutput.failure("更新检测单状态失败");
+        }
+        // 记录交易流水
+        paymentOutput.getData().getStreams().forEach(s -> this.recordAccountFlow(comprehensiveFee, paymentOutput.getData(), s, FundItem.TRADE_SERVICE_FEE, operatorId));
+
+        return BaseOutput.success();
+    }
+
+    private void recordAccountFlow(ComprehensiveFee comprehensiveFee, PaymentTradeCommitResponseDto data, PaymentStream stream, FundItem fundItem, Long operatorId) {
+        SerialRecordDo dto = new SerialRecordDo();
+        dto.setAccountId(comprehensiveFee.getCustomerId());
+        dto.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        dto.setAmount(data.getAmount() + data.getFrozenAmount());
+        dto.setCardNo(comprehensiveFee.getCustomerCardNo());
+        dto.setCustomerId(comprehensiveFee.getCustomerId());
+        dto.setCustomerName(comprehensiveFee.getCustomerName());
+        dto.setCustomerNo(comprehensiveFee.getCustomerCode());
+        dto.setEndBalance(stream.getBalance() - (data.getFrozenBalance() + data.getFrozenAmount()));
+        dto.setFirmId(this.getFirmIdByCode());
+        dto.setFundItem(fundItem.getCode());
+        dto.setFundItemName(fundItem.getName());
+        LocalDateTime now = LocalDateTime.now();
+        dto.setOperateTime(now);
+        dto.setOperatorId(operatorId);
+        dto.setOperatorName(this.getUserRealNameById(operatorId));
+        this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(dto));
+    }
+
+    private Long getFirmIdByCode() {
+        BaseOutput<Firm> firmOutput = this.firmRpc.getByCode(OrdersConstant.SHOUGUANG_FIRM_CODE);
+        if (!firmOutput.isSuccess()) {
+            throw new AppException("获取市场id失败");
+        }
+        return firmOutput.getData().getId();
+    }
+
+    private String getUserRealNameById(Long operatorId) {
+        BaseOutput<User> output = this.userRpc.get(operatorId);
+        if (!output.isSuccess()) {
+            LOGGER.error(output.getMessage());
+            throw new AppException("查询用户信息失败");
+        }
+        return output.getData().getRealName();
+
     }
 }

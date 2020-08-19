@@ -79,6 +79,15 @@ public class ComprehensiveFeeApi {
             return BaseOutput.failure("新增失败" + e.getMessage());
         }
     }
+    /**
+     * 撤销操作
+     *
+     *
+     */
+    @RequestMapping(value = "/revocator")
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword) {
+        return this.comprehensiveFeeService.revocator(id, operatorId, operatorPassword);
+    }
 
     /**
      * 根据id查询结算单信息
