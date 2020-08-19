@@ -6,6 +6,7 @@
       WARNING - @mbg.generated
     -->
     <id column="oid" jdbcType="BIGINT" property="oid" />
+    <id column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="goods_id" jdbcType="BIGINT" property="goodsId" />
     <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
     <result column="reference_rule" jdbcType="INTEGER" property="referenceRule" />
@@ -21,7 +22,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    oid, goods_id, goods_name, reference_rule, fixed_price, parent_goods_id, created_time,
+    oid, market_id, goods_id, goods_name, reference_rule, fixed_price, parent_goods_id, created_time,
     creator_id, modified_time, modifier_id, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -39,6 +40,9 @@
     -->
     update goods_reference_price_setting
     <set>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
+      </if>
       <if test="goodsId != null">
         goods_id = #{goodsId,jdbcType=BIGINT},
       </if>
@@ -74,9 +78,12 @@
   </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.GoodsReferencePriceSetting">
     SELECT
-    *
+    <include refid="Base_Column_List" />
     FROM goods_reference_price_setting s
     WHERE 1 = 1
+    <if test="marketId != null">
+      AND market_id = #{marketId}
+    </if>
     <if test="goodsId != null">
       AND goods_id = #{goodsId}
     </if>
@@ -92,5 +99,14 @@
     <if test="parentGoodsId != null">
       AND parent_goods_id = #{parentGoodsId}
     </if>
+  </select>
+
+  <select id="selectDetailById" resultMap="BaseResultMap">
+     SELECT
+    <include refid="Base_Column_List" />
+    FROM goods_reference_price_setting
+    WHERE
+    goods_id = #{goodsId} AND
+    market_id = #{marketId}
   </select>
 </mapper>
