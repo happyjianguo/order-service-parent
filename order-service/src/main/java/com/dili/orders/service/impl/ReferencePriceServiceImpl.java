@@ -1,13 +1,14 @@
 package com.dili.orders.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.domain.WeighingReferencePrice;
+import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.dto.ReferencePriceDto;
 import com.dili.orders.dto.WeighingTransCalcDto;
 import com.dili.orders.mapper.ReferencePriceMapper;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.base.BaseServiceImpl;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,6 @@ import java.util.*;
 public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReferencePrice,Long> implements ReferencePriceService {
 
     private ReferencePriceMapper getActualDao(){return (ReferencePriceMapper)getDao();}
-
-
 
     @Value("${busin.transCount}")
     private int transCount;
@@ -64,24 +63,26 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
                 return referencePrice.getTotalAvgCount();
             }
         }
+
         return null;
     }
 
     /**
      * 根据商品计算参考价规则
-     * @param goodsId
-     * @return
+     * @param jsonStr
      */
     @Override
-    public void calcReferencePrice(Long goodsId) {
+    public void calcReferencePrice(String jsonStr) {
+        // 将传入的JSON串转换为中间表对象添加到中间表
+        WeighingSettlementBillTemp weighingSettlementBill = JSONObject.parseObject(jsonStr,WeighingSettlementBillTemp.class);
+        getActualDao().addTransDataTempInfo(weighingSettlementBill);
         // 根据条件获取交易数据
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Map<String,Object> map = new HashMap<>(4);
-        map.put("goodsId",goodsId);
+        map.put("goodsId",weighingSettlementBill.getGoodsId());
         map.put("todayStartDate",sdf.format(getStartTime()));
         map.put("todayEndDate",sdf.format(getEndTime()));
-        map.put("state","2");
-        map.put("marketId","marketId");
+        map.put("marketId",weighingSettlementBill.getMarketId());
         List<WeighingTransCalcDto> transList = getActualDao().getTransDataByGoodsId(map);
         int currentCount = 0;
         // 获取当前交易笔数
@@ -118,7 +119,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         }
         // 取总平均值
         referencePrice.setTotalAvgCount(transCalcDto.getTradeAmount()/transCalcDto.getUnitAmount());
-        referencePrice.setGoodsId(goodsId);
+        referencePrice.setGoodsId(weighingSettlementBill.getGoodsId());
         referencePrice.setSettlementTime(new Date());
         //获取交易价格数目
         Set set = new HashSet();
@@ -150,7 +151,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         referencePrice.setPartAvgCount(partPrice/partCount);
 
         // 查询该商品是否存在参考价信息 若不存在 则添加 若存在 则更新
-        int isExists =  getActualDao().getReferencePriceCountByGoodsIdIsExists(goodsId);
+        int isExists =  getActualDao().getReferencePriceCountByGoodsIdIsExists(map);
         if (isExists > 0) {
             getActualDao().updateReferencePriceByGoods(referencePrice);
         } else {

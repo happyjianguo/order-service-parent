@@ -27,6 +27,12 @@ public class WeighingReferencePrice extends BaseDomain {
     private Long goodsId;
 
     /**
+     * 市场ID
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
+
+    /**
      * 总平均价
      */
     @Column(name = "`total_avg_count`")
@@ -90,6 +96,26 @@ public class WeighingReferencePrice extends BaseDomain {
      */
     public void setGoodsId(Long goodsId) {
         this.goodsId = goodsId;
+    }
+
+    /**
+     * 获取市场ID
+     *
+     * @return market_id - 市场ID
+     */
+    @FieldDef(label="市场ID")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    /**
+     * 设置市场ID
+     *
+     * @param marketId 市场ID
+     */
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
     }
 
     /**
