@@ -12,6 +12,7 @@
         FROM
           weighing_reference_price
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
     </select>
     
     <select id="getGoodsRuleByGoodsId" parameterType="Long" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
@@ -21,6 +22,7 @@
         FROM
           goods_reference_price_setting
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
     </select>
 
     <select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
@@ -41,6 +43,7 @@
         AND wb.settlement_time >= #{todayStartDate}
         AND wb.settlement_time <= #{todayEndDate}
         ]]>
+        <!-- AND wb.market_id = #{marketId,jdbcType=BIGINT} -->
         GROUP BY wb.measure_type,wb.unit_price,wb.unit_weight
     </select>
 

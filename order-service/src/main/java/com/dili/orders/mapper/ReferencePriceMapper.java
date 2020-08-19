@@ -17,16 +17,18 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
     /**
      * 根据商品id获取商品规则
      * @param goodsId
+     * @param marketId
      * @return
      */
-    GoodsReferencePriceSetting getGoodsRuleByGoodsId(Long goodsId);
+    GoodsReferencePriceSetting getGoodsRuleByGoodsId(Long goodsId,Long marketId);
 
     /**
      * 根据商品信息查询参考价表中数据
      * @param goodsId
+     * @param marketId
      * @return
      */
-    WeighingReferencePrice getReferencePriceByGoodsId(Long goodsId);
+    WeighingReferencePrice getReferencePriceByGoodsId(Long goodsId,Long marketId);
 
     /**
      * 根据商品查询交易单据

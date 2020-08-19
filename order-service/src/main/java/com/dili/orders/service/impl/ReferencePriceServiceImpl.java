@@ -34,9 +34,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * @return Double
      */
     @Override
-    public Long getReferencePriceByGoodsId(Long goodsId) {
+    public Long getReferencePriceByGoodsId(Long goodsId,Long marketId) {
         // 根据goodsId查询参考价规则表获取商品规则
-        GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsId(goodsId);
+        GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsId(goodsId,marketId);
         if (ruleSetting == null) {
             return null;
         }
@@ -47,7 +47,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
             return ruleSetting.getFixedPrice();
         }
         // 根据商品获取最近的参考价信息
-        WeighingReferencePrice referencePrice = getActualDao().getReferencePriceByGoodsId(goodsId);
+        WeighingReferencePrice referencePrice = getActualDao().getReferencePriceByGoodsId(goodsId,marketId);
         if (referencePrice == null) {
             return null;
         }
@@ -81,6 +81,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         map.put("todayStartDate",sdf.format(getStartTime()));
         map.put("todayEndDate",sdf.format(getEndTime()));
         map.put("state","2");
+        map.put("marketId","marketId");
         List<WeighingTransCalcDto> transList = getActualDao().getTransDataByGoodsId(map);
         int currentCount = 0;
         // 获取当前交易笔数

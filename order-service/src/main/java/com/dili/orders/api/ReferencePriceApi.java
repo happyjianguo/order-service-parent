@@ -30,13 +30,13 @@ public class ReferencePriceApi {
      * @param goodsId
      * @return BaseOutput<Object>
      */
-    @RequestMapping(value = "/getReferencePriceByGoodsId/{goodsId}", method = {RequestMethod.GET})
-    BaseOutput<Object> getReferencePriceByGoodsId(@PathVariable(value = "goodsId") Long goodsId) {
+    @RequestMapping(value = "/getReferencePriceByGoodsId/{goodsId}/{marketId}", method = {RequestMethod.GET})
+    BaseOutput<Object> getReferencePriceByGoodsId(@PathVariable(value = "goodsId") Long goodsId,@PathVariable(value = "goodsId") Long marketId) {
         if (Objects.isNull(goodsId)) {
             return BaseOutput.failure("请传入正确的商品ID");
         }
         try {
-            Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId);
+            Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId,marketId);
             if (referencePrice == null || referencePrice == 0) {
                 return BaseOutput.successData(0);
             }
