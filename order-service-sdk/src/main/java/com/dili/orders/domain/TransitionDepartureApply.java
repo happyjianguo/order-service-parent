@@ -206,6 +206,18 @@ public class TransitionDepartureApply extends BaseDomain {
     @Column(name = "`del`")
     private Integer del;
 
+    /**
+     * 联系电话
+     */
+    @Column(name = "`contacts_phone`")
+    private String contactsPhone;
+
+    /**
+     * 联系电话
+     */
+    @Column(name = "`addr`")
+    private String addr;
+
     @Transient
     private List<TransitionDepartureSettlement> list;
 
@@ -261,6 +273,7 @@ public class TransitionDepartureApply extends BaseDomain {
      */
     @Transient
     private String operator;
+
 
     /**
      * 获取单据id
@@ -912,5 +925,21 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setDepartments(List<Integer> departments) {
         this.departments = departments;
+    }
+
+    public String getContactsPhone() {
+        return contactsPhone;
+    }
+
+    public void setContactsPhone(String contactsPhone) {
+        this.contactsPhone = contactsPhone;
+    }
+
+    public String getAddr() {
+        return addr;
+    }
+
+    public void setAddr(String addr) {
+        this.addr = addr;
     }
 }
