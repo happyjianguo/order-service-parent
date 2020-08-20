@@ -135,7 +135,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         //获取交易价格数目
         Set set = new HashSet();
         for (WeighingTransCalcDto calcDto: transList) {
-            set.add(calcDto.getTradeAmount());
+            set.add(calcDto.getUnitPrice());
         }
         referencePrice.setTransPriceCount(set.size());
 
