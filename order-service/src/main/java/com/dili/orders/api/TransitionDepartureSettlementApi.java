@@ -167,7 +167,12 @@ public class TransitionDepartureSettlementApi {
      */
     @RequestMapping(value = "/insertTransitionDepartureSettlement", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
-        return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
+        try {
+            return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
@@ -192,7 +197,12 @@ public class TransitionDepartureSettlementApi {
      */
     @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, @RequestParam(value = "revocatorId") Long revocatorId, @RequestParam(value = "revocatorPassword") String revocatorPassword) {
-        return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
+        try {
+            return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
 

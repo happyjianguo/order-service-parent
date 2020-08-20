@@ -137,7 +137,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //根据申请单id拿到申请单，修改申请单的支付状态为1（未结算）
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
         if (Objects.isNull(transitionDepartureApply)) {
-            throw new RuntimeException("转离场支付-->未找到相关申请单");
+            throw new RuntimeException("转离场支付未找到相关申请单");
         }
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
@@ -146,7 +146,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费-->车型查询失败");
+            throw new RuntimeException("进门收费车型查询失败");
         }
         //因为可以修改，所以需要从新获取车型id和名称
         transitionDepartureApply.setCarTypeId(transitionDepartureSettlement.getCarTypeId());
@@ -154,7 +154,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         transitionDepartureApply.setPayStatus(1);
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         if (i <= 0) {
-            return BaseOutput.failure("转离场保存-->修改申请单失败");
+            return BaseOutput.failure("转离场保存修改申请单失败");
         }
         //更新完成之后，插入缴费单信息，必须在这之前发起请求，到支付系统，拿到支付单号
         //如果交费金额为0，则不走支付
@@ -162,7 +162,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
             if (!oneAccountCard.isSuccess()) {
-                throw new RuntimeException("转离场结算单新增-->根据卡号获取账户信息失败");
+                throw new RuntimeException("转离场结算单新增根据卡号获取账户信息失败");
             }
             //请求与支付，两边的账户id对应关系如下
             paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
@@ -171,7 +171,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
             BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
-                throw new RuntimeException("转离场结算单新增-->创建交易失败");
+                throw new RuntimeException("转离场结算单新增创建交易失败");
             }
             //设置交易单号
             transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
@@ -181,7 +181,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         int insert = getActualDao().insert(transitionDepartureSettlement);
         if (insert <= 0) {
-            throw new RuntimeException("转离场结算单新增-->创建转离场结算单失败");
+            throw new RuntimeException("转离场结算单新增创建转离场结算单失败");
         }
         return BaseOutput.successData(transitionDepartureSettlement);
     }
@@ -238,7 +238,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费-->车型查询失败");
+            throw new RuntimeException("进门收费车型查询失败");
         }
         vehicleAccessDTO.setVehicleTypeId(listBaseOutput.getData().get(0).getId());
         //新增车类型名
@@ -262,7 +262,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费单-->新增失败");
+            throw new RuntimeException("进门收费单新增失败");
         }
         //将进门收费返回的id设置到结算单中
         transitionDepartureSettlement.setJmsfId(vehicleAccessDTOBaseOutput.getData().getId());
@@ -270,7 +270,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断是否修改成功
         //进门收费成功过后，拿到data，取出id，然后设置到结算单中去
         if (i2 <= 0) {
-            throw new RuntimeException("转离场结算单支付-->修改结算单失败");
+            throw new RuntimeException("转离场结算单支付修改结算单失败");
         }
         //再调用支付
         //新建支付返回实体，后面操作记录会用到
@@ -395,7 +395,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //判断结算单修改是否成功，不成功则抛出异常
         if (i1 <= 0) {
-            throw new RuntimeException("转离场结算单撤销-->结算单修改失败");
+            throw new RuntimeException("转离场结算单撤销结算单修改失败");
         }
 
         //通知进门，将对应撤销的单子作废掉
@@ -410,13 +410,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCancelReason("转离场收费撤销");
         BaseOutput<Integer> integerBaseOutput = jmsfRpc.cancelAccess(vehicleAccessDTO);
         if (!integerBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费-->撤销失败");
+            throw new RuntimeException("进门收费撤销失败");
         }
         //调用卡号查询账户信息
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
         //判断调用卡号拿到账户信息是否成功
         if (!oneAccountCard.isSuccess()) {
-            throw new RuntimeException("转离场结算单撤销-->调用卡号拿到账户失败");
+            throw new RuntimeException("转离场结算单撤销调用卡号拿到账户失败");
         }
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
@@ -429,7 +429,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
             BaseOutput<PaymentTradeCommitResponseDto> paymentTradeCommitResponseDtoBaseOutput = payRpc.cancel(paymentTradeCommitDto);
             if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
-                throw new RuntimeException("转离场结算单撤销-->调用撤销交易rpc失败");
+                throw new RuntimeException("转离场结算单撤销调用撤销交易rpc失败");
             }
             data = paymentTradeCommitResponseDtoBaseOutput.getData();
         }
