@@ -99,11 +99,10 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {
-        comprehensiveFee.setChargeAmount(12315646L);
         //设置检查收费单为未结算
         comprehensiveFee.setOrderStatus(1);
         //设置单据类型为检测收费
-        comprehensiveFee.setOrderType(1);
+        //comprehensiveFee.setOrderType(1);
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
