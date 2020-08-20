@@ -1,8 +1,6 @@
 package com.dili.orders.api;
 
-import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
-import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +40,8 @@ public class GoodsReferencePriceSettingApi {
      * @return
      */
     @RequestMapping(value = "/detail")
-    public BaseOutput<GoodsReferencePriceSetting> detail(GoodsReferencePriceSetting goodsReferencePriceSetting) {
-        GoodsReferencePriceSetting dto = this.goodsReferencePriceSettingService.detail(goodsReferencePriceSetting);
-        return BaseOutput.success().setData(dto);
+    public BaseOutput<GoodsReferencePriceSetting> detail(@RequestBody GoodsReferencePriceSetting goodsReferencePriceSetting) {
+        return goodsReferencePriceSettingService.detail(goodsReferencePriceSetting);
     }
 
     /**
@@ -64,6 +61,23 @@ public class GoodsReferencePriceSettingApi {
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure("新增失败" + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改品类参考价
+     *
+     * @param goodsReferencePriceSetting
+     * @return BaseOutput
+     */
+    @RequestMapping(value = "/update", method = {RequestMethod.POST})
+    public BaseOutput<GoodsReferencePriceSetting> update(@RequestBody GoodsReferencePriceSetting goodsReferencePriceSetting) {
+        try {
+            goodsReferencePriceSettingService.updateGoodsReferencePriceSetting(goodsReferencePriceSetting);
+            return BaseOutput.successData(goodsReferencePriceSetting);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseOutput.failure("修改失败" + e.getMessage());
         }
     }
 }

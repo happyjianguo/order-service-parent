@@ -141,7 +141,7 @@
     WHERE 1 = 1
     AND order_status not in(1,4)
     <if test="orderType != null">
-      AND order_type=#{orderType}
+      AND order_type = #{orderType}
     </if>
     <if test="orderStatus != null">
       AND order_status = #{orderStatus}
@@ -173,17 +173,17 @@
     *
     FROM comprehensive_fee s
     WHERE 1 = 1
-    AND s.orderStatus=1
-    <if test="beginTime != null">
+    AND s.order_status=1
+    <if test="operatorTimeStart != null">
       AND operator_time  <![CDATA[>=]]> #{operatorTimeStart}
     </if>
-    <if test="endTime != null">
+    <if test="operatorTimeEnd != null">
       AND operator_time  <![CDATA[<=]]> #{operatorTimeEnd}
     </if>
   </select>
   <update id="scheduleUpdate" parameterType="java.util.Set">
     UPDATE comprehensive_fee
-    SET orderStatus=4
+    SET order_status=4
     WHERE id IN
     (
     <foreach item="item" index="index" collection="set" open="" separator="," close="">
