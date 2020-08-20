@@ -267,12 +267,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //将进门收费返回的id设置到结算单中
         transitionDepartureSettlement.setJmsfId(vehicleAccessDTOBaseOutput.getData().getId());
-        int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
-        //判断是否修改成功
-        //进门收费成功过后，拿到data，取出id，然后设置到结算单中去
-        if (i2 <= 0) {
-            throw new RuntimeException("转离场结算单支付修改结算单失败");
-        }
         //再调用支付
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
@@ -295,8 +289,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             }
             //设置交易单号
             transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
+            int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+            //判断是否修改成功
+            //进门收费成功过后，拿到data，取出id，然后设置到结算单中去
+            if (i2 <= 0) {
+                throw new RuntimeException("转离场结算单支付修改结算单失败");
+            }
             //构建支付对象
-
             PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
             //设置自己账户id
             paymentTradeCommitDto.setAccountId(userAccountCardResponseDto.getFundAccountId());
