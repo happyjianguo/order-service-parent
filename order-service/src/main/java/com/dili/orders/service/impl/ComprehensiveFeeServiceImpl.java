@@ -2,14 +2,8 @@ package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
-
-import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
-import com.dili.orders.domain.TransitionDepartureApply;
-import com.dili.orders.domain.TransitionDepartureSettlement;
-
-import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.*;
 
@@ -42,14 +36,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-
-
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.orders.rpc.PayRpc;
-import com.dili.uap.sdk.domain.Firm;
-import com.dili.orders.rpc.AccountRpc;
 
 @Service
 public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFee, Long> implements ComprehensiveFeeService {
