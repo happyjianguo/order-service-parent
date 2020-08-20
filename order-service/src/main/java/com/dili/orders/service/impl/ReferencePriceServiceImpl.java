@@ -96,9 +96,12 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         //将 元/件 的价格转换为 元/斤
         for (WeighingTransCalcDto calcDto: transList) {
             if ("2".equals(calcDto.getMeasureType())) {
-                long unitPrice = calcDto.getUnitPrice()/(calcDto.getUnitWeight()/100);
-                long price = unitPrice*(calcDto.getNetWeight()*2/100);
-                calcDto.setTradeAmount(price);
+                double unitPrice = calcDto.getUnitPrice();
+                double unitWeight = calcDto.getUnitWeight();
+                double netWeight = calcDto.getNetWeight();
+                unitPrice = unitPrice/(unitWeight/100);
+                double price = unitPrice*(netWeight*2/100);
+                calcDto.setTradeAmount(Long.valueOf(replace(String.valueOf(price))));
             }
         }
         // 将笔数、金额、件数累加到对象中 以便后续计算
@@ -110,16 +113,24 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
                 transCalcDto.setCransCount(calcDto.getCransCount());
                 transCalcDto.setTradeAmount(calcDto.getTradeAmount());
                 transCalcDto.setUnitAmount(calcDto.getUnitAmount());
+                transCalcDto.setNetWeight(calcDto.getNetWeight());
             } else {
                 transCalcDto.setCransCount(calcDto.getCransCount()+transCalcDto.getCransCount());
                 transCalcDto.setTradeAmount(calcDto.getTradeAmount()+transCalcDto.getTradeAmount());
                 transCalcDto.setUnitAmount(calcDto.getUnitAmount()+ transCalcDto.getUnitAmount());
+                transCalcDto.setNetWeight(calcDto.getNetWeight()+transCalcDto.getNetWeight());
             }
 
         }
         // 取总平均值
-        referencePrice.setTotalAvgCount(transCalcDto.getTradeAmount()/transCalcDto.getUnitAmount());
+        double totalPrice = transCalcDto.getTradeAmount();
+        double totalWeight = transCalcDto.getNetWeight();
+        double totalAvgPrice = totalPrice/(totalWeight*2/100);
+        totalAvgPrice=Math.round(totalAvgPrice);
+
+        referencePrice.setTotalAvgCount(Long.valueOf(replace(String.valueOf(totalAvgPrice))));
         referencePrice.setGoodsId(weighingSettlementBill.getGoodsId());
+        referencePrice.setMarketId(weighingSettlementBill.getMarketId());
         referencePrice.setSettlementTime(new Date());
         //获取交易价格数目
         Set set = new HashSet();
@@ -135,20 +146,22 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         WeighingTransCalcDto maxPrice = transList.stream().max(Comparator.comparing(WeighingTransCalcDto::getUnitPrice)).get();
         WeighingTransCalcDto minPrice = transList.stream().min(Comparator.comparing(WeighingTransCalcDto::getUnitPrice)).get();
         long totalMaxPrice = 0,totalMinPrice = 0;
-        int delCount = 0;
+        int delWeight = 0;
         for (WeighingTransCalcDto calcDto: transList) {
             if (maxPrice.getUnitPrice().equals(calcDto.getUnitPrice())) {
                 totalMaxPrice += calcDto.getTradeAmount();
-                delCount += calcDto.getUnitAmount();
+                delWeight += calcDto.getNetWeight();
             }
             if (minPrice.getUnitPrice().equals(calcDto.getUnitPrice())) {
                 totalMinPrice += calcDto.getTradeAmount();
-                delCount += calcDto.getUnitAmount();
+                delWeight += calcDto.getNetWeight();
             }
         }
-        long partPrice = transCalcDto.getTradeAmount()-totalMaxPrice-totalMinPrice;
-        int partCount = transCalcDto.getUnitAmount()-delCount;
-        referencePrice.setPartAvgCount(partPrice/partCount);
+        double partPrice = transCalcDto.getTradeAmount()-totalMaxPrice-totalMinPrice;
+        double partWeight = transCalcDto.getNetWeight()-delWeight;
+        partPrice = partPrice/(partWeight*2/100);
+        partPrice=Math.round(partPrice);
+        referencePrice.setPartAvgCount(Long.valueOf(replace(String.valueOf(partPrice))));
 
         // 查询该商品是否存在参考价信息 若不存在 则添加 若存在 则更新
         int isExists =  getActualDao().getReferencePriceCountByGoodsIdIsExists(map);
@@ -175,5 +188,15 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         todayEnd.set(Calendar.SECOND, 59);
         todayEnd.set(Calendar.MILLISECOND, 999);
         return todayEnd.getTime();
+    }
+
+    public String replace(String s){
+        if(null != s && s.indexOf(".") > 0){
+            //去掉多余的0
+            s = s.replaceAll("0+?$", "");
+            //如最后一位是.则去掉
+            s = s.replaceAll("[.]$", "");
+        }
+        return s;
     }
 }
