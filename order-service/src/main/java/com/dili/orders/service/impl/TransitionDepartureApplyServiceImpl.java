@@ -151,7 +151,7 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
         BigDecimal totalFee = queryFeeOutputBaseOutput.getData().getTotalFee();
         totalFee = totalFee.setScale(2, RoundingMode.HALF_UP);
-        return Long.valueOf(String.valueOf(totalFee));
+        return totalFee.multiply(new BigDecimal(100)).longValue();
     }
 
 }
