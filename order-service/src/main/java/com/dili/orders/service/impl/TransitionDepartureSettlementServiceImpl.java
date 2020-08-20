@@ -104,7 +104,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     public void scheduleUpdate() {
         TransitionDepartureSettlement transitionDepartureSettlement = new TransitionDepartureSettlement();
         //拿到前一天的0时和23:59:59时
-        Map<String, String> beforeDate = getBeforeDate();
+//        Map<String, String> beforeDate = getBeforeDate();
         //设置查询参数
         //查询日期使用的是Date类型
         transitionDepartureSettlement.setBeginTime(LocalDate.now().plusDays(-1));
