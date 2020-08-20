@@ -27,8 +27,8 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
     }
 
     @Override
-    public GoodsReferencePriceSetting detail(GoodsReferencePriceSetting goodsReferencePriceSetting) {
-        return this.getActualDao().selectDetailById(goodsReferencePriceSetting);
+    public BaseOutput<GoodsReferencePriceSetting> detail(GoodsReferencePriceSetting goodsReferencePriceSetting) {
+        return BaseOutput.successData(this.getActualDao().selectDetailById(goodsReferencePriceSetting));
     }
 
     @Override
@@ -38,6 +38,16 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
         int insert = getActualDao().insert(goodsReferencePriceSetting);
         if (insert <= 0) {
             throw new RuntimeException("品类参考价新增-->创建品类参考价失败");
+        }
+        return BaseOutput.successData(goodsReferencePriceSetting);
+    }
+
+    @Override
+    public BaseOutput<GoodsReferencePriceSetting> updateGoodsReferencePriceSetting(GoodsReferencePriceSetting goodsReferencePriceSetting) {
+        goodsReferencePriceSetting.setVersion(goodsReferencePriceSetting.getVersion() + 1);
+        int update = getActualDao().updateByPrimaryKey(goodsReferencePriceSetting);
+        if (update <= 0) {
+            throw new RuntimeException("品类参考价修改-->修改品类参考价失败");
         }
         return BaseOutput.successData(goodsReferencePriceSetting);
     }

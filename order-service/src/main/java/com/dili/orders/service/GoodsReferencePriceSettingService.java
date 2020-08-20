@@ -26,7 +26,7 @@ public interface GoodsReferencePriceSettingService extends BaseService<GoodsRefe
 	 * @param goodsReferencePriceSetting
 	 * @return
 	 */
-	GoodsReferencePriceSetting detail(GoodsReferencePriceSetting goodsReferencePriceSetting);
+	BaseOutput<GoodsReferencePriceSetting> detail(GoodsReferencePriceSetting goodsReferencePriceSetting);
 
 	/**
 	 * 新增品类参考价
@@ -35,4 +35,12 @@ public interface GoodsReferencePriceSettingService extends BaseService<GoodsRefe
 	 * @return
 	 */
 	BaseOutput<GoodsReferencePriceSetting> insertGoodsReferencePriceSetting(GoodsReferencePriceSetting goodsReferencePriceSetting);
+
+	/**
+	 * 修改品类参考价
+	 *
+	 * @param goodsReferencePriceSetting
+	 * @return
+	 */
+	BaseOutput<GoodsReferencePriceSetting> updateGoodsReferencePriceSetting(GoodsReferencePriceSetting goodsReferencePriceSetting);
 }
