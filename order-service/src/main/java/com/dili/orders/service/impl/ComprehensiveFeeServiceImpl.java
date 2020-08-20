@@ -99,6 +99,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {
+        comprehensiveFee.setChargeAmount(12315646L);
         //设置检查收费单为未结算
         comprehensiveFee.setOrderStatus(1);
         //设置单据类型为检测收费
@@ -189,14 +190,15 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             List<FeeDto> feeDtos = new ArrayList();
             FeeDto feeDto = new FeeDto();
             feeDto.setAmount(comprehensiveFee.getChargeAmount());
-            feeDto.setType(25);
+            feeDto.setType(FundItem.TEST_FEE.getCode());
             feeDto.setTypeName("检测收费");
             feeDtos.add(feeDto);
             paymentTradeCommitDto.setFees(feeDtos);
             //调用rpc支付
             BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.pay(paymentTradeCommitDto);
             if (!pay.isSuccess()) {
-                throw new RuntimeException("检测收费结算单支付-->支付rpc请求失败");
+                BaseOutput.failure(pay.getMessage());
+                throw new RuntimeException(pay.getMessage());
             }
             data = pay.getData();
         }
@@ -327,7 +329,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
         // 退款
         PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
-        cancelDto.setTradeId(comprehensiveFee.getCode());
+        cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
         BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
         if (!paymentOutput.isSuccess()) {
             LOGGER.error(paymentOutput.getMessage());
