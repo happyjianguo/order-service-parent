@@ -177,7 +177,12 @@ public class TransitionDepartureSettlementApi {
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "departmentId") Long departmentId, @RequestParam(value = "operatorCode") String operatorCode, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) {
-        return transitionDepartureSettlementService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
+        try {
+            return transitionDepartureSettlementService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseOutput.failure(e.getMessage());
+        }
     }
 
     /**
