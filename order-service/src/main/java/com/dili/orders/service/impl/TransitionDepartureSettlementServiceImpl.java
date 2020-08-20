@@ -195,6 +195,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (transitionDepartureSettlement.getPayStatus() != 1) {
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
+        //判断余额是否够用
+        BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        if (!oneAccountCard1.isSuccess()) {
+            return BaseOutput.failure("根据卡查询客户失败");
+        }
+        //余额不足
+        if (oneAccountCard1.getData().getAccountFund().getBalance() < transitionDepartureSettlement.getChargeAmount()) {
+            return BaseOutput.failure("余额不足，请充值");
+        }
         //设置为已支付状态
         transitionDepartureSettlement.setPayStatus(2);
         //根据结算单apply_id获取到对应申请单
@@ -264,17 +273,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("转离场结算单支付-->修改结算单失败");
         }
         //再调用支付
-        //首先根据卡号拿倒账户信息
-        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-        if (!oneAccountCard.isSuccess()) {
-            throw new RuntimeException("转离场结算单支付-->查询账户失败");
-        }
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
         //判断是否支付金额是否为0，不为零再走支付
         if (!Objects.equals(transitionDepartureSettlement.getChargeAmount(), 0L)) {
             //构建支付对象
-            UserAccountCardResponseDto userAccountCardResponseDto = oneAccountCard.getData();
+            UserAccountCardResponseDto userAccountCardResponseDto = oneAccountCard1.getData().getAccountInfo();
             PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
             //设置自己账户id
             paymentTradeCommitDto.setAccountId(userAccountCardResponseDto.getFundAccountId());
@@ -302,11 +306,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         SerialRecordDo serialRecordDo = new SerialRecordDo();
-        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
-        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+        serialRecordDo.setAccountId(oneAccountCard1.getData().getAccountInfo().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard1.getData().getAccountInfo().getCardNo());
         serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
         serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
-        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerId(oneAccountCard1.getData().getAccountInfo().getCustomerId());
         serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
         serialRecordDo.setCustomerNo(transitionDepartureSettlement.getCustomerCode());
         serialRecordDo.setOperatorId(operatorId);
