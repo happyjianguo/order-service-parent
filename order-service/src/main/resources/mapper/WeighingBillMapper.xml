@@ -296,11 +296,11 @@
 		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON wb.id =
 		wbor.weighing_bill_id
 		WHERE 1 = 1
-		<if test="sellerCardNo != null">
-			wb.seller_card_no = #{sellerCardNo}
+		<if test="sellerCardNo != null and sellerCardNo!=''">
+			AND wb.seller_card_no = #{sellerCardNo}
 		</if>
-		<if test="buyerCardNo != null">
-			wb.buyer_card_no = #{buyerCardNo}
+		<if test="buyerCardNo != null and buyerCardNo!=''">
+			AND wb.buyer_card_no = #{buyerCardNo}
 		</if>
 		<if test="state != null">
 			AND wb.state=#{state}
