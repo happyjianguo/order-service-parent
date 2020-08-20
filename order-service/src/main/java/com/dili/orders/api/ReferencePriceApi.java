@@ -1,8 +1,6 @@
 package com.dili.orders.api;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dili.orders.config.WeighingBillMQConfig;
-import com.dili.orders.domain.WeighingSettlementBillTemp;
+
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -11,8 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Date;
 import java.util.Objects;
 
 

@@ -1,12 +1,8 @@
 package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
-import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
-import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.orders.domain.ComprehensiveFee;
-import com.dili.orders.domain.TransitionDepartureApply;
-import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.service.ComprehensiveFeeService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -14,15 +10,16 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 /**
  * 由MyBatis Generator工具自动生成
  * This file was generated on 2020-06-17 08:52:43.
+ * @author  Henry.Huang
+ * @date  2020/08/20
  */
+
 @RestController
 @RequestMapping("/api/comprehensiveFee")
 public class ComprehensiveFeeApi {

@@ -1,8 +1,7 @@
 package com.dili.orders.service.impl;
 
-import com.dili.orders.domain.ComprehensiveFee;
+
 import com.dili.orders.domain.GoodsReferencePriceSetting;
-import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.mapper.GoodsReferencePriceSettingMapper;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.GoodsReferencePriceSettingService;

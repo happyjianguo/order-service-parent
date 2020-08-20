@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
-import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.*;
-
 import com.dili.orders.dto.*;
 import com.dili.orders.mapper.ComprehensiveFeeMapper;
 import com.dili.orders.rpc.AccountRpc;
@@ -17,8 +15,6 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
-import com.dili.uap.sdk.domain.Firm;
-import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -27,18 +23,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import com.dili.uap.sdk.rpc.UserRpc;
-
+/**
+ *@author  Henry.Huang
+ *@date  2020/08/20
+ *
+ */
 @Service
 public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFee, Long> implements ComprehensiveFeeService {
 
@@ -88,8 +85,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {
         //设置检查收费单为未结算
         comprehensiveFee.setOrderStatus(1);
-        //设置单据类型为检测收费
-        //comprehensiveFee.setOrderType(1);
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
@@ -287,6 +282,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
      *撤销控制
      * */
 
+    @Override
     public BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword) {
         //根据id获取到comprehensive对象
         ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
@@ -348,31 +344,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         dto.setCustomerName(comprehensiveFee.getCustomerName());
         dto.setCustomerNo(comprehensiveFee.getCustomerCode());
         dto.setEndBalance(stream.getBalance() - (data.getFrozenBalance() + data.getFrozenAmount()));
-        dto.setFirmId(this.getFirmIdByCode());
+        dto.setFirmId(comprehensiveFee.getMarketId());
         dto.setFundItem(fundItem.getCode());
         dto.setFundItemName(fundItem.getName());
         LocalDateTime now = LocalDateTime.now();
         dto.setOperateTime(now);
         dto.setOperatorId(operatorId);
-        dto.setOperatorName(this.getUserRealNameById(operatorId));
+        dto.setOperatorName(comprehensiveFee.getOperatorName());
         this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(dto));
-    }
-
-    private Long getFirmIdByCode() {
-        BaseOutput<Firm> firmOutput = this.firmRpc.getByCode(OrdersConstant.SHOUGUANG_FIRM_CODE);
-        if (!firmOutput.isSuccess()) {
-            throw new AppException("获取市场id失败");
-        }
-        return firmOutput.getData().getId();
-    }
-
-    private String getUserRealNameById(Long operatorId) {
-        BaseOutput<User> output = this.userRpc.get(operatorId);
-        if (!output.isSuccess()) {
-            LOGGER.error(output.getMessage());
-            throw new AppException("查询用户信息失败");
-        }
-        return output.getData().getRealName();
-
     }
 }

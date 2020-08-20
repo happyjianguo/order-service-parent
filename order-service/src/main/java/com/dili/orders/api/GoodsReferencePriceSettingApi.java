@@ -1,8 +1,6 @@
 package com.dili.orders.api;
 
-import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
-import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.beans.factory.annotation.Autowired;

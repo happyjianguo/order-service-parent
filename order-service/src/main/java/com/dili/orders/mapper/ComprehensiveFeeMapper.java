@@ -8,6 +8,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ *@author  Henry.Huang
+ *@date  2020/08/20
+ *
+ */
 public interface ComprehensiveFeeMapper extends MyMapper<ComprehensiveFee> {
 
     List<ComprehensiveFee> listByQueryParams(ComprehensiveFee comprehensiveFee);

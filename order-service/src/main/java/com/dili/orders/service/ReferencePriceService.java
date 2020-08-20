@@ -1,7 +1,6 @@
 package com.dili.orders.service;
 
 import com.dili.orders.domain.WeighingReferencePrice;
-import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.ss.base.BaseService;
 
 /**

@@ -1,8 +1,6 @@
 package com.dili.orders.service;
 
-import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
-import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
