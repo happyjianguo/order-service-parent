@@ -2,10 +2,13 @@ package com.dili.orders.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
+import com.dili.orders.config.WeighingBillMQConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.beetl.ext.fn.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.stereotype.Service;
@@ -552,7 +555,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
     }
 
     @Override
-    public BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId) {
+    public BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
         WeighingBill query = new WeighingBill();
         query.setSerialNo(serialNo);
         WeighingBill weighingBill = this.getActualDao().selectOne(query);
@@ -756,6 +759,29 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         sellerPoundage.setNotes("买家手续费");
         srList.add(sellerPoundage);
         this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
+        Map<String, String> map = new HashMap<>();
+        //设置过磅单号
+        map.put("serialNo", weighingBill.getSerialNo());
+        //设置计量方式
+        map.put("measureType", weighingBill.getMeasureType());
+        //设置商品id
+        map.put("goodsId", String.valueOf(weighingBill.getGoodsId()));
+        //设置市场id
+        map.put("markerId", String.valueOf(marketId));
+        //设置件数
+        map.put("unitAmount", String.valueOf(weighingBill.getUnitAmount()));
+        //设置单价
+        map.put("unitPrice", String.valueOf(weighingBill.getUnitPrice()));
+        //设置件重
+        map.put("unitWeight", String.valueOf(weighingBill.getUnitWeight()));
+        //设置重量
+        map.put("netWeight", String.valueOf(weighingBill.getNetWeight()));
+        //设置结算日期
+        map.put("settlementTime", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(weighingBill.getSettlementTime()));
+        //设置交易金额
+        map.put("tradeAmount", String.valueOf(weighingStatement.getTradeAmount()));
+        //mq发送消息
+        this.mqService.send(WeighingBillMQConfig.EXCHANGE_REFERENCE_PRICE_CHANGE, WeighingBillMQConfig.ROUTING_REFERENCE_PRICE_CHANGE, JSON.toJSONString(map));
         return BaseOutput.success();
     }
 
