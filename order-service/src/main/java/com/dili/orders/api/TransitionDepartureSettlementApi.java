@@ -8,6 +8,7 @@ import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -262,7 +264,14 @@ public class TransitionDepartureSettlementApi {
         //设置客户信息
         map2.put("customerId", transitionDepartureApply.getCustomerId());
         queryFeeInput.setConditionParams(map2);
-        return chargeRuleRpc.queryFee(queryFeeInput);
+        BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
+        if (!queryFeeOutputBaseOutput.isSuccess()) {
+            //获取之后保留两位小数
+            BigDecimal totalFee = queryFeeOutputBaseOutput.getData().getTotalFee();
+            totalFee = totalFee.setScale(2, RoundingMode.HALF_UP);
+            queryFeeOutputBaseOutput.getData().setTotalFee(totalFee);
+        }
+        return queryFeeOutputBaseOutput;
     }
 
     /**

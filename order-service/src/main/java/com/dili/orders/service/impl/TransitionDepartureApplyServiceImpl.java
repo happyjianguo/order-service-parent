@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -146,8 +147,11 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         //设置客户信息
         map2.put("customerId", transitionDepartureApply.getCustomerId());
         queryFeeInput.setConditionParams(map2);
+        //保留两位小数后转成long类型
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
-        return Long.valueOf(String.valueOf(queryFeeOutputBaseOutput.getData().getTotalFee()));
+        BigDecimal totalFee = queryFeeOutputBaseOutput.getData().getTotalFee();
+        totalFee = totalFee.setScale(2, RoundingMode.HALF_UP);
+        return Long.valueOf(String.valueOf(totalFee));
     }
 
 }

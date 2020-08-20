@@ -299,7 +299,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //调用rpc支付
             BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.pay(paymentTradeCommitDto);
             if (!pay.isSuccess()) {
-                throw new RuntimeException("转离场结算单支付-->支付rpc请求失败");
+                throw new RuntimeException(pay.getMessage());
             }
             data = pay.getData();
         }
