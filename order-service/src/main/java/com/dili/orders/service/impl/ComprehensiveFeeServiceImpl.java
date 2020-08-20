@@ -2,14 +2,8 @@ package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
-
-import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
-import com.dili.orders.domain.TransitionDepartureApply;
-import com.dili.orders.domain.TransitionDepartureSettlement;
-
-import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.*;
 
@@ -42,14 +36,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-
-
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.orders.rpc.PayRpc;
-import com.dili.uap.sdk.domain.Firm;
-import com.dili.orders.rpc.AccountRpc;
 
 @Service
 public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFee, Long> implements ComprehensiveFeeService {
@@ -71,7 +59,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
-
 
 
     public ComprehensiveFeeMapper getActualDao() {
@@ -99,11 +86,10 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {
-        comprehensiveFee.setChargeAmount(12315646L);
         //设置检查收费单为未结算
         comprehensiveFee.setOrderStatus(1);
         //设置单据类型为检测收费
-        comprehensiveFee.setOrderType(1);
+        //comprehensiveFee.setOrderType(1);
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
@@ -311,13 +297,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         LocalDate todayDate = LocalDate.now();
         LocalDateTime opTime = comprehensiveFee.getModifiedTime() == null ? comprehensiveFee.getCreatedTime() : comprehensiveFee.getModifiedTime();
         if (!todayDate.equals(opTime.toLocalDate())) {
-            return BaseOutput.failure("只能对当日的过磅交易进行撤销操作");
+            return BaseOutput.failure("只能对当日的检测交易进行撤销操作");
         }
         if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.SETTLED.getValue())) {
             return BaseOutput.failure("当前状态不能撤销");
         }
 
-        if ("".equals(operatorPassword)){
+        if ("".equals(operatorPassword)) {
             return BaseOutput.failure("请输入密码");
         }
         // 校验操作员密码
@@ -330,11 +316,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         // 退款
         PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
         cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
+        System.out.println(cancelDto.getTradeId()+"..........");
         BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
         if (!paymentOutput.isSuccess()) {
             LOGGER.error(paymentOutput.getMessage());
             throw new AppException("退款失败");
         }
+
         //更新检测单状态和修改时间
         LocalDateTime now = LocalDateTime.now();
         comprehensiveFee.setModifiedTime(now);
