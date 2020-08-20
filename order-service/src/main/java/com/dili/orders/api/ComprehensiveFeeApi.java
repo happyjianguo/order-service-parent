@@ -93,8 +93,8 @@ public class ComprehensiveFeeApi {
      *
      */
     @RequestMapping(value = "/revocator")
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword) {
-        return this.comprehensiveFeeService.revocator(id, operatorId, operatorPassword);
+    public BaseOutput<Object> revocator(Long id, Long operatorId,String userName,String operatorPassword) {
+        return this.comprehensiveFeeService.revocator(id, operatorId, userName, operatorPassword);
     }
 
     /**

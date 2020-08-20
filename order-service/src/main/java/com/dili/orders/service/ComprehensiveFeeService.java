@@ -37,7 +37,7 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	 * @param operatorPassword 操作员登录密码
 	 * @return
 	 */
-	BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword);
+	BaseOutput<Object> revocator(Long id, Long operatorId,String userName, String operatorPassword);
 
 	/**
 	 * 支付

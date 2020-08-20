@@ -15,7 +15,9 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
+import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.FirmRpc;
+import com.dili.uap.sdk.session.SessionContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -315,7 +317,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
      * */
 
     @Override
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String operatorPassword) {
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword) {
         //根据id获取到comprehensive对象
         ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
         if (comprehensiveFee == null) {
@@ -354,6 +356,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新检测单状态和修改时间
         LocalDateTime now = LocalDateTime.now();
         comprehensiveFee.setModifiedTime(now);
+        comprehensiveFee.setRevocatorName(userName);
+        comprehensiveFee.setRevocatorTime(now);
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
         //更新comprehensive
         int rows = this.comprehensiveFeeMapper.updateByPrimaryKeySelective(comprehensiveFee);
@@ -362,7 +366,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         // 记录交易流水
         paymentOutput.getData().getStreams().forEach(s -> this.recordAccountFlow(comprehensiveFee, paymentOutput.getData(), s, FundItem.TRADE_SERVICE_FEE, operatorId));
-
         return BaseOutput.success();
     }
 
