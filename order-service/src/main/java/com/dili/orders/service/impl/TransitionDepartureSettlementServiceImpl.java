@@ -327,7 +327,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setAccountId(oneAccountCard1.getData().getAccountInfo().getAccountId());
         serialRecordDo.setCardNo(oneAccountCard1.getData().getAccountInfo().getCardNo());
         serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
-        serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         serialRecordDo.setCustomerId(oneAccountCard1.getData().getAccountInfo().getCustomerId());
         serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
         serialRecordDo.setCustomerNo(transitionDepartureSettlement.getCustomerCode());
@@ -350,6 +349,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             serialRecordDo.setEndBalance(data.getBalance() - transitionDepartureSettlement.getChargeAmount());
             serialRecordDo.setStartBalance(data.getBalance());
             serialRecordDo.setOperateTime(data.getWhen());
+            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
@@ -456,15 +456,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         SerialRecordDo serialRecordDo = new SerialRecordDo();
         serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
         serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
-
-        //判断是否没有走支付
-        if (Objects.nonNull(data)) {
-            serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
-        }
-        //判断是否没有走支付
-        if (Objects.nonNull(data)) {
-            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
-        }
         serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
         serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
         serialRecordDo.setOperatorId(transitionDepartureSettlement.getOperatorId());
@@ -484,9 +475,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
+            serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
             serialRecordDo.setEndBalance(data.getBalance());
             serialRecordDo.setStartBalance(data.getBalance());
             serialRecordDo.setOperateTime(data.getWhen());
+            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
