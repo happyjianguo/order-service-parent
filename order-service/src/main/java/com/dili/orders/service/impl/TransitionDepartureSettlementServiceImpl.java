@@ -217,11 +217,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!oneAccountCard1.isSuccess()) {
             return BaseOutput.failure("根据卡查询客户失败");
         }
-
         //获取账户信息
         UserAccountCardResponseDto accountInfo = oneAccountCard1.getData().getAccountInfo();
         //获取账户资金信息
         BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
+
+        //余额不足
+        if (Math.abs(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()) < 0) {
+            return BaseOutput.failure("余额不足，请充值");
+        }
 
         //先校验一次密码，如果密码不正确直接返回
         AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
@@ -233,10 +237,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             return pwdOutput;
         }
 
-        //余额不足
-        if (Math.abs(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()) < 0) {
-            return BaseOutput.failure("余额不足，请充值");
-        }
         //设置为已支付状态
         transitionDepartureSettlement.setPayStatus(2);
 
