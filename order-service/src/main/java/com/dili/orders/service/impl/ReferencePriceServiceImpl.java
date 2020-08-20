@@ -42,7 +42,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         if (ruleSetting.getReferenceRule() == null) {
             return null;
         }
-        if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_ONE) {
+        if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_THREE) {
             return ruleSetting.getFixedPrice();
         }
         // 根据商品获取最近的参考价信息
@@ -50,13 +50,13 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         if (referencePrice == null) {
             return null;
         }
-        if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
+        if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_ONE) {
             if (referencePrice.getTransCount() > transCount && referencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
                 return referencePrice.getPartAvgCount();
             } else {
                 return referencePrice.getTotalAvgCount();
             }
-        } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_THREE) {
+        } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
             if (referencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
                 return referencePrice.getPartAvgCount();
             } else {
