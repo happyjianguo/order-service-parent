@@ -1,9 +1,11 @@
 package com.dili.orders.api;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,9 @@ public class ReferencePriceApi {
     @Autowired
     ReferencePriceService referencePriceService;
 
+    @Autowired
+    private AmqpTemplate rabbitMQTemplate;
+
     /**
      * 根据商品ID获取参考价
      *
@@ -34,7 +39,7 @@ public class ReferencePriceApi {
      * @return BaseOutput<Object>
      */
     @RequestMapping(value = "/getReferencePriceByGoodsId/{goodsId}/{marketId}", method = {RequestMethod.GET})
-    BaseOutput<Object> getReferencePriceByGoodsId(@PathVariable(value = "goodsId") Long goodsId,@PathVariable(value = "goodsId") Long marketId) {
+    BaseOutput<Object> getReferencePriceByGoodsId(@PathVariable(value = "goodsId") Long goodsId,@PathVariable(value = "marketId") Long marketId) {
         if (Objects.isNull(goodsId)) {
             return BaseOutput.failure("请传入正确的商品ID");
         }
@@ -50,30 +55,5 @@ public class ReferencePriceApi {
         }
     }
 
-    /**
-     * 根据商品ID获取参考价
-     *
-     * @param goodsId
-     * @return BaseOutput<Object>
-     */
-    @RequestMapping(value = "/calcReferencePrice", method = {RequestMethod.POST})
-    void calcReferencePrice(Long goodsId) {
-
-        try {
-            WeighingSettlementBillTemp temp = new WeighingSettlementBillTemp();
-            temp.setGoodsId(1L);
-            temp.setMarketId(2L);
-            temp.setMeasureType("1");
-            temp.setNetWeight(123);
-            temp.setSerialNo("321");
-            temp.setUnitAmount(3);
-            temp.setUnitPrice(4L);
-            temp.setUnitWeight(4);
-            temp.setTradeAmount(200L);
-            temp.setSettlementTime(new Date());
-            referencePriceService.calcReferencePrice(JSONObject.toJSONString(temp));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+  
 }
