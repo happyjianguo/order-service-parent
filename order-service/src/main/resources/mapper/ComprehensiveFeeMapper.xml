@@ -140,7 +140,6 @@
     FROM comprehensive_fee s
     WHERE 1 = 1
     AND order_status not in(1,4)
-    AND order_type=1
     <if test="orderStatus != null">
       AND order_status = #{orderStatus}
     </if>
