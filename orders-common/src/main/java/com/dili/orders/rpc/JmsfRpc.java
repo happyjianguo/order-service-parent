@@ -35,7 +35,7 @@ public interface JmsfRpc {
      * @return
      */
     @RequestMapping("/api/truck/getById")
-    BaseOutput<TruckDTO> getById(@RequestParam(value = "id") TruckDTO id);
+    BaseOutput<TruckDTO> getTruckById(@RequestParam(value = "id") Long id);
 
     /**
      * 恢复皮重单

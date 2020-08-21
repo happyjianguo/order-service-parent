@@ -100,7 +100,7 @@ public class WeighingBillApi {
      */
     @RequestMapping(value = "/settle", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody
-    BaseOutput settle(String serialNo, String buyerPassword, String sellerPassword, Long operatorId, Long marketId) {
+    BaseOutput settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
         try {
             return weighingBillService.settle(serialNo, buyerPassword, operatorId, marketId);
         } catch (AppException e) {

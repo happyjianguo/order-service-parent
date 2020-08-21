@@ -602,9 +602,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
             //判断是否是d牌
             //通过c端传入的数据，去jmsf获取皮重当相关信息
-            TruckDTO truckDTO = new TruckDTO();
-            truckDTO.setId(Long.valueOf(weighingBill.getTareBillNumber()));
-            BaseOutput<TruckDTO> byId = this.jsmfRpc.getById(truckDTO);
+            BaseOutput<TruckDTO> byId = this.jsmfRpc.getTruckById(Long.valueOf(weighingBill.getTareBillNumber()));
             //判断是否查询成功
             if (!byId.isSuccess()) {
                 throw new AppException("查询过磅单失败");
