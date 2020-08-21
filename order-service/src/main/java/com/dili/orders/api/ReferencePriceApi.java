@@ -1,8 +1,5 @@
 package com.dili.orders.api;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dili.orders.config.WeighingBillMQConfig;
-import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.amqp.core.AmqpTemplate;
