@@ -190,6 +190,12 @@ public class ComprehensiveFee extends BaseDomain {
     private Long marketId;
 
     /**
+     * 市场ID
+     */
+    @Column(name = "`department_id`")
+    private Long departmentId;
+
+    /**
      * 查询使用，用户id
      */
     @Transient
@@ -746,5 +752,20 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    /**
+     * 部门ID
+     *
+     * @return department_id - 部门ID
+     */
+    @FieldDef(label = "部门ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
     }
 }
