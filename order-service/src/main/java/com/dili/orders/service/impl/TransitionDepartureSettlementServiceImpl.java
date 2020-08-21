@@ -283,7 +283,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setVehicleTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         //新增车类型code
         vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
-
         vehicleAccessDTO.setBarrierType(3);
         vehicleAccessDTO.setEntryTime(new Date());
         vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
@@ -296,7 +295,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setOperatorName(operatorName);
         vehicleAccessDTO.setCreated(new Date());
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
-//        vehicleAccessDTO.setMembershipCardId(transitionDepartureSettlement.getCustomerCardNo());
+        vehicleAccessDTO.setMembershipCardId(accountInfo.getCardId());
 
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
