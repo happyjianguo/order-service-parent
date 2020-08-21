@@ -295,8 +295,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setOperatorName(operatorName);
         vehicleAccessDTO.setCreated(new Date());
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
-        vehicleAccessDTO.setMembershipCardId(accountInfo.getCardId());
-
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
