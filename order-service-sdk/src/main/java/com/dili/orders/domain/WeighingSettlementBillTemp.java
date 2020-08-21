@@ -76,10 +76,71 @@ public class WeighingSettlementBillTemp extends BaseDomain {
     private Date settlementTime;
 
     /**
-     * 交易金额
+     * 交易额
      */
     @Column(name = "`trade_amount`")
     private Long tradeAmount;
+
+    /**
+     * 最大价格
+     */
+    @Column(name = "`max_price`")
+    private Long maxPrice;
+
+    /**
+     * 最小价格
+     */
+    @Column(name = "`min_price`")
+    private Long minPrice;
+
+    /**
+     * 最大交易额
+     */
+    @Column(name = "`max_trade_amount`")
+    private Long maxTradeAmount;
+
+    /**
+     * 最小交易额
+     */
+    @Column(name = "`min_trade_amount`")
+    private Long minTradeAmount;
+
+    /**
+     * 最大交易量
+     */
+    @Column(name = "`max_trade_weight`")
+    private int maxTradeWeight;
+
+    /**
+     * 最小交易量
+     */
+    @Column(name = "`min_trade_weight`")
+    private int minTradeWeight;
+
+    /**
+     * 交易笔数
+     */
+    @Column(name = "`trade_count`")
+    private int tradeCount;
+
+    /**
+     * 交易价格数
+     */
+    @Column(name = "`trade_price_count`")
+    private int tradePriceCount;
+
+    /**
+     * 总交易额
+     */
+    @Column(name = "`total_trade_amount`")
+    private Long totalTradeAmount;
+
+    /**
+     * 总交易量
+     */
+    @Column(name = "`total_trade_weight`")
+    private int totalTradeWeight;
+
 
     /**
      * @return id
@@ -276,22 +337,90 @@ public class WeighingSettlementBillTemp extends BaseDomain {
         this.netWeight = netWeight;
     }
 
-    /**
-     * 获取交易金额
-     *
-     * @return trade_amount - 交易金额
-     */
-    @FieldDef(label="交易金额")
-    @EditMode(editor = FieldEditor.Datetime, required = true)
+    public Long getMaxPrice() {
+        return maxPrice;
+    }
+
+    public void setMaxPrice(Long maxPrice) {
+        this.maxPrice = maxPrice;
+    }
+
+    public Long getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Long minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Long getMaxTradeAmount() {
+        return maxTradeAmount;
+    }
+
+    public void setMaxTradeAmount(Long maxTradeAmount) {
+        this.maxTradeAmount = maxTradeAmount;
+    }
+
+    public Long getMinTradeAmount() {
+        return minTradeAmount;
+    }
+
+    public void setMinTradeAmount(Long minTradeAmount) {
+        this.minTradeAmount = minTradeAmount;
+    }
+
+    public int getMaxTradeWeight() {
+        return maxTradeWeight;
+    }
+
+    public void setMaxTradeWeight(int maxTradeWeight) {
+        this.maxTradeWeight = maxTradeWeight;
+    }
+
+    public int getMinTradeWeight() {
+        return minTradeWeight;
+    }
+
+    public void setMinTradeWeight(int minTradeWeight) {
+        this.minTradeWeight = minTradeWeight;
+    }
+
+    public int getTradeCount() {
+        return tradeCount;
+    }
+
+    public void setTradeCount(int tradeCount) {
+        this.tradeCount = tradeCount;
+    }
+
+    public int getTradePriceCount() {
+        return tradePriceCount;
+    }
+
+    public void setTradePriceCount(int tradePriceCount) {
+        this.tradePriceCount = tradePriceCount;
+    }
+
+    public Long getTotalTradeAmount() {
+        return totalTradeAmount;
+    }
+
+    public void setTotalTradeAmount(Long totalTradeAmount) {
+        this.totalTradeAmount = totalTradeAmount;
+    }
+
+    public int getTotalTradeWeight() {
+        return totalTradeWeight;
+    }
+
+    public void setTotalTradeWeight(int totalTradeWeight) {
+        this.totalTradeWeight = totalTradeWeight;
+    }
+
     public Long getTradeAmount() {
         return tradeAmount;
     }
 
-    /**
-     * 设置交易金额
-     *
-     * @param tradeAmount 交易金额
-     */
     public void setTradeAmount(Long tradeAmount) {
         this.tradeAmount = tradeAmount;
     }

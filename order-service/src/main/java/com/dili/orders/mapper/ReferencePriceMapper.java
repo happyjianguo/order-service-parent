@@ -25,18 +25,17 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
 
     /**
      * 根据商品信息查询参考价表中数据
-     * @param goodsId
-     * @param marketId
+     * @param map
      * @return
      */
-    WeighingReferencePrice getReferencePriceByGoodsId(Long goodsId,Long marketId);
+    WeighingReferencePrice getReferencePriceByGoodsId(Map<String,Object> map);
 
     /**
      * 根据商品查询交易单据
      * @param map
      * @return
      */
-    List<WeighingTransCalcDto> getTransDataByGoodsId(Map<String,Object> map);
+    WeighingTransCalcDto getTransDataByGoodsId(Map<String,Object> map);
 
     /**
      * 根据商品ID查询商品是否存在
@@ -56,4 +55,10 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
      * @param weighingSettlementBill
      */
     void addTransDataTempInfo(WeighingSettlementBillTemp weighingSettlementBill);
+
+    /**
+     * 更新参考价中间表信息
+     * @param weighingTransCalcDto
+     */
+    void updateTransDataTempInfo(WeighingTransCalcDto weighingTransCalcDto);
 }
