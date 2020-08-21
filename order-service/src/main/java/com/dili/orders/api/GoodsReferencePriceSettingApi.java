@@ -10,9 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-17 08:52:43.
- * @author Seabert.Zhan
+ * Description: 品类参考价api类
+ *
+ * @date:    2020/8/21
+ * @author:   Seabert.Zhan
  */
 @RestController
 @RequestMapping("/api/goodsReferencePriceSetting")

@@ -7,8 +7,10 @@ import com.dili.ss.domain.BaseOutput;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
- * @author Seabert.Zhan
+ * Description: 品类参考价接口定义
+ *
+ * @date:    2020/8/21
+ * @author:   Seabert.Zhan
  */
 public interface GoodsReferencePriceSettingService extends BaseService<GoodsReferencePriceSetting, Long> {
 
