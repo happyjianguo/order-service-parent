@@ -15,7 +15,6 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
-import com.dili.uap.sdk.rpc.FirmRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,7 +30,10 @@ import java.util.*;
 import java.time.LocalDate;
 import java.util.List;
 import com.dili.uap.sdk.rpc.UserRpc;
+
 /**
+ * 检测收费服务实现类
+ *
  *@author  Henry.Huang
  *@date  2020/08/20
  *
@@ -47,8 +49,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     private ComprehensiveFeeMapper comprehensiveFeeMapper;
     @Autowired
     private PayRpc payRpc;
-    @Autowired
-    private FirmRpc firmRpc;
     @Autowired
     private RabbitMQMessageService mqService;
     @Autowired
@@ -99,7 +99,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName) {
+    public BaseOutput pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName) {
         //根据id获取当前的结算单信息
         ComprehensiveFee comprehensiveFee = get(id);
         Integer orderType = comprehensiveFee.getOrderType();
