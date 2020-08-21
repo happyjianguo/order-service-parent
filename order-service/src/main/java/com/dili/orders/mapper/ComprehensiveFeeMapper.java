@@ -1,7 +1,6 @@
 package com.dili.orders.mapper;
 
 import com.dili.orders.domain.ComprehensiveFee;
-import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.ss.base.MyMapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
+ * 检测收费Mapper
  *@author  Henry.Huang
  *@date  2020/08/20
  *

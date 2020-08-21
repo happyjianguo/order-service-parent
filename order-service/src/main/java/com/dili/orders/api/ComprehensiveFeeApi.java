@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-17 08:52:43.
+ * 检测收费服务接口
+ *
  * @author  Henry.Huang
  * @date  2020/08/20
  */
@@ -41,9 +41,7 @@ public class ComprehensiveFeeApi {
      */
     @RequestMapping(value = "/listPage", method = {RequestMethod.POST})
     public String listPage(@RequestBody ComprehensiveFee comprehensiveFee) throws Exception {
-
         return comprehensiveFeeService.listEasyuiPageByExample(comprehensiveFee, true).toString();
-
     }
 
 
@@ -114,9 +112,9 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "departmentId") Long departmentId, @RequestParam(value = "operatorCode") String operatorCode, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) {
+    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) {
         try {
-            return comprehensiveFeeService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
+            return comprehensiveFeeService.pay(id, password, marketId, operatorId, operatorName, operatorUserName);
         } catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure(e.getMessage());
