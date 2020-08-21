@@ -171,6 +171,7 @@
     <if test="customerCardNo != null">
       AND customer_card_no=#{customerCardNo}
     </if>
+    order by ${sort} ${order}
   </select>
   <select id="scheduleUpdateSelect" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT
