@@ -352,14 +352,14 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             if (!pay.isSuccess()) {
                 throw new RuntimeException(pay.getMessage());
             }
-
-            //再更新结算单信息
-            int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
-            //判断是否修改成功
-            if (i2 <= 0) {
-                throw new RuntimeException("转离场结算单支付修改结算单失败");
-            }
             data = pay.getData();
+        }
+
+        //再更新结算单信息
+        int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+        //判断是否修改成功
+        if (i2 <= 0) {
+            throw new RuntimeException("转离场结算单支付修改结算单失败");
         }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
