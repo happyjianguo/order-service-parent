@@ -141,7 +141,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
-        carTypeForJmsfDTO.setBusinessCode("jmsf");
+        carTypeForJmsfDTO.setBusinessCode("kcjm");
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
@@ -270,7 +270,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //进门收费新增需要保存车型明，车型code。车型id，因为结算单中没有冗余，所以需要到进门收费中去查询
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
-        carTypeForJmsfDTO.setBusinessCode("jmsf");
+        carTypeForJmsfDTO.setBusinessCode("kcjm");
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
