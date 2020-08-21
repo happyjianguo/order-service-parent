@@ -775,7 +775,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         //设置重量
         map.put("netWeight", String.valueOf(weighingBill.getNetWeight()));
         //设置结算日期
-        map.put("settlementTime", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(weighingBill.getSettlementTime()));
+        map.put("settlementTime", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
         //设置交易金额
         map.put("tradeAmount", String.valueOf(weighingStatement.getTradeAmount()));
         //mq发送消息
