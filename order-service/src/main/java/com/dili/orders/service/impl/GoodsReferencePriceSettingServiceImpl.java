@@ -11,6 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+/**
+ * Description: 品类参考价接口实现类
+ *
+ * @date:    2020/8/21
+ * @author:   Seabert.Zhan
+ */
 @Service
 public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<GoodsReferencePriceSetting,Long> implements GoodsReferencePriceSettingService {
 
