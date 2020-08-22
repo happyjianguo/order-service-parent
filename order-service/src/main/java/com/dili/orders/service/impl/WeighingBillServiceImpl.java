@@ -144,10 +144,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         weighingBill.setBuyerName(buyer.getName());
         weighingBill.setBuyerContact(buyer.getContactsPhone());
         weighingBill.setBuyerCardAccount(buyerOutput.getData().getAccountId());
-
         // 设置卖家信息
         weighingBill.setSellerAccount(sellerOutput.getData().getFundAccountId());
         weighingBill.setSellerId(sellerOutput.getData().getCustomerId());
+        weighingBill.setSellerCode(seller.getCode());
         weighingBill.setSellerName(seller.getName());
         weighingBill.setSellerContact(seller.getContactsPhone());
         weighingBill.setSellerCardAccount(sellerOutput.getData().getAccountId());
