@@ -254,7 +254,10 @@
 		wb.unit_weight,
 		wb.trade_type,
 		wb.state,
-		wb.created_time
+		wb.created_time,
+		wb.plate_number,
+		wb.goods_origin_city_name,
+		goods_origin_city_id
 	</sql>
 
 	<sql id="Ws_Join_Column_List">
