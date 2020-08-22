@@ -1060,14 +1060,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
             if (!buyerFeeOutput.isSuccess()) {
                 throw new AppException("计算买家手续费失败");
             }
-            ws.setBuyerActualAmount(ws.getTradeAmount() + buyerFeeOutput.getData().getTotalFee().longValue());
-            ws.setBuyerPoundage(buyerFeeOutput.getData().getTotalFee().longValue());
+            ws.setBuyerActualAmount(ws.getTradeAmount() + buyerFeeOutput.getData().getTotalFee().longValue()*100);
+            ws.setBuyerPoundage(buyerFeeOutput.getData().getTotalFee().longValue()*100);
             BaseOutput<QueryFeeOutput> sellerFeeOutput = this.calculatePoundage(ws, marketId, "WEIGHING_BILL_SELLER_POUNDAGE");
             if (!sellerFeeOutput.isSuccess()) {
                 throw new AppException("计算卖家手续费失败");
             }
-            ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue());
-            ws.setSellerPoundage(sellerFeeOutput.getData().getTotalFee().longValue());
+            ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue()*100);
+            ws.setSellerPoundage(sellerFeeOutput.getData().getTotalFee().longValue()*100);
         }
         ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
         ws.setBuyerId(weighingBill.getBuyerId());
