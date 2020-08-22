@@ -474,6 +474,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         return BaseOutput.success();
     }
 
+    /**
+     * json 修改，再调用方法buildWeighingStatement的时候，重新创建了一个结算单，并且设置了PayOrderNo
+     * 在调用recordWithdrawAccountFlow的时候，卖家信息，在第一个streams中获取，买家信息在relation.streams中获取，按照刚哥的说法。
+     * 不知道是否存在问题，目前是可以撤销成功
+     * @param id               过磅id
+     * @param operatorId       操作员id
+     * @param operatorPassword 操作员登录密码
+     * @return
+     */
     @Override
     public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword) {
         WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
@@ -511,7 +520,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         }
 
         // 重新生成结算单
-        weighingStatement = this.buildWeighingStatement(weighingBill, this.getFirmIdByCode(), true);
+//        weighingStatement = this.buildWeighingStatement(weighingBill, this.getFirmIdByCode(), true);
 
         weighingBill.setState(WeighingBillState.WITHDRAWN.getValue());
         weighingBill.setModifiedTime(now);
@@ -532,9 +541,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         }
 
         // 重新生成一条结算单
-        weighingStatement = this.buildWeighingStatement(weighingBill, this.getFirmIdByCode(), true);
-        weighingStatement.setState(WeighingStatementState.UNPAID.getValue());
-        rows = this.weighingStatementMapper.insertSelective(weighingStatement);
+        WeighingStatement newWeighingStatement = this.buildWeighingStatement(weighingBill, this.getFirmIdByCode(), true);
+        newWeighingStatement.setState(WeighingStatementState.UNPAID.getValue());
+        newWeighingStatement.setPayOrderNo(weighingStatement.getPayOrderNo());
+        rows = this.weighingStatementMapper.insertSelective(newWeighingStatement);
         if (rows <= 0) {
             throw new AppException("创建结算单失败");
         }
@@ -897,7 +907,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
             throw new AppException("保存操作记录失败");
         }
 
-        // 重新生成一条结算单
+        // 重新生成一条结算单,没有设置交易单号，撤销失败！！！！！
         WeighingStatement newWs = this.buildWeighingStatement(weighingBill, this.getFirmIdByCode(), true);
         newWs.setState(WeighingStatementState.UNPAID.getValue());
         rows = this.weighingStatementMapper.insertSelective(newWs);
@@ -926,7 +936,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         String operatorName = this.getUserRealNameById(operatorId);
         LocalDateTime now = LocalDateTime.now();
         // 卖家手续费
-        PaymentStream sellerPoundageStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
+//        PaymentStream sellerPoundageStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
+        PaymentStream sellerPoundageStream = tradeResponse.getStreams().stream().filter(s -> s.getType() == 2).findFirst().orElse(null);
         SerialRecordDo sellerRefound = new SerialRecordDo();
         sellerRefound.setAccountId(weighingBill.getSellerAccount());
         sellerRefound.setAction(ActionType.INCOME.getCode());
@@ -945,7 +956,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         sellerRefound.setNotes("卖家手续费退款");
         srList.add(sellerRefound);
         // 卖家退款
-        PaymentStream sellerExpenseStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 2).findFirst().orElse(null);
+//        PaymentStream sellerExpenseStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 2).findFirst().orElse(null);
+        PaymentStream sellerExpenseStream = tradeResponse.getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
         SerialRecordDo sellerExpense = new SerialRecordDo();
         sellerExpense.setAccountId(weighingBill.getSellerAccount());
         sellerExpense.setAction(ActionType.EXPENSE.getCode());
@@ -965,7 +977,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         srList.add(sellerExpense);
 
         // 买家手续费
-        PaymentStream buyerPoundageStream = tradeResponse.getStreams().stream().filter(s -> s.getType().equals(1)).findFirst().orElse(null);
+        PaymentStream buyerPoundageStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType()==1).findFirst().orElse(null);
         SerialRecordDo buyerPoundage = new SerialRecordDo();
         buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
         buyerPoundage.setAction(ActionType.INCOME.getCode());
@@ -984,7 +996,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         buyerPoundage.setNotes("买家手续费退款");
         srList.add(buyerPoundage);
         // 买家退款
-        PaymentStream buyerRefundStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType().equals(0)).findFirst().orElse(null);
+        PaymentStream buyerRefundStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType()==0).findFirst().orElse(null);
         SerialRecordDo buyerRefund = new SerialRecordDo();
         buyerRefund.setAccountId(weighingBill.getBuyerAccount());
         buyerRefund.setAction(ActionType.INCOME.getCode());
