@@ -810,7 +810,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         fees.add(buyerFee);
         // 卖家手续费
         FeeDto sellerFee = new FeeDto();
-        sellerFee.setAmount(weighingStatement.getBuyerPoundage());
+        sellerFee.setAmount(weighingStatement.getSellerPoundage());
         sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
         sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
         sellerFee.setUseFor(FeeUse.SELLER.getValue());
