@@ -258,6 +258,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //设置支付时间
         transitionDepartureSettlement.setPayTime(LocalDateTime.now());
+
         //更新操作员（有可能不是同一个操作员，所以需要更新）
         transitionDepartureSettlement.setOperatorId(operatorId);
         transitionDepartureSettlement.setOperatorName(operatorName);
@@ -372,6 +373,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperatorName(operatorName);
         serialRecordDo.setOperatorNo(operatorUserName);
         serialRecordDo.setFirmId(marketId);
+        serialRecordDo.setOperateTime(LocalDateTime.now());
         //判断是转场还是离场1.转场 2.离场
         if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
             serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
@@ -384,8 +386,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setEndBalance(data.getBalance() - transitionDepartureSettlement.getChargeAmount());
             serialRecordDo.setStartBalance(data.getBalance());
+            //返回的值是负值，还是加就行了
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
@@ -500,6 +503,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperatorName(transitionDepartureSettlement.getOperatorName());
         serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
         serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
+        serialRecordDo.setOperateTime(LocalDateTime.now());
 
         //判断是转场还是离场1.转场 2.离场
         if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
@@ -513,9 +517,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setAmount(transitionDepartureSettlement.getChargeAmount());
-            serialRecordDo.setEndBalance(data.getBalance());
+            serialRecordDo.setAmount(data.getAmount());
+            //期初余额
             serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
