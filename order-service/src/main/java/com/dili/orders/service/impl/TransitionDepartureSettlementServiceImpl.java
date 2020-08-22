@@ -499,6 +499,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
         serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
         serialRecordDo.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        serialRecordDo.setCustomerNo(transitionDepartureSettlement.getCustomerCode());
         serialRecordDo.setOperatorId(transitionDepartureSettlement.getOperatorId());
         serialRecordDo.setOperatorName(transitionDepartureSettlement.getOperatorName());
         serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
