@@ -83,6 +83,14 @@ public class TransitionDepartureSettlement extends BaseDomain {
     @Column(name = "`customer_department_name`")
     private String customerDepartmentName;
 
+
+    /**
+     * 客户所属父id
+     */
+    @Column(name = "`customer_parent_id`")
+    private Long customerParentId;
+
+
     /**
      * 交易类型id（外省菜，省内菜等）（数据字典）
      */
@@ -986,5 +994,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setJmsfId(Long jmsfId) {
         this.jmsfId = jmsfId;
+    }
+
+    public Long getCustomerParentId() {
+        return customerParentId;
+    }
+
+    public void setCustomerParentId(Long customerParentId) {
+        this.customerParentId = customerParentId;
     }
 }
