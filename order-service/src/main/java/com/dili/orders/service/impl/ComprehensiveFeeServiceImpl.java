@@ -139,6 +139,10 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新操作员
         comprehensiveFee.setOperatorId(operatorId);
         comprehensiveFee.setOperatorName(operatorName);
+        //更新更新人和更新时间
+        comprehensiveFee.setModifierId(operatorId);
+        comprehensiveFee.setModifiedTime(LocalDateTime.now());
+        comprehensiveFee.setVersion(comprehensiveFee.getVersion()+1);
         int i = updateSelective(comprehensiveFee);
         if (i <= 0) {
             return BaseOutput.failure(updateError);
