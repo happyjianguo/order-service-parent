@@ -163,6 +163,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
             double netWeight = weighingSettlementBill.getNetWeight();
             unitPrice = unitPrice/(unitWeight/100);
             double price = unitPrice*(netWeight*2/100);
+            price=Math.round(price);
             weighingSettlementBill.setTradeAmount(Long.valueOf(replace(String.valueOf(price))));
         }
 

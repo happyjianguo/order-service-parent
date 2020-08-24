@@ -52,19 +52,19 @@
     </select>-->
 
     <insert id="addTransDataTempInfo" useGeneratedKeys="true" parameterType="com.dili.orders.domain.WeighingSettlementBillTemp" >
-        INSERT INTO weighing_settlement_bill_temp(
-          serial_no, measure_type, market_id, goods_id, settlement_time, max_price, min_price, max_trade_amount,
+        INSERT INTO weighing_settlement_bill_daily(
+          market_id, goods_id, settlement_time, max_price, min_price, max_trade_amount,
           min_trade_amount, max_trade_weight, min_trade_weight, trade_count, trade_price_count,total_trade_amount,
           total_trade_weight
         ) VALUES (
-          #{serialNo}, #{measureType}, #{marketId}, #{goodsId}, #{settlementTime}, #{maxPrice}, #{minPrice}, #{maxTradeAmount},
+          #{marketId}, #{goodsId}, #{settlementTime}, #{maxPrice}, #{minPrice}, #{maxTradeAmount},
           #{minTradeAmount}, #{maxTradeWeight}, #{minTradeWeight}, #{tradeCount}, #{tradePriceCount},#{totalTradeAmount},
           #{totalTradeWeight}
         )
     </insert>
 
     <update id="updateTransDataTempInfo" parameterType="com.dili.orders.dto.WeighingTransCalcDto" >
-        UPDATE weighing_settlement_bill_temp
+        UPDATE weighing_settlement_bill_daily
         <set>
             <if test="maxPrice != null">
                 max_price = #{maxPrice,jdbcType=BIGINT},
@@ -119,7 +119,7 @@
           total_trade_amount totalTradeAmount,
           total_trade_weight totalTradeWeight
         FROM
-          weighing_settlement_bill_temp
+          weighing_settlement_bill_daily
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
         AND market_id = #{marketId,jdbcType=BIGINT}
         <![CDATA[
