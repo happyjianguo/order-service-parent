@@ -401,10 +401,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
 
-        //只能撤销当天的结算单
-        if (!compareDate(transitionDepartureSettlement.getPayTime())) {
-            return BaseOutput.failure("只能撤销当天的结算单");
-        }
+//        //只能撤销当天的结算单
+//        if (!compareDate(transitionDepartureSettlement.getPayTime())) {
+//            return BaseOutput.failure("只能撤销当天的结算单");
+//        }
 
         // 校验操作员密码
         BaseOutput<Object> userOutput = this.userRpc.validatePassword(revocatorId, revocatorPassword);
