@@ -285,16 +285,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //新增车类型code
         vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
         vehicleAccessDTO.setBarrierType(3);
-        vehicleAccessDTO.setEntryTime(new Date());
         vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
         vehicleAccessDTO.setPayType(3);
         vehicleAccessDTO.setCasherId(operatorId);
         vehicleAccessDTO.setCasherName(operatorName);
         vehicleAccessDTO.setCasherDepartmentId(departmentId);
-        vehicleAccessDTO.setPayTime(new Date());
+        vehicleAccessDTO.setLocalDatePayTime(LocalDateTime.now());
         vehicleAccessDTO.setOperatorId(operatorId);
         vehicleAccessDTO.setOperatorName(operatorName);
-        vehicleAccessDTO.setCreated(new Date());
+        vehicleAccessDTO.setLocalDateCreated(LocalDateTime.now());
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         //判断进门收费新增是否成功
