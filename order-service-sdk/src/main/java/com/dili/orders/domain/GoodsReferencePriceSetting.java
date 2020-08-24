@@ -22,9 +22,9 @@ public class GoodsReferencePriceSetting extends BaseDomain {
      * 品类参考价id
      */
     @Id
-    @Column(name = "`oid`")
+    @Column(name = "`id`")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long oid;
+    private Long id;
 
     /**
      * 市场id
@@ -103,19 +103,21 @@ public class GoodsReferencePriceSetting extends BaseDomain {
      *
      * @return oid - 品类参考价id
      */
+    @Override
     @FieldDef(label="品类参考价id")
     @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getOid() {
-        return oid;
+    public Long getId() {
+        return id;
     }
 
     /**
      * 设置品类参考价id
      *
-     * @param oid 品类参考价id
+     * @param id 品类参考价id
      */
-    public void setOid(Long oid) {
-        this.oid = oid;
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 
     /**
