@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -290,10 +291,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCasherId(operatorId);
         vehicleAccessDTO.setCasherName(operatorName);
         vehicleAccessDTO.setCasherDepartmentId(departmentId);
-        vehicleAccessDTO.setLocalDatePayTime(LocalDateTime.now());
+        vehicleAccessDTO.setPayTime(LocalDateTime.now());
         vehicleAccessDTO.setOperatorId(operatorId);
         vehicleAccessDTO.setOperatorName(operatorName);
-        vehicleAccessDTO.setLocalDateCreated(LocalDateTime.now());
+        vehicleAccessDTO.setCreated(LocalDateTime.now());
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         //判断进门收费新增是否成功
@@ -399,6 +400,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
+
+        //只能撤销当天的结算单
+        if (!compareDate(transitionDepartureSettlement.getPayTime())) {
+            return BaseOutput.failure("只能撤销当天的结算单");
+        }
 
         // 校验操作员密码
         BaseOutput<Object> userOutput = this.userRpc.validatePassword(revocatorId, revocatorPassword);
@@ -570,4 +576,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         return map;
     }
 
+    private boolean compareDate(LocalDateTime localDateTime) {
+        LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime today_end = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        return localDateTime.isAfter(today_start) && localDateTime.isBefore(today_end);
+    }
 }
