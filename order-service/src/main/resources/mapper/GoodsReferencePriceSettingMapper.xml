@@ -5,7 +5,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <id column="oid" jdbcType="BIGINT" property="oid" />
+    <id column="id" jdbcType="BIGINT" property="id" />
     <id column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="goods_id" jdbcType="BIGINT" property="goodsId" />
     <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
@@ -22,7 +22,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    oid, market_id, goods_id, goods_name, reference_rule, fixed_price, parent_goods_id, created_time,
+    id, market_id, goods_id, goods_name, reference_rule, fixed_price, parent_goods_id, created_time,
     creator_id, modified_time, modifier_id, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -32,7 +32,7 @@
     select 
     <include refid="Base_Column_List" />
     from goods_reference_price_setting
-    where oid = #{oid,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
   </select>
   <update id="updateBy" parameterType="com.dili.orders.domain.GoodsReferencePriceSetting">
     <!--
@@ -74,7 +74,7 @@
         version = #{version,jdbcType=INTEGER},
       </if>
     </set>
-    where oid = #{oid,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.GoodsReferencePriceSetting">
     SELECT
