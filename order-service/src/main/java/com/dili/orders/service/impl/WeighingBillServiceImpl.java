@@ -775,7 +775,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         //设置商品id
         map.put("goodsId", String.valueOf(weighingBill.getGoodsId()));
         //设置市场id
-        map.put("markerId", String.valueOf(marketId));
+        map.put("marketId", String.valueOf(marketId));
         //设置件数
         map.put("unitAmount", String.valueOf(weighingBill.getUnitAmount()));
         //设置单价
