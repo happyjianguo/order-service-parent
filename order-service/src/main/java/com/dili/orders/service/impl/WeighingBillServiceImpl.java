@@ -54,6 +54,7 @@ import com.dili.orders.rpc.AccountRpc;
 import com.dili.orders.rpc.JmsfRpc;
 import com.dili.orders.rpc.PayRpc;
 import com.dili.orders.rpc.UidRpc;
+import com.dili.orders.service.ReferencePriceService;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
@@ -99,6 +100,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
     private WeighingBillOperationRecordMapper wbrMapper;
     @Autowired
     private WeighingStatementMapper weighingStatementMapper;
+    @Autowired
+    private ReferencePriceService referencePriceService;
 
     @Override
     public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill) {
