@@ -290,10 +290,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCasherId(operatorId);
         vehicleAccessDTO.setCasherName(operatorName);
         vehicleAccessDTO.setCasherDepartmentId(departmentId);
-        vehicleAccessDTO.setLocalDatePayTime(LocalDateTime.now());
+        vehicleAccessDTO.setPayTime(LocalDateTime.now());
         vehicleAccessDTO.setOperatorId(operatorId);
         vehicleAccessDTO.setOperatorName(operatorName);
-        vehicleAccessDTO.setLocalDateCreated(LocalDateTime.now());
+        vehicleAccessDTO.setCreated(LocalDateTime.now());
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         //判断进门收费新增是否成功
@@ -471,7 +471,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("进门收费撤销失败");
         }
         //调用卡号查询账户信息
-        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        CardQueryDto dto=new CardQueryDto();
+        dto.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
+		BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
         //判断调用卡号拿到账户信息是否成功
         if (!oneAccountCard.isSuccess()) {
             throw new RuntimeException("转离场结算单撤销调用卡号拿到账户失败");

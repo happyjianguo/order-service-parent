@@ -153,7 +153,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //交易ID
         if (!Objects.equals(comprehensiveFee.getChargeAmount(), 0L)) {
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
-            BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
+            CardQueryDto dto=new CardQueryDto();
+            dto.setCardNo(comprehensiveFee.getCustomerCardNo());
+            BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
             if (!oneAccountCard.isSuccess()) {
                 BaseOutput.failure(cardError);
                 throw new RuntimeException(cardError);
@@ -180,7 +182,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
         //再调用支付
         //首先根据卡号拿倒账户信息
-        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
+        CardQueryDto dto=new CardQueryDto();
+        dto.setCardNo(comprehensiveFee.getCustomerCardNo());
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
         if (!oneAccountCard.isSuccess()) {
             BaseOutput.failure(cardQueryError);
             throw new RuntimeException(cardQueryError);

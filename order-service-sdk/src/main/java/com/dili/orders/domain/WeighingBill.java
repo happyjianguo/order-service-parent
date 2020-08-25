@@ -16,7 +16,7 @@ import com.dili.ss.metadata.annotation.FieldDef;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-07-15 18:19:28.
+ * This file was generated on 2020-08-25 17:50:21.
  */
 @Table(name = "`weighing_bill`")
 public class WeighingBill extends BaseDomain {
@@ -86,6 +86,12 @@ public class WeighingBill extends BaseDomain {
     private String buyerContact;
 
     /**
+     * 卖家身份类型
+     */
+    @Column(name = "`buyer_type`")
+    private String buyerType;
+
+    /**
      * 卖方id
      */
     @Column(name = "`seller_id`")
@@ -128,6 +134,12 @@ public class WeighingBill extends BaseDomain {
     private String sellerContact;
 
     /**
+     * 卖家身份类型
+     */
+    @Column(name = "`seller_type`")
+    private String sellerType;
+
+    /**
      * 商品id
      */
     @Column(name = "`goods_id`")
@@ -144,6 +156,12 @@ public class WeighingBill extends BaseDomain {
      */
     @Column(name = "`goods_code`")
     private String goodsCode;
+
+    /**
+     * 商品快捷码
+     */
+    @Column(name = "`goods_key_code`")
+    private String goodsKeyCode;
 
     /**
      * 商品产地id
@@ -276,12 +294,30 @@ public class WeighingBill extends BaseDomain {
      */
     @Column(name = "`modifier_id`")
     private Long modifierId;
-    
+
+    /**
+     * 是否校验中间价
+     */
+    @Column(name = "`check_price`")
+    private Integer checkPrice;
+
     /**
      * 价格状态，1待审核，2审核通过，3审核拒绝
      */
     @Column(name = "`price_state`")
     private Integer priceState;
+
+    /**
+     * 流程实例id
+     */
+    @Column(name = "`process_instance_id`")
+    private String processInstanceId;
+
+    /**
+     * 流程定义id
+     */
+    @Column(name = "`process_definition_id`")
+    private String processDefinitionId;
 
     /**
      * @return id
@@ -500,6 +536,26 @@ public class WeighingBill extends BaseDomain {
     }
 
     /**
+     * 获取卖家身份类型
+     *
+     * @return buyer_type - 卖家身份类型
+     */
+    @FieldDef(label="卖家身份类型", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getBuyerType() {
+        return buyerType;
+    }
+
+    /**
+     * 设置卖家身份类型
+     *
+     * @param buyerType 卖家身份类型
+     */
+    public void setBuyerType(String buyerType) {
+        this.buyerType = buyerType;
+    }
+
+    /**
      * 获取卖方id
      *
      * @return seller_id - 卖方id
@@ -640,6 +696,26 @@ public class WeighingBill extends BaseDomain {
     }
 
     /**
+     * 获取卖家身份类型
+     *
+     * @return seller_type - 卖家身份类型
+     */
+    @FieldDef(label="卖家身份类型", maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getSellerType() {
+        return sellerType;
+    }
+
+    /**
+     * 设置卖家身份类型
+     *
+     * @param sellerType 卖家身份类型
+     */
+    public void setSellerType(String sellerType) {
+        this.sellerType = sellerType;
+    }
+
+    /**
      * 获取商品id
      *
      * @return goods_id - 商品id
@@ -700,12 +776,32 @@ public class WeighingBill extends BaseDomain {
     }
 
     /**
+     * 获取商品快捷码
+     *
+     * @return goods_key_code - 商品快捷码
+     */
+    @FieldDef(label="商品快捷码", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getGoodsKeyCode() {
+        return goodsKeyCode;
+    }
+
+    /**
+     * 设置商品快捷码
+     *
+     * @param goodsKeyCode 商品快捷码
+     */
+    public void setGoodsKeyCode(String goodsKeyCode) {
+        this.goodsKeyCode = goodsKeyCode;
+    }
+
+    /**
      * 获取商品产地id
      *
      * @return goods_origin_city_id - 商品产地id
      */
     @FieldDef(label="商品产地id")
-    @EditMode(editor = FieldEditor.Number, required = true)
+    @EditMode(editor = FieldEditor.Number, required = false)
     public Long getGoodsOriginCityId() {
         return goodsOriginCityId;
     }
@@ -865,7 +961,7 @@ public class WeighingBill extends BaseDomain {
      * @return net_weight - 净重(2位小数，转化需要除以100)
      */
     @FieldDef(label="净重(2位小数，转化需要除以100)")
-    @EditMode(editor = FieldEditor.Number, required = true)
+    @EditMode(editor = FieldEditor.Number, required = false)
     public Integer getNetWeight() {
         return netWeight;
     }
@@ -1137,5 +1233,85 @@ public class WeighingBill extends BaseDomain {
      */
     public void setModifierId(Long modifierId) {
         this.modifierId = modifierId;
+    }
+
+    /**
+     * 获取是否校验中间价
+     *
+     * @return check_price - 是否校验中间价
+     */
+    @FieldDef(label="是否校验中间价")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getCheckPrice() {
+        return checkPrice;
+    }
+
+    /**
+     * 设置是否校验中间价
+     *
+     * @param checkPrice 是否校验中间价
+     */
+    public void setCheckPrice(Integer checkPrice) {
+        this.checkPrice = checkPrice;
+    }
+
+    /**
+     * 获取价格状态，1待审核，2审核通过，3审核拒绝
+     *
+     * @return price_state - 价格状态，1待审核，2审核通过，3审核拒绝
+     */
+    @FieldDef(label="价格状态，1待审核，2审核通过，3审核拒绝")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getPriceState() {
+        return priceState;
+    }
+
+    /**
+     * 设置价格状态，1待审核，2审核通过，3审核拒绝
+     *
+     * @param priceState 价格状态，1待审核，2审核通过，3审核拒绝
+     */
+    public void setPriceState(Integer priceState) {
+        this.priceState = priceState;
+    }
+
+    /**
+     * 获取流程实例id
+     *
+     * @return process_instance_id - 流程实例id
+     */
+    @FieldDef(label="流程实例id", maxLength = 64)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    /**
+     * 设置流程实例id
+     *
+     * @param processInstanceId 流程实例id
+     */
+    public void setProcessInstanceId(String processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    /**
+     * 获取流程定义id
+     *
+     * @return process_definition_id - 流程定义id
+     */
+    @FieldDef(label="流程定义id", maxLength = 64)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getProcessDefinitionId() {
+        return processDefinitionId;
+    }
+
+    /**
+     * 设置流程定义id
+     *
+     * @param processDefinitionId 流程定义id
+     */
+    public void setProcessDefinitionId(String processDefinitionId) {
+        this.processDefinitionId = processDefinitionId;
     }
 }

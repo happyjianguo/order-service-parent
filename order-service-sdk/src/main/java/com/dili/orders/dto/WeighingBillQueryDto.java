@@ -34,6 +34,12 @@ public class WeighingBillQueryDto extends WeighingBill {
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	@Column(name = "`created_time`")
 	private LocalDateTime createdEnd;
+	@Operator(Operator.GREAT_EQUAL_THAN)
+	@Column(name = "`modified_time`")
+	private LocalDateTime modifiedStart;
+	@Operator(Operator.LITTLE_EQUAL_THAN)
+	@Column(name = "`modified_time`")
+	private LocalDateTime modifiedEnd;
 	@Transient
 	private String goodsSplitStr;
 	@Operator(Operator.IN)

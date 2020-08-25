@@ -1,9 +1,12 @@
 package com.dili.orders.rpc;
 
-import com.dili.orders.dto.SerialDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.dili.orders.dto.CardQueryDto;
+import com.dili.orders.dto.SerialDto;
 import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.ss.domain.BaseOutput;
 
@@ -14,13 +17,13 @@ import com.dili.ss.domain.BaseOutput;
 @FeignClient(name = "account-service", contextId = "accountRpc")
 public interface AccountRpc {
 
-    @GetMapping("/api/account/getOneAccountCard/{cardNo}")
-    BaseOutput<UserAccountCardResponseDto> getOneAccountCard(@PathVariable(value = "cardNo") String cardNo);
+	@RequestMapping(value = "/api/account/getSingle", method = RequestMethod.POST)
+	BaseOutput<UserAccountCardResponseDto> getSingle(@RequestBody CardQueryDto dto);
 
-    /**
-     * 获取列表
-     */
-    @RequestMapping(value = "/api/serial/batchSave", method = RequestMethod.POST)
-    BaseOutput<Object> batchSave(@RequestBody SerialDto serialDto);
+	/**
+	 * 获取列表
+	 */
+	@RequestMapping(value = "/api/serial/batchSave", method = RequestMethod.POST)
+	BaseOutput<Object> batchSave(@RequestBody SerialDto serialDto);
 
 }
