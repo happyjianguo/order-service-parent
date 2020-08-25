@@ -300,7 +300,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费单新增失败");
+            throw new RuntimeException(vehicleAccessDTOBaseOutput.getMessage());
         }
 
         //将进门收费返回的id设置到结算单中
@@ -474,7 +474,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCancelReason("转离场收费撤销");
         BaseOutput<Integer> integerBaseOutput = jmsfRpc.cancelAccess(vehicleAccessDTO);
         if (!integerBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费撤销失败");
+            throw new RuntimeException(integerBaseOutput.getMessage());
         }
         //调用卡号查询账户信息
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
