@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -296,10 +297,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCreated(LocalDateTime.now());
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费单新增失败");
+            throw new RuntimeException(vehicleAccessDTOBaseOutput.getMessage());
         }
 
         //将进门收费返回的id设置到结算单中
@@ -400,6 +402,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
 
+//        //只能撤销当天的结算单
+//        if (!compareDate(transitionDepartureSettlement.getPayTime())) {
+//            return BaseOutput.failure("只能撤销当天的结算单");
+//        }
+
         // 校验操作员密码
         BaseOutput<Object> userOutput = this.userRpc.validatePassword(revocatorId, revocatorPassword);
         if (!userOutput.isSuccess()) {
@@ -468,7 +475,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCancelReason("转离场收费撤销");
         BaseOutput<Integer> integerBaseOutput = jmsfRpc.cancelAccess(vehicleAccessDTO);
         if (!integerBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费撤销失败");
+            throw new RuntimeException(integerBaseOutput.getMessage());
         }
         //调用卡号查询账户信息
         CardQueryDto dto=new CardQueryDto();
@@ -572,4 +579,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         return map;
     }
 
+    private boolean compareDate(LocalDateTime localDateTime) {
+        LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime today_end = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        return localDateTime.isAfter(today_start) && localDateTime.isBefore(today_end);
+    }
 }
