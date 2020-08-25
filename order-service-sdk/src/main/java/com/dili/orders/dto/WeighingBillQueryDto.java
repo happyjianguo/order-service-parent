@@ -88,6 +88,22 @@ public class WeighingBillQueryDto extends WeighingBill {
 		this.createdEnd = createdEnd;
 	}
 
+	public LocalDateTime getModifiedStart() {
+		return modifiedStart;
+	}
+
+	public void setModifiedStart(LocalDateTime modifiedStart) {
+		this.modifiedStart = modifiedStart;
+	}
+
+	public LocalDateTime getModifiedEnd() {
+		return modifiedEnd;
+	}
+
+	public void setModifiedEnd(LocalDateTime modifiedEnd) {
+		this.modifiedEnd = modifiedEnd;
+	}
+
 	public String getGoodsSplitStr() {
 		return goodsSplitStr;
 	}
