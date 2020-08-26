@@ -156,7 +156,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //同时更新申请单的，车辆信息
         transitionDepartureApply.setCarTypeId(transitionDepartureSettlement.getCarTypeId());
         transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
-
+        //车牌号也允许修改，所以也要设置车牌号
+        transitionDepartureApply.setPlate(transitionDepartureSettlement.getPlate());
         //更新申请单的结算状态为未结算
 //        transitionDepartureApply.setPayStatus(1);
         transitionDepartureApply.setPayStatus(PayStatusEnum.UNSETTLED.getCode());
