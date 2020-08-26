@@ -7,7 +7,7 @@ public enum PayStatusEnum {
     UNSETTLED(1, "未结算"),
     SETTLED(2, "已结算"),
     RESCINDED(3, "已撤销"),
-    CLOSED(4, "已撤销");
+    CLOSED(4, "关闭");
 
     private String name;
     private Integer code;
