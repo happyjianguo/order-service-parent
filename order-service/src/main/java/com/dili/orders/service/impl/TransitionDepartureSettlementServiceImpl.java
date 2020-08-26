@@ -551,9 +551,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateSettlementAndApply(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
+        //根据结算单的申请单id获取申请单信息
         TransitionDepartureApply transitionDepartureApply = new TransitionDepartureApply();
         transitionDepartureApply.setId(transitionDepartureSettlement.getApplyId());
         List<TransitionDepartureApply> transitionDepartureApplies = transitionDepartureApplyService.selectByExample(transitionDepartureApply);
+        //判断申请单是否存在，如果不存在，则抛出异常
         if (CollectionUtils.isEmpty(transitionDepartureApplies)) {
             throw new RuntimeException("获取申请单信息失败");
         }
@@ -576,7 +578,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (i <= 0) {
             throw new RuntimeException("结算单更新失败");
         }
-        //再更新申请单,通过结算单的申请单id获取到申请单信息
+        //跟新申请单信息
         transitionDepartureApply = transitionDepartureApplies.get(0);
         transitionDepartureApply.setCarTypeId(listBaseOutput.getData().get(0).getId());
         transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
