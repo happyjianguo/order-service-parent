@@ -579,13 +579,28 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("结算单更新失败");
         }
         //跟新申请单信息
+        //这里更新申请单信息，其实也只有车牌号和车类型，其他都是不需要修改的
+        Boolean flag = false;
+
+        //判断车类型是否相等，如果不相等则更新，相等则不更新
         transitionDepartureApply = transitionDepartureApplies.get(0);
-        transitionDepartureApply.setCarTypeId(listBaseOutput.getData().get(0).getId());
-        transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
-        int i1 = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
-        //判断申请单是否更新成功
-        if (i1 <= 0) {
-            throw new RuntimeException("申请单更新失败");
+        if (!Objects.equals(transitionDepartureApply.getCarTypeId(), transitionDepartureSettlement.getCarTypeId())) {
+            transitionDepartureApply.setCarTypeId(listBaseOutput.getData().get(0).getId());
+            transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+            flag = true;
+        }
+        //判断车牌号是否相等，不想打则更新
+        if (!Objects.equals(transitionDepartureApply.getPlate(), transitionDepartureSettlement.getPlate())) {
+            transitionDepartureApply.setPlate(transitionDepartureSettlement.getPlate());
+            flag = true;
+        }
+        //如果，车牌或者是车类型不同的情况，则需要调用update，所以使用flag标志一下，看是否是真的需要更新
+        if (flag) {
+            int i1 = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+            //判断申请单是否更新成功
+            if (i1 <= 0) {
+                throw new RuntimeException("申请单更新失败");
+            }
         }
     }
 
