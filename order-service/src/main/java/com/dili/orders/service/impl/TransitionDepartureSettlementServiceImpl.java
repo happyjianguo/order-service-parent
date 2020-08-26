@@ -153,8 +153,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("进门收费车型查询失败");
         }
         //因为可以修改，所以需要从新获取车型id和名称
+        //同时更新申请单的，车辆信息
         transitionDepartureApply.setCarTypeId(transitionDepartureSettlement.getCarTypeId());
         transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+
+        //更新申请单的结算状态为未结算
 //        transitionDepartureApply.setPayStatus(1);
         transitionDepartureApply.setPayStatus(PayStatusEnum.UNSETTLED.getCode());
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
@@ -543,6 +546,45 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void updateSettlementAndApply(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
+        TransitionDepartureApply transitionDepartureApply = new TransitionDepartureApply();
+        transitionDepartureApply.setId(transitionDepartureSettlement.getApplyId());
+        List<TransitionDepartureApply> transitionDepartureApplies = transitionDepartureApplyService.selectByExample(transitionDepartureApply);
+        if (CollectionUtils.isEmpty(transitionDepartureApplies)) {
+            throw new RuntimeException("获取申请单信息失败");
+        }
+        //根据车型id获取车型信息
+        CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
+        //设置业务类型
+        carTypeForJmsfDTO.setBusinessCode("kcjm");
+        //设置市场id
+        carTypeForJmsfDTO.setMarketId(marketId);
+        //设置id
+        carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        if (!listBaseOutput.isSuccess()) {
+            throw new RuntimeException("查询车辆类型失败");
+        }
+        transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        //结算单更新
+        int i = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+        //判断结算单是否更新成功
+        if (i <= 0) {
+            throw new RuntimeException("结算单更新失败");
+        }
+        //再更新申请单,通过结算单的申请单id获取到申请单信息
+        transitionDepartureApply = transitionDepartureApplies.get(0);
+        transitionDepartureApply.setCarTypeId(listBaseOutput.getData().get(0).getId());
+        transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        int i1 = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+        //判断申请单是否更新成功
+        if (i1 <= 0) {
+            throw new RuntimeException("申请单更新失败");
+        }
     }
 
 
