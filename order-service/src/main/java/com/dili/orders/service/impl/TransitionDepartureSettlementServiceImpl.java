@@ -143,6 +143,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("转离场支付未找到相关申请单");
         }
+
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
         carTypeForJmsfDTO.setBusinessCode("kcjm");
@@ -152,6 +153,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
+
         //因为可以修改，所以需要从新获取车型id和名称
         //同时更新申请单的，车辆信息
         transitionDepartureApply.setCarTypeId(transitionDepartureSettlement.getCarTypeId());
