@@ -287,7 +287,7 @@ public class TransitionDepartureSettlementApi {
         map2.put("categoryId", transitionDepartureApply.getCarTypeId());
         queryFeeInput.setConditionParams(map2);
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
-        if (!queryFeeOutputBaseOutput.isSuccess()) {
+        if (queryFeeOutputBaseOutput.isSuccess()) {
             //获取之后保留两位小数
             BigDecimal totalFee = queryFeeOutputBaseOutput.getData().getTotalFee();
             totalFee = totalFee.setScale(2, RoundingMode.HALF_UP);
