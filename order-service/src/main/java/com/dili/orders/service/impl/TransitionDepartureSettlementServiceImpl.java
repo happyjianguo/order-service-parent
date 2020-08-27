@@ -219,7 +219,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
 
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
-        if (transitionDepartureSettlement.getPayStatus() != 1) {
+//        if (transitionDepartureSettlement.getPayStatus() != 1) {
+//            return BaseOutput.failure("只有未结算的结算单可以结算");
+//        }
+        if (!Objects.equals(transitionDepartureSettlement.getPayStatus(), PayStatusEnum.UNSETTLED.getCode())) {
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
 
