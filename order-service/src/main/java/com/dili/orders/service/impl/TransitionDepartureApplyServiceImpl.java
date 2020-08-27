@@ -4,6 +4,8 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
+import com.dili.orders.glossary.BizTypeEnum;
+import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
@@ -107,13 +109,13 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         //设置市场id
         queryFeeInput.setMarketId(marketId);
         //判断是转场还是离场。收费项不同
-        if (Objects.equals(transitionDepartureApply.getBizType(), 1)) {
+        if (Objects.equals(transitionDepartureApply.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
             //设置业务类型
-            queryFeeInput.setBusinessType("ZC_PAY");
+            queryFeeInput.setBusinessType(MyBusinessType.ZCPAY.getCode());
             //根据业务类型获取收费项
             BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
             //业务类型
-            businessChargeItemDto.setBusinessType("ZC_PAY");
+            businessChargeItemDto.setBusinessType(MyBusinessType.ZCPAY.getCode());
             //是否必须
             businessChargeItemDto.setIsRequired(1);
             //收费
@@ -123,12 +125,12 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
             BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
             //设置收费项id
             queryFeeInput.setChargeItem(listBaseOutput.getData().get(0).getId());
-        } else if (Objects.equals(transitionDepartureApply.getBizType(), 2)) {
+        } else if (Objects.equals(transitionDepartureApply.getBizType(), BizTypeEnum.DEPARTURE.getCode())) {
             //设置业务类型
-            queryFeeInput.setBusinessType("LC_PAY");
+            queryFeeInput.setBusinessType(MyBusinessType.LCPAY.getCode());
             //根据业务类型获取收费项
             BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
-            businessChargeItemDto.setBusinessType("LC_PAY");
+            businessChargeItemDto.setBusinessType(MyBusinessType.LCPAY.getCode());
             businessChargeItemDto.setIsRequired(1);
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             businessChargeItemDto.setMarketId(marketId);
