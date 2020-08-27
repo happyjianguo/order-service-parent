@@ -426,7 +426,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
 
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
-        if (Objects.equals(transitionDepartureSettlement.getPayStatus(), PayStatusEnum.SETTLED.getCode())) {
+        if (!Objects.equals(transitionDepartureSettlement.getPayStatus(), PayStatusEnum.SETTLED.getCode())) {
             return BaseOutput.failure("只有已结算的结算单可以撤销");
         }
 
