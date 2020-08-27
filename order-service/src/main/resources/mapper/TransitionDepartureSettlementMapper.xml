@@ -163,6 +163,9 @@
         <if test="bizType != null">
             AND biz_type = #{bizType}
         </if>
+        <if test="marketId != null">
+            AND market_id = #{marketId}
+        </if>
         <if test="payStatus != null">
             AND pay_status = #{payStatus}
         </if>
