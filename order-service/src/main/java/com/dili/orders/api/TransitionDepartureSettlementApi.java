@@ -14,6 +14,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/transitionDepartureSettlement")
+@Slf4j
 public class TransitionDepartureSettlementApi {
 
     @Autowired
@@ -102,7 +104,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.insertSelective(transitionDepartureSettlement);
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure("新增失败");
         }
     }
@@ -114,13 +116,14 @@ public class TransitionDepartureSettlementApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
-    public BaseOutput update(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement) {
+    public BaseOutput update(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, @RequestParam(value = "marketId") Long marketId) {
         try {
-            transitionDepartureSettlementService.updateSelective(transitionDepartureSettlement);
+//            transitionDepartureSettlementService.updateSelective(transitionDepartureSettlement);
+            transitionDepartureSettlementService.updateSettlementAndApply(transitionDepartureSettlement, marketId);
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
-            e.printStackTrace();
-            return BaseOutput.failure("修改失败");
+            log.error(e.getMessage());
+            return BaseOutput.failure(e.getMessage());
         }
 
     }
@@ -140,7 +143,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.delete(id);
             return BaseOutput.success("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure("删除失败");
         }
     }
@@ -155,7 +158,7 @@ public class TransitionDepartureSettlementApi {
         try {
             transitionDepartureSettlementService.scheduleUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 
@@ -170,7 +173,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -185,7 +188,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -200,7 +203,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -217,7 +220,7 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/fee", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput getFee(BigDecimal netWeight, Long marketId, Long departmentId, Long id) {
+    public BaseOutput getFee(BigDecimal netWeight, Long marketId, Long departmentId, Long id, Long carTypeId) {
         if (Objects.isNull(id)) {
             return BaseOutput.failure("申请单id不能为空");
         }
@@ -278,9 +281,15 @@ public class TransitionDepartureSettlementApi {
         map2.put("marketId", marketId);
         //设置客户信息
         map2.put("customerId", transitionDepartureApply.getCustomerId());
+        //设置车辆类型，因为是可以变得，所以要从前台传
+        map2.put("carTypeId", carTypeId);
+        //设置交易类型
+        map2.put("transTypeId", transitionDepartureApply.getTransTypeId());
+        //设置商品id
+        map2.put("categoryId", transitionDepartureApply.getCarTypeId());
         queryFeeInput.setConditionParams(map2);
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
-        if (!queryFeeOutputBaseOutput.isSuccess()) {
+        if (queryFeeOutputBaseOutput.isSuccess()) {
             //获取之后保留两位小数
             BigDecimal totalFee = queryFeeOutputBaseOutput.getData().getTotalFee();
             totalFee = totalFee.setScale(2, RoundingMode.HALF_UP);

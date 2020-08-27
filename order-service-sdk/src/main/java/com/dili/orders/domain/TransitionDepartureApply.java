@@ -21,6 +21,14 @@ import javax.persistence.*;
  */
 @Table(name = "`transition_departure_apply`")
 public class TransitionDepartureApply extends BaseDomain {
+
+    /**
+     * 单据编号
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
+
+
     /**
      * 单据id
      */
@@ -941,5 +949,13 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setAddr(String addr) {
         this.addr = addr;
+    }
+
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
     }
 }

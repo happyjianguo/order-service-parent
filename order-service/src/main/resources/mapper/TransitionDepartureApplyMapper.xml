@@ -253,6 +253,9 @@
         <if test="approvalState != null">
             AND approval_state = #{approvalState}
         </if>
+        <if test="marketId != null">
+            AND market_id = #{marketId}
+        </if>
         <if test="bizType != null">
             AND biz_type = #{bizType}
         </if>

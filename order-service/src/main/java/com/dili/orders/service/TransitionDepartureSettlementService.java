@@ -40,4 +40,11 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
      * 撤销
      */
     BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword);
+
+    /**
+     * 根据结算单的时候，同时更新申请单信息
+     *
+     * @param transitionDepartureSettlement
+     */
+    void updateSettlementAndApply(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId);
 }

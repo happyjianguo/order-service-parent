@@ -21,6 +21,12 @@ import javax.persistence.*;
  */
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
+
+    /**
+     * 单据编号
+     */
+    @Column(name = "`market_id`")
+    private Long marketId;
     /**
      * 单据id
      */
@@ -1002,5 +1008,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setCustomerParentId(Long customerParentId) {
         this.customerParentId = customerParentId;
+    }
+
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
     }
 }

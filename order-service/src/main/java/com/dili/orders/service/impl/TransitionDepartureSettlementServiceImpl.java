@@ -8,6 +8,8 @@ import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
+import com.dili.orders.glossary.BizTypeEnum;
+import com.dili.orders.glossary.PayStatusEnum;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
 import com.dili.orders.rpc.*;
@@ -80,12 +82,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
         //判断是否传入日期，没有传入的话默认当天
-        if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
-            transitionDepartureSettlement.setBeginTime(LocalDate.now());
-        }
-        if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
-            transitionDepartureSettlement.setEndTime(LocalDate.now());
-        }
+//        if (Objects.isNull(transitionDepartureSettlement.getBeginTime())) {
+//            transitionDepartureSettlement.setBeginTime(LocalDate.now());
+//        }
+//        if (Objects.isNull(transitionDepartureSettlement.getEndTime())) {
+//            transitionDepartureSettlement.setEndTime(LocalDate.now());
+//        }
         Integer page = transitionDepartureSettlement.getPage();
         page = (page == null) ? Integer.valueOf(1) : page;
         if (transitionDepartureSettlement.getRows() != null && transitionDepartureSettlement.getRows() >= 1) {
@@ -134,12 +136,14 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
         //设置支付状态为未结算
-        transitionDepartureSettlement.setPayStatus(1);
+//        transitionDepartureSettlement.setPayStatus(1);
+        transitionDepartureSettlement.setPayStatus(PayStatusEnum.UNSETTLED.getCode());
         //根据申请单id拿到申请单，修改申请单的支付状态为1（未结算）
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
         if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("转离场支付未找到相关申请单");
         }
+
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
         carTypeForJmsfDTO.setBusinessCode("kcjm");
@@ -149,10 +153,16 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
+
         //因为可以修改，所以需要从新获取车型id和名称
+        //同时更新申请单的，车辆信息
         transitionDepartureApply.setCarTypeId(transitionDepartureSettlement.getCarTypeId());
         transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
-        transitionDepartureApply.setPayStatus(1);
+        //车牌号也允许修改，所以也要设置车牌号
+        transitionDepartureApply.setPlate(transitionDepartureSettlement.getPlate());
+        //更新申请单的结算状态为未结算
+//        transitionDepartureApply.setPayStatus(1);
+        transitionDepartureApply.setPayStatus(PayStatusEnum.UNSETTLED.getCode());
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         if (i <= 0) {
             return BaseOutput.failure("转离场保存修改申请单失败");
@@ -209,7 +219,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
 
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
-        if (transitionDepartureSettlement.getPayStatus() != 1) {
+//        if (transitionDepartureSettlement.getPayStatus() != 1) {
+//            return BaseOutput.failure("只有未结算的结算单可以结算");
+//        }
+        if (!Objects.equals(transitionDepartureSettlement.getPayStatus(), PayStatusEnum.UNSETTLED.getCode())) {
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
 
@@ -239,7 +252,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
 
         //设置为已支付状态
-        transitionDepartureSettlement.setPayStatus(2);
+//        transitionDepartureSettlement.setPayStatus(2);
+        transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
 
         //根据结算单apply_id获取到对应申请单
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
@@ -251,7 +265,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //获取到申请单
         //设置申请单支付状态为已支付
-        transitionDepartureApply.setPayStatus(2);
+//        transitionDepartureApply.setPayStatus(2);
+        transitionDepartureApply.setPayStatus(PayStatusEnum.SETTLED.getCode());
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         if (i <= 0) {
             return BaseOutput.failure("修改申请单状态失败");
@@ -376,7 +391,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setFirmId(marketId);
         serialRecordDo.setOperateTime(LocalDateTime.now());
         //判断是转场还是离场1.转场 2.离场
-        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
             serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
             serialRecordDo.setFundItem(FundItem.TRANSFER_FEE.getCode());
             serialRecordDo.setFundItemName(FundItem.TRANSFER_FEE.getName());
@@ -414,7 +429,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
 
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
-        if (transitionDepartureSettlement.getPayStatus() != 2) {
+        if (!Objects.equals(transitionDepartureSettlement.getPayStatus(), PayStatusEnum.SETTLED.getCode())) {
             return BaseOutput.failure("只有已结算的结算单可以撤销");
         }
 
@@ -438,7 +453,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
 
         //设置为已撤销的支付状态
-        transitionDepartureSettlement.setPayStatus(3);
+//        transitionDepartureSettlement.setPayStatus(3);
+        transitionDepartureSettlement.setPayStatus(PayStatusEnum.RESCINDED.getCode());
 
         //根据结算单的apply_id拿到申请单信息
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
@@ -447,7 +463,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
 
         //设置申请单支付状态为已撤销
-        transitionDepartureApply.setPayStatus(3);
+//        transitionDepartureApply.setPayStatus(3);
+        transitionDepartureApply.setPayStatus(PayStatusEnum.RESCINDED.getCode());
 
         //先更新申请单，判断是否更新成功，没有更新成功则抛出异常
         int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
@@ -455,9 +472,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             return BaseOutput.failure("申请单修改失败");
         }
         //修改结算单的支付状态
-        transitionDepartureSettlement.setPayStatus(3);
         int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
-
         //判断结算单修改是否成功，不成功则抛出异常
         if (i1 <= 0) {
             throw new RuntimeException("转离场结算单撤销结算单修改失败");
@@ -478,9 +493,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException(integerBaseOutput.getMessage());
         }
         //调用卡号查询账户信息
-        CardQueryDto dto=new CardQueryDto();
+        CardQueryDto dto = new CardQueryDto();
         dto.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
-		BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
         //判断调用卡号拿到账户信息是否成功
         if (!oneAccountCard.isSuccess()) {
             throw new RuntimeException("转离场结算单撤销调用卡号拿到账户失败");
@@ -515,7 +530,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperateTime(LocalDateTime.now());
 
         //判断是转场还是离场1.转场 2.离场
-        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+//        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
+        if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
             serialRecordDo.setNotes("撤销车辆转场" + transitionDepartureSettlement.getCode());
             serialRecordDo.setFundItem(FundItem.TRANSFER_FEE.getCode());
             serialRecordDo.setFundItemName(FundItem.TRANSFER_FEE.getName());
@@ -536,6 +552,60 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void updateSettlementAndApply(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
+        //根据结算单的申请单id获取申请单信息
+        //根据结算单apply_id获取到对应申请单
+        TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
+        //判断申请单是否存在，如果不存在，则抛出异常
+        if (Objects.isNull(transitionDepartureApply)) {
+            throw new RuntimeException("获取申请单信息失败");
+        }
+        //根据车型id获取车型信息
+        CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
+        //设置业务类型
+        carTypeForJmsfDTO.setBusinessCode("kcjm");
+        //设置市场id
+        carTypeForJmsfDTO.setMarketId(marketId);
+        //设置id
+        carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        if (!listBaseOutput.isSuccess()) {
+            throw new RuntimeException("查询车辆类型失败");
+        }
+        transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        //结算单更新
+        int i = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+        //判断结算单是否更新成功
+        if (i <= 0) {
+            throw new RuntimeException("结算单更新失败");
+        }
+        //跟新申请单信息
+        //这里更新申请单信息，其实也只有车牌号和车类型，其他都是不需要修改的
+        Boolean flag = false;
+
+        //判断车类型是否相等，如果不相等则更新，相等则不更新
+        if (!Objects.equals(transitionDepartureApply.getCarTypeId(), transitionDepartureSettlement.getCarTypeId())) {
+            transitionDepartureApply.setCarTypeId(listBaseOutput.getData().get(0).getId());
+            transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+            flag = true;
+        }
+        //判断车牌号是否相等，不想打则更新
+        if (!Objects.equals(transitionDepartureApply.getPlate(), transitionDepartureSettlement.getPlate())) {
+            transitionDepartureApply.setPlate(transitionDepartureSettlement.getPlate());
+            flag = true;
+        }
+        //如果，车牌或者是车类型不同的情况，则需要调用update，所以使用flag标志一下，看是否是真的需要更新
+        if (flag) {
+            int i1 = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+            //判断申请单是否更新成功
+            if (i1 <= 0) {
+                throw new RuntimeException("申请单更新失败");
+            }
+        }
     }
 
 
