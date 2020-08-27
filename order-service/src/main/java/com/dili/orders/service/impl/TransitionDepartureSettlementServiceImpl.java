@@ -555,11 +555,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateSettlementAndApply(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
         //根据结算单的申请单id获取申请单信息
-        TransitionDepartureApply transitionDepartureApply = new TransitionDepartureApply();
-        transitionDepartureApply.setId(transitionDepartureSettlement.getApplyId());
-        List<TransitionDepartureApply> transitionDepartureApplies = transitionDepartureApplyService.selectByExample(transitionDepartureApply);
+        //根据结算单apply_id获取到对应申请单
+        TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
         //判断申请单是否存在，如果不存在，则抛出异常
-        if (CollectionUtils.isEmpty(transitionDepartureApplies)) {
+        if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("获取申请单信息失败");
         }
         //根据车型id获取车型信息
@@ -586,7 +585,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         Boolean flag = false;
 
         //判断车类型是否相等，如果不相等则更新，相等则不更新
-        transitionDepartureApply = transitionDepartureApplies.get(0);
         if (!Objects.equals(transitionDepartureApply.getCarTypeId(), transitionDepartureSettlement.getCarTypeId())) {
             transitionDepartureApply.setCarTypeId(listBaseOutput.getData().get(0).getId());
             transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
