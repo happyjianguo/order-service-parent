@@ -1,6 +1,8 @@
 package com.dili.orders.api;
 
+import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
+import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -20,7 +22,10 @@ import java.util.List;
 @RequestMapping("/api/transitionDepartureApply")
 public class TransitionDepartureApplyApi {
     @Autowired
-    TransitionDepartureApplyService transitionDepartureApplyService;
+    private TransitionDepartureApplyService transitionDepartureApplyService;
+
+    @Autowired
+    private AssetsRpc assetsRpc;
 
     /**
      * 分页查询TransitionDepartureApply，返回easyui分页信息
@@ -58,6 +63,15 @@ public class TransitionDepartureApplyApi {
             if (transitionDepartureApply.getOriginatorTime() == null) {
                 transitionDepartureApply.setOriginatorTime(LocalDateTime.now());
             }
+            CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
+            carTypeForJmsfDTO.setBusinessCode("kcjm");
+            carTypeForJmsfDTO.setMarketId(transitionDepartureApply.getMarketId());
+            carTypeForJmsfDTO.setId(transitionDepartureApply.getCarTypeId());
+            BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+            if (!listBaseOutput.isSuccess()) {
+                throw new RuntimeException("进门收费车型查询失败");
+            }
+            transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
