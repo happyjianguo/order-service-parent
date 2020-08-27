@@ -182,6 +182,12 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 件数
 	 */
+	@Column(name = "`market_id`")
+	private Long marketId;
+	
+	/**
+	 * 件数
+	 */
 	@Column(name = "`unit_amount`")
 	private Integer unitAmount;
 
@@ -848,6 +854,25 @@ public class WeighingBill extends BaseDomain {
 		this.goodsOriginCityName = goodsOriginCityName;
 	}
 
+	/**
+	 * 获取市场id
+	 *
+	 * @return market_id - 市场id
+	 */
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getMarketId() {
+		return marketId;
+	}
+
+	/**
+	 * 设置市场id
+	 *
+	 * @param marketId 市场id
+	 */
+	public void setMarketId(Long marketId) {
+		this.marketId = marketId;
+	}
+	
 	/**
 	 * 获取件数
 	 *
