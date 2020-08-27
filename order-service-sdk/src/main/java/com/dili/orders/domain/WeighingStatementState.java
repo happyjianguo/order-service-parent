@@ -20,4 +20,13 @@ public enum WeighingStatementState {
 		return value;
 	}
 
+	public static WeighingStatementState valueOf(Integer value) {
+		for (WeighingStatementState state : WeighingStatementState.values()) {
+			if (state.getValue().equals(value)) {
+				return state;
+			}
+		}
+		throw new IllegalArgumentException("未知结算单状态");
+	}
+
 }
