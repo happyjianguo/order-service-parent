@@ -14,6 +14,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.metadata.ValueProviderUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/transitionDepartureSettlement")
+@Slf4j
 public class TransitionDepartureSettlementApi {
 
     @Autowired
@@ -102,7 +104,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.insertSelective(transitionDepartureSettlement);
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure("新增失败");
         }
     }
@@ -120,7 +122,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.updateSettlementAndApply(transitionDepartureSettlement, marketId);
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
 
@@ -141,7 +143,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.delete(id);
             return BaseOutput.success("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure("删除失败");
         }
     }
@@ -156,7 +158,7 @@ public class TransitionDepartureSettlementApi {
         try {
             transitionDepartureSettlementService.scheduleUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 
@@ -171,7 +173,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -186,7 +188,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -201,7 +203,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return BaseOutput.failure(e.getMessage());
         }
     }
