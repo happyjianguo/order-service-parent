@@ -293,7 +293,9 @@ public class TransitionDepartureSettlementApi {
         //设置交易类型
         map2.put("transTypeId", transitionDepartureApply.getTransTypeId());
         //设置商品id
-        map2.put("categoryId", transitionDepartureApply.getCarTypeId());
+        map2.put("categoryId", transitionDepartureApply.getCategoryId());
+        //设置净重指标
+        map2.put("weight", netWeight);
         queryFeeInput.setConditionParams(map2);
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
         if (queryFeeOutputBaseOutput.isSuccess()) {

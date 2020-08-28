@@ -213,6 +213,7 @@
           if(s.pay_status in (1,3),s.charge_amount,null) AS 'charge_amount'
         FROM
         (SELECT
+          a.pay_status,
           a.id,
           a.code,
           a.customer_id,

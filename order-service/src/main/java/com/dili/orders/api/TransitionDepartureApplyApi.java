@@ -63,7 +63,7 @@ public class TransitionDepartureApplyApi {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/listByCustomerCardNo.action", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/listByCustomerCardNo", method = {RequestMethod.POST, RequestMethod.GET})
     public BaseOutput<?> listByCustomerCardNo(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         if (Objects.isNull(transitionDepartureApply.getCustomerCardNo())) {
             return BaseOutput.failure("客户卡号不能为空");
@@ -117,6 +117,15 @@ public class TransitionDepartureApplyApi {
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
     public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
+            if (Objects.isNull(transitionDepartureApply.getId())) {
+                return BaseOutput.failure("申请单id不能为空");
+            }
+            //判断当前的这个结算单是否是今天的
+            LocalDate createTime = transitionDepartureApplyService.get(transitionDepartureApply.getId()).getOriginatorTime().toLocalDate();
+            //如果为0，则表示为当天
+            if (LocalDate.now().compareTo(createTime) != 0) {
+                return BaseOutput.failure("只能审批当天申请单");
+            }
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -169,17 +178,17 @@ public class TransitionDepartureApplyApi {
     /**
      * 根据id查询出对应申请单,包含需要使用的provider，申请单详细页面
      *
-     * @param id
+     * @param
      * @return
      */
 
-    @RequestMapping(value = "/getApplyAndSettleById/{id}", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@PathVariable(value = "id") Long id) {
+    @RequestMapping(value = "/getApplyAndSettleById", method = {RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@RequestBody TransitionDepartureApply transitionDepartureApply, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "departmentId") Long departmentId) {
         try {
-            if (id == null) {
+            if (Objects.isNull(transitionDepartureApply.getId())) {
                 return BaseOutput.failure("查询失败,id不能为空");
             }
-            return BaseOutput.successData(transitionDepartureApplyService.getOneById(id));
+            return BaseOutput.successData(transitionDepartureApplyService.getOneById(transitionDepartureApply.getId(), marketId, departmentId));
         } catch (Exception e) {
             log.error(e.getMessage());
             return BaseOutput.failure("查询失败");

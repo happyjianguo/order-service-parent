@@ -84,8 +84,12 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
     }
 
     @Override
-    public TransitionDepartureApply getOneById(Long id) {
-        return getActualDao().getOneById(id);
+    public TransitionDepartureApply getOneById(Long id, Long marketId, Long departmentId) {
+        TransitionDepartureApply oneById = getActualDao().getOneById(id);
+        if (Objects.nonNull(oneById.getTransitionDepartureSettlement()) && Objects.nonNull(oneById.getTransitionDepartureSettlement().getNetWeight())) {
+            oneById.getTransitionDepartureSettlement().setChargeAmount(getFee(marketId, departmentId, oneById, oneById.getTransitionDepartureSettlement().getNetWeight()));
+        }
+        return oneById;
     }
 
     /**
@@ -163,7 +167,9 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         //设置交易类型
         map2.put("transTypeId", transitionDepartureApply.getTransTypeId());
         //设置商品id
-        map2.put("categoryId", transitionDepartureApply.getCarTypeId());
+        map2.put("categoryId", transitionDepartureApply.getCategoryId());
+        //设置净重指标
+        map2.put("weight", netWeight);
         queryFeeInput.setConditionParams(map2);
         //保留两位小数后转成long类型
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
