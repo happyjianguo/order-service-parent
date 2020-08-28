@@ -1151,8 +1151,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		queryFeeInput.setMarketId(marketId);
 		// 设置业务类型
 		queryFeeInput.setBusinessType(businessType);
-		Long ruleId = this.getBuyerSellerRuleId(businessType, marketId);
-		queryFeeInput.setChargeItem(ruleId);
+		Long chargeItemId = this.getBuyerSellerRuleId(businessType, marketId);
+		queryFeeInput.setChargeItem(chargeItemId);
 		if (businessType.equals(OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE)) {
 			map.put("customerType", weighingBill.getBuyerType());
 		} else {
@@ -1178,7 +1178,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private Long getBuyerSellerRuleId(String businessType, Long marketId) {
 		BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
 		// 业务类型
-		businessChargeItemDto.setBusinessType("ZC_PAY");
+		businessChargeItemDto.setBusinessType(businessType);
 		// 是否必须
 		businessChargeItemDto.setIsRequired(1);
 		// 收费
