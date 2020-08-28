@@ -63,8 +63,7 @@ public class TransitionDepartureApplyApi {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/listByCustomerId.action", method = {RequestMethod.POST,RequestMethod.GET})
-    @ResponseBody
+    @RequestMapping(value = "/listByCustomerId.action", method = {RequestMethod.POST, RequestMethod.GET})
     public BaseOutput<?> listByCustomerId(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         if (Objects.isNull(transitionDepartureApply.getCustomerId())) {
             return BaseOutput.failure("客户id不能为空");
@@ -158,6 +157,27 @@ public class TransitionDepartureApplyApi {
                 return BaseOutput.failure("查询失败,id不能为空");
             }
             return BaseOutput.successData(transitionDepartureApplyService.get(id));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return BaseOutput.failure("查询失败");
+        }
+    }
+
+
+    /**
+     * 根据id查询出对应申请单,包含需要使用的provider，申请单详细页面
+     *
+     * @param id
+     * @return
+     */
+
+    @RequestMapping(value = "/getApplyAndSettleById/{id}", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@PathVariable(value = "id") Long id) {
+        try {
+            if (id == null) {
+                return BaseOutput.failure("查询失败,id不能为空");
+            }
+            return BaseOutput.successData(transitionDepartureApplyService.getOneById(id));
         } catch (Exception e) {
             log.error(e.getMessage());
             return BaseOutput.failure("查询失败");

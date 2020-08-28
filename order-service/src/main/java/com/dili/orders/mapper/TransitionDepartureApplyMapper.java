@@ -15,4 +15,6 @@ public interface TransitionDepartureApplyMapper extends MyMapper<TransitionDepar
     void scheduleUpdate(@Param("set") HashSet<Long> applyIds);
 
     List<TransitionDepartureApply> getListByCustomerId(TransitionDepartureApply transitionDepartureApply);
+
+    TransitionDepartureApply getOneById(Long id);
 }

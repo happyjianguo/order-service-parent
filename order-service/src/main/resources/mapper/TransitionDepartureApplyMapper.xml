@@ -243,6 +243,32 @@
         LEFT JOIN transition_departure_settlement s ON s.apply_id=a.id
         GROUP BY a.id
     </select>
+
+    <select id="getOneById" parameterType="java.lang.Long" resultMap="BaseResultMap_oneToOne">
+        SELECT
+          a.id AS 'aid',
+          a.code,
+          a.customer_id,
+          a.customer_code,
+          a.customer_name,
+          a.biz_type,
+          a.plate,
+          a.trans_type_id,
+          a.category_id,
+          a.category_name,
+          a.car_type_id,
+          a.car_type_name,
+          if(s.pay_status=1,s.id,null) AS 'sid',
+          if(s.pay_status=1,s.gross_weight,null) AS 'sgross_weight',
+          if(s.pay_status=1,s.net_weight,null) AS 'snet_weight',
+          if(s.pay_status=1,s.tare_weight,null) AS 'stare_weight',
+          if(s.pay_status=1,s.charge_amount,null) AS 'charge_amount'
+        FROM transition_departure_apply a
+        LEFT JOIN transition_departure_settlement s on s.apply_id=a.id AND s.pay_status=a.pay_status
+        WHERE 1 = 1
+          AND a.id=#{id}
+    </select>
+
     <select id="getListByCustomerId" parameterType="com.dili.orders.domain.TransitionDepartureApply" resultType="com.dili.orders.domain.TransitionDepartureApply">
         SELECT
           *
