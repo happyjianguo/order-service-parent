@@ -273,7 +273,7 @@
           *
         FROM transition_departure_apply a
         WHERE 1 = 1
-        AND a.customer_id=#{customerId}
+        AND a.customer_card_no=#{customerCardNo}
         AND a.market_id=#{marketId}
         AND a.originator_time <![CDATA[>=]]> DATE_FORMAT(#{beginTime},'%Y-%m-%d 00:00:00')
         AND a.originator_time <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y-%m-%d 23:59:59')
