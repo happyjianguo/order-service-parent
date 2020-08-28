@@ -393,11 +393,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperateTime(LocalDateTime.now());
         //判断是转场还是离场1.转场 2.离场
         if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
-            serialRecordDo.setNotes("车辆转场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setNotes("转离场单号" + transitionDepartureSettlement.getCode());
             serialRecordDo.setFundItem(FundItem.TRANSFER_FEE.getCode());
             serialRecordDo.setFundItemName(FundItem.TRANSFER_FEE.getName());
         } else {
-            serialRecordDo.setNotes("车辆离场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setNotes("转离场单号" + transitionDepartureSettlement.getCode());
             serialRecordDo.setFundItem(FundItem.LEAVE_FEE.getCode());
             serialRecordDo.setFundItemName(FundItem.LEAVE_FEE.getName());
         }
@@ -533,11 +533,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断是转场还是离场1.转场 2.离场
 //        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
         if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
-            serialRecordDo.setNotes("撤销车辆转场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setNotes("撤销，转离场单号" + transitionDepartureSettlement.getCode());
             serialRecordDo.setFundItem(FundItem.TRANSFER_FEE.getCode());
             serialRecordDo.setFundItemName(FundItem.TRANSFER_FEE.getName());
         } else {
-            serialRecordDo.setNotes("撤销车辆离场" + transitionDepartureSettlement.getCode());
+            serialRecordDo.setNotes("撤销，转离场单号" + transitionDepartureSettlement.getCode());
             serialRecordDo.setFundItem(FundItem.LEAVE_FEE.getCode());
             serialRecordDo.setFundItemName(FundItem.LEAVE_FEE.getName());
         }
