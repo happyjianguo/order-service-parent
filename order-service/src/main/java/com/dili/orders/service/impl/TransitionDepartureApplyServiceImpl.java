@@ -163,7 +163,7 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         //设置交易类型
         map2.put("transTypeId", transitionDepartureApply.getTransTypeId());
         //设置商品id
-        map2.put("categoryId", transitionDepartureApply.getCarTypeId());
+        map2.put("categoryId", transitionDepartureApply.getCategoryId());
         queryFeeInput.setConditionParams(map2);
         //保留两位小数后转成long类型
         BaseOutput<QueryFeeOutput> queryFeeOutputBaseOutput = chargeRuleRpc.queryFee(queryFeeInput);
