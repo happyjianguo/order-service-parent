@@ -240,8 +240,7 @@
           GROUP BY a.customer_id
           )
           AND a.customer_card_no = #{customerCardNo})a
-        LEFT JOIN transition_departure_settlement s ON s.apply_id=a.id
-        GROUP BY a.id
+        LEFT JOIN transition_departure_settlement s ON s.apply_id=a.id AND a.pay_status=s.pay_status
     </select>
 
     <select id="getOneById" parameterType="java.lang.Long" resultMap="BaseResultMap_oneToOne">
