@@ -13,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -50,8 +52,30 @@ public class TransitionDepartureApplyApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
-    public PageOutput<List<TransitionDepartureApply>> listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
+    public PageOutput<List<TransitionDepartureApply>> listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         return transitionDepartureApplyService.listByQueryParams(transitionDepartureApply);
+    }
+
+    /**
+     * 根据参数查询数据
+     *
+     * @param transitionDepartureApply
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/listByCustomerId.action", method = {RequestMethod.POST,RequestMethod.GET})
+    @ResponseBody
+    public BaseOutput<?> listByCustomerId(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+        if (Objects.isNull(transitionDepartureApply.getCustomerId())) {
+            return BaseOutput.failure("客户id不能为空");
+        }
+        if (Objects.isNull(transitionDepartureApply.getMarketId())) {
+            return BaseOutput.failure("市场id不能为空");
+        }
+        //设置当天时间，进行查询
+        transitionDepartureApply.setBeginTime(LocalDate.now());
+        transitionDepartureApply.setEndTime(LocalDate.now());
+        return BaseOutput.successData(transitionDepartureApplyService.getListByCustomerId(transitionDepartureApply));
     }
 
     /**

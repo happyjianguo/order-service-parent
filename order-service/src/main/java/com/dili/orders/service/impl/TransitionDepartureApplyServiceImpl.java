@@ -78,6 +78,11 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         return output;
     }
 
+    @Override
+    public List<TransitionDepartureApply> getListByCustomerId(TransitionDepartureApply transitionDepartureApply) {
+        return getActualDao().getListByCustomerId(transitionDepartureApply);
+    }
+
     /**
      * 获取一天的开始时间
      */

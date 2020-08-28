@@ -27,4 +27,9 @@ public interface TransitionDepartureApplyService extends BaseService<TransitionD
      * @return
      */
     PageOutput<List<TransitionDepartureApply>> listByQueryParams(TransitionDepartureApply transitionDepartureApply);
+
+    /**
+     * 根据客户id获取客户的所有审核通过的申请单，并且是未结算状态的
+     */
+    List<TransitionDepartureApply> getListByCustomerId(TransitionDepartureApply transitionDepartureApply);
 }
