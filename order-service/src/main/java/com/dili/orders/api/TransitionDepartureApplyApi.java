@@ -117,6 +117,15 @@ public class TransitionDepartureApplyApi {
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
     public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
+            if (Objects.isNull(transitionDepartureApply.getId())) {
+                return BaseOutput.failure("申请单id不能为空");
+            }
+            //判断当前的这个结算单是否是今天的
+            LocalDate createTime = transitionDepartureApplyService.get(transitionDepartureApply.getId()).getOriginatorTime().toLocalDate();
+            //如果为0，则表示为当天
+            if (LocalDate.now().compareTo(createTime) != 0) {
+                return BaseOutput.failure("只能审批当天申请单");
+            }
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             log.error(e.getMessage());
