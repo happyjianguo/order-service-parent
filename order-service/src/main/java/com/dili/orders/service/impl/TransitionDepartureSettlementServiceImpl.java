@@ -9,6 +9,7 @@ import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
 import com.dili.orders.glossary.BizTypeEnum;
+import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.glossary.PayStatusEnum;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
@@ -146,7 +147,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
-        carTypeForJmsfDTO.setBusinessCode("kcjm");
+        carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
@@ -287,7 +288,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //进门收费新增需要保存车型明，车型code。车型id，因为结算单中没有冗余，所以需要到进门收费中去查询
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
-        carTypeForJmsfDTO.setBusinessCode("kcjm");
+        carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
@@ -567,7 +568,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //根据车型id获取车型信息
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
         //设置业务类型
-        carTypeForJmsfDTO.setBusinessCode("kcjm");
+        carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         //设置市场id
         carTypeForJmsfDTO.setMarketId(marketId);
         //设置id

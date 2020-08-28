@@ -2,6 +2,7 @@ package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
+import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
@@ -12,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -49,8 +52,29 @@ public class TransitionDepartureApplyApi {
      * @throws Exception
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
-    public PageOutput<List<TransitionDepartureApply>> listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) throws Exception {
+    public PageOutput<List<TransitionDepartureApply>> listByQueryParams(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         return transitionDepartureApplyService.listByQueryParams(transitionDepartureApply);
+    }
+
+    /**
+     * 根据参数查询数据
+     *
+     * @param transitionDepartureApply
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/listByCustomerId.action", method = {RequestMethod.POST, RequestMethod.GET})
+    public BaseOutput<?> listByCustomerId(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+        if (Objects.isNull(transitionDepartureApply.getCustomerId())) {
+            return BaseOutput.failure("客户id不能为空");
+        }
+        if (Objects.isNull(transitionDepartureApply.getMarketId())) {
+            return BaseOutput.failure("市场id不能为空");
+        }
+        //设置当天时间，进行查询
+        transitionDepartureApply.setBeginTime(LocalDate.now());
+        transitionDepartureApply.setEndTime(LocalDate.now());
+        return BaseOutput.successData(transitionDepartureApplyService.getListByCustomerId(transitionDepartureApply));
     }
 
     /**
@@ -66,7 +90,7 @@ public class TransitionDepartureApplyApi {
                 transitionDepartureApply.setOriginatorTime(LocalDateTime.now());
             }
             CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
-            carTypeForJmsfDTO.setBusinessCode("kcjm");
+            carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
             carTypeForJmsfDTO.setMarketId(transitionDepartureApply.getMarketId());
             carTypeForJmsfDTO.setId(transitionDepartureApply.getCarTypeId());
             BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
@@ -133,6 +157,27 @@ public class TransitionDepartureApplyApi {
                 return BaseOutput.failure("查询失败,id不能为空");
             }
             return BaseOutput.successData(transitionDepartureApplyService.get(id));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return BaseOutput.failure("查询失败");
+        }
+    }
+
+
+    /**
+     * 根据id查询出对应申请单,包含需要使用的provider，申请单详细页面
+     *
+     * @param id
+     * @return
+     */
+
+    @RequestMapping(value = "/getApplyAndSettleById/{id}", method = {RequestMethod.GET, RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@PathVariable(value = "id") Long id) {
+        try {
+            if (id == null) {
+                return BaseOutput.failure("查询失败,id不能为空");
+            }
+            return BaseOutput.successData(transitionDepartureApplyService.getOneById(id));
         } catch (Exception e) {
             log.error(e.getMessage());
             return BaseOutput.failure("查询失败");
