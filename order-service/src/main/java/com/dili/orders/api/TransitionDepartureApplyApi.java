@@ -169,17 +169,17 @@ public class TransitionDepartureApplyApi {
     /**
      * 根据id查询出对应申请单,包含需要使用的provider，申请单详细页面
      *
-     * @param id
+     * @param
      * @return
      */
 
-    @RequestMapping(value = "/getApplyAndSettleById/{id}", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@PathVariable(value = "id") Long id) {
+    @RequestMapping(value = "/getApplyAndSettleById", method = {RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
-            if (id == null) {
+            if (Objects.isNull(transitionDepartureApply.getId())) {
                 return BaseOutput.failure("查询失败,id不能为空");
             }
-            return BaseOutput.successData(transitionDepartureApplyService.getOneById(id));
+            return BaseOutput.successData(transitionDepartureApplyService.getOneById(transitionDepartureApply.getId()));
         } catch (Exception e) {
             log.error(e.getMessage());
             return BaseOutput.failure("查询失败");
