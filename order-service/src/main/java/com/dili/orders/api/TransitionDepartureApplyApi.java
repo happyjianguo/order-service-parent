@@ -63,10 +63,10 @@ public class TransitionDepartureApplyApi {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/listByCustomerId.action", method = {RequestMethod.POST, RequestMethod.GET})
-    public BaseOutput<?> listByCustomerId(@RequestBody TransitionDepartureApply transitionDepartureApply) {
-        if (Objects.isNull(transitionDepartureApply.getCustomerId())) {
-            return BaseOutput.failure("客户id不能为空");
+    @RequestMapping(value = "/listByCustomerCardNo.action", method = {RequestMethod.POST, RequestMethod.GET})
+    public BaseOutput<?> listByCustomerCardNo(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+        if (Objects.isNull(transitionDepartureApply.getCustomerCardNo())) {
+            return BaseOutput.failure("客户卡号不能为空");
         }
         if (Objects.isNull(transitionDepartureApply.getMarketId())) {
             return BaseOutput.failure("市场id不能为空");
@@ -98,6 +98,8 @@ public class TransitionDepartureApplyApi {
                 throw new RuntimeException("进门收费车型查询失败");
             }
             transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+            //插入的时候把车牌号变成大写
+            transitionDepartureApply.setPlate(transitionDepartureApply.getPlate().toUpperCase());
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
