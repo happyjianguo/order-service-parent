@@ -144,7 +144,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("转离场支付未找到相关申请单");
         }
-
+        transitionDepartureSettlement.setPlate(transitionDepartureSettlement.getPlate().toUpperCase());
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
@@ -565,6 +565,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("获取申请单信息失败");
         }
+        //将车牌号转成大写
+        transitionDepartureSettlement.setPlate(transitionDepartureSettlement.getPlate().toUpperCase());
         //根据车型id获取车型信息
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
         //设置业务类型
@@ -594,7 +596,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
             flag = true;
         }
-        //判断车牌号是否相等，不想打则更新
+        //判断车牌号是否相等，不相等则更新
         if (!Objects.equals(transitionDepartureApply.getPlate(), transitionDepartureSettlement.getPlate())) {
             transitionDepartureApply.setPlate(transitionDepartureSettlement.getPlate());
             flag = true;

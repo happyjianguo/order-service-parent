@@ -98,6 +98,8 @@ public class TransitionDepartureApplyApi {
                 throw new RuntimeException("进门收费车型查询失败");
             }
             transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+            //插入的时候把车牌号变成大写
+            transitionDepartureApply.setPlate(transitionDepartureApply.getPlate().toUpperCase());
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
