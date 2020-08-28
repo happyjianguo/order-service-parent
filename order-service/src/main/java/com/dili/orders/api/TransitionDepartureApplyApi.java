@@ -63,7 +63,7 @@ public class TransitionDepartureApplyApi {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/listByCustomerCardNo.action", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/listByCustomerCardNo", method = {RequestMethod.POST, RequestMethod.GET})
     public BaseOutput<?> listByCustomerCardNo(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         if (Objects.isNull(transitionDepartureApply.getCustomerCardNo())) {
             return BaseOutput.failure("客户卡号不能为空");
