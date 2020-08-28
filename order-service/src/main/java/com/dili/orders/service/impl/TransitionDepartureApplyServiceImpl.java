@@ -84,8 +84,12 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
     }
 
     @Override
-    public TransitionDepartureApply getOneById(Long id) {
-        return getActualDao().getOneById(id);
+    public TransitionDepartureApply getOneById(Long id, Long marketId, Long departmentId) {
+        TransitionDepartureApply oneById = getActualDao().getOneById(id);
+        if (Objects.nonNull(oneById.getTransitionDepartureSettlement()) && Objects.nonNull(oneById.getTransitionDepartureSettlement().getNetWeight())) {
+            oneById.getTransitionDepartureSettlement().setChargeAmount(getFee(marketId, departmentId, oneById, oneById.getTransitionDepartureSettlement().getNetWeight()));
+        }
+        return oneById;
     }
 
     /**

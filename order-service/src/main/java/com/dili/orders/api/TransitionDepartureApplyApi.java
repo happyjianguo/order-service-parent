@@ -174,12 +174,12 @@ public class TransitionDepartureApplyApi {
      */
 
     @RequestMapping(value = "/getApplyAndSettleById", method = {RequestMethod.POST})
-    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    public BaseOutput<TransitionDepartureApply> getApplyAndSettleById(@RequestBody TransitionDepartureApply transitionDepartureApply, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "departmentId") Long departmentId) {
         try {
             if (Objects.isNull(transitionDepartureApply.getId())) {
                 return BaseOutput.failure("查询失败,id不能为空");
             }
-            return BaseOutput.successData(transitionDepartureApplyService.getOneById(transitionDepartureApply.getId()));
+            return BaseOutput.successData(transitionDepartureApplyService.getOneById(transitionDepartureApply.getId(), marketId, departmentId));
         } catch (Exception e) {
             log.error(e.getMessage());
             return BaseOutput.failure("查询失败");
