@@ -340,6 +340,12 @@
 		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON wb.id =
 		wbor.weighing_bill_id
 		WHERE 1 = 1
+		<if test="statementStates != null">
+			AND ws.state IN
+			<foreach close=")" collection="statementStates" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
 		<if test="sellerCardNo != null and sellerCardNo!=''">
 			AND wb.seller_card_no = #{sellerCardNo}
 		</if>
