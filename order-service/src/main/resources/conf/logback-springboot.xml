@@ -43,7 +43,7 @@
         <logger name="com.dili.order" level="INFO"/>
     </springProfile>
 
-    <root level="info">
+    <root level="debug">
         <appender-ref ref="appender" />
     </root>
 </configuration>

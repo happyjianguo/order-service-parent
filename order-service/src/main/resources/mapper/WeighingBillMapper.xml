@@ -60,9 +60,11 @@
 		buyer_account, buyer_name, buyer_contact, buyer_type, seller_id, seller_code, seller_card_no,
 		seller_card_account, seller_account, seller_name, seller_contact, seller_type, goods_id,
 		goods_name, goods_code, goods_key_code, goods_origin_city_id, goods_origin_city_name,
-		unit_amount, unit_price, unit_weight, fetched_weight, fetch_weight_time, rough_weight,
+		unit_amount, unit_price,
+		unit_weight, fetched_weight, fetch_weight_time, rough_weight,
 		net_weight, plate_number, tare_weight, subtraction_rate, subtraction_weight, estimated_net_weight,
-		frozen_amount, tare_bill_number, state, created_time, modified_time, settlement_time,
+		frozen_amount, tare_bill_number, state,
+		created_time, modified_time, settlement_time,
 		creator_id, modifier_id, check_price, price_state, process_instance_id, process_definition_id
 	</sql>
 	<select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -228,21 +230,17 @@
 	</update>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
-		<association property="statement">
-			<result column="ws_serial_no" property="serialNo" />
-			<result column="trade_amount" property="tradeAmount" />
-			<result column="ws_frozen_amount" property="frozenAmount" />
-			<result column="buyer_poundage" property="buyerPoundage" />
-			<result column="buyer_actual_amount" property="buyerActualAmount" />
-			<result column="seller_poundage" property="sellerPoundage" />
-			<result column="seller_actual_amount" property="sellerActualAmount" />
-			<result column="ws_state" property="state" />
-		</association>
-		<association property="operationRecord">
-			<result column="operator_id" property="operatorId" />
-			<result column="operator_name" property="operatorName" />
-			<result column="operation_time" property="operationTime" />
-		</association>
+		<result column="ws_serial_no" property="statement.serialNo" />
+		<result column="trade_amount" property="statement.tradeAmount" />
+		<result column="ws_frozen_amount" property="statement.frozenAmount" />
+		<result column="buyer_poundage" property="statement.buyerPoundage" />
+		<result column="buyer_actual_amount" property="statement.buyerActualAmount" />
+		<result column="seller_poundage" property="statement.sellerPoundage" />
+		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
+		<result column="ws_state" property="statement.state" />
+		<result column="operator_id" property="operationRecord.operatorId" />
+		<result column="operator_name" property="operationRecord.operatorName" />
+		<result column="operation_time" property="operationRecord.operationTime" />
 	</resultMap>
 
 	<resultMap extends="BaseResultMap" id="DetailResultMap" type="com.dili.orders.dto.WeighingBillDetailDto">
