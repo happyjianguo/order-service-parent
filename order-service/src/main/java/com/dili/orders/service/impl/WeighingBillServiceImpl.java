@@ -801,6 +801,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!buyerFeeOutput.isSuccess()) {
 			throw new AppException("计算买家手续费失败");
 		}
+		ws.setBuyerActualAmount(ws.getTradeAmount() - buyerFeeOutput.getData().getTotalFee().longValue());
+		ws.setBuyerPoundage(buyerFeeOutput.getData().getTotalFee().longValue());
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
 		ws.setBuyerName(weighingBill.getBuyerName());
@@ -844,8 +846,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!sellerFeeOutput.isSuccess()) {
 			throw new AppException("计算卖家手续费失败");
 		}
-		ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue() * 100);
-		ws.setSellerPoundage(sellerFeeOutput.getData().getTotalFee().longValue() * 100);
+		ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue());
+		ws.setSellerPoundage(sellerFeeOutput.getData().getTotalFee().longValue());
 		ws.setSellerCardNo(weighingBill.getSellerCardNo());
 		ws.setSellerId(weighingBill.getSellerId());
 		ws.setSellerName(weighingBill.getSellerName());
@@ -1007,6 +1009,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		map.put("tradeType", weighingBill.getTradeType());
 		map.put("tradeAmount", statement.getTradeAmount());
 		queryFeeInput.setCalcParams(map);
+		queryFeeInput.setConditionParams(map);
 		return chargeRuleRpc.queryFee(queryFeeInput);
 	}
 
