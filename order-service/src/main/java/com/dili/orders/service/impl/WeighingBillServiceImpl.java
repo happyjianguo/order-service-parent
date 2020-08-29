@@ -989,9 +989,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		queryFeeInput.setChargeItem(chargeItemId);
 		if (businessType.equals(OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE)) {
 			map.put("customerType", weighingBill.getBuyerType());
+			map.put("customerId", weighingBill.getBuyerId());
 		} else {
 			map.put("customerType", weighingBill.getSellerType());
+			map.put("customerId", weighingBill.getSellerId());
 		}
+		map.put("goodsId", weighingBill.getGoodsId());
 		LocalDateTime tradeTime = statement.getCreatedTime();
 		if (tradeTime == null) {
 			tradeTime = LocalDateTime.now();
