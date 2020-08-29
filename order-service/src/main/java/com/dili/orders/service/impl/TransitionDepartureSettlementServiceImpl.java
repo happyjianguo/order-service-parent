@@ -9,6 +9,7 @@ import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
 import com.dili.orders.glossary.BizTypeEnum;
+import com.dili.orders.glossary.CustomerType;
 import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.glossary.PayStatusEnum;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
@@ -255,7 +256,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //设置为已支付状态
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
-
+        //设置客户身份类型
+        transitionDepartureSettlement.setCustomerMarketType(accountInfo.getCustomerMarketType());
+        //设置客户身份类型中文
+        transitionDepartureSettlement.setCustomerMarketTypeCN(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketType()));
         //根据结算单apply_id获取到对应申请单
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
 
@@ -314,6 +318,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
+        //进门收费也需要客户身份类型，进门暂未增加字段，后期补上
+
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {

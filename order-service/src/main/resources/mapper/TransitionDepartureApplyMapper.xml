@@ -280,7 +280,7 @@
         AND a.originator_time <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y-%m-%d 23:59:59')
         AND a.approval_state=2
         AND (a.pay_status IN ( 1, 3 ) or a.pay_status is null)
-        ORDER BY a.approval_time DESC
+        ORDER BY a.originator_time DESC
     </select>
     <select id="listByQueryParams" parameterType="com.dili.orders.domain.TransitionDepartureApply"
             resultType="com.dili.orders.domain.TransitionDepartureApply">

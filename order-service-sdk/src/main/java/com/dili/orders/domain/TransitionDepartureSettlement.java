@@ -21,9 +21,20 @@ import javax.persistence.*;
  */
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
+    /**
+     * 客户身份类型英文
+     */
+    @Column(name = "`customer_market_type`")
+    private String customerMarketType;
 
     /**
-     * 单据编号
+     * 客户身份类型中文
+     */
+    @Column(name = "`customer_market_type_cn`")
+    private String customerMarketTypeCN;
+
+    /**
+     * 市场id
      */
     @Column(name = "`market_id`")
     private Long marketId;
@@ -1016,5 +1027,21 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    public String getCustomerMarketType() {
+        return customerMarketType;
+    }
+
+    public void setCustomerMarketType(String customerMarketType) {
+        this.customerMarketType = customerMarketType;
+    }
+
+    public String getCustomerMarketTypeCN() {
+        return customerMarketTypeCN;
+    }
+
+    public void setCustomerMarketTypeCN(String customerMarketTypeCN) {
+        this.customerMarketTypeCN = customerMarketTypeCN;
     }
 }
