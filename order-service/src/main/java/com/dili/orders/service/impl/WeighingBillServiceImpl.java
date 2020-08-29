@@ -1,5 +1,7 @@
 package com.dili.orders.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -74,6 +76,7 @@ import com.dili.ss.domain.PageOutput;
 import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
+import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.rpc.FirmRpc;
@@ -798,8 +801,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!buyerFeeOutput.isSuccess()) {
 			throw new AppException("计算买家手续费失败");
 		}
-		ws.setBuyerActualAmount(ws.getTradeAmount() - buyerFeeOutput.getData().getTotalFee().longValue());
-		ws.setBuyerPoundage(buyerFeeOutput.getData().getTotalFee().longValue());
+		ws.setBuyerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(buyerFeeOutput.getData().getTotalFee().doubleValue()));
+		ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerFeeOutput.getData().getTotalFee().doubleValue()));
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
 		ws.setBuyerName(weighingBill.getBuyerName());
@@ -843,8 +846,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!sellerFeeOutput.isSuccess()) {
 			throw new AppException("计算卖家手续费失败");
 		}
-		ws.setSellerActualAmount(ws.getTradeAmount() - sellerFeeOutput.getData().getTotalFee().longValue());
-		ws.setSellerPoundage(sellerFeeOutput.getData().getTotalFee().longValue());
+		ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerFeeOutput.getData().getTotalFee().doubleValue()));
+		ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerFeeOutput.getData().getTotalFee().doubleValue()));
 		ws.setSellerCardNo(weighingBill.getSellerCardNo());
 		ws.setSellerId(weighingBill.getSellerId());
 		ws.setSellerName(weighingBill.getSellerName());
@@ -1002,12 +1005,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		map.put("unitPrice", weighingBill.getUnitPrice());
 		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-			map.put("totalWeight", weighingBill.getNetWeight());
+			map.put("totalWeight", MoneyUtils.centToYuan(weighingBill.getNetWeight()));
 		} else {
-			map.put("totalWeight", weighingBill.getUnitAmount() * weighingBill.getUnitWeight());
+			map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(10000)).setScale(2, RoundingMode.HALF_UP).toString());
 		}
 		map.put("tradeType", weighingBill.getTradeType());
-		map.put("tradeAmount", statement.getTradeAmount());
+		map.put("tradeAmount", MoneyUtils.centToYuan(statement.getTradeAmount()));
 		queryFeeInput.setCalcParams(map);
 		queryFeeInput.setConditionParams(map);
 		return chargeRuleRpc.queryFee(queryFeeInput);
