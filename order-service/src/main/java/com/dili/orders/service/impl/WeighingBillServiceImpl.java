@@ -709,10 +709,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		this.updateWeihingBillInfo(weighingBill, dto);
 		// 查询未结算单
-		Example example = new Example(WeighingStatement.class);
-		example.createCriteria().andIn("state", Arrays.asList(WeighingStatementState.FROZEN.getValue(), WeighingStatementState.UNPAID.getValue())).andEqualTo("weighingSerialNo",
-				weighingBill.getSerialNo());
-		WeighingStatement ws = this.weighingStatementMapper.selectOneByExample(example);
+		WeighingStatement ws = this.getNoSettlementWeighingStatementByWeighingBillId(weighingBill.getId());
 		if (ws == null) {
 			return BaseOutput.failure("未找到结算单");
 		}
@@ -1114,11 +1111,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private WeighingStatement getNoSettlementWeighingStatementByWeighingBillId(Long weighingBillId) {
-		WeighingStatement wsQuery = new WeighingStatement();
-		wsQuery.setWeighingBillId(weighingBillId);
-		wsQuery.setState(WeighingStatementState.UNPAID.getValue());
-		WeighingStatement weighingStatement = this.weighingStatementMapper.selectOne(wsQuery);
-		return weighingStatement;
+		// 查询未结算单
+		Example example = new Example(WeighingStatement.class);
+		example.createCriteria().andIn("state", Arrays.asList(WeighingStatementState.FROZEN.getValue(), WeighingStatementState.UNPAID.getValue())).andEqualTo("weighingBillId", weighingBillId);
+		WeighingStatement ws = this.weighingStatementMapper.selectOneByExample(example);
+		return ws;
 	}
 
 	private String getUserRealNameById(Long operatorId) {
