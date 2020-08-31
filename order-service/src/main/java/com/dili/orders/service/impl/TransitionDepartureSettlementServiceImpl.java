@@ -319,7 +319,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
         //进门收费也需要客户身份类型，进门暂未增加字段，后期补上
-
+        vehicleAccessDTO.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCN());
+        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketType());
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
