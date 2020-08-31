@@ -23,13 +23,16 @@ import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
+import com.dili.bpmc.sdk.rpc.RuntimeRpc;
+import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
-import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.MeasureType;
+import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingBillOperationRecord;
 import com.dili.orders.domain.WeighingBillState;
@@ -58,6 +61,7 @@ import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementPrintDto;
+import com.dili.orders.mapper.PriceApproveRecordMapper;
 import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
 import com.dili.orders.mapper.WeighingStatementMapper;
@@ -84,14 +88,11 @@ import com.dili.uap.sdk.rpc.UserRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
-import net.sf.cglib.beans.BeanCopier;
-import net.sf.cglib.core.Converter;
 import tk.mybatis.mapper.entity.Example;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
  */
-@Transactional(rollbackFor = Exception.class)
 @Service
 public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long> implements WeighingBillService {
 
@@ -112,8 +113,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	private ChargeRuleRpc chargeRuleRpc;
 	@Autowired
-	private CustomerRpc customerRpc;
-	@Autowired
 	private FirmRpc firmRpc;
 	@Autowired
 	private JmsfRpc jsmfRpc;
@@ -127,13 +126,20 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private UidRpc uidRpc;
 	@Autowired
 	private UserRpc userRpc;
+	@Autowired
+	private PriceApproveRecordMapper priceApproveMapper;
 
 	@Autowired
 	private WeighingBillOperationRecordMapper wbrMapper;
 
 	@Autowired
 	private WeighingStatementMapper weighingStatementMapper;
+	@Autowired
+	private TaskRpc taskRpc;
+	@Autowired
+	private RuntimeRpc runtimeRpc;
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill) {
 		BaseOutput<String> output = this.uidRpc.getCode();
@@ -175,6 +181,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return rows > 0 ? BaseOutput.success().setData(output.getData()) : BaseOutput.failure("保存过磅单失败");
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> close(String serialNo) {
 		WeighingBill query = DTOUtils.newInstance(WeighingBill.class);
@@ -197,6 +204,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return this.getActualDao().selectDetailById(id);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> freeze(String serialNo, String buyerPassword, Long operatorId) {
 		WeighingBill query = new WeighingBill();
@@ -357,6 +365,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return dto;
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
 		WeighingBill query = new WeighingBill();
@@ -427,7 +436,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	@Override
 	public List<WeighingBillListPageDto> listByExampleModified(WeighingBillQueryDto weighingBill) {
 		return this.getActualDao().selectByExampleModified(weighingBill);
@@ -447,6 +455,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return PageOutput.success().setData(list).setTotal((int) total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
@@ -513,6 +522,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * @param operatorPassword 操作员登录密码
 	 * @return
 	 */
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
@@ -590,6 +600,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
 		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
@@ -621,6 +632,48 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getBuyerActualAmount()) {
 			return BaseOutput.failure("买方余额不足");
+		}
+
+		// 检查中间价
+		if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
+			// 获取商品中间价
+			Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId));
+//			Long referencePrice = 300L;
+			if (referencePrice != null && referencePrice > 0) {
+				// 比较价格
+				Long actualPrice = this.getConvertUnitPrice(weighingBill);
+				if (actualPrice <= referencePrice) {
+					// 没有审批过且价格异常需要走审批流程
+					PriceApproveRecord approve = new PriceApproveRecord();
+					approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
+					approve.setBuyerId(weighingBill.getBuyerId());
+					approve.setBuyerName(weighingBill.getBuyerName());
+					approve.setGoodsId(weighingBill.getGoodsId());
+					approve.setGoodsName(weighingBill.getGoodsName());
+					approve.setReferencePrice(referencePrice);
+					approve.setSellerCardNo(weighingBill.getSellerCardNo());
+					approve.setSellerId(weighingBill.getSellerId());
+					approve.setSellerName(weighingBill.getSellerName());
+					approve.setTradeType(weighingBill.getTradeType());
+					approve.setTradeWeight(this.getWeighingBillTradeWeight(weighingBill));
+					approve.setUnitPrice(actualPrice);
+					approve.setWeighingBillId(weighingBill.getId());
+					approve.setWeighingBillSerialNo(serialNo);
+					approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
+					int rows = this.priceApproveMapper.insertSelective(approve);
+					if (rows <= 0) {
+						BaseOutput.failure("保存价格审批记录失败");
+					}
+					BaseOutput<ProcessInstanceMapping> output = this.runtimeRpc.startProcessInstanceByKey(OrdersConstant.PRICE_APPROVE_PROCESS_DEFINITION_KEY, approve.getId().toString(),
+							operatorId.toString(), new HashMap<String, Object>());
+					if (!output.isSuccess()) {
+						throw new AppException(output.getMessage());
+					}
+					approve.setProcessDefinitionId(output.getData().getProcessDefinitionId());
+					approve.setProcessInstanceId(output.getData().getProcessInstanceId());
+					this.priceApproveMapper.updateByPrimaryKeySelective(approve);
+				}
+			}
 		}
 
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
@@ -699,6 +752,33 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
 		return BaseOutput.success();
+	}
+
+	private LocalDateTime getWeighingBillWeighingTime(WeighingBill weighingBill) {
+		if (weighingBill.getModifiedTime() != null) {
+			return weighingBill.getModifiedTime();
+		}
+		return weighingBill.getCreatedTime();
+	}
+
+	// 获取单价，如果按件计价需要转换为按斤计价
+	private Long getConvertUnitPrice(WeighingBill weighingBill) {
+		Long actualPrice = null;
+		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
+			actualPrice = weighingBill.getUnitPrice();
+		} else {
+			// 转换为斤的价格，保留到分，四舍五入
+			actualPrice = new BigDecimal(weighingBill.getUnitPrice()).divide(new BigDecimal(weighingBill.getUnitWeight()), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
+		}
+		return actualPrice;
+	}
+
+	private Integer getWeighingBillTradeWeight(WeighingBill weighingBill) {
+		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
+			return weighingBill.getNetWeight();
+		} else {
+			return weighingBill.getUnitWeight() * weighingBill.getUnitAmount() / 2;
+		}
 	}
 
 	@Override
@@ -1005,26 +1085,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		map.put("unitPrice", weighingBill.getUnitPrice());
 		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-			map.put("totalWeight", MoneyUtils.centToYuan(weighingBill.getNetWeight()));
+			map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
 		} else {
-			map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(10000)).setScale(2, RoundingMode.HALF_UP).toString());
+			map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(10000)).setScale(2, RoundingMode.HALF_UP));
 		}
 		map.put("tradeType", weighingBill.getTradeType());
-		map.put("tradeAmount", MoneyUtils.centToYuan(statement.getTradeAmount()));
+		map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
 		queryFeeInput.setCalcParams(map);
 		queryFeeInput.setConditionParams(map);
 		return chargeRuleRpc.queryFee(queryFeeInput);
-	}
-
-	private boolean checkPrice(WeighingBill wb) {
-		if (!wb.getCheckPrice()) {
-			return false;
-		}
-		if (wb.getPriceState() != null) {
-			return false;
-		}
-//		this.referencePriceService.getReferencePriceByGoodsId(wb.getGoodsId(), wb)
-		return false;
 	}
 
 	private BaseOutput<PaymentTradeCommitResponseDto> commitTrade(WeighingBill weighingBill, WeighingStatement weighingStatement, String password) {
