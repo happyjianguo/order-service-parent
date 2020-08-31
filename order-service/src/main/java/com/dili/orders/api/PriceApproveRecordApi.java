@@ -21,12 +21,24 @@ public class PriceApproveRecordApi {
 	@Autowired
 	PriceApproveRecordService priceApproveRecordService;
 
+	/**
+	 * 分页查询
+	 * 
+	 * @param query 查询条件
+	 * @return
+	 */
 	@RequestMapping("/listPage")
 	public BaseOutput<Object> listPageByExample(PriceApproveRecordQueryDto query) {
 		List<PriceApproveRecord> list = this.priceApproveRecordService.listByExample(query);
 		return BaseOutput.success().setData(list);
 	}
 
+	/**
+	 * 根据id查询
+	 * 
+	 * @param id 审批记录id
+	 * @return
+	 */
 	@RequestMapping("/getById")
 	public BaseOutput<Object> getById(@RequestParam Long id) {
 		return BaseOutput.success().setData(this.priceApproveRecordService.get(id));
