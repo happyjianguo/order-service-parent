@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.orders.mapper.PriceApproveRecordMapper">
+  <resultMap id="BaseResultMap" type="com.dili.orders.domain.PriceApproveRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
+    <result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
+    <result column="weighing_bill_serial_no" jdbcType="VARCHAR" property="weighingBillSerialNo" />
+    <result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
+    <result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
+    <result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
+    <result column="seller_id" jdbcType="BIGINT" property="sellerId" />
+    <result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
+    <result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
+    <result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+    <result column="goods_id" jdbcType="BIGINT" property="goodsId" />
+    <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+    <result column="trade_weight" jdbcType="INTEGER" property="tradeWeight" />
+    <result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
+    <result column="reference_price" jdbcType="BIGINT" property="referencePrice" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="approver_id" jdbcType="BIGINT" property="approverId" />
+    <result column="approver_name" jdbcType="VARCHAR" property="approverName" />
+    <result column="approve_time" jdbcType="TIMESTAMP" property="approveTime" />
+    <result column="notes" jdbcType="VARCHAR" property="notes" />
+    <result column="weighing_time" jdbcType="TIMESTAMP" property="weighingTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, serial_no, weighing_bill_id, weighing_bill_serial_no, buyer_id, buyer_name, buyer_card_no, 
+    seller_id, seller_name, seller_card_no, trade_type, goods_id, goods_name, trade_weight, 
+    unit_price, reference_price, state, approver_id, approver_name, approve_time, notes, 
+    weighing_time
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from price_approve_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.orders.domain.PriceApproveRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update price_approve_record
+    <set>
+      <if test="serialNo != null">
+        serial_no = #{serialNo,jdbcType=VARCHAR},
+      </if>
+      <if test="weighingBillId != null">
+        weighing_bill_id = #{weighingBillId,jdbcType=BIGINT},
+      </if>
+      <if test="weighingBillSerialNo != null">
+        weighing_bill_serial_no = #{weighingBillSerialNo,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerId != null">
+        buyer_id = #{buyerId,jdbcType=BIGINT},
+      </if>
+      <if test="buyerName != null">
+        buyer_name = #{buyerName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerCardNo != null">
+        buyer_card_no = #{buyerCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerId != null">
+        seller_id = #{sellerId,jdbcType=BIGINT},
+      </if>
+      <if test="sellerName != null">
+        seller_name = #{sellerName,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerCardNo != null">
+        seller_card_no = #{sellerCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeType != null">
+        trade_type = #{tradeType,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsId != null">
+        goods_id = #{goodsId,jdbcType=BIGINT},
+      </if>
+      <if test="goodsName != null">
+        goods_name = #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeWeight != null">
+        trade_weight = #{tradeWeight,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null">
+        unit_price = #{unitPrice,jdbcType=BIGINT},
+      </if>
+      <if test="referencePrice != null">
+        reference_price = #{referencePrice,jdbcType=BIGINT},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="approverId != null">
+        approver_id = #{approverId,jdbcType=BIGINT},
+      </if>
+      <if test="approverName != null">
+        approver_name = #{approverName,jdbcType=VARCHAR},
+      </if>
+      <if test="approveTime != null">
+        approve_time = #{approveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="notes != null">
+        notes = #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="weighingTime != null">
+        weighing_time = #{weighingTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

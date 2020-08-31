@@ -61,10 +61,15 @@ public class OrdersConstant {
 	 * 买家手续费计费规则业务类型配置编码，用于在计费规则系统查询买家手续费的计费规则
 	 */
 	public static final String WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE = "WEIGHING_BILL_BUYER_POUNDAGE";
-	
+
 	/**
 	 * 买家手续费计费规则业务类型配置编码，用于在计费规则系统查询买家手续费的计费规则
 	 */
 	public static final String WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE = "WEIGHING_BILL_SELLER_POUNDAGE";
+
+	/**
+	 * 价格审批流程定义key
+	 */
+	public static final String PRICE_APPROVE_PROCESS_DEFINITION_KEY = "weighingBillPriceApprove";
 
 }
