@@ -44,4 +44,30 @@ public class PriceApproveRecordApi {
 		return BaseOutput.success().setData(this.priceApproveRecordService.get(id));
 	}
 
+	/**
+	 * 审批通过
+	 * 
+	 * @param id         id
+	 * @param approverId 审批人id
+	 * @param taskId     流程实例id
+	 * @return
+	 */
+	@RequestMapping("/approveAccept")
+	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam Long approverId, @RequestParam String taskId) {
+		return this.priceApproveRecordService.accept(id, approverId, taskId);
+	}
+	
+	/**
+	 * 审批拒绝
+	 * 
+	 * @param id         id
+	 * @param approverId 审批人id
+	 * @param taskId     流程实例id
+	 * @return
+	 */
+	@RequestMapping("/approveReject")
+	public BaseOutput<Object> approveReject(@RequestParam Long id, @RequestParam Long approverId, @RequestParam String taskId) {
+		return this.priceApproveRecordService.reject(id, approverId, taskId);
+	}
+
 }
