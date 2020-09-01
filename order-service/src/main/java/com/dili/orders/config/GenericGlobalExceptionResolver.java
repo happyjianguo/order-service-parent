@@ -32,10 +32,11 @@ public class GenericGlobalExceptionResolver {
      * @author
      * @date 2020/7/10
      */
-    @ExceptionHandler({SocketTimeoutException.class})
+    @ExceptionHandler({Exception.class})
     @ResponseBody
-    public BaseOutput timeOut(SocketTimeoutException e) {
-        return BaseOutput.failure("连接超时");
+    public BaseOutput timeOut(Exception e) {
+        LOGGER.error("error",e);
+        return BaseOutput.failure("服务异常");
     }
 
 
