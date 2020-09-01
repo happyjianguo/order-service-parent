@@ -5,8 +5,11 @@ import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
+import com.dili.orders.dto.AccountSimpleResponseDto;
+import com.dili.orders.dto.BalanceResponseDto;
 import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.glossary.BizTypeEnum;
+import com.dili.orders.rpc.CardRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
@@ -43,6 +46,9 @@ public class TransitionDepartureSettlementApi {
 
     @Autowired
     private BusinessChargeItemRpc businessChargeItemRpc;
+
+    @Autowired
+    private CardRpc cardRpc;
 
     /**
      * @param transitionDepartureSettlement
@@ -85,7 +91,17 @@ public class TransitionDepartureSettlementApi {
      */
     @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
     BaseOutput<TransitionDepartureSettlement> getOneById(@PathVariable(value = "id") Long id) {
-        return BaseOutput.successData(transitionDepartureSettlementService.get(id));
+        TransitionDepartureSettlement transitionDepartureSettlement = transitionDepartureSettlementService.get(id);
+        //获取余额返回，类型为元
+        BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        if (!oneAccountCard1.isSuccess()) {
+            return BaseOutput.failure("根据卡查询客户失败");
+        }
+        //获取账户资金信息
+        BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
+        //设置余额，并且返回为元
+        transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getBalance() / 100));
+        return BaseOutput.successData(transitionDepartureSettlement);
     }
 
     /**

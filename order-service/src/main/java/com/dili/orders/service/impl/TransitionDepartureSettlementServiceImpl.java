@@ -256,7 +256,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!pwdOutput.isSuccess()) {
             return pwdOutput;
         }
-
+        //设置余额
+        transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getBalance() / 100));
         //设置为已支付状态
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
