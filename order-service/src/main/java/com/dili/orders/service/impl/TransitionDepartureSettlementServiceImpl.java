@@ -190,7 +190,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //            transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
 //        }
         //根据uid设置结算单的code
-        transitionDepartureSettlement.setCode(uidRpc.bizNumber("sg_zlc_settlement").getData());
+        BaseOutput<String> sg_zlc_settlement = uidRpc.bizNumber("sg_zlc_settlement");
+        if (!sg_zlc_settlement.isSuccess()) {
+            throw new RuntimeException(sg_zlc_settlement.getMessage());
+        }
+        transitionDepartureSettlement.setCode(sg_zlc_settlement.getData());
         transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         int insert = getActualDao().insert(transitionDepartureSettlement);
         if (insert <= 0) {
