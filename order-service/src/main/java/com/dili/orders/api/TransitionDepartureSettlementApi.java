@@ -5,24 +5,21 @@ import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
+import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.glossary.BizTypeEnum;
-import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
-import com.dili.ss.metadata.ValueProviderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 

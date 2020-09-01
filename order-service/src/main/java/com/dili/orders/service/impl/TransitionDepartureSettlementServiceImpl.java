@@ -10,7 +10,6 @@ import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
 import com.dili.orders.glossary.BizTypeEnum;
 import com.dili.orders.glossary.CustomerType;
-import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.glossary.PayStatusEnum;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
