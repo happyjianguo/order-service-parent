@@ -22,6 +22,12 @@ import javax.persistence.*;
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
     /**
+     * 客户余额，打印使用
+     */
+    @Transient
+    private String customerBalance;
+
+    /**
      * 客户身份类型英文
      */
     @Column(name = "`customer_market_type`")
@@ -1043,5 +1049,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setCustomerMarketTypeCN(String customerMarketTypeCN) {
         this.customerMarketTypeCN = customerMarketTypeCN;
+    }
+
+    public String getCustomerBalance() {
+        return customerBalance;
+    }
+
+    public void setCustomerBalance(String customerBalance) {
+        this.customerBalance = customerBalance;
     }
 }
