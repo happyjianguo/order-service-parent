@@ -296,7 +296,8 @@
 		wb.goods_origin_city_id,
 		wb.created_time,
 		wb.modified_time,
-		wb.settlement_time
+		wb.settlement_time,
+		wb.estimated_net_weight
 	</sql>
 
 	<sql id="Ws_Join_Column_List">
