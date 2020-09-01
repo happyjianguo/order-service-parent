@@ -754,7 +754,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         this.recordSettlementAccountFlow(weighingBill, paymentOutput.getData(), operatorId);
         // 发送mq通知中间价计算模块计算中间价
         this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
-        return BaseOutput.success();
+        return BaseOutput.success("结算成功");
     }
 
     private LocalDateTime getWeighingBillWeighingTime(WeighingBill weighingBill) {
