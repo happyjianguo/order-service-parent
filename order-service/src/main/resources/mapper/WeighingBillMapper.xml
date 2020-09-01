@@ -474,6 +474,12 @@
 		<if test="creatorId != null">
 			AND wb.creator_id = #{creatorId}
 		</if>
+		<if test="statementStates != null and statementStates.size==1">
+			ORDER BY wb.settlement_time DESC
+		</if>
+		<if test="statementStates != null and statementStates.size>1">
+			ORDER BY wb.created_time DESC
+		</if>
 	</select>
 
 	<select id="selectDetailById" parameterType="Long" resultMap="DetailResultMap">
