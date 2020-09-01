@@ -2,7 +2,7 @@ package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
-import com.dili.orders.glossary.MyBusinessType;
+import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;

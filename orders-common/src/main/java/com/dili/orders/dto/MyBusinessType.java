@@ -1,4 +1,4 @@
-package com.dili.orders.glossary;
+package com.dili.orders.dto;
 
 /**
  * 业务类型

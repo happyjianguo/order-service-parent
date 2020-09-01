@@ -10,7 +10,6 @@ import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.*;
 import com.dili.orders.glossary.BizTypeEnum;
 import com.dili.orders.glossary.CustomerType;
-import com.dili.orders.glossary.MyBusinessType;
 import com.dili.orders.glossary.PayStatusEnum;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
@@ -23,6 +22,7 @@ import com.dili.ss.domain.PageOutput;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -216,6 +215,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @GlobalTransactional
     public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName) {
         //根据id获取当前的结算单信息
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
@@ -423,6 +423,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @GlobalTransactional
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
 
 //        //只能撤销当天的结算单

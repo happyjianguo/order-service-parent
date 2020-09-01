@@ -204,6 +204,7 @@
             </foreach>
             )
         </if>
+        ORDER BY s.code DESC
     </select>
     <select id="scheduleUpdateSelect" resultType="com.dili.orders.domain.TransitionDepartureSettlement">
         SELECT
