@@ -181,7 +181,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         if (rows <= 0) {
             throw new AppException("保存操作记录失败");
         }
-        return rows > 0 ? BaseOutput.success().setData(output.getData()) : BaseOutput.failure("保存过磅单失败");
+        return rows > 0 ? BaseOutput.success().setData(stringBaseOutput.getData()) : BaseOutput.failure("保存过磅单失败");
     }
 
     @Transactional(rollbackFor = Exception.class)
