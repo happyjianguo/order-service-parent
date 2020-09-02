@@ -139,8 +139,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             }
             //如果申请单id集合和结算单id集合不为空则更新
             if (CollectionUtils.isNotEmpty(settlementIds)) {
-                transitionDepartureApplyMapper.scheduleUpdate(applyIds);
                 getActualDao().scheduleUpdate(settlementIds);
+            }
+            if (CollectionUtils.isNotEmpty(applyIds)) {
+                transitionDepartureApplyMapper.scheduleUpdate(applyIds);
             }
         }
 
