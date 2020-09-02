@@ -1338,7 +1338,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
         SerialRecordDo sellerPoundage = new SerialRecordDo();
         sellerIncome.setAccountId(weighingBill.getSellerAccount());
         sellerPoundage.setAction(ActionType.EXPENSE.getCode());
-        sellerPoundage.setAmount(-paymentResult.getStreams().get(1).getAmount());
+//        sellerPoundage.setAmount(-paymentResult.getStreams().get(1).getAmount());
+        sellerPoundage.setAmount(-paymentResult.getRelation().getStreams().get(1).getAmount());
         sellerPoundage.setCardNo(weighingBill.getSellerCardNo());
         sellerPoundage.setCustomerId(weighingBill.getSellerId());
         sellerPoundage.setCustomerName(weighingBill.getSellerName());
