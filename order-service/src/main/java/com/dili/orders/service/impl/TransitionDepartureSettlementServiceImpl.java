@@ -3,6 +3,8 @@ package com.dili.orders.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
+import com.dili.customer.sdk.domain.Customer;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
@@ -76,6 +78,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private CustomerRpc customerRpc;
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
@@ -246,7 +251,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Math.abs(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()) < 0) {
             return BaseOutput.failure("余额不足，请充值");
         }
-
+        //根据客户的id获取客户信息
+        BaseOutput<Customer> customerBaseOutput = customerRpc.get(accountInfo.getCustomerId(), transitionDepartureSettlement.getMarketId());
+        if (!customerBaseOutput.isSuccess()) {
+            return BaseOutput.failure("客户数据请求失败");
+        }
+        Customer customer = customerBaseOutput.getData();
+        if (Objects.isNull(customer)) {
+            return BaseOutput.failure("客户数据请求失败");
+        }
         //先校验一次密码，如果密码不正确直接返回
         AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
         buyerPwdDto.setAccountId(accountInfo.getFundAccountId());
@@ -262,7 +275,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
         //设置客户身份类型
-        transitionDepartureSettlement.setCustomerMarketTypeCode(accountInfo.getCustomerMarketType());
+//        transitionDepartureSettlement.setCustomerMarketTypeCode(accountInfo.getCustomerMarketType());
+        transitionDepartureSettlement.setCustomerMarketTypeCode(customer.getCustomerMarket().getType());
         //设置客户身份类型中文
         transitionDepartureSettlement.setCustomerMarketTypeName(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketTypeCode()));
         //根据结算单apply_id获取到对应申请单
