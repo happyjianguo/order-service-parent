@@ -262,9 +262,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
         //设置客户身份类型
-        transitionDepartureSettlement.setCustomerMarketType(accountInfo.getCustomerMarketType());
+        transitionDepartureSettlement.setCustomerMarketTypeCode(accountInfo.getCustomerMarketType());
         //设置客户身份类型中文
-        transitionDepartureSettlement.setCustomerMarketTypeCN(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketType()));
+        transitionDepartureSettlement.setCustomerMarketTypeName(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketTypeCode()));
         //根据结算单apply_id获取到对应申请单
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
 
@@ -324,8 +324,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
         //进门收费也需要客户身份类型，进门暂未增加字段，后期补上
-        vehicleAccessDTO.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCN());
-        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketType());
+        vehicleAccessDTO.setCustomerTypeName(transitionDepartureSettlement.getCustomerMarketTypeName());
+        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketTypeCode());
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {
