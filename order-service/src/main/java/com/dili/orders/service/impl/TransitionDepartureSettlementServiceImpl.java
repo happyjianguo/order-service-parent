@@ -126,11 +126,19 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //循环遍历，获取申请单id，更新拿到申请id和结算单id
             for (int i = 0; i < list.size(); i++) {
                 TransitionDepartureSettlement transitionDepartureSettlement1 = list.get(i);
-                applyIds.add(transitionDepartureSettlement1.getApplyId());
+                //判断结算单状态和申请单状态是否相同，因为一个申请单可以对应多个结算单
+                TransitionDepartureApply oneById = transitionDepartureApplyMapper.getOneById(transitionDepartureSettlement1.getApplyId());
+                if (Objects.nonNull(oneById)) {
+                    //判断结算单和申请单的状态是否相同，是否都是未结算，只有未结算的修改
+                    if (Objects.equals(oneById.getPayStatus(), transitionDepartureSettlement1.getPayStatus())) {
+                        //如果申请单和结算单的状态都是未结算，则需要更新申请单，否则只更新结算单
+                        applyIds.add(transitionDepartureSettlement1.getApplyId());
+                    }
+                }
                 settlementIds.add(transitionDepartureSettlement1.getId());
             }
             //如果申请单id集合和结算单id集合不为空则更新
-            if (CollectionUtils.isNotEmpty(applyIds) && CollectionUtils.isNotEmpty(settlementIds)) {
+            if (CollectionUtils.isNotEmpty(settlementIds)) {
                 transitionDepartureApplyMapper.scheduleUpdate(applyIds);
                 getActualDao().scheduleUpdate(settlementIds);
             }
