@@ -404,6 +404,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
+
+		// 作废结算单
+		WeighingStatement ws = this.getNoSettlementWeighingStatementByWeighingBillId(weighingBill.getId());
+		if (ws != null) {
+			ws.setState(WeighingStatementState.INVALIDATED.getValue());
+			ws.setModifiedTime(LocalDateTime.now());
+			rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
+			if (rows <= 0) {
+				throw new AppException("作废结算单失败");
+			}
+		}
+
 		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
 		wbor.setWeighingBillId(weighingBill.getId());
 		wbor.setOperationType(WeighingOperationType.INVALIDATE.getValue());
@@ -481,6 +493,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
+
+		// 作废结算单
+		WeighingStatement ws = this.getNoSettlementWeighingStatementByWeighingBillId(weighingBill.getId());
+		if (ws != null) {
+			ws.setState(WeighingStatementState.INVALIDATED.getValue());
+			ws.setModifiedTime(LocalDateTime.now());
+			rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
+			if (rows <= 0) {
+				throw new AppException("作废结算单失败");
+			}
+		}
+
 		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
 		wbor.setWeighingBillId(weighingBill.getId());
 		wbor.setOperationType(WeighingOperationType.INVALIDATE.getValue());
@@ -559,7 +583,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新结算单状态失败");
 		}
 
-		weighingBill.setState(WeighingBillState.WITHDRAWN.getValue());
+		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
 		weighingBill.setModifiedTime(now);
 		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
