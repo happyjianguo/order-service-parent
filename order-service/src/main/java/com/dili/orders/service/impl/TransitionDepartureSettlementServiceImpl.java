@@ -9,6 +9,7 @@ import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
+import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.*;
 import com.dili.orders.glossary.BizTypeEnum;
 import com.dili.orders.glossary.CustomerType;
@@ -195,7 +196,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //            transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
 //        }
         //根据uid设置结算单的code
-        BaseOutput<String> sg_zlc_settlement = uidRpc.bizNumber("sg_zlc_settlement");
+//        BaseOutput<String> sg_zlc_settlement = uidRpc.bizNumber("sg_zlc_settlement");
+        BaseOutput<String> sg_zlc_settlement = uidRpc.bizNumber(UidStatic.SG_ZLC_SETTLEMENT_CODE);
         if (!sg_zlc_settlement.isSuccess()) {
             throw new RuntimeException(sg_zlc_settlement.getMessage());
         }

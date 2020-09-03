@@ -2,6 +2,7 @@ package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
+import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.rpc.UidRpc;
@@ -101,7 +102,8 @@ public class TransitionDepartureApplyApi {
             if (!listBaseOutput.isSuccess()) {
                 throw new RuntimeException("进门收费车型查询失败");
             }
-            BaseOutput<String> sg_zlc_apply = uidRpc.bizNumber("sg_zlc_apply");
+//            BaseOutput<String> sg_zlc_apply = uidRpc.bizNumber("sg_zlc_apply");
+            BaseOutput<String> sg_zlc_apply = uidRpc.bizNumber(UidStatic.SG_ZLC_APPLY_CODE);
             if (!sg_zlc_apply.isSuccess()) {
                 return BaseOutput.failure(sg_zlc_apply.getMessage());
             }
