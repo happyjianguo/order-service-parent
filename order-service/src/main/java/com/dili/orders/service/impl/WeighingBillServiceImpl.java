@@ -142,7 +142,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill) {
-		BaseOutput<String> output = this.uidRpc.getCode();
+		BaseOutput<String> output = this.uidRpc.bizNumber("sg_weighing_bill");
 		if (!output.isSuccess()) {
 			LOGGER.error(output.getMessage());
 			return BaseOutput.failure("生成过磅单编号失败");
@@ -1066,7 +1066,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
-		BaseOutput<String> output = this.uidRpc.getCode();
+		BaseOutput<String> output = this.uidRpc.bizNumber("sg_weighing_bill");
 		if (!output.isSuccess()) {
 			throw new AppException(output.getMessage());
 		}
