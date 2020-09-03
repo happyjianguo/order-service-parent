@@ -3,6 +3,8 @@ package com.dili.orders.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
+import com.dili.customer.sdk.domain.Customer;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
@@ -76,6 +78,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private CustomerRpc customerRpc;
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
@@ -190,7 +195,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //            transitionDepartureSettlement.setPaymentNo(prepare.getData().getTradeId());
 //        }
         //根据uid设置结算单的code
-        transitionDepartureSettlement.setCode(uidRpc.bizNumber("sg_zlc_settlement").getData());
+        BaseOutput<String> sg_zlc_settlement = uidRpc.bizNumber("sg_zlc_settlement");
+        if (!sg_zlc_settlement.isSuccess()) {
+            throw new RuntimeException(sg_zlc_settlement.getMessage());
+        }
+        transitionDepartureSettlement.setCode(sg_zlc_settlement.getData());
         transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         int insert = getActualDao().insert(transitionDepartureSettlement);
         if (insert <= 0) {
@@ -242,7 +251,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Math.abs(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()) < 0) {
             return BaseOutput.failure("余额不足，请充值");
         }
-
+        //根据客户的id获取客户信息
+        BaseOutput<Customer> customerBaseOutput = customerRpc.get(accountInfo.getCustomerId(), transitionDepartureSettlement.getMarketId());
+        if (!customerBaseOutput.isSuccess()) {
+            return BaseOutput.failure("客户数据请求失败");
+        }
+        Customer customer = customerBaseOutput.getData();
+        if (Objects.isNull(customer)) {
+            return BaseOutput.failure("客户数据请求失败");
+        }
         //先校验一次密码，如果密码不正确直接返回
         AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
         buyerPwdDto.setAccountId(accountInfo.getFundAccountId());
@@ -252,14 +269,16 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!pwdOutput.isSuccess()) {
             return pwdOutput;
         }
-
+        //设置余额
+        transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getBalance() / 100));
         //设置为已支付状态
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
         //设置客户身份类型
-        transitionDepartureSettlement.setCustomerMarketType(accountInfo.getCustomerMarketType());
+//        transitionDepartureSettlement.setCustomerMarketTypeCode(accountInfo.getCustomerMarketType());
+        transitionDepartureSettlement.setCustomerMarketTypeCode(customer.getCustomerMarket().getType());
         //设置客户身份类型中文
-        transitionDepartureSettlement.setCustomerMarketTypeCN(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketType()));
+        transitionDepartureSettlement.setCustomerMarketTypeName(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketTypeCode()));
         //根据结算单apply_id获取到对应申请单
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
 
@@ -319,8 +338,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
         vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
         //进门收费也需要客户身份类型，进门暂未增加字段，后期补上
-        vehicleAccessDTO.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCN());
-        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketType());
+        vehicleAccessDTO.setCustomerTypeName(transitionDepartureSettlement.getCustomerMarketTypeName());
+        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketTypeCode());
         //判断进门收费新增是否成功
         BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
         if (!vehicleAccessDTOBaseOutput.isSuccess()) {

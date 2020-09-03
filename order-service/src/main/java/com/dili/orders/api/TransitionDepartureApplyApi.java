@@ -4,6 +4,7 @@ import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.rpc.AssetsRpc;
+import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.EasyuiPageOutput;
@@ -31,6 +32,9 @@ public class TransitionDepartureApplyApi {
 
     @Autowired
     private AssetsRpc assetsRpc;
+
+    @Autowired
+    private UidRpc uidRpc;
 
     /**
      * 分页查询TransitionDepartureApply，返回easyui分页信息
@@ -97,6 +101,11 @@ public class TransitionDepartureApplyApi {
             if (!listBaseOutput.isSuccess()) {
                 throw new RuntimeException("进门收费车型查询失败");
             }
+            BaseOutput<String> sg_zlc_apply = uidRpc.bizNumber("sg_zlc_apply");
+            if (!sg_zlc_apply.isSuccess()) {
+                return BaseOutput.failure(sg_zlc_apply.getMessage());
+            }
+            transitionDepartureApply.setCode(sg_zlc_apply.getData());
             transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
             //插入的时候把车牌号变成大写
             transitionDepartureApply.setPlate(transitionDepartureApply.getPlate().toUpperCase());

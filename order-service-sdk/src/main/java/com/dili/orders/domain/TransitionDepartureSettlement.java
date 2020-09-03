@@ -22,16 +22,22 @@ import javax.persistence.*;
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
     /**
+     * 客户余额，打印使用
+     */
+    @Transient
+    private String customerBalance;
+
+    /**
      * 客户身份类型英文
      */
-    @Column(name = "`customer_market_type`")
-    private String customerMarketType;
+    @Column(name = "`customer_market_type_code`")
+    private String customerMarketTypeCode;
 
     /**
      * 客户身份类型中文
      */
-    @Column(name = "`customer_market_type_cn`")
-    private String customerMarketTypeCN;
+    @Column(name = "`customer_market_type_name`")
+    private String customerMarketTypeName;
 
     /**
      * 市场id
@@ -1029,19 +1035,27 @@ public class TransitionDepartureSettlement extends BaseDomain {
         this.marketId = marketId;
     }
 
-    public String getCustomerMarketType() {
-        return customerMarketType;
+    public String getCustomerMarketTypeCode() {
+        return customerMarketTypeCode;
     }
 
-    public void setCustomerMarketType(String customerMarketType) {
-        this.customerMarketType = customerMarketType;
+    public void setCustomerMarketTypeCode(String customerMarketTypeCode) {
+        this.customerMarketTypeCode = customerMarketTypeCode;
     }
 
-    public String getCustomerMarketTypeCN() {
-        return customerMarketTypeCN;
+    public String getCustomerMarketTypeName() {
+        return customerMarketTypeName;
     }
 
-    public void setCustomerMarketTypeCN(String customerMarketTypeCN) {
-        this.customerMarketTypeCN = customerMarketTypeCN;
+    public void setCustomerMarketTypeName(String customerMarketTypeName) {
+        this.customerMarketTypeName = customerMarketTypeName;
+    }
+
+    public String getCustomerBalance() {
+        return customerBalance;
+    }
+
+    public void setCustomerBalance(String customerBalance) {
+        this.customerBalance = customerBalance;
     }
 }

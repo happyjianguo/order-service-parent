@@ -5,6 +5,7 @@ import com.dili.orders.domain.WeighingReferencePrice;
 import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.dto.WeighingTransCalcDto;
 import com.dili.ss.base.MyMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
      * @param marketId
      * @return
      */
-    GoodsReferencePriceSetting getGoodsRuleByGoodsId(Long goodsId,Long marketId);
+    GoodsReferencePriceSetting getGoodsRuleByGoodsId(@Param(value = "goodsId") Long goodsId, @Param(value = "marketId")Long marketId);
 
     /**
      * 根据商品信息查询参考价表中数据
