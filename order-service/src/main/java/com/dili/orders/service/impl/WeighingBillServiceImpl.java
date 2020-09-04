@@ -689,7 +689,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						BaseOutput.failure("保存价格审批记录失败");
 					}
 					BaseOutput<ProcessInstanceMapping> output = this.runtimeRpc.startProcessInstanceByKey(OrdersConstant.PRICE_APPROVE_PROCESS_DEFINITION_KEY, approve.getId().toString(),
-							operatorId.toString(), new HashMap<String, Object>());
+							operatorId.toString(), new HashMap<String, String>());
 					if (!output.isSuccess()) {
 						throw new AppException(output.getMessage());
 					}
