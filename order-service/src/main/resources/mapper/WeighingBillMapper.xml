@@ -251,6 +251,7 @@
 			<result column="buyer_actual_amount" property="buyerActualAmount" />
 			<result column="seller_poundage" property="sellerPoundage" />
 			<result column="seller_actual_amount" property="sellerActualAmount" />
+			<result column="ws_state" property="state" />
 		</association>
 		<collection javaType="java.util.ArrayList" ofType="com.dili.orders.domain.WeighingBillOperationRecord" property="records">
 			<result column="wopr_id" jdbcType="BIGINT" property="id" />
@@ -284,6 +285,8 @@
 		wb.rough_weight,
 		wb.tare_weight,
 		wb.net_weight,
+		wb.subtraction_rate,
+		wb.subtraction_weight,
 		wb.unit_price,
 		wb.unit_amount,
 		wb.unit_weight,

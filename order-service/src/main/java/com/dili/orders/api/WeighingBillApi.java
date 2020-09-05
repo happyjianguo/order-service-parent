@@ -145,10 +145,10 @@ public class WeighingBillApi {
 	 * @param serialNo
 	 * @return
 	 */
-	@RequestMapping(value = "/close", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseOutput<Object> close(@RequestParam String serialNo) {
+	@RequestMapping(value = "/autoClose", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseOutput<Object> autoClose() {
 		try {
-			return this.weighingBillService.close(serialNo);
+			return this.weighingBillService.autoClose();
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
 		}
