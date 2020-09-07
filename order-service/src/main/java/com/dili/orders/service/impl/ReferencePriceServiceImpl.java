@@ -9,6 +9,13 @@ import com.dili.orders.dto.WeighingTransCalcDto;
 import com.dili.orders.mapper.ReferencePriceMapper;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
+import com.dili.uap.sdk.domain.DataDictionaryValue;
+import com.dili.uap.sdk.domain.dto.UapDataDictionaryDto;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +31,10 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
 
     private ReferencePriceMapper getActualDao(){return (ReferencePriceMapper)getDao();}
 
-    @Value("${busin.transCount:30}")
-    private int transCount;
+    private final String TRANS_COUNT = "transCount";
+
+    @Autowired
+    private DataDictionaryRpc dataDictionaryRpc;
 
     /**
      * 获取参考价逻辑
@@ -34,11 +43,13 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      */
     @Override
     public Long getReferencePriceByGoodsId(Long goodsId,Long marketId) {
+        int transCount = getTransCountByDictionary(marketId);
         // 根据goodsId查询参考价规则表获取商品规则
         GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsId(goodsId,marketId);
         if (ruleSetting == null) {
             return null;
         }
+
         if (ruleSetting.getReferenceRule() == null) {
             return null;
         }
@@ -100,6 +111,8 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         getCumulativePrice(weighingSettlementBill,map);
         // 查询该市场下该商品当天的交易数据
         WeighingTransCalcDto transData = getActualDao().getTransDataByGoodsId(map);
+
+        int transCount = getTransCountByDictionary(weighingSettlementBill.getMarketId());
 
         // 若当前交易笔数小于配置的交易笔数 则不执行计算
         if (transData.getTradeCount() <= transCount) {
@@ -219,7 +232,22 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         getActualDao().updateTransDataTempInfo(transData);
     }
 
-
+    // 获取
+    private int getTransCountByDictionary(Long marketId) {
+        DataDictionaryValue value = DTOUtils.newInstance(DataDictionaryValue.class);
+        value.setDdCode(TRANS_COUNT);
+        value.setFirmId(marketId);
+        BaseOutput<List<DataDictionaryValue>> transCountOutput = dataDictionaryRpc.listDataDictionaryValue(value);
+        List<DataDictionaryValue> valueList = transCountOutput.getData();
+        if (CollectionUtils.isNotEmpty(valueList)) {
+            for (DataDictionaryValue obj : valueList ) {
+                if (TRANS_COUNT.equals(obj)) {
+                    return Integer.valueOf(obj.getName());
+                }
+            }
+        }
+        return 0;
+    }
 
     private String getStartTime(int day) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
