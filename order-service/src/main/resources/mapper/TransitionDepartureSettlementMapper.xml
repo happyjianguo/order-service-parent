@@ -196,6 +196,9 @@
         <if test="customerCardNo != null and customerCardNo!=''">
             AND customer_card_no = #{customerCardNo}
         </if>
+        <if test="accountId != null">
+            AND customer_id = #{accountId}
+        </if>
         <if test="departments != null">
             AND customer_department_id IN
             (
