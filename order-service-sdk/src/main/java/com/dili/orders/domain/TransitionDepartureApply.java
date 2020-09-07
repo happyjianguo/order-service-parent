@@ -23,6 +23,12 @@ import javax.persistence.*;
 public class TransitionDepartureApply extends BaseDomain {
 
     /**
+     * 查询使用，客户id
+     */
+    @Transient
+    private Long accountId;
+
+    /**
      * 单据编号
      */
     @Column(name = "`market_id`")
@@ -957,5 +963,13 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setMarketId(Long marketId) {
         this.marketId = marketId;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 }

@@ -21,6 +21,13 @@ import javax.persistence.*;
  */
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
+
+    /**
+     * 查询使用，客户id
+     */
+    @Transient
+    private Long accountId;
+
     /**
      * 客户余额，打印使用
      */
@@ -1057,5 +1064,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setCustomerBalance(String customerBalance) {
         this.customerBalance = customerBalance;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 }
