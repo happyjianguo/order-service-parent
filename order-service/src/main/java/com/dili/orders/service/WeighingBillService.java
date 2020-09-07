@@ -29,10 +29,9 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 关闭
 	 *
-	 * @param serialNo 过磅单号
 	 * @return
 	 */
-	BaseOutput<Object> close(String serialNo);
+	BaseOutput<Object> autoClose();
 
 	/**
 	 * 过磅单详情
