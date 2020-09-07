@@ -437,6 +437,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
+        //操作记录，记录客户类型
+        serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
@@ -579,6 +581,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
+        //操作记录，记录客户类型
+        serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
