@@ -31,7 +31,11 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
 
     private ReferencePriceMapper getActualDao(){return (ReferencePriceMapper)getDao();}
 
+    // 交易笔数
     private final String TRANS_COUNT = "transCount";
+
+    //下浮幅度
+    private final String DOWNWARD_RANGE = "downwardRange";
 
     @Autowired
     private DataDictionaryRpc dataDictionaryRpc;
@@ -79,18 +83,17 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
                 return null;
             }
             if (todayReferencePrice.getTransCount() > transCount && todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                return yesReferencePrice.getPartAvgCount();
+                return calcReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(),marketId);
             } else {
-                return yesReferencePrice.getTotalAvgCount();
+                return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
             }
         } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
             if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                return todayReferencePrice.getPartAvgCount();
+                return calcReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(),marketId);
             } else {
-                return todayReferencePrice.getTotalAvgCount();
+                return calcReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(),marketId);
             }
         }
-
         return null;
     }
 
@@ -232,7 +235,39 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         getActualDao().updateTransDataTempInfo(transData);
     }
 
-    // 获取
+    // 获取下浮幅度
+    private double getDownwardRangeByDictionary(Long marketId) {
+        DataDictionaryValue value = DTOUtils.newInstance(DataDictionaryValue.class);
+        value.setDdCode(DOWNWARD_RANGE);
+        value.setFirmId(marketId);
+        BaseOutput<List<DataDictionaryValue>> transCountOutput = dataDictionaryRpc.listDataDictionaryValue(value);
+        List<DataDictionaryValue> valueList = transCountOutput.getData();
+        if (CollectionUtils.isNotEmpty(valueList)) {
+            for (DataDictionaryValue obj : valueList ) {
+                if (DOWNWARD_RANGE.equals(obj.getCode())) {
+                    return Double.valueOf(obj.getName());
+                }
+            }
+        }
+        return 0;
+    }
+
+    // 根据下浮幅度计算
+    private Long calcReferencePriceByDownwardRange(Long referencePrice,Long marketId) {
+        double downwardRange = getDownwardRangeByDictionary(marketId);
+        if (referencePrice == null || referencePrice == 0) {
+            return 0L;
+        }
+        if (downwardRange == 0) {
+            return referencePrice;
+        }
+        double range = 1-downwardRange;
+        double price = referencePrice;
+        price = Math.round(price*range);
+        return Long.valueOf(replace(String.valueOf(price)));
+    }
+
+    // 获取交易笔数
     private int getTransCountByDictionary(Long marketId) {
         DataDictionaryValue value = DTOUtils.newInstance(DataDictionaryValue.class);
         value.setDdCode(TRANS_COUNT);
@@ -241,7 +276,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         List<DataDictionaryValue> valueList = transCountOutput.getData();
         if (CollectionUtils.isNotEmpty(valueList)) {
             for (DataDictionaryValue obj : valueList ) {
-                if (TRANS_COUNT.equals(obj)) {
+                if (TRANS_COUNT.equals(obj.getCode())) {
                     return Integer.valueOf(obj.getName());
                 }
             }
