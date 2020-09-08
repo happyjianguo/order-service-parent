@@ -1284,6 +1284,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	// 判断是否需要走冻结流程
 	private boolean isFreeze(WeighingBill weighingBill) {
+		// 按件计重不需要冻结
+		if (weighingBill.getMeasureType().equals(MeasureType.PIECE.getValue())) {
+			return false;
+		}
 		// 若输入“毛重”，且“皮重，除杂比例，除杂重量”至少输入一个，则不论估计净重是否填写， 直接进入交易结算流程
 		if (weighingBill.getTareWeight() != null) {
 			return false;
