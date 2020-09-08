@@ -637,8 +637,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
 		if (!paymentOutput.isSuccess()) {
-			LOGGER.error(paymentOutput.getMessage());
-			throw new AppException("退款失败");
+			throw new AppException(paymentOutput.getMessage());
 		}
 
 		// 记录交易流水
@@ -1090,8 +1089,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
 		if (!paymentOutput.isSuccess()) {
-			LOGGER.error(paymentOutput.getMessage());
-			throw new AppException("退款失败");
+			throw new AppException(paymentOutput.getMessage());
 		}
 
 		// 记录撤销交易流水
