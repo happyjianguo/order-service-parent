@@ -310,7 +310,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setCustomerId(weighingBill.getBuyerId());
 		srDto.setCustomerName(weighingBill.getBuyerName());
 		srDto.setCustomerNo(weighingBill.getBuyerCode());
-		srDto.setStartBalance(data.getBalance());
+		srDto.setStartBalance(data.getBalance() - data.getFrozenBalance());
 		srDto.setEndBalance(data.getBalance() - (data.getFrozenBalance() + data.getFrozenAmount()));
 		srDto.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		srDto.setFundItem(FundItem.TRADE_FREEZE.getCode());
@@ -319,6 +319,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setOperatorId(operatorId);
 		srDto.setOperatorName(operator.getRealName());
 		srDto.setOperatorNo(operator.getUserName());
+		srDto.setNotes(String.format("冻结，过磅单号%s", weighingBill.getSerialNo()));
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(Arrays.asList(srDto)));
 
 		return BaseOutput.success();
@@ -641,7 +642,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		// 记录交易流水
-		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill);
+		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
 
 		return BaseOutput.success();
 	}
@@ -1093,7 +1094,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		// 记录撤销交易流水
-		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill);
+		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
 
 		return BaseOutput.success();
 	}
@@ -1336,6 +1337,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			frozenRecord.setCustomerId(weighingBill.getBuyerId());
 			frozenRecord.setCustomerName(weighingBill.getBuyerName());
 			frozenRecord.setCustomerNo(weighingBill.getBuyerCode());
+			frozenRecord.setStartBalance(paymentResult.getBalance() - paymentResult.getFrozenBalance());
 			frozenRecord.setEndBalance(paymentResult.getBalance() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance()));
 			frozenRecord.setFirmId(this.getMarketIdByOperatorId(operatorId));
 			frozenRecord.setFundItem(FundItem.TRADE_UNFREEZE.getCode());
@@ -1344,7 +1346,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			frozenRecord.setOperatorId(operatorId);
 			frozenRecord.setOperatorName(operator.getRealName());
 			frozenRecord.setOperatorNo(operator.getUserName());
-			frozenRecord.setNotes("交易解冻");
+			frozenRecord.setNotes(String.format("解冻，过磅单号%s", weighingBill.getSerialNo()));
 			srList.add(frozenRecord);
 		}
 		// 买家支出
@@ -1448,7 +1450,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		frozenRecord.setCustomerId(weighingBill.getBuyerId());
 		frozenRecord.setCustomerName(weighingBill.getBuyerName());
 		frozenRecord.setCustomerNo(weighingBill.getBuyerCode());
-		frozenRecord.setStartBalance(tradeResponse.getBalance());
+		frozenRecord.setStartBalance(tradeResponse.getBalance() - tradeResponse.getFrozenBalance());
 		frozenRecord.setEndBalance(tradeResponse.getBalance() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance()));
 		frozenRecord.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		frozenRecord.setFundItem(FundItem.TRADE_UNFREEZE.getCode());
@@ -1457,12 +1459,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		frozenRecord.setOperatorId(operatorId);
 		frozenRecord.setOperatorName(operator.getRealName());
 		frozenRecord.setOperatorNo(operator.getUserName());
-		frozenRecord.setNotes("交易解冻");
+		frozenRecord.setNotes(String.format("解冻，过磅单号%s", weighingBill.getSerialNo()));
 		srList.add(frozenRecord);
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
 	}
 
-	private void recordWithdrawAccountFlow(Long operatorId, PaymentTradeCommitResponseDto tradeResponse, WeighingBill weighingBill) {
+	private void recordWithdrawAccountFlow(Long operatorId, PaymentTradeCommitResponseDto tradeResponse, WeighingBill weighingBill, WeighingStatement ws) {
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
 		Long firmId = this.getMarketIdByOperatorId(operatorId);
 		User operator = this.getUserById(operatorId);
@@ -1486,7 +1488,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerRefound.setOperatorId(operatorId);
 		sellerRefound.setOperatorNo(operator.getUserName());
 		sellerRefound.setOperatorName(operator.getRealName());
-		sellerRefound.setNotes("卖家手续费退款");
+		sellerRefound.setNotes(String.format("撤销，卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerRefound);
 		// 卖家退款
 		PaymentStream sellerExpenseStream = tradeResponse.getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
@@ -1507,7 +1509,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerExpense.setOperatorId(operatorId);
 		sellerExpense.setOperatorName(operator.getRealName());
 		sellerExpense.setOperatorNo(operator.getUserName());
-		sellerExpense.setNotes("卖家退款");
+		sellerRefound.setNotes(String.format("撤销，卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerExpense);
 
 		// 买家手续费
@@ -1528,7 +1530,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setOperatorId(operatorId);
 		buyerPoundage.setOperatorName(operator.getRealName());
 		buyerPoundage.setOperatorNo(operator.getUserName());
-		buyerPoundage.setNotes("买家手续费退款");
+		sellerRefound.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
 		srList.add(buyerPoundage);
 		// 买家退款
 		PaymentStream buyerRefundStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
@@ -1549,7 +1551,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerRefund.setOperatorId(operatorId);
 		buyerRefund.setOperatorName(operator.getRealName());
 		buyerRefund.setOperatorNo(operator.getUserName());
-		buyerRefund.setNotes("买家退款");
+		sellerRefound.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
 		srList.add(buyerRefund);
 
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
