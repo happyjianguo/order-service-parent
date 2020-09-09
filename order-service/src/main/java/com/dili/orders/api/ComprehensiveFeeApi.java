@@ -54,15 +54,6 @@ public class ComprehensiveFeeApi {
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
     public PageOutput<List<ComprehensiveFee>> listByQueryParams(@RequestBody ComprehensiveFee comprehensiveFee) {
-        //如果没有传入时间范围，那默认展示当天的数据
-        //设置开始时间
-        if (Objects.isNull(comprehensiveFee.getOperatorTimeStart())) {
-            comprehensiveFee.setOperatorTimeStart(getBeginDate());
-        }
-        //设置结束时间
-        if (Objects.isNull(comprehensiveFee.getOperatorTimeEnd())) {
-            comprehensiveFee.setOperatorTimeEnd(getEndDate());
-        }
         return comprehensiveFeeService.listByQueryParams(comprehensiveFee);
     }
 
@@ -182,34 +173,6 @@ public class ComprehensiveFeeApi {
         return chargeRuleRpc.batchQueryFee(queryFeeInputList);
     }
 
-    /**
-     * 获取当天开始时间
-     *
-     * @return
-     */
-    private Date getBeginDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Date zero = calendar.getTime();
-        return zero;
-    }
 
-    /**
-     * 获取当天结束时间
-     *
-     * @return
-     */
-    private Date getEndDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        Date zero = calendar.getTime();
-        return zero;
-    }
 
 }
