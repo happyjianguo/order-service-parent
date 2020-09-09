@@ -32,6 +32,7 @@
     <result column="payment_no" jdbcType="VARCHAR" property="paymentNo" />
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
+    <result column="customer_type" jdbcType="VARCHAR" property="customerType" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -40,7 +41,8 @@
     id, code, customer_id, customer_code, customer_name, customer_card_no, inspection_num, 
     charge_amount, plate, order_type, order_status, inspection_item, remark, operator_id, 
     operator_name, operator_time, revocator_id, revocator_name, revocator_time, created_time, 
-    creator_id, modified_time, modifier_id, version, payment_no, market_id, department_id
+    creator_id, modified_time, modifier_id, version, payment_no, market_id, department_id,
+    customer_type
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -134,6 +136,9 @@
       </if>
       <if test="departmentId != null">
         department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="customerType != null">
+        customer_type = #{customerType,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
