@@ -75,6 +75,7 @@ import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
@@ -375,6 +376,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		dto.setWeighingOperatorUserName(output.getData().getUserName());
 		dto.setWeighingOperatorName(output.getData().getRealName());
+		WeighingBill wbQuery = DTOUtils.newInstance(WeighingBill.class);
+		wbQuery.setId(weighingStatement.getWeighingBillId());
+		WeighingBill wb = this.getActualDao().selectOne(wbQuery);
+		dto.setUnitAmount(wb.getUnitAmount());
+		dto.setUnitPrice(wb.getUnitPrice());
+		dto.setMeasureType(wb.getMeasureType());
 		return dto;
 	}
 

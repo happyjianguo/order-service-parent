@@ -29,6 +29,21 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private String settlementOperatorName;
 
+	/**
+	 * 计量方式
+	 */
+	private String measureType;
+
+	/**
+	 * 单价或件价
+	 */
+	private Long unitPrice;
+
+	/**
+	 * 件数
+	 */
+	private Integer unitAmount;
+
 	private Boolean reprint;
 
 	public String getWeighingOperatorUserName() {
@@ -82,6 +97,30 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 			return "（补打）";
 		}
 		return "";
+	}
+
+	public String getMeasureType() {
+		return measureType;
+	}
+
+	public void setMeasureType(String measureType) {
+		this.measureType = measureType;
+	}
+
+	public Long getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(Long unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
+	public Integer getUnitAmount() {
+		return unitAmount;
+	}
+
+	public void setUnitAmount(Integer unitAmount) {
+		this.unitAmount = unitAmount;
 	}
 
 }
