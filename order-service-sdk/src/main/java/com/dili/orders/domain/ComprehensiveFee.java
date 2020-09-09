@@ -196,6 +196,12 @@ public class ComprehensiveFee extends BaseDomain {
     private Long departmentId;
 
     /**
+     * 客户类型
+     */
+    @Column(name = "`customer_type`")
+    private String customerType;
+
+    /**
      * 查询使用，用户id
      */
     @Transient
@@ -767,5 +773,20 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setDepartmentId(Long departmentId) {
         this.departmentId = departmentId;
+    }
+
+    /**
+     * 客户类型
+     *
+     * @return customer_type - 客户类型
+     */
+    @FieldDef(label = "客户类型",maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(String customerType) {
+        this.customerType = customerType;
     }
 }
