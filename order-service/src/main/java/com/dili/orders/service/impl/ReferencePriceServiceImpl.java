@@ -73,25 +73,39 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         map.put("todayEndDate",getEndTime(-1));
         // 根据商品获取最近的参考价信息
         WeighingReferencePrice yesReferencePrice = getActualDao().getReferencePriceByGoodsId(map);
-
+        // 规则1
         if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_ONE) {
-            // 取上一日的参考价数据
-            if (yesReferencePrice == null) {
-                return null;
+
+            // 判断当天是否有数据、并且交易笔数是否大于N
+            if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
+                // 交易金额数是否大于2
+                if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
+                    return calcReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(),marketId);
+                } else {
+                    return calcReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(),marketId);
+                }
+            } else{
+                // 取上一日的参考价数据
+                if (yesReferencePrice == null) {
+                    return null;
+                }
+                // 上一日交易金额是否大于N 、 交易价格数是否大于2
+                if (yesReferencePrice.getTransCount() > transCount && yesReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
+                    return calcReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(),marketId);
+                } else {
+                    return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
+                }
             }
-            if (yesReferencePrice.getTransCount() > transCount && yesReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                return calcReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(),marketId);
-            } else {
-                return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
-            }
+
         } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
-            if (todayReferencePrice == null) {
-                return null;
-            }
-            if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                return calcReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(),marketId);
-            } else {
+            if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
                 return calcReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(),marketId);
+            } else {
+                // 取上一日的参考价数据
+                if (yesReferencePrice == null) {
+                    return null;
+                }
+                return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
             }
         }
         return null;
@@ -263,7 +277,8 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         }
         double range = 1-downwardRange;
         double price = referencePrice;
-        price = Math.round(price*range);
+        price = price*range;
+        price = Math.round(price);
         return Long.valueOf(replace(String.valueOf(price)));
     }
 
