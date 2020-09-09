@@ -1384,7 +1384,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		SerialRecordDo buyerPoundage = new SerialRecordDo();
 		buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
 		buyerPoundage.setAction(ActionType.EXPENSE.getCode());
-		buyerPoundage.setAmount(-buyerStream.getAmount());
+		buyerPoundage.setAmount(-buyerPoundageStream.getAmount());
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
 		buyerPoundage.setCustomerId(weighingBill.getBuyerId());
 		buyerPoundage.setCustomerName(weighingBill.getBuyerName());
@@ -1433,7 +1433,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPoundage.setCustomerId(weighingBill.getSellerId());
 		sellerPoundage.setCustomerName(weighingBill.getSellerName());
 		sellerPoundage.setCustomerNo(weighingBill.getSellerCode());
-		sellerPoundage.setStartBalance(sellerPoundageStream.getBalance());
+		sellerPoundage.setStartBalance(sellerBalance);
 		sellerPoundage.setEndBalance(sellerBalance + sellerPoundageStream.getAmount());
 		sellerPoundage.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		sellerPoundage.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
