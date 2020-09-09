@@ -1382,12 +1382,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		SerialRecordDo buyerPoundage = new SerialRecordDo();
 		buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
 		buyerPoundage.setAction(ActionType.EXPENSE.getCode());
-		buyerPoundage.setAmount(buyerStream.getAmount());
+		buyerPoundage.setAmount(-buyerStream.getAmount());
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
 		buyerPoundage.setCustomerId(weighingBill.getBuyerId());
 		buyerPoundage.setCustomerName(weighingBill.getBuyerName());
 		buyerPoundage.setCustomerNo(weighingBill.getBuyerCode());
-		buyerPoundage.setStartBalance(-buyerPoundage.getAmount());
+		buyerPoundage.setStartBalance(buyerPoundage.getStartBalance());
 		buyerPoundage.setEndBalance(buyerPoundageStream.getBalance() + buyerPoundageStream.getAmount() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance()));
 		buyerPoundage.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		buyerPoundage.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
@@ -1403,12 +1403,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		SerialRecordDo sellerIncome = new SerialRecordDo();
 		sellerIncome.setAccountId(weighingBill.getSellerAccount());
 		sellerIncome.setAction(ActionType.INCOME.getCode());
-		sellerIncome.setAmount(paymentResult.getRelation().getStreams().get(0).getAmount());
+		sellerIncome.setAmount(sellerStream.getAmount());
 		sellerIncome.setCardNo(weighingBill.getSellerCardNo());
 		sellerIncome.setCustomerId(weighingBill.getSellerId());
 		sellerIncome.setCustomerName(weighingBill.getSellerName());
 		sellerIncome.setCustomerNo(weighingBill.getSellerCode());
-		sellerIncome.setStartBalance(sellerStream.getAmount());
+		sellerIncome.setStartBalance(sellerStream.getBalance());
 		sellerIncome.setEndBalance(sellerStream.getBalance() + sellerStream.getAmount() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance()));
 		sellerIncome.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		sellerIncome.setFundItem(FundItem.TRADE_PAYMENT.getCode());
@@ -1429,7 +1429,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPoundage.setCustomerId(weighingBill.getSellerId());
 		sellerPoundage.setCustomerName(weighingBill.getSellerName());
 		sellerPoundage.setCustomerNo(weighingBill.getSellerCode());
-		sellerPoundage.setStartBalance(sellerPoundageStream.getAmount());
+		sellerPoundage.setStartBalance(sellerPoundageStream.getBalance());
 		sellerPoundage
 				.setEndBalance(sellerPoundageStream.getBalance() + sellerPoundageStream.getAmount() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance()));
 		sellerPoundage.setFirmId(this.getMarketIdByOperatorId(operatorId));
@@ -1437,7 +1437,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPoundage.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
 		sellerPoundage.setOperateTime(now);
 		sellerPoundage.setOperatorId(operatorId);
-		sellerPoundage.setOperatorName(this.getUserRealNameById(operatorId));
+		sellerPoundage.setOperatorName(operator.getRealName());
 		sellerPoundage.setOperatorNo(operator.getUserName());
 		sellerPoundage.setNotes(String.format("卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerPoundage);
@@ -1516,7 +1516,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerExpense.setOperatorId(operatorId);
 		sellerExpense.setOperatorName(operator.getRealName());
 		sellerExpense.setOperatorNo(operator.getUserName());
-		sellerRefound.setNotes(String.format("撤销，卖方，结算单号%s", ws.getSerialNo()));
+		sellerExpense.setNotes(String.format("撤销，卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerExpense);
 
 		// 买家手续费
@@ -1524,12 +1524,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		SerialRecordDo buyerPoundage = new SerialRecordDo();
 		buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
 		buyerPoundage.setAction(ActionType.INCOME.getCode());
-		buyerPoundage.setAmount(-buyerPoundageStream.getAmount());
+		buyerPoundage.setAmount(buyerPoundageStream.getAmount());
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
 		buyerPoundage.setCustomerId(weighingBill.getBuyerId());
 		buyerPoundage.setCustomerName(weighingBill.getBuyerName());
 		buyerPoundage.setCustomerNo(weighingBill.getBuyerCode());
-		buyerPoundage.setEndBalance(buyerPoundageStream.getBalance() + buyerPoundageStream.getAmount() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance()));
+		buyerPoundage.setStartBalance(buyerPoundageStream.getBalance());
+		buyerPoundage
+				.setEndBalance(buyerPoundageStream.getBalance() + buyerPoundageStream.getAmount() - (tradeResponse.getRelation().getFrozenAmount() + tradeResponse.getRelation().getFrozenBalance()));
 		buyerPoundage.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		buyerPoundage.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
 		buyerPoundage.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
@@ -1537,20 +1539,20 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setOperatorId(operatorId);
 		buyerPoundage.setOperatorName(operator.getRealName());
 		buyerPoundage.setOperatorNo(operator.getUserName());
-		sellerRefound.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
+		buyerPoundage.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
 		srList.add(buyerPoundage);
 		// 买家退款
 		PaymentStream buyerRefundStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
 		SerialRecordDo buyerRefund = new SerialRecordDo();
 		buyerRefund.setAccountId(weighingBill.getBuyerAccount());
 		buyerRefund.setAction(ActionType.INCOME.getCode());
-		buyerRefund.setAmount(-buyerRefundStream.getAmount());
+		buyerRefund.setAmount(buyerRefundStream.getAmount());
 		buyerRefund.setCardNo(weighingBill.getBuyerCardNo());
 		buyerRefund.setCustomerId(weighingBill.getBuyerId());
 		buyerRefund.setCustomerName(weighingBill.getBuyerName());
 		buyerRefund.setCustomerNo(weighingBill.getBuyerCode());
 		buyerRefund.setStartBalance(buyerRefundStream.getBalance());
-		buyerRefund.setEndBalance(buyerRefundStream.getBalance() + buyerRefundStream.getAmount() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance()));
+		buyerRefund.setEndBalance(buyerRefundStream.getBalance() + buyerRefundStream.getAmount() - (tradeResponse.getRelation().getFrozenAmount() + tradeResponse.getRelation().getFrozenBalance()));
 		buyerRefund.setFirmId(firmId);
 		buyerRefund.setFundItem(FundItem.TRADE_PAYMENT.getCode());
 		buyerRefund.setFundItemName(FundItem.TRADE_PAYMENT.getName());
@@ -1558,7 +1560,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerRefund.setOperatorId(operatorId);
 		buyerRefund.setOperatorName(operator.getRealName());
 		buyerRefund.setOperatorNo(operator.getUserName());
-		sellerRefound.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
+		buyerRefund.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
 		srList.add(buyerRefund);
 
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
