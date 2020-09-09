@@ -379,7 +379,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingBill wbQuery = DTOUtils.newInstance(WeighingBill.class);
 		wbQuery.setId(weighingStatement.getWeighingBillId());
 		WeighingBill wb = this.getActualDao().selectOne(wbQuery);
-		dto.setUnitAmount(wb.getUnitAmount());
+		dto.setUnitWeight(wb.getUnitWeight());
 		dto.setUnitPrice(wb.getUnitPrice());
 		dto.setMeasureType(wb.getMeasureType());
 		return dto;
@@ -1396,7 +1396,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setOperatorId(operatorId);
 		buyerPoundage.setOperatorName(operator.getRealName());
 		buyerPoundage.setOperatorNo(operator.getUserName());
-		buyerExpense.setNotes(String.format("买方，结算单号%s", ws.getSerialNo()));
+		buyerPoundage.setNotes(String.format("买方，结算单号%s", ws.getSerialNo()));
 		srList.add(buyerPoundage);
 		// 卖家收入
 		PaymentStream sellerStream = paymentResult.getRelation().getStreams().get(0);
@@ -1417,12 +1417,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerIncome.setOperatorId(operatorId);
 		sellerIncome.setOperatorName(operator.getRealName());
 		sellerIncome.setOperatorNo(operator.getUserName());
-		buyerExpense.setNotes(String.format("卖方，结算单号%s", ws.getSerialNo()));
+		sellerIncome.setNotes(String.format("卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerIncome);
 		// 卖家手续费
 		PaymentStream sellerPoundageStream = paymentResult.getRelation().getStreams().stream().filter(s -> s.getType().equals(FeeType.SELLER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
 		SerialRecordDo sellerPoundage = new SerialRecordDo();
-		sellerIncome.setAccountId(weighingBill.getSellerAccount());
+		sellerPoundage.setAccountId(weighingBill.getSellerAccount());
 		sellerPoundage.setAction(ActionType.EXPENSE.getCode());
 		sellerPoundage.setAmount(sellerPoundageStream.getAmount());
 		sellerPoundage.setCardNo(weighingBill.getSellerCardNo());
@@ -1439,7 +1439,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPoundage.setOperatorId(operatorId);
 		sellerPoundage.setOperatorName(this.getUserRealNameById(operatorId));
 		sellerPoundage.setOperatorNo(operator.getUserName());
-		buyerExpense.setNotes(String.format("卖方，结算单号%s", ws.getSerialNo()));
+		sellerPoundage.setNotes(String.format("卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerPoundage);
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
 	}

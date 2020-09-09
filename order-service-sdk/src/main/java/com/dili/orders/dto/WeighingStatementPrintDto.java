@@ -2,10 +2,6 @@ package com.dili.orders.dto;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.WeighingStatement;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -40,9 +36,9 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	private Long unitPrice;
 
 	/**
-	 * 件数
+	 * 件重
 	 */
-	private Integer unitAmount;
+	private Integer unitWeight;
 
 	private Boolean reprint;
 
@@ -115,12 +111,12 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 		this.unitPrice = unitPrice;
 	}
 
-	public Integer getUnitAmount() {
-		return unitAmount;
+	public Integer getUnitWeight() {
+		return unitWeight;
 	}
 
-	public void setUnitAmount(Integer unitAmount) {
-		this.unitAmount = unitAmount;
+	public void setUnitWeight(Integer unitWeight) {
+		this.unitWeight = unitWeight;
 	}
 
 }
