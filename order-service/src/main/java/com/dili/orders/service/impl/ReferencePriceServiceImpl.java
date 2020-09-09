@@ -48,6 +48,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * 获取参考价逻辑
      * @param goodsId 商品Id
      * @param marketId 市场ID
+     * @param tradeType 交易类型
      * @return Long
      */
     @Override
