@@ -68,9 +68,6 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         map.put("marketId",marketId);
 
         WeighingReferencePrice todayReferencePrice = getActualDao().getReferencePriceByGoodsId(map);
-        if (todayReferencePrice == null) {
-            return null;
-        }
 
         map.put("todayStartDate",getStartTime(-1));
         map.put("todayEndDate",getEndTime(-1));
@@ -82,12 +79,15 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
             if (yesReferencePrice == null) {
                 return null;
             }
-            if (todayReferencePrice.getTransCount() > transCount && todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
+            if (yesReferencePrice.getTransCount() > transCount && yesReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
                 return calcReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(),marketId);
             } else {
                 return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
             }
         } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
+            if (todayReferencePrice == null) {
+                return null;
+            }
             if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
                 return calcReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(),marketId);
             } else {
