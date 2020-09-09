@@ -141,6 +141,12 @@ public class WeighingSettlementBillTemp extends BaseDomain {
     @Column(name = "`total_trade_weight`")
     private int totalTradeWeight;
 
+    /**
+     * 交易类型
+     */
+    @Column(name = "`trade_type`")
+    private String tradeType;
+
 
     /**
      * @return id
@@ -423,5 +429,13 @@ public class WeighingSettlementBillTemp extends BaseDomain {
 
     public void setTradeAmount(Long tradeAmount) {
         this.tradeAmount = tradeAmount;
+    }
+
+    public String getTradeType() {
+        return tradeType;
+    }
+
+    public void setTradeType(String tradeType) {
+        this.tradeType = tradeType;
     }
 }
