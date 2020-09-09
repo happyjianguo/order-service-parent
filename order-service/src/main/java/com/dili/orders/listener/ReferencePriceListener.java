@@ -36,7 +36,6 @@ public class ReferencePriceListener {
     public void processCustomerInfo(Channel channel, Message message) {
         try {
             String data = new String(message.getBody(), "UTF-8");
-            System.out.println(data);
             referencePriceService.calcReferencePrice(data);
         } catch (Exception e) {
             e.printStackTrace();
