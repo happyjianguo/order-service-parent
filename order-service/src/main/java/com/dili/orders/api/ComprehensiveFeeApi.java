@@ -78,7 +78,12 @@ public class ComprehensiveFeeApi {
     }
     /**
      * 撤销操作
+     * @param operatorId 操作人ID
+     * @param id 单据ID
+     * @param operatorPassword 操作人密码
+     * @param userName 操作人账户
      *
+     * @return
      *
      */
     @RequestMapping(value = "/revocator")
@@ -89,7 +94,7 @@ public class ComprehensiveFeeApi {
     /**
      * 根据id查询结算单信息
      *
-     * @param id
+     * @param id 检查收费id
      * @return
      */
     @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
@@ -100,6 +105,12 @@ public class ComprehensiveFeeApi {
     /**
      * 检测收费单支付
      *
+     * @param id 检查收费ID
+     * @param marketId 市场ID
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人名称
+     * @param operatorUserName 操作人账户
+     * @param password 支付密码
      * @return
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
