@@ -28,6 +28,7 @@ public class WeighingTransCalcDto {
 	private Long totalTradeAmount;
 	private int totalTradeWeight;
 	private Date settlementTime;
+	private String tradeType;
 
 	public int getId() {
 		return id;
@@ -187,5 +188,13 @@ public class WeighingTransCalcDto {
 
 	public void setSettlementTime(Date settlementTime) {
 		this.settlementTime = settlementTime;
+	}
+
+	public String getTradeType() {
+		return tradeType;
+	}
+
+	public void setTradeType(String tradeType) {
+		this.tradeType = tradeType;
 	}
 }

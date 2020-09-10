@@ -54,15 +54,6 @@ public class ComprehensiveFeeApi {
      */
     @RequestMapping(value = "/listByQueryParams", method = {RequestMethod.POST})
     public PageOutput<List<ComprehensiveFee>> listByQueryParams(@RequestBody ComprehensiveFee comprehensiveFee) {
-        //如果没有传入时间范围，那默认展示当天的数据
-        //设置开始时间
-        if (Objects.isNull(comprehensiveFee.getOperatorTimeStart())) {
-            comprehensiveFee.setOperatorTimeStart(getBeginDate());
-        }
-        //设置结束时间
-        if (Objects.isNull(comprehensiveFee.getOperatorTimeEnd())) {
-            comprehensiveFee.setOperatorTimeEnd(getEndDate());
-        }
         return comprehensiveFeeService.listByQueryParams(comprehensiveFee);
     }
 
@@ -87,7 +78,12 @@ public class ComprehensiveFeeApi {
     }
     /**
      * 撤销操作
+     * @param operatorId 操作人ID
+     * @param id 单据ID
+     * @param operatorPassword 操作人密码
+     * @param userName 操作人账户
      *
+     * @return
      *
      */
     @RequestMapping(value = "/revocator")
@@ -98,7 +94,7 @@ public class ComprehensiveFeeApi {
     /**
      * 根据id查询结算单信息
      *
-     * @param id
+     * @param id 检查收费id
      * @return
      */
     @RequestMapping(value = "/getOneById/{id}", method = {RequestMethod.GET})
@@ -109,6 +105,12 @@ public class ComprehensiveFeeApi {
     /**
      * 检测收费单支付
      *
+     * @param id 检查收费ID
+     * @param marketId 市场ID
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人名称
+     * @param operatorUserName 操作人账户
+     * @param password 支付密码
      * @return
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
@@ -182,34 +184,6 @@ public class ComprehensiveFeeApi {
         return chargeRuleRpc.batchQueryFee(queryFeeInputList);
     }
 
-    /**
-     * 获取当天开始时间
-     *
-     * @return
-     */
-    private Date getBeginDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Date zero = calendar.getTime();
-        return zero;
-    }
 
-    /**
-     * 获取当天结束时间
-     *
-     * @return
-     */
-    private Date getEndDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        Date zero = calendar.getTime();
-        return zero;
-    }
 
 }

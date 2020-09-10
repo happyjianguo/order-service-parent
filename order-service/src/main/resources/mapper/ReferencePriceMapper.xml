@@ -55,11 +55,11 @@
         INSERT INTO weighing_settlement_bill_daily(
           market_id, goods_id, settlement_time, max_price, min_price, max_trade_amount,
           min_trade_amount, max_trade_weight, min_trade_weight, trade_count, trade_price_count,total_trade_amount,
-          total_trade_weight
+          total_trade_weight,tarde_type
         ) VALUES (
           #{marketId}, #{goodsId}, #{settlementTime}, #{maxPrice}, #{minPrice}, #{maxTradeAmount},
           #{minTradeAmount}, #{maxTradeWeight}, #{minTradeWeight}, #{tradeCount}, #{tradePriceCount},#{totalTradeAmount},
-          #{totalTradeWeight}
+          #{totalTradeWeight},#{tardeType}
         )
     </insert>
 
@@ -158,6 +158,7 @@
         </set>
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
         AND market_id = #{marketId,jdbcType=BIGINT}
+        AND tarde_type = #{tardeType}
     </update>
 
     
