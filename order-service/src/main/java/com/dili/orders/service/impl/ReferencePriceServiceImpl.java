@@ -59,10 +59,12 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         // 根据goodsId查询参考价规则表获取商品规则
         GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsId(goodsId, marketId);
         if (ruleSetting == null) {
+            LOGGER.info("--------------当前市场下的商品暂无配置商品规则-------------");
             return null;
         }
 
         if (ruleSetting.getReferenceRule() == null) {
+            LOGGER.info("--------------当前市场下的商品暂无配置商品规则-------------");
             return null;
         }
         if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_THREE) {
@@ -89,9 +91,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
             if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
                 // 交易金额数是否大于2
                 if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                    return calcReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(), marketId);
+                    return calculateReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(), marketId);
                 } else {
-                    return calcReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(), marketId);
+                    return calculateReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(), marketId);
                 }
             } else{
                 // 取上一日的参考价数据
@@ -101,22 +103,22 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
                 }
                 // 判断上一日交易金额是否大于N 、 交易价格数是否大于2
                 if (yesReferencePrice.getTransCount() > transCount && yesReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                    return calcReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(), marketId);
+                    return calculateReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(), marketId);
                 } else {
-                    return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(), marketId);
+                    return calculateReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(), marketId);
                 }
             }
             // 若为规则二
         } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
             if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
-                return calcReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(),marketId);
+                return calculateReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(),marketId);
             } else {
                 // 取上一日的参考价数据
                 if (yesReferencePrice == null) {
                     LOGGER.info("--------------上一日参考价中间表无商品数据-------------");
                     return null;
                 }
-                return calcReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
+                return calculateReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(),marketId);
             }
         }
         LOGGER.info("--------------未获取到市场"+marketId+"下商品"+goodsId+"，交易类型为"+tradeType+"所匹配的参考价-------------");
@@ -129,7 +131,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      */
     @Override
     @Transactional
-    public void calcReferencePrice(String jsonStr) {
+    public void calculateReferencePrice(String jsonStr) {
         // 将传入的JSON串转换为中间表对象添加到中间表
         WeighingSettlementBillTemp weighingSettlementBill = JSONObject.parseObject(jsonStr,WeighingSettlementBillTemp.class);
         if (weighingSettlementBill == null) {
@@ -303,7 +305,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * @param marketId 市场编号
      * @return
      */
-    private Long calcReferencePriceByDownwardRange(Long referencePrice,Long marketId) {
+    private Long calculateReferencePriceByDownwardRange(Long referencePrice,Long marketId) {
         double downwardRange = getDownwardRangeByDictionary(marketId);
         if (referencePrice == null || referencePrice == 0) {
             return 0L;

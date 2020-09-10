@@ -19,5 +19,5 @@ public interface ReferencePriceService extends BaseService<WeighingReferencePric
      * 根据商品计算参考价规则
      * @param jsonStr
      */
-    void calcReferencePrice(String jsonStr);
+    void calculateReferencePrice(String jsonStr);
 }
