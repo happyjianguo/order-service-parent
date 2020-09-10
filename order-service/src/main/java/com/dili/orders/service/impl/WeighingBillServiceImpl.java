@@ -463,7 +463,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			if (!paymentOutput.isSuccess()) {
 				throw new AppException(paymentOutput.getMessage());
 			}
-			this.recordUnfreezeAccountFlow(operatorId, weighingBill, paymentOutput.getData());
+			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 
 		return BaseOutput.success();
@@ -552,7 +552,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			if (!paymentOutput.isSuccess()) {
 				throw new AppException(paymentOutput.getMessage());
 			}
-			this.recordUnfreezeAccountFlow(operatorId, weighingBill, paymentOutput.getData());
+			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 		return BaseOutput.success();
 	}
@@ -1124,8 +1124,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		if (this.isFreeze(weighingBill)) {
 			this.setWeighingStatementFrozenAmount(weighingBill, ws);
-		}
-		if (isFreeze(weighingBill)) {
+		} else {
 			this.setWeighingStatementTradeAmount(weighingBill, ws);
 		}
 		this.setWeighingStatementBuyerInfo(weighingBill, ws, marketId);
@@ -1347,6 +1346,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (weighingBill.getFrozenAmount() != null && weighingBill.getFrozenAmount() > 0) {
 			// 解冻
 			SerialRecordDo frozenRecord = new SerialRecordDo();
+			frozenRecord.setTradeNo(ws.getPayOrderNo());
 			frozenRecord.setCustomerType(weighingBill.getBuyerType());
 			frozenRecord.setAccountId(weighingBill.getBuyerAccount());
 			frozenRecord.setAction(ActionType.INCOME.getCode());
@@ -1371,6 +1371,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream buyerStream = paymentResult.getStreams().get(0);
 		Long buyerBalance = buyerStream.getBalance() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance());
 		SerialRecordDo buyerExpense = new SerialRecordDo();
+		buyerExpense.setTradeNo(ws.getPayOrderNo());
 		buyerExpense.setCustomerType(weighingBill.getBuyerType());
 		buyerExpense.setAccountId(weighingBill.getBuyerAccount());
 		buyerExpense.setAction(ActionType.EXPENSE.getCode());
@@ -1394,6 +1395,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream buyerPoundageStream = paymentResult.getStreams().stream().filter(s -> s.getType().equals(FeeType.BUYER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
 		buyerBalance = buyerPoundageStream.getBalance() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance());
 		SerialRecordDo buyerPoundage = new SerialRecordDo();
+		buyerPoundage.setTradeNo(ws.getPayOrderNo());
 		buyerPoundage.setCustomerType(weighingBill.getBuyerType());
 		buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
 		buyerPoundage.setAction(ActionType.EXPENSE.getCode());
@@ -1417,6 +1419,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream sellerStream = paymentResult.getRelation().getStreams().get(0);
 		Long sellerBalance = sellerStream.getBalance() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance());
 		SerialRecordDo sellerIncome = new SerialRecordDo();
+		sellerIncome.setTradeNo(ws.getPayOrderNo());
 		sellerIncome.setCustomerType(weighingBill.getSellerType());
 		sellerIncome.setAccountId(weighingBill.getSellerAccount());
 		sellerIncome.setAction(ActionType.INCOME.getCode());
@@ -1440,6 +1443,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream sellerPoundageStream = paymentResult.getRelation().getStreams().stream().filter(s -> s.getType().equals(FeeType.SELLER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
 		sellerBalance = sellerPoundageStream.getBalance() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance());
 		SerialRecordDo sellerPoundage = new SerialRecordDo();
+		sellerPoundage.setTradeNo(ws.getPayOrderNo());
 		sellerPoundage.setCustomerType(weighingBill.getSellerType());
 		sellerPoundage.setAccountId(weighingBill.getSellerAccount());
 		sellerPoundage.setAction(ActionType.EXPENSE.getCode());
@@ -1462,12 +1466,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
 	}
 
-	private void recordUnfreezeAccountFlow(Long operatorId, WeighingBill weighingBill, PaymentTradeCommitResponseDto tradeResponse) {
+	private void recordUnfreezeAccountFlow(Long operatorId, WeighingBill weighingBill, WeighingStatement ws, PaymentTradeCommitResponseDto tradeResponse) {
 		// 解冻
 		User operator = this.getUserById(operatorId);
 		LocalDateTime now = LocalDateTime.now();
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
 		SerialRecordDo frozenRecord = new SerialRecordDo();
+		frozenRecord.setTradeNo(ws.getPayOrderNo());
+		frozenRecord.setCustomerType(weighingBill.getBuyerType());
 		frozenRecord.setAccountId(weighingBill.getBuyerAccount());
 		frozenRecord.setAction(ActionType.INCOME.getCode());
 		frozenRecord.setAmount(Math.abs(tradeResponse.getFrozenAmount()));
@@ -1498,6 +1504,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream sellerPoundageStream = tradeResponse.getStreams().stream().filter(s -> s.getType().equals(FeeType.SELLER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
 		Long sellerBalance = sellerPoundageStream.getBalance() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance());
 		SerialRecordDo sellerRefound = new SerialRecordDo();
+		sellerRefound.setTradeNo(ws.getPayOrderNo());
+		sellerRefound.setCustomerType(weighingBill.getBuyerType());
 		sellerRefound.setAccountId(weighingBill.getSellerAccount());
 		sellerRefound.setAction(ActionType.INCOME.getCode());
 		sellerRefound.setAmount(sellerPoundageStream.getAmount());
@@ -1520,6 +1528,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream sellerExpenseStream = tradeResponse.getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
 		sellerBalance = sellerExpenseStream.getBalance() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance());
 		SerialRecordDo sellerExpense = new SerialRecordDo();
+		sellerExpense.setTradeNo(ws.getPayOrderNo());
+		sellerExpense.setCustomerType(weighingBill.getSellerType());
 		sellerExpense.setAccountId(weighingBill.getSellerAccount());
 		sellerExpense.setAction(ActionType.EXPENSE.getCode());
 		sellerExpense.setAmount(Math.abs(sellerExpenseStream.getAmount()));
