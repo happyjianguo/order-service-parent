@@ -385,7 +385,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword, String operatorName) {
         String cardQueryError = "检测收费支付-->查询账户失败";
-        String typeName = "检测收费单号";
+        String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
         //根据id获取到comprehensive对象
@@ -477,8 +477,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (Objects.nonNull(data)) {
             serialRecordDo.setAmount(data.getAmount());
             //期初余额
-            serialRecordDo.setStartBalance(data.getBalance());
-            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
