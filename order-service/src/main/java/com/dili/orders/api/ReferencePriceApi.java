@@ -59,28 +59,5 @@ public class ReferencePriceApi {
         }
     }
 
-    /**
-     * 测试前端调用
-     * @param hhh
-     * @return
-     */
-    @RequestMapping(value = "/calcTest", method = {RequestMethod.POST})
-    void getTestData(String hhh) {
-        hhh = "{\"unitPrice\":\"536\",\n" +
-                "\"unitWeight\":null,\n" +
-                "\"tradeAmount\":\"85760\",\n" +
-                "\"netWeight\":\"8000\",\n" +
-                "\"settlementTime\":\"2020-09-08 15:48:04\",\n" +
-                "\"goodsId\":\"5\",\n" +
-                "\"unitAmount\":null,\n" +
-                "\"tradeType\":001,\n" +
-                "\"marketId\":\"1\",\n" +
-                "\"serialNo\":\"1366442343661604\",\n" +
-                "\"measureType\":\"1\"\n" +
-                "}";
-        System.out.print(hhh);
-        referencePriceService.calcReferencePrice(hhh);
-    }
-
 }
 

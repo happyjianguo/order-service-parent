@@ -59,10 +59,12 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         // 根据goodsId查询参考价规则表获取商品规则
         GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsId(goodsId, marketId);
         if (ruleSetting == null) {
+            LOGGER.info("--------------当前市场下的商品暂无配置商品规则-------------");
             return null;
         }
 
         if (ruleSetting.getReferenceRule() == null) {
+            LOGGER.info("--------------当前市场下的商品暂无配置商品规则-------------");
             return null;
         }
         if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_THREE) {
