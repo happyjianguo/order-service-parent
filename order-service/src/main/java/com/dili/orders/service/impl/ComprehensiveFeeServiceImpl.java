@@ -485,5 +485,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.success();
+
     }
 }
