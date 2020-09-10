@@ -154,6 +154,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新完成之后，插入缴费单信息，必须在这之前发起请求，到支付系统，拿到支付单号
         //如果交费金额为0，则不走支付
         //交易ID
+        BaseOutput<CreateTradeResponseDto> prepare=null;
         if (!Objects.equals(comprehensiveFee.getChargeAmount(), 0L)) {
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             CardQueryDto dto=new CardQueryDto();
@@ -169,7 +170,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             paymentTradePrepareDto.setType(12);
             paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
             paymentTradePrepareDto.setAmount(comprehensiveFee.getChargeAmount());
-            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
+            prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
                 BaseOutput.failure(cardIdError);
                 LOGGER.error(prepare.getMessage());
@@ -248,11 +249,17 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
+        serialRecordDo.setTradeType(12);
+        serialRecordDo.setSerialNo(comprehensiveFee.getCode());
+        serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setEndBalance(data.getBalance() - comprehensiveFee.getChargeAmount());
-            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setEndBalance(data.getBalance() - comprehensiveFee.getChargeAmount()-data.getFrozenBalance());
+            serialRecordDo.setStartBalance(data.getBalance()-data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
+        }
+        if(Objects.nonNull(prepare.getData())){
+            serialRecordDo.setTradeNo(prepare.getData().getTradeId());
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
