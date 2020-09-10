@@ -7,6 +7,7 @@ import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -42,7 +43,7 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
         goodsReferencePriceSetting.setVersion(0);
         int insert = getActualDao().insert(goodsReferencePriceSetting);
         if (insert <= 0) {
-            throw new RuntimeException("品类参考价新增-->创建品类参考价失败");
+            throw new AppException("品类参考价新增-->创建品类参考价失败");
         }
         return BaseOutput.successData(goodsReferencePriceSetting);
     }
@@ -52,7 +53,7 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
         goodsReferencePriceSetting.setVersion(goodsReferencePriceSetting.getVersion() + 1);
         int update = getActualDao().updateByPrimaryKey(goodsReferencePriceSetting);
         if (update <= 0) {
-            throw new RuntimeException("品类参考价修改-->修改品类参考价失败");
+            throw new AppException("品类参考价修改-->修改品类参考价失败");
         }
         return BaseOutput.successData(goodsReferencePriceSetting);
     }
