@@ -17,6 +17,7 @@ import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,18 +99,20 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @GlobalTransactional
     public BaseOutput pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName) {
         //根据id获取当前的结算单信息
         ComprehensiveFee comprehensiveFee = get(id);
         Integer orderType = comprehensiveFee.getOrderType();
-        String updateError = "";
-        String cardError = "";
-        String cardIdError = "";
-        String updateAgainError = "";
-        String cardQueryError = "";
-        String amountError = "";
-        String typeName = "";
+        String updateError = "检测收费保存-->修改检测收费单失败";
+        String cardError = "检测收费新增-->根据卡号获取账户信息失败";
+        String cardIdError = "检测收费新增-->创建交易失败";
+        String updateAgainError = "检测收费保存-->修改检测收费单失败";
+        String cardQueryError = "检测收费支付-->查询账户失败";
+        String amountError = "检测收费金额-->缴费金额必须大于零";
+        String typeName = "检测收费单号";
+        int fundItemCode = FundItem.TEST_FEE.getCode();
+        String fundItemName = FundItem.TEST_FEE.getName();
         String queryOrderType = "2";
         if(Integer.valueOf(queryOrderType).equals(orderType)){
             updateError = "查询收费保存-->修改查询收费单失败";
@@ -118,15 +121,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             updateAgainError = "查询收费保存-->修改查询收费单失败";
             cardQueryError = "查询收费支付-->查询账户失败";
             amountError = "查询收费金额-->缴费金额必须大于零";
-            typeName = "查询收费";
-        } else{
-            updateError = "检测收费保存-->修改检测收费单失败";
-            cardError = "检测收费新增-->根据卡号获取账户信息失败";
-            cardIdError = "检测收费新增-->创建交易失败";
-            updateAgainError = "检测收费保存-->修改检测收费单失败";
-            cardQueryError = "检测收费支付-->查询账户失败";
-            amountError = "检测收费金额-->缴费金额必须大于零";
-            typeName = "检测收费";
+            typeName = "查询收费单号";
+            fundItemCode = FundItem.QUERY_FEE.getCode();
+            fundItemName = FundItem.QUERY_FEE.getName();
         }
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
         if (comprehensiveFee.getOrderStatus() != 1) {
@@ -238,8 +235,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setOperatorNo(operatorUserName);
         serialRecordDo.setFirmId(marketId);
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
-        serialRecordDo.setFundItem(FundItem.TEST_FEE.getCode());
-        serialRecordDo.setFundItemName(FundItem.TEST_FEE.getName());
+        serialRecordDo.setFundItem(fundItemCode);
+        serialRecordDo.setFundItemName(fundItemName);
         //判断是否走了支付
         if (Objects.nonNull(data)) {
             serialRecordDo.setEndBalance(data.getBalance() - comprehensiveFee.getChargeAmount());

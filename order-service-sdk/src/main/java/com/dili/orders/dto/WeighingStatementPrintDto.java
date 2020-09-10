@@ -1,6 +1,10 @@
 package com.dili.orders.dto;
 
+import java.time.LocalDateTime;
+
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.WeighingStatement;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class WeighingStatementPrintDto extends WeighingStatement {
 
@@ -20,6 +24,23 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 * 结算员姓名
 	 */
 	private String settlementOperatorName;
+
+	/**
+	 * 计量方式
+	 */
+	private String measureType;
+
+	/**
+	 * 单价或件价
+	 */
+	private Long unitPrice;
+
+	/**
+	 * 件重
+	 */
+	private Integer unitWeight;
+
+	private Boolean reprint;
 
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
@@ -51,6 +72,51 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setSettlementOperatorName(String settlementOperatorName) {
 		this.settlementOperatorName = settlementOperatorName;
+	}
+
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	public LocalDateTime getOperationTime() {
+		return this.getModifiedTime() != null ? this.getModifiedTime() : this.getCreatedTime();
+	}
+
+	public Boolean getReprint() {
+		return reprint;
+	}
+
+	public void setReprint(Boolean reprint) {
+		this.reprint = reprint;
+	}
+
+	public String getReprintString() {
+		if (this.reprint) {
+			return "（补打）";
+		}
+		return "";
+	}
+
+	public String getMeasureType() {
+		return measureType;
+	}
+
+	public void setMeasureType(String measureType) {
+		this.measureType = measureType;
+	}
+
+	public Long getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(Long unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
+	public Integer getUnitWeight() {
+		return unitWeight;
+	}
+
+	public void setUnitWeight(Integer unitWeight) {
+		this.unitWeight = unitWeight;
 	}
 
 }

@@ -27,4 +27,14 @@ public class ReferencePriceDto {
 	 */
 	public static final int TRANS_PRICE_COUNT = 2;
 
+	/**
+	 * MONTH_ONE 1
+	 */
+	public static final int MONTH_ONE = 1;
+
+	/**
+	 * MONTH_TWO 2
+	 */
+	public static final String MONTH_TWO = "2";
+
 }

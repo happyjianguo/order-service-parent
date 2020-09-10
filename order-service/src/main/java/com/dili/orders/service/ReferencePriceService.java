@@ -13,7 +13,7 @@ public interface ReferencePriceService extends BaseService<WeighingReferencePric
      * @param goodsId
      * @return Long
      */
-    Long getReferencePriceByGoodsId(Long goodsId,Long marketId);
+    Long getReferencePriceByGoodsId(Long goodsId, Long marketId, String tradeType);
 
     /**
      * 根据商品计算参考价规则

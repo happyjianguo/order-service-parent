@@ -12,9 +12,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * 由MyBatis Generator工具自动生成
- * 
- * This file was generated on 2020-08-11 17:31:37.
+ * Description: 品类参考价接实体类
+ *
+ * @date:    2020/8/21
+ * @author:   Seabert.Zhan
  */
 @Table(name = "`goods_reference_price_setting`")
 public class GoodsReferencePriceSetting extends BaseDomain {

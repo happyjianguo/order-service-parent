@@ -180,7 +180,7 @@ public class WeighingBill extends BaseDomain {
 	private String goodsOriginCityName;
 
 	/**
-	 * 件数
+	 * 市场id
 	 */
 	@Column(name = "`market_id`")
 	private Long marketId;

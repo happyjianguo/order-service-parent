@@ -61,6 +61,12 @@ public class WeighingReferencePrice extends BaseDomain {
      */
     @Column(name = "`settlement_time`")
     private Date settlementTime;
+    /**
+     * 交易类型
+     */
+    @Column(name = "`tarde_type`")
+    private String tardeType;
+
 
     /**
      * @return id
@@ -216,5 +222,25 @@ public class WeighingReferencePrice extends BaseDomain {
      */
     public void setSettlementTime(Date settlementTime) {
         this.settlementTime = settlementTime;
+    }
+
+    /**
+     * 获取交易类型
+     *
+     * @return trade_type - 交易类型
+     */
+    @FieldDef(label="交易类型")
+    @EditMode(editor = FieldEditor.Text, required = true)
+    public String getTardeType() {
+        return tardeType;
+    }
+
+    /**
+     * 设置交易类型
+     *
+     * @param trade_type 交易类型
+     */
+    public void setTardeType(String tardeType) {
+        this.tardeType = tardeType;
     }
 }
