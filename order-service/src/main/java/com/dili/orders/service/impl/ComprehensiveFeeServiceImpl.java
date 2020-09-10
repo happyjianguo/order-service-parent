@@ -170,6 +170,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             paymentTradePrepareDto.setType(12);
             paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
             paymentTradePrepareDto.setAmount(comprehensiveFee.getChargeAmount());
+            paymentTradePrepareDto.setSerialNo(comprehensiveFee.getCode());
             prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
                 BaseOutput.failure(cardIdError);
