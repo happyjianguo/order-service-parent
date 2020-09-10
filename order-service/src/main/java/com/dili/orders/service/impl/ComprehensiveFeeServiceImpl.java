@@ -109,7 +109,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         comprehensiveFee.setCode(output.getData());
         int insert = getActualDao().insert(comprehensiveFee);
         if (insert <= 0) {
-            throw new RuntimeException("检测收费新增-->创建检测收费单失败");
+            throw new AppException("检测收费新增-->创建检测收费单失败");
         }
         return BaseOutput.successData(comprehensiveFee);
     }
@@ -174,7 +174,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             if (!oneAccountCard.isSuccess()) {
                 BaseOutput.failure(cardError);
                 LOGGER.error(oneAccountCard.getMessage());
-                throw new RuntimeException(cardError);
+                throw new AppException(cardError);
             }
             //请求与支付，两边的账户id对应关系如下
             paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
@@ -187,7 +187,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             if (!prepare.isSuccess()) {
                 BaseOutput.failure(cardIdError);
                 LOGGER.error(prepare.getMessage());
-                throw new RuntimeException(cardIdError);
+                throw new AppException(cardIdError);
             }
             //设置交易单号
             comprehensiveFee.setPaymentNo(prepare.getData().getTradeId());
@@ -206,7 +206,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (!oneAccountCard.isSuccess()) {
             BaseOutput.failure(cardQueryError);
             LOGGER.error(oneAccountCard.getMessage());
-            throw new RuntimeException(cardQueryError);
+            throw new AppException(cardQueryError);
         }
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
@@ -236,13 +236,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             if (!pay.isSuccess()) {
                 BaseOutput.failure(pay.getMessage());
                 LOGGER.error(pay.getMessage());
-                throw new RuntimeException(pay.getMessage());
+                throw new AppException(pay.getMessage());
             }
             data = pay.getData();
         } else{
             BaseOutput.failure(amountError);
             LOGGER.error("支付金额为0，不走支付。");
-            throw new RuntimeException(amountError);
+            throw new AppException(amountError);
         }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
@@ -419,7 +419,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (!oneAccountCard.isSuccess()) {
             BaseOutput.failure(cardQueryError);
             LOGGER.error(oneAccountCard.getMessage());
-            throw new RuntimeException(cardQueryError);
+            throw new AppException(cardQueryError);
         }
 
         //新建支付返回实体，后面操作记录会用到
