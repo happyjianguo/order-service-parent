@@ -423,14 +423,17 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         PaymentTradeCommitResponseDto data = null;
 
         // 退款
-        PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
-        cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
-        BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
-        if (!paymentOutput.isSuccess()) {
-            LOGGER.error(paymentOutput.getMessage());
-            throw new AppException("退款失败");
+        //判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
+        if (StringUtils.isNotBlank(comprehensiveFee.getPaymentNo())) {
+            PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+            cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
+            BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+            if (!paymentOutput.isSuccess()) {
+                LOGGER.error(paymentOutput.getMessage());
+                throw new AppException("退款失败");
+            }
+            data = paymentOutput.getData();
         }
-        data = paymentOutput.getData();
 
         //更新检测单状态和修改时间
         LocalDateTime now = LocalDateTime.now();
@@ -461,6 +464,10 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
+        serialRecordDo.setTradeType(40);
+        serialRecordDo.setSerialNo(comprehensiveFee.getCode());
+        serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
+        serialRecordDo.setTradeNo(comprehensiveFee.getPaymentNo());
 
         //判断是否走了支付
         if (Objects.nonNull(data)) {
