@@ -296,7 +296,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                     name.append(cgdto.getName());
                 }
 
-                if(name.length()>0){
+                if (name.length() > 0) {
                     returnName = name.substring(1);
                 }
             }
