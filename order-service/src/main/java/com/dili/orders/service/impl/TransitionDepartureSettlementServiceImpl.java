@@ -185,7 +185,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //            }
 //            //请求与支付，两边的账户id对应关系如下
 //            paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
-//            paymentTradePrepareDto.setType(12);
+//            paymentTradePrepareDto.setType(TradeType.FEE.getCode());
 //            paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
 //            paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
 //            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
@@ -361,7 +361,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //请求与支付，两边的账户id对应关系如下
             paymentTradePrepareDto.setSerialNo(transitionDepartureSettlement.getCode());
             paymentTradePrepareDto.setAccountId(accountInfo.getFundAccountId());
-            paymentTradePrepareDto.setType(12);
+            paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
             paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
             //创建预支付信息
@@ -432,7 +432,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setTradeType(12);
+            serialRecordDo.setTradeType(TradeType.FEE.getCode());
             serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
             serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
@@ -578,7 +578,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setTradeType(12);
+            serialRecordDo.setTradeType(TradeType.FEE.getCode());
             serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
             serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setAmount(data.getAmount());
