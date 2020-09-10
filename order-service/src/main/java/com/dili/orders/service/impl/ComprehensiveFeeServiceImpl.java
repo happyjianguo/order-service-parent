@@ -315,12 +315,18 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         return map;
     }
 
-    /*
-     *撤销控制
-     * */
+    /**
+     * 撤销控制
+     *
+     * @return
+     */
 
     @Override
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword) {
+    @GlobalTransactional
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword, String operatorName) {
+        String typeName = "检测收费单号";
+        int fundItemCode = FundItem.TEST_FEE.getCode();
+        String fundItemName = FundItem.TEST_FEE.getName();
         //根据id获取到comprehensive对象
         ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
         if (comprehensiveFee == null) {
@@ -344,17 +350,23 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (!pwdOutput.isSuccess()) {
             return BaseOutput.failure("操作员密码错误");
         }
+        //调用卡号查询账户信息
+        CardQueryDto dto = new CardQueryDto();
+        dto.setCardNo(comprehensiveFee.getCustomerCardNo());
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
 
+        //新建支付返回实体，后面操作记录会用到
+        PaymentTradeCommitResponseDto data = null;
 
         // 退款
         PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
         cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
-        System.out.println(cancelDto.getTradeId()+"..........");
         BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
         if (!paymentOutput.isSuccess()) {
             LOGGER.error(paymentOutput.getMessage());
             throw new AppException("退款失败");
         }
+        data = paymentOutput.getData();
 
         //更新检测单状态和修改时间
         LocalDateTime now = LocalDateTime.now();
@@ -367,8 +379,36 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (rows <= 0) {
             return BaseOutput.failure("更新检测单状态失败");
         }
-        // 记录交易流水
-        paymentOutput.getData().getStreams().forEach(s -> this.recordAccountFlow(comprehensiveFee, paymentOutput.getData(), s, FundItem.TRADE_SERVICE_FEE, operatorId));
+
+        //对接操作记录
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerName(comprehensiveFee.getCustomerName());
+        serialRecordDo.setCustomerNo(comprehensiveFee.getCustomerCode());
+        serialRecordDo.setOperatorId(comprehensiveFee.getOperatorId());
+        serialRecordDo.setOperatorName(comprehensiveFee.getOperatorName());
+        serialRecordDo.setOperatorNo(operatorName);
+        serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
+        serialRecordDo.setOperateTime(LocalDateTime.now());
+        serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
+        serialRecordDo.setFundItem(fundItemCode);
+        serialRecordDo.setFundItemName(fundItemName);
+
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setAmount(data.getAmount());
+            //期初余额
+            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setOperateTime(data.getWhen());
+            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        }
+        serialRecordList.add(serialRecordDo);
+        System.out.println("---------"+JSON.toJSONString(serialRecordList));
+        rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.success();
     }
 
