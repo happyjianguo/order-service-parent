@@ -119,7 +119,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.insertSelective(transitionDepartureSettlement);
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("新增失败");
         }
     }
@@ -137,7 +137,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.updateSettlementAndApply(transitionDepartureSettlement, marketId);
             return BaseOutput.successData(transitionDepartureSettlement);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure(e.getMessage());
         }
 
@@ -158,7 +158,7 @@ public class TransitionDepartureSettlementApi {
             transitionDepartureSettlementService.delete(id);
             return BaseOutput.success("删除成功");
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("删除失败");
         }
     }
@@ -173,7 +173,7 @@ public class TransitionDepartureSettlementApi {
         try {
             transitionDepartureSettlementService.scheduleUpdate();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -188,7 +188,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -203,7 +203,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -218,7 +218,7 @@ public class TransitionDepartureSettlementApi {
         try {
             return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure(e.getMessage());
         }
     }
