@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.time.LocalDate;
 import java.util.List;
+
 import com.dili.uap.sdk.rpc.UserRpc;
 
 /**
@@ -309,7 +310,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void scheduleUpdate() throws ParseException {
+    public BaseOutput scheduleUpdate() throws ParseException {
+        LOGGER.info("综合收费将前天未结算单据关闭定时任务开始");
         ComprehensiveFee comprehensiveFee = new ComprehensiveFee();
         //拿到前一天的0时和23:59:59时
         Map<String, String> beforeDate = getBeforeDate();
@@ -331,6 +333,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                 getActualDao().scheduleUpdate(cfIds);
             }
         }
+        LOGGER.info("综合收费将前天未结算单据关闭定时任务结束");
+        return BaseOutput.success("综合收费将前一天未结算单据关闭定时任务执行成功!");
 
     }
 

@@ -59,5 +59,5 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	 * 定时任务，每天凌晨12点更新当天为结算的单子，支付状态更改为已关闭状态
 	 * @throws   ParseException
 	 */
-	void scheduleUpdate() throws ParseException;
+	BaseOutput scheduleUpdate() throws ParseException;
 }
