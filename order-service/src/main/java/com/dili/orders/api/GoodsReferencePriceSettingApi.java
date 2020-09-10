@@ -3,6 +3,7 @@ package com.dili.orders.api;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,8 +60,7 @@ public class GoodsReferencePriceSettingApi {
             }
             goodsReferencePriceSettingService.insertGoodsReferencePriceSetting(goodsReferencePriceSetting);
             return BaseOutput.successData(goodsReferencePriceSetting);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AppException e) {
             return BaseOutput.failure("新增失败" + e.getMessage());
         }
     }
@@ -76,8 +76,7 @@ public class GoodsReferencePriceSettingApi {
         try {
             goodsReferencePriceSettingService.updateGoodsReferencePriceSetting(goodsReferencePriceSetting);
             return BaseOutput.successData(goodsReferencePriceSetting);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AppException e) {
             return BaseOutput.failure("修改失败" + e.getMessage());
         }
     }

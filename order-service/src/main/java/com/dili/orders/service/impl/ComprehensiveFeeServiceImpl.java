@@ -490,24 +490,4 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.success();
     }
-
-    private void recordAccountFlow(ComprehensiveFee comprehensiveFee, PaymentTradeCommitResponseDto data, PaymentStream stream, FundItem fundItem, Long operatorId) {
-        SerialRecordDo dto = new SerialRecordDo();
-        dto.setAccountId(comprehensiveFee.getCustomerId());
-        dto.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
-        dto.setAmount(data.getAmount() + data.getFrozenAmount());
-        dto.setCardNo(comprehensiveFee.getCustomerCardNo());
-        dto.setCustomerId(comprehensiveFee.getCustomerId());
-        dto.setCustomerName(comprehensiveFee.getCustomerName());
-        dto.setCustomerNo(comprehensiveFee.getCustomerCode());
-        dto.setEndBalance(stream.getBalance() - (data.getFrozenBalance() + data.getFrozenAmount()));
-        dto.setFirmId(comprehensiveFee.getMarketId());
-        dto.setFundItem(fundItem.getCode());
-        dto.setFundItemName(fundItem.getName());
-        LocalDateTime now = LocalDateTime.now();
-        dto.setOperateTime(now);
-        dto.setOperatorId(operatorId);
-        dto.setOperatorName(comprehensiveFee.getOperatorName());
-        this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(dto));
-    }
 }
