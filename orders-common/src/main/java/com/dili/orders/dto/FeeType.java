@@ -7,7 +7,8 @@ package com.dili.orders.dto;
  *
  */
 public enum FeeType {
-	BUYER_POUNDAGE("买家手续费", 1), SELLER_POUNDAGE("卖家手续费", 2);
+	BUYER_POUNDAGE("买家手续费", 1), SELLER_POUNDAGE("卖家手续费", 2),
+	ZLC_FEE("转离场费用", 3);
 
 	private String name;
 	private Integer value;

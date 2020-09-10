@@ -386,7 +386,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             List<FeeDto> feeDtos = new ArrayList();
             FeeDto feeDto = new FeeDto();
             feeDto.setAmount(transitionDepartureSettlement.getChargeAmount());
-            feeDto.setType(31);
+            feeDto.setType(FeeType.ZLC_FEE.getValue());
             feeDto.setTypeName("转离场收费");
             feeDtos.add(feeDto);
             paymentTradeCommitDto.setFees(feeDtos);
