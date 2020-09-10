@@ -96,7 +96,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @Override
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {
         //设置检查收费单为未结算
-        comprehensiveFee.setOrderStatus(1);
+        comprehensiveFee.setOrderStatus(ComprehensiveFeeState.NO_SETTLEMEN.getValue());
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
@@ -117,6 +117,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     @GlobalTransactional
+    @Transactional(rollbackFor = Exception.class)
     public BaseOutput pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName) {
         //根据id获取当前的结算单信息
         ComprehensiveFee comprehensiveFee = get(id);
@@ -130,8 +131,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         String typeName = "检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
-        String queryOrderType = "2";
-        if(Integer.valueOf(queryOrderType).equals(orderType)){
+        if(ComprehensiveFeeType.QUERY_CHARGE.getValue().equals(orderType)){
             updateError = "查询收费保存-->修改查询收费单失败";
             cardError = "查询收费新增-->根据卡号获取账户信息失败";
             cardIdError = "查询收费新增-->创建交易失败";
@@ -143,11 +143,11 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             fundItemName = FundItem.QUERY_FEE.getName();
         }
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
-        if (comprehensiveFee.getOrderStatus() != 1) {
+        if (comprehensiveFee.getOrderStatus() != ComprehensiveFeeState.NO_SETTLEMEN.getValue()) {
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
         //设置为已支付状态
-        comprehensiveFee.setOrderStatus(2);
+        comprehensiveFee.setOrderStatus(ComprehensiveFeeState.SETTLED.getValue());
         //设置支付时间
         comprehensiveFee.setOperatorTime(LocalDateTime.now());
         //更新操作员
@@ -178,6 +178,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             }
             //请求与支付，两边的账户id对应关系如下
             paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
+            //12为缴费类型
             paymentTradePrepareDto.setType(12);
             paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
             paymentTradePrepareDto.setAmount(comprehensiveFee.getChargeAmount());
@@ -260,6 +261,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
+        //12为缴费类型
         serialRecordDo.setTradeType(12);
         serialRecordDo.setSerialNo(comprehensiveFee.getCode());
         serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
@@ -380,6 +382,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     @GlobalTransactional
+    @Transactional(rollbackFor = Exception.class)
     public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword, String operatorName) {
         String cardQueryError = "检测收费支付-->查询账户失败";
         String typeName = "检测收费单号";
@@ -464,6 +467,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
+        //40为撤销缴费
         serialRecordDo.setTradeType(40);
         serialRecordDo.setSerialNo(comprehensiveFee.getCode());
         serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
