@@ -335,6 +335,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @Override
     @GlobalTransactional
     public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword, String operatorName) {
+        String cardQueryError = "检测收费支付-->查询账户失败";
         String typeName = "检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
@@ -359,12 +360,18 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         // 校验操作员密码
         BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
         if (!pwdOutput.isSuccess()) {
+            LOGGER.error(pwdOutput.getMessage());
             return BaseOutput.failure("操作员密码错误");
         }
         //调用卡号查询账户信息
         CardQueryDto dto = new CardQueryDto();
         dto.setCardNo(comprehensiveFee.getCustomerCardNo());
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
+        if (!oneAccountCard.isSuccess()) {
+            BaseOutput.failure(cardQueryError);
+            LOGGER.error(oneAccountCard.getMessage());
+            throw new RuntimeException(cardQueryError);
+        }
 
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
@@ -388,6 +395,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新comprehensive
         int rows = this.comprehensiveFeeMapper.updateByPrimaryKeySelective(comprehensiveFee);
         if (rows <= 0) {
+            LOGGER.error("更新检测单状态失败");
             return BaseOutput.failure("更新检测单状态失败");
         }
 
