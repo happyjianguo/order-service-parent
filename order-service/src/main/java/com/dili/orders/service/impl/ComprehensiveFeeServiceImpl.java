@@ -89,7 +89,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
-        comprehensiveFee.setCode(uidRpc.bizNumber("sg_comprehensive_fee").getData());
+        //根据uid设置结算单的code
+        BaseOutput<String> output = this.uidRpc.bizNumber("sg_comprehensive_fee");
+        if (!output.isSuccess()) {
+            LOGGER.error(output.getMessage());
+            return BaseOutput.failure("生成综合收费编号失败");
+        }
+        comprehensiveFee.setCode(output.getData());
         int insert = getActualDao().insert(comprehensiveFee);
         if (insert <= 0) {
             throw new RuntimeException("检测收费新增-->创建检测收费单失败");
@@ -155,6 +161,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
             if (!oneAccountCard.isSuccess()) {
                 BaseOutput.failure(cardError);
+                LOGGER.error(oneAccountCard.getMessage());
                 throw new RuntimeException(cardError);
             }
             //请求与支付，两边的账户id对应关系如下
@@ -165,6 +172,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
                 BaseOutput.failure(cardIdError);
+                LOGGER.error(prepare.getMessage());
                 throw new RuntimeException(cardIdError);
             }
             //设置交易单号
@@ -184,6 +192,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
         if (!oneAccountCard.isSuccess()) {
             BaseOutput.failure(cardQueryError);
+            LOGGER.error(oneAccountCard.getMessage());
             throw new RuntimeException(cardQueryError);
         }
         //新建支付返回实体，后面操作记录会用到
@@ -213,11 +222,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.pay(paymentTradeCommitDto);
             if (!pay.isSuccess()) {
                 BaseOutput.failure(pay.getMessage());
+                LOGGER.error(pay.getMessage());
                 throw new RuntimeException(pay.getMessage());
             }
             data = pay.getData();
         } else{
             BaseOutput.failure(amountError);
+            LOGGER.error("支付金额为0，不走支付。");
             throw new RuntimeException(amountError);
         }
         //对接操作记录
