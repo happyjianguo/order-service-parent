@@ -431,9 +431,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
             //返回的值是负值，还是加就行了
-            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
@@ -576,8 +576,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.nonNull(data)) {
             serialRecordDo.setAmount(data.getAmount());
             //期初余额
-            serialRecordDo.setStartBalance(data.getBalance());
-            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
