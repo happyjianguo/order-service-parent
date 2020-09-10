@@ -359,6 +359,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //先创建预支付，再调用支付接口
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             //请求与支付，两边的账户id对应关系如下
+            paymentTradePrepareDto.setSerialNo(transitionDepartureSettlement.getCode());
             paymentTradePrepareDto.setAccountId(accountInfo.getFundAccountId());
             paymentTradePrepareDto.setType(12);
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
@@ -431,6 +432,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
+            serialRecordDo.setTradeType(12);
+            serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
+            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
             //返回的值是负值，还是加就行了
             serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
@@ -574,6 +578,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
+            serialRecordDo.setTradeType(12);
+            serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
+            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setAmount(data.getAmount());
             //期初余额
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
