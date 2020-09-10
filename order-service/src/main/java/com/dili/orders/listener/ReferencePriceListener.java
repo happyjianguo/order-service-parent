@@ -41,7 +41,7 @@ public class ReferencePriceListener {
         try {
             String data = new String(message.getBody(), "UTF-8");
             LOGGER.info("接收MQ消息，开始计算参考价："+data);
-            referencePriceService.calcReferencePrice(data);
+            referencePriceService.calculateReferencePrice(data);
         } catch (Exception e) {
             LOGGER.error("-------------计算参考价异常："+e.getMessage());
         }
