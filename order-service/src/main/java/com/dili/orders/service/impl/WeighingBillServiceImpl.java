@@ -140,8 +140,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill) {
 		BaseOutput<String> output = this.uidRpc.bizNumber("sg_weighing_bill");
 		if (!output.isSuccess()) {
-			LOGGER.error(output.getMessage());
-			return BaseOutput.failure("生成过磅单编号失败");
+			return BaseOutput.failure(output.getMessage());
 		}
 		weighingBill.setSerialNo(output.getData());
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
@@ -240,8 +239,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
 		if (!balanceOutput.isSuccess()) {
-			LOGGER.error(balanceOutput.getMessage());
-			return BaseOutput.failure("查询买方余额失败");
+			return BaseOutput.failure(balanceOutput.getMessage());
 		}
 		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getFrozenAmount()) {
 			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%d元", weighingStatement.getFrozenAmount() - balanceOutput.getData().getAvailableAmount()));
@@ -341,16 +339,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (weighingBill.getModifierId() != null) {
 			BaseOutput<User> output = this.userRpc.get(weighingBill.getModifierId());
 			if (!output.isSuccess()) {
-				LOGGER.error(output.getMessage());
-				throw new AppException("查询用户信息失败");
+				throw new AppException(output.getMessage());
 			}
 			dto.setWeighingOperatorUserName(output.getData().getUserName());
 			dto.setWeighingOperatorName(output.getData().getRealName());
 		} else {
 			BaseOutput<User> output = this.userRpc.get(weighingBill.getCreatorId());
 			if (!output.isSuccess()) {
-				LOGGER.error(output.getMessage());
-				throw new AppException("查询用户信息失败");
+				throw new AppException(output.getMessage());
 			}
 			dto.setWeighingOperatorUserName(output.getData().getUserName());
 			dto.setWeighingOperatorName(output.getData().getRealName());
@@ -372,8 +368,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		List<WeighingBillOperationRecord> opList = this.wbrMapper.select(wborQuery);
 		BaseOutput<User> output = this.userRpc.get(opList.get(0).getOperatorId());
 		if (!output.isSuccess()) {
-			LOGGER.error(output.getMessage());
-			throw new AppException("查询用户信息失败");
+			throw new AppException(output.getMessage());
 		}
 		dto.setWeighingOperatorUserName(output.getData().getUserName());
 		dto.setWeighingOperatorName(output.getData().getRealName());
@@ -636,8 +631,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> output = this.jsmfRpc.recoverById(Long.valueOf(weighingBill.getTareBillNumber()));
 			if (!output.isSuccess()) {
-				LOGGER.error(output.getMessage());
-				return BaseOutput.failure("恢复皮重单失败");
+				return BaseOutput.failure(output.getMessage());
 			}
 		}
 
@@ -682,8 +676,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
 		if (!balanceOutput.isSuccess()) {
-			LOGGER.error(balanceOutput.getMessage());
-			return BaseOutput.failure("查询买方余额失败");
+			return BaseOutput.failure(balanceOutput.getMessage());
 		}
 		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getBuyerActualAmount()) {
 			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%d元", weighingStatement.getBuyerActualAmount() - balanceOutput.getData().getAvailableAmount()));
@@ -733,8 +726,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
 			BaseOutput<?> output = this.prepareTrade(weighingBill, weighingStatement);
 			if (!output.isSuccess()) {
-				LOGGER.error(output.getMessage());
-				return BaseOutput.failure("交易失败");
+				return BaseOutput.failure(output.getMessage());
 			}
 		}
 
@@ -869,7 +861,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 		}
 		// 更新结算单买卖家信息，重新算费用
-		if (isFreeze(weighingBill)) {
+		if (!isFreeze(weighingBill)) {
 			this.setWeighingStatementTradeAmount(weighingBill, ws);
 		}
 		this.setWeighingStatementBuyerInfo(weighingBill, ws, marketId);
@@ -966,8 +958,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerQueryDto.setCardNo(weighingBill.getBuyerCardNo());
 		BaseOutput<UserAccountCardResponseDto> buyerOutput = this.accountRpc.getSingle(buyerQueryDto);
 		if (!buyerOutput.isSuccess()) {
-			LOGGER.error(buyerOutput.getMessage());
-			throw new AppException("查询买家信息失败");
+			throw new AppException(buyerOutput.getMessage());
 		}
 		// 设置买家信息
 		weighingBill.setBuyerAccount(buyerOutput.getData().getFundAccountId());
@@ -999,8 +990,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerQueryDto.setCardNo(weighingBill.getSellerCardNo());
 		BaseOutput<UserAccountCardResponseDto> sellerOutput = this.accountRpc.getSingle(sellerQueryDto);
 		if (!sellerOutput.isSuccess()) {
-			LOGGER.error(sellerOutput.getMessage());
-			throw new AppException("查询卖家账户信息失败");
+			throw new AppException(sellerOutput.getMessage());
 		}
 		// 设置卖家信息
 		weighingBill.setSellerAccount(sellerOutput.getData().getFundAccountId());
@@ -1093,8 +1083,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> output = this.jsmfRpc.recoverById(Long.valueOf(weighingBill.getTareBillNumber()));
 			if (!output.isSuccess()) {
-				LOGGER.error(output.getMessage());
-				return BaseOutput.failure("恢复皮重单失败");
+				return BaseOutput.failure(output.getMessage());
 			}
 		}
 
@@ -1236,8 +1225,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
 		// 判断是否成功
 		if (!listBaseOutput.isSuccess()) {
-			LOGGER.error(listBaseOutput.getMessage());
-			throw new AppException("查询买家和卖家手续费规则失败");
+			throw new AppException(listBaseOutput.getMessage());
 		}
 		if (CollectionUtils.isEmpty(listBaseOutput.getData())) {
 			return null;
@@ -1248,12 +1236,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private Long getMarketIdByOperatorId(Long operatorId) {
 		BaseOutput<User> output = this.userRpc.get(operatorId);
 		if (!output.isSuccess()) {
-			LOGGER.error(output.getMessage());
-			throw new AppException("查询用户信息失败");
+			throw new AppException(output.getMessage());
 		}
 		BaseOutput<Firm> firmOutput = this.firmRpc.getByCode(output.getData().getFirmCode());
 		if (!firmOutput.isSuccess()) {
-			throw new AppException("获取市场id失败");
+			throw new AppException(firmOutput.getMessage());
 		}
 		return firmOutput.getData().getId();
 	}
@@ -1269,8 +1256,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private String getUserRealNameById(Long operatorId) {
 		BaseOutput<User> output = this.userRpc.get(operatorId);
 		if (!output.isSuccess()) {
-			LOGGER.error(output.getMessage());
-			throw new AppException("查询用户信息失败");
+			throw new AppException(output.getMessage());
 		}
 		return output.getData().getRealName();
 	}
@@ -1278,8 +1264,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private User getUserById(Long operatorId) {
 		BaseOutput<User> output = this.userRpc.get(operatorId);
 		if (!output.isSuccess()) {
-			LOGGER.error(output.getMessage());
-			throw new AppException("查询用户信息失败");
+			throw new AppException(output.getMessage());
 		}
 		return output.getData();
 	}

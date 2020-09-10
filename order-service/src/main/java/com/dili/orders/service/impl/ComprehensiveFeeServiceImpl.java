@@ -1,6 +1,8 @@
 package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.rpc.CategoryRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
@@ -19,6 +21,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,19 +47,27 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Autowired
     private UidRpc uidRpc;
+
     @Autowired
     private UserRpc userRpc;
+
     @Autowired
     private ComprehensiveFeeMapper comprehensiveFeeMapper;
+
     @Autowired
     private PayRpc payRpc;
+
     @Autowired
     private RabbitMQMessageService mqService;
+
     @Autowired
     private AccountRpc accountRpc;
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
+
+    @Autowired
+    CategoryRpc categoryRpc;
 
 
     public ComprehensiveFeeMapper getActualDao() {
@@ -89,7 +100,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
-        comprehensiveFee.setCode(uidRpc.bizNumber("sg_comprehensive_fee").getData());
+        //根据uid设置结算单的code
+        BaseOutput<String> output = this.uidRpc.bizNumber("sg_comprehensive_fee");
+        if (!output.isSuccess()) {
+            LOGGER.error(output.getMessage());
+            return BaseOutput.failure("生成综合收费编号失败");
+        }
+        comprehensiveFee.setCode(output.getData());
         int insert = getActualDao().insert(comprehensiveFee);
         if (insert <= 0) {
             throw new RuntimeException("检测收费新增-->创建检测收费单失败");
@@ -148,6 +165,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新完成之后，插入缴费单信息，必须在这之前发起请求，到支付系统，拿到支付单号
         //如果交费金额为0，则不走支付
         //交易ID
+        BaseOutput<CreateTradeResponseDto> prepare=null;
         if (!Objects.equals(comprehensiveFee.getChargeAmount(), 0L)) {
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             CardQueryDto dto=new CardQueryDto();
@@ -155,6 +173,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
             if (!oneAccountCard.isSuccess()) {
                 BaseOutput.failure(cardError);
+                LOGGER.error(oneAccountCard.getMessage());
                 throw new RuntimeException(cardError);
             }
             //请求与支付，两边的账户id对应关系如下
@@ -162,9 +181,11 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             paymentTradePrepareDto.setType(12);
             paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
             paymentTradePrepareDto.setAmount(comprehensiveFee.getChargeAmount());
-            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
+            paymentTradePrepareDto.setSerialNo(comprehensiveFee.getCode());
+            prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
                 BaseOutput.failure(cardIdError);
+                LOGGER.error(prepare.getMessage());
                 throw new RuntimeException(cardIdError);
             }
             //设置交易单号
@@ -176,7 +197,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             }
         }
 
-
         //再调用支付
         //首先根据卡号拿倒账户信息
         CardQueryDto dto=new CardQueryDto();
@@ -184,6 +204,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
         if (!oneAccountCard.isSuccess()) {
             BaseOutput.failure(cardQueryError);
+            LOGGER.error(oneAccountCard.getMessage());
             throw new RuntimeException(cardQueryError);
         }
         //新建支付返回实体，后面操作记录会用到
@@ -213,11 +234,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.pay(paymentTradeCommitDto);
             if (!pay.isSuccess()) {
                 BaseOutput.failure(pay.getMessage());
+                LOGGER.error(pay.getMessage());
                 throw new RuntimeException(pay.getMessage());
             }
             data = pay.getData();
         } else{
             BaseOutput.failure(amountError);
+            LOGGER.error("支付金额为0，不走支付。");
             throw new RuntimeException(amountError);
         }
         //对接操作记录
@@ -237,16 +260,50 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
+        serialRecordDo.setTradeType(12);
+        serialRecordDo.setSerialNo(comprehensiveFee.getCode());
+        serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setEndBalance(data.getBalance() - comprehensiveFee.getChargeAmount());
-            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setEndBalance(data.getBalance() - comprehensiveFee.getChargeAmount()-data.getFrozenBalance());
+            serialRecordDo.setStartBalance(data.getBalance()-data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
+        }
+        if(Objects.nonNull(prepare.getData())){
+            serialRecordDo.setTradeNo(prepare.getData().getTradeId());
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
+
+        //根据商品ID获取商品名称
+        String inspectionItem = comprehensiveFee.getInspectionItem();
+        comprehensiveFee.setInspectionItem(getItemNameByItemId(inspectionItem));
         return BaseOutput.successData(comprehensiveFee);
     }
+
+    public String getItemNameByItemId(String inspectionItem) {
+        String returnName = "";
+        if (StringUtils.isNotBlank(inspectionItem)) {
+            List<String> ids = Arrays.asList(inspectionItem.split(","));
+            CategoryDTO categoryDTO = new CategoryDTO();
+
+            categoryDTO.setIds(ids);
+            List<CategoryDTO> list = categoryRpc.getTree(categoryDTO).getData();
+            if (list != null && list.size() > 0) {
+                StringBuffer name=new StringBuffer("");
+                for (CategoryDTO cgdto : list) {
+                    name.append(",");
+                    name.append(cgdto.getName());
+                }
+
+                if (name.length() > 0) {
+                    returnName = name.substring(1);
+                }
+            }
+        }
+        return returnName;
+    }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -315,12 +372,19 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         return map;
     }
 
-    /*
-     *撤销控制
-     * */
+    /**
+     * 撤销控制
+     *
+     * @return
+     */
 
     @Override
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword) {
+    @GlobalTransactional
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword, String operatorName) {
+        String cardQueryError = "检测收费支付-->查询账户失败";
+        String typeName = "检测收费单号";
+        int fundItemCode = FundItem.TEST_FEE.getCode();
+        String fundItemName = FundItem.TEST_FEE.getName();
         //根据id获取到comprehensive对象
         ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
         if (comprehensiveFee == null) {
@@ -342,18 +406,33 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         // 校验操作员密码
         BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
         if (!pwdOutput.isSuccess()) {
+            LOGGER.error(pwdOutput.getMessage());
             return BaseOutput.failure("操作员密码错误");
         }
+        //调用卡号查询账户信息
+        CardQueryDto dto = new CardQueryDto();
+        dto.setCardNo(comprehensiveFee.getCustomerCardNo());
+        BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
+        if (!oneAccountCard.isSuccess()) {
+            BaseOutput.failure(cardQueryError);
+            LOGGER.error(oneAccountCard.getMessage());
+            throw new RuntimeException(cardQueryError);
+        }
 
+        //新建支付返回实体，后面操作记录会用到
+        PaymentTradeCommitResponseDto data = null;
 
         // 退款
-        PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
-        cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
-        System.out.println(cancelDto.getTradeId()+"..........");
-        BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
-        if (!paymentOutput.isSuccess()) {
-            LOGGER.error(paymentOutput.getMessage());
-            throw new AppException("退款失败");
+        //判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
+        if (StringUtils.isNotBlank(comprehensiveFee.getPaymentNo())) {
+            PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+            cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
+            BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+            if (!paymentOutput.isSuccess()) {
+                LOGGER.error(paymentOutput.getMessage());
+                throw new AppException("退款失败");
+            }
+            data = paymentOutput.getData();
         }
 
         //更新检测单状态和修改时间
@@ -365,10 +444,42 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新comprehensive
         int rows = this.comprehensiveFeeMapper.updateByPrimaryKeySelective(comprehensiveFee);
         if (rows <= 0) {
+            LOGGER.error("更新检测单状态失败");
             return BaseOutput.failure("更新检测单状态失败");
         }
-        // 记录交易流水
-        paymentOutput.getData().getStreams().forEach(s -> this.recordAccountFlow(comprehensiveFee, paymentOutput.getData(), s, FundItem.TRADE_SERVICE_FEE, operatorId));
+
+        //对接操作记录
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
+        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
+        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
+        serialRecordDo.setCustomerName(comprehensiveFee.getCustomerName());
+        serialRecordDo.setCustomerNo(comprehensiveFee.getCustomerCode());
+        serialRecordDo.setOperatorId(comprehensiveFee.getOperatorId());
+        serialRecordDo.setOperatorName(comprehensiveFee.getOperatorName());
+        serialRecordDo.setOperatorNo(operatorName);
+        serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
+        serialRecordDo.setOperateTime(LocalDateTime.now());
+        serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
+        serialRecordDo.setFundItem(fundItemCode);
+        serialRecordDo.setFundItemName(fundItemName);
+        serialRecordDo.setTradeType(40);
+        serialRecordDo.setSerialNo(comprehensiveFee.getCode());
+        serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
+        serialRecordDo.setTradeNo(comprehensiveFee.getPaymentNo());
+
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setAmount(data.getAmount());
+            //期初余额
+            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setOperateTime(data.getWhen());
+            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        }
+        serialRecordList.add(serialRecordDo);
+        rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.success();
     }
 
