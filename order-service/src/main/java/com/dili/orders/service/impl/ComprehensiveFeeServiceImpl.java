@@ -1,6 +1,8 @@
 package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.rpc.CategoryRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
@@ -19,6 +21,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,19 +47,27 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Autowired
     private UidRpc uidRpc;
+
     @Autowired
     private UserRpc userRpc;
+
     @Autowired
     private ComprehensiveFeeMapper comprehensiveFeeMapper;
+
     @Autowired
     private PayRpc payRpc;
+
     @Autowired
     private RabbitMQMessageService mqService;
+
     @Autowired
     private AccountRpc accountRpc;
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
+
+    @Autowired
+    CategoryRpc categoryRpc;
 
 
     public ComprehensiveFeeMapper getActualDao() {
@@ -186,7 +197,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             }
         }
 
-
         //再调用支付
         //首先根据卡号拿倒账户信息
         CardQueryDto dto=new CardQueryDto();
@@ -264,8 +274,36 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
+
+        //根据商品ID获取商品名称
+        String inspectionItem = comprehensiveFee.getInspectionItem();
+        comprehensiveFee.setInspectionItem(getItemNameByItemId(inspectionItem));
         return BaseOutput.successData(comprehensiveFee);
     }
+
+    public String getItemNameByItemId(String inspectionItem) {
+        String returnName = "";
+        if (StringUtils.isNotBlank(inspectionItem)) {
+            List<String> ids = Arrays.asList(inspectionItem.split(","));
+            CategoryDTO categoryDTO = new CategoryDTO();
+
+            categoryDTO.setIds(ids);
+            List<CategoryDTO> list = categoryRpc.getTree(categoryDTO).getData();
+            if (list != null && list.size() > 0) {
+                StringBuffer name=new StringBuffer("");
+                for (CategoryDTO cgdto : list) {
+                    name.append(",");
+                    name.append(cgdto.getName());
+                }
+
+                if(name.length()>0){
+                    returnName = name.substring(1);
+                }
+            }
+        }
+        return returnName;
+    }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
