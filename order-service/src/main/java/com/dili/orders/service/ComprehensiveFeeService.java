@@ -36,19 +36,21 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	 *
 	 * @param id               检测单id
 	 * @param operatorId       操作员id
+	 * @param userName         用户真实名字
 	 * @param operatorPassword 操作员登录密码
+	 * @param operatorName     操作员登录名
 	 * @return
 	 */
-	BaseOutput<Object> revocator(Long id, Long operatorId,String userName, String operatorPassword);
+	BaseOutput<Object> revocator(Long id, Long operatorId, String userName, String operatorPassword, String operatorName);
 
 	/**
 	 * 支付
-	 * @param id
-	 * @param password
-	 * @param marketId
-	 * @param operatorId
-	 * @param operatorName
-	 * @param operatorUserName
+	 * @param id                 检测单id
+	 * @param password           操作员登录密码
+	 * @param marketId           市场id
+	 * @param operatorId         操作员id
+	 * @param operatorName       操作员账户名
+	 * @param operatorUserName   操作员真实姓名
 	 * @return
 	 */
 	BaseOutput pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName);
