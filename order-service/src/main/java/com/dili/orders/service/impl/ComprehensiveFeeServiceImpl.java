@@ -26,9 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -318,8 +316,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     public BaseOutput scheduleUpdate() throws ParseException {
         LOGGER.info("综合收费将前天未结算单据关闭定时任务开始");
         ComprehensiveFee comprehensiveFee = new ComprehensiveFee();
-        //拿到前一天的0时和23:59:59时
-        Map<String, String> beforeDate = getBeforeDate();
         //设置查询参数
         //查询日期使用的是Date类型
         LocalDateTime today_start = LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.MIN);
@@ -343,46 +339,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         LOGGER.info("综合收费将前天未结算单据关闭定时任务结束");
         return BaseOutput.success("综合收费将前一天未结算单据关闭定时任务执行成功!");
 
-    }
-
-    /**
-     * 定时任务在次日的凌晨五分执行，拿到前一天的日期
-     *
-     * @return
-     */
-    private Map<String, String> getBeforeDate() {
-        Map<String, String> map = new HashMap<>();
-        //格式化一下时间
-        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        //当前时间
-        Date dNow = new Date();
-
-        //得到日历
-        Calendar calendar = Calendar.getInstance();
-
-        //把当前时间赋给日历
-        calendar.setTime(dNow);
-
-        //设置为前一天
-        calendar.add(Calendar.DAY_OF_MONTH, -1);
-
-        //得到前一天的时间
-        Date dBefore = calendar.getTime();
-
-        //格式化前一天
-        String defaultStartDate = dateFmt.format(dBefore);
-
-        //前一天的0时
-        defaultStartDate = defaultStartDate.substring(0, 10) + " 00:00:00";
-        map.put("beginTime", defaultStartDate);
-
-        //前一天的24时
-        String defaultEndDate = defaultStartDate.substring(0, 10) + " 23:59:59";
-
-        map.put("endTime", defaultEndDate);
-
-        return map;
     }
 
     /**
