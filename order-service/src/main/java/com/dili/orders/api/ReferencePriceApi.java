@@ -10,6 +10,7 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 
@@ -51,13 +52,14 @@ public class ReferencePriceApi {
             if (referencePrice == null || referencePrice == 0) {
                 return BaseOutput.successData(0);
             }
-            Double price = Double.valueOf(referencePrice.toString()) / 100;
-            return BaseOutput.successData(price);
+            BigDecimal price = new BigDecimal(referencePrice).divide(new BigDecimal(100));
+            return BaseOutput.successData(price.doubleValue());
         } catch (Exception e) {
             LOGGER.error("获取商品参考价异常："+e.getMessage());
             return BaseOutput.failure("500", "获取失败");
         }
     }
+
 
 }
 
