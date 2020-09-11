@@ -176,6 +176,17 @@
     <if test="customerCardNo != null">
       AND customer_card_no=#{customerCardNo}
     </if>
+    <if test="marketId != null">
+      AND market_id=#{marketId}
+    </if>
+    <if test="departments != null">
+      AND department_id IN
+      (
+      <foreach item="item" index="index" collection="departments" open="" separator="," close="">
+        #{item}
+      </foreach>
+      )
+    </if>
     order by ${sort} ${order}
   </select>
   <select id="scheduleUpdateSelect" resultType="com.dili.orders.domain.ComprehensiveFee">

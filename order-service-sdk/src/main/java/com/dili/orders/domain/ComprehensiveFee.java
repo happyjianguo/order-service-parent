@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -190,7 +191,7 @@ public class ComprehensiveFee extends BaseDomain {
     private Long marketId;
 
     /**
-     * 市场ID
+     * 部门ID
      */
     @Column(name = "`department_id`")
     private Long departmentId;
@@ -225,6 +226,12 @@ public class ComprehensiveFee extends BaseDomain {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime operatorTimeEnd;
+
+    /**
+     * 查询使用，部门ids
+     */
+    @Transient
+    private List<Long> departments;
 
     /**
      * 获取综合收费id
@@ -788,5 +795,13 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
+    }
+
+    public List<Long> getDepartments() {
+        return departments;
+    }
+
+    public void setDepartments(List<Long> departments) {
+        this.departments = departments;
     }
 }
