@@ -283,6 +283,11 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         return BaseOutput.successData(comprehensiveFee);
     }
 
+    /**
+     * 根据商品ID获取商品名称
+     * @param inspectionItem
+     * @return
+     */
     public String getItemNameByItemId(String inspectionItem) {
         String returnName = "";
         if (StringUtils.isNotBlank(inspectionItem)) {
@@ -305,7 +310,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         return returnName;
     }
-
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
