@@ -129,11 +129,12 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/scheduleUpdate", method = {RequestMethod.GET, RequestMethod.POST})
-    public void scheduleUpdate() {
+    public BaseOutput scheduleUpdate() {
         try {
-            comprehensiveFeeService.scheduleUpdate();
+            return comprehensiveFeeService.scheduleUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+            return BaseOutput.failure("综合收费将前一天未结算单据关闭定时任务执行失败");
         }
     }
 
