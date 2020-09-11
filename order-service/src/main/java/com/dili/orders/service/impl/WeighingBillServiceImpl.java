@@ -242,7 +242,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure(balanceOutput.getMessage());
 		}
 		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getFrozenAmount()) {
-			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%d元", weighingStatement.getFrozenAmount() - balanceOutput.getData().getAvailableAmount()));
+			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getFrozenAmount() - balanceOutput.getData().getAvailableAmount())));
 		}
 
 		// 冻结交易
@@ -578,8 +578,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		LocalDate todayDate = LocalDate.now();
 		LocalDateTime opTime = weighingStatement.getModifiedTime() == null ? weighingStatement.getCreatedTime() : weighingStatement.getModifiedTime();
-		if (!todayDate.equals(opTime.toLocalDate())) {
-			return BaseOutput.failure("只能对当日的过磅交易进行撤销操作");
+		if (todayDate.toEpochDay() - opTime.toLocalDate().toEpochDay() > 90) {
+			return BaseOutput.failure("只能对90天内过磅交易进行撤销操作");
 		}
 		if (!weighingBill.getState().equals(WeighingBillState.SETTLED.getValue())) {
 			return BaseOutput.failure("当前状态不能撤销");
@@ -678,8 +678,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!balanceOutput.isSuccess()) {
 			return BaseOutput.failure(balanceOutput.getMessage());
 		}
-		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getBuyerActualAmount()) {
-			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%d元", weighingStatement.getBuyerActualAmount() - balanceOutput.getData().getAvailableAmount()));
+		Long banlance = balanceOutput.getData().getAvailableAmount();
+		if (weighingStatement.getFrozenAmount() != null) {
+			banlance += weighingStatement.getFrozenAmount();
+		}
+		if (banlance < weighingStatement.getBuyerActualAmount()) {
+			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getBuyerActualAmount() - balanceOutput.getData().getAvailableAmount())));
 		}
 
 		// 检查中间价
@@ -920,6 +924,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setTareBillNumber(dto.getTareBillNumber());
 		weighingBill.setTareWeight(dto.getTareWeight());
 		weighingBill.setTradeType(dto.getTradeType());
+		weighingBill.setNetWeight(dto.getNetWeight());
 		weighingBill.setUnitAmount(dto.getUnitAmount());
 		weighingBill.setUnitPrice(dto.getUnitPrice());
 		weighingBill.setUnitWeight(dto.getUnitWeight());
