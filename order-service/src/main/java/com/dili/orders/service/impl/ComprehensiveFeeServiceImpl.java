@@ -17,6 +17,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
+import com.dili.ss.util.DateUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.time.LocalDate;
 import java.util.List;
+
 import com.dili.uap.sdk.rpc.UserRpc;
 
 /**
@@ -313,14 +315,15 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void scheduleUpdate() throws ParseException {
+    public BaseOutput scheduleUpdate() throws ParseException {
+        LOGGER.info("综合收费将前天未结算单据关闭定时任务开始");
         ComprehensiveFee comprehensiveFee = new ComprehensiveFee();
         //拿到前一天的0时和23:59:59时
         Map<String, String> beforeDate = getBeforeDate();
         //设置查询参数
         //查询日期使用的是Date类型
-        comprehensiveFee.setOperatorTimeStart(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("beginTime")));
-        comprehensiveFee.setOperatorTimeEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(beforeDate.get("endTime")));
+        comprehensiveFee.setOperatorTimeStart(DateUtils.dateStr2Date(beforeDate.get("beginTime"),"yyyy-MM-dd HH:mm:ss"));
+        comprehensiveFee.setOperatorTimeEnd(DateUtils.dateStr2Date(beforeDate.get("endTime"),"yyyy-MM-dd HH:mm:ss"));
         //根据日期筛选出前一天的所有未结算的单子
         List<ComprehensiveFee> list = getActualDao().scheduleUpdateSelect(comprehensiveFee);
         if (CollectionUtils.isNotEmpty(list)) {
@@ -335,6 +338,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                 getActualDao().scheduleUpdate(cfIds);
             }
         }
+        LOGGER.info("综合收费将前天未结算单据关闭定时任务结束");
+        return BaseOutput.success("综合收费将前一天未结算单据关闭定时任务执行成功!");
 
     }
 

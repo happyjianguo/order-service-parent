@@ -11,9 +11,7 @@ import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.*;
-import com.dili.orders.glossary.BizTypeEnum;
-import com.dili.orders.glossary.CustomerType;
-import com.dili.orders.glossary.PayStatusEnum;
+import com.dili.orders.glossary.*;
 import com.dili.orders.mapper.TransitionDepartureApplyMapper;
 import com.dili.orders.mapper.TransitionDepartureSettlementMapper;
 import com.dili.orders.rpc.*;
@@ -185,7 +183,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 //            }
 //            //请求与支付，两边的账户id对应关系如下
 //            paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
-//            paymentTradePrepareDto.setType(12);
+//            paymentTradePrepareDto.setType(TradeType.FEE.getCode());
 //            paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
 //            paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
 //            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
@@ -326,9 +324,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         vehicleAccessDTO.setVehicleTypeName(listBaseOutput.getData().get(0).getCarTypeName());
         //新增车类型code
         vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
-        vehicleAccessDTO.setBarrierType(3);
+        vehicleAccessDTO.setBarrierType(BarrierType.ZLC.getCode());
         vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
-        vehicleAccessDTO.setPayType(3);
+//        vehicleAccessDTO.setPayType(3);
+        vehicleAccessDTO.setPayType(PayType.CARD.getCode());
         vehicleAccessDTO.setCasherId(operatorId);
         vehicleAccessDTO.setCasherName(operatorName);
         vehicleAccessDTO.setCasherDepartmentId(departmentId);
@@ -359,8 +358,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //先创建预支付，再调用支付接口
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             //请求与支付，两边的账户id对应关系如下
+            paymentTradePrepareDto.setSerialNo(transitionDepartureSettlement.getCode());
             paymentTradePrepareDto.setAccountId(accountInfo.getFundAccountId());
-            paymentTradePrepareDto.setType(12);
+            paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
             paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
             //创建预支付信息
@@ -386,7 +386,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             List<FeeDto> feeDtos = new ArrayList();
             FeeDto feeDto = new FeeDto();
             feeDto.setAmount(transitionDepartureSettlement.getChargeAmount());
-            feeDto.setType(31);
+            feeDto.setType(FeeType.ZLC_FEE.getValue());
             feeDto.setTypeName("转离场收费");
             feeDtos.add(feeDto);
             paymentTradeCommitDto.setFees(feeDtos);
@@ -431,9 +431,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
-            serialRecordDo.setStartBalance(data.getBalance());
+            serialRecordDo.setTradeType(TradeType.FEE.getCode());
+            serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
+            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
+            serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
             //返回的值是负值，还是加就行了
-            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
@@ -574,10 +577,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //判断是否走了支付
         if (Objects.nonNull(data)) {
+            serialRecordDo.setTradeType(TradeType.FEE.getCode());
+            serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
+            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setAmount(data.getAmount());
             //期初余额
-            serialRecordDo.setStartBalance(data.getBalance());
-            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount());
+            serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }

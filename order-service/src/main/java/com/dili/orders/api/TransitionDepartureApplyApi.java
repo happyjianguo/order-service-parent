@@ -8,9 +8,7 @@ import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.EasyuiPageOutput;
 import com.dili.ss.domain.PageOutput;
-import com.dili.ss.metadata.ValueProviderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -114,7 +112,7 @@ public class TransitionDepartureApplyApi {
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("新增失败");
         }
     }
@@ -139,7 +137,7 @@ public class TransitionDepartureApplyApi {
             }
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("修改失败");
         }
         return BaseOutput.success("修改成功");
@@ -159,7 +157,7 @@ public class TransitionDepartureApplyApi {
         try {
             transitionDepartureApplyService.delete(id);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("删除失败");
         }
         return BaseOutput.success("删除成功");
@@ -180,7 +178,7 @@ public class TransitionDepartureApplyApi {
             }
             return BaseOutput.successData(transitionDepartureApplyService.get(id));
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("查询失败");
         }
     }
@@ -201,7 +199,7 @@ public class TransitionDepartureApplyApi {
             }
             return BaseOutput.successData(transitionDepartureApplyService.getOneById(transitionDepartureApply.getId(), marketId, departmentId));
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("查询失败");
         }
     }
@@ -218,7 +216,7 @@ public class TransitionDepartureApplyApi {
         try {
             return BaseOutput.successData(transitionDepartureApplyService.getOneByCustomerID(transitionDepartureApply, marketId, departmentId));
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             return BaseOutput.failure("查询失败");
         }
     }
