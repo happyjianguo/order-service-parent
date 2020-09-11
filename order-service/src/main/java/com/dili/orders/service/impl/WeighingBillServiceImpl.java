@@ -168,7 +168,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.WEIGH.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.WEIGH.getName());
 		wbor.setOperatorId(weighingBill.getCreatorId());
-		wbor.setOperatorName(this.getUserRealNameById(weighingBill.getCreatorId()));
+		User operator = this.getUserById(weighingBill.getCreatorId());
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -280,7 +282,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.FREEZE.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.FREEZE.getName());
 		wbor.setOperatorId(operatorId);
-		wbor.setOperatorName(this.getUserRealNameById(operatorId));
+		User operator = this.getUserById(operatorId);
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -299,7 +303,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		// 记账冻结流水
-		User operator = this.getUserById(operatorId);
 		PaymentTradeCommitResponseDto data = freezeOutput.getData();
 		SerialRecordDo srDto = new SerialRecordDo();
 		srDto.setCustomerType(weighingBill.getBuyerType());
@@ -437,7 +440,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.INVALIDATE.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.INVALIDATE.getName());
 		wbor.setOperatorId(operatorId);
-		wbor.setOperatorName(this.getUserRealNameById(operatorId));
+		User operator = this.getUserById(operatorId);
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -526,7 +531,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.INVALIDATE.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.INVALIDATE.getName());
 		wbor.setOperatorId(operatorId);
-		wbor.setOperatorName(this.getUserRealNameById(operatorId));
+		User operator = this.getUserById(operatorId);
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -611,7 +618,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.WITHDRAW.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.WITHDRAW.getName());
 		wbor.setOperatorId(operatorId);
-		wbor.setOperatorName(this.getUserRealNameById(operatorId));
+		User operator = this.getUserById(operatorId);
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -780,7 +789,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.SETTLE.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.SETTLE.getName());
 		wbor.setOperatorId(operatorId);
-		wbor.setOperatorName(this.getUserRealNameById(operatorId));
+		User operator = this.getUserById(operatorId);
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -884,7 +895,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.SETTLE.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.SETTLE.getName());
 		wbor.setOperatorId(dto.getModifierId());
-		wbor.setOperatorName(this.getUserRealNameById(dto.getModifierId()));
+		User operator = this.getUserById(dto.getModifierId());
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -1068,7 +1081,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperationType(WeighingOperationType.WITHDRAW.getValue());
 		wbor.setOperationTypeName(WeighingOperationType.WITHDRAW.getName());
 		wbor.setOperatorId(operatorId);
-		wbor.setOperatorName(this.getUserRealNameById(operatorId));
+		User operator = this.getUserById(operatorId);
+		wbor.setOperatorUserName(operator.getUserName());
+		wbor.setOperatorName(operator.getRealName());
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -1256,14 +1271,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		example.createCriteria().andIn("state", Arrays.asList(WeighingStatementState.FROZEN.getValue(), WeighingStatementState.UNPAID.getValue())).andEqualTo("weighingBillId", weighingBillId);
 		WeighingStatement ws = this.weighingStatementMapper.selectOneByExample(example);
 		return ws;
-	}
-
-	private String getUserRealNameById(Long operatorId) {
-		BaseOutput<User> output = this.userRpc.get(operatorId);
-		if (!output.isSuccess()) {
-			throw new AppException(output.getMessage());
-		}
-		return output.getData().getRealName();
 	}
 
 	private User getUserById(Long operatorId) {

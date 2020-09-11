@@ -258,6 +258,7 @@
 			<result column="operation_type" jdbcType="INTEGER" property="operationType" />
 			<result column="operation_type_name" jdbcType="VARCHAR" property="operationTypeName" />
 			<result column="operator_id" jdbcType="BIGINT" property="operatorId" />
+			<result column="operator_user_name" jdbcType="VARCHAR" property="operatorUserName" />
 			<result column="operator_name" jdbcType="VARCHAR" property="operatorName" />
 			<result column="operation_time" jdbcType="TIMESTAMP" property="operationTime" />
 		</collection>
@@ -319,6 +320,7 @@
 		wbor.operator_id,
 		wbor.operation_type,
 		wbor.operation_type_name,
+		wbor.operator_user_name,
 		wbor.operator_name,
 		wbor.operation_time
 	</sql>
@@ -338,7 +340,7 @@
 		wb.id =
 		ws.weighing_bill_id
 		LEFT JOIN
-		( SELECT id,weighing_bill_id, operator_id, operation_type, operation_type_name, operator_name, operation_time
+		( SELECT id,weighing_bill_id, operator_id, operation_type, operation_type_name,operator_user_name, operator_name, operation_time
 		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON wb.id =
 		wbor.weighing_bill_id
 		WHERE 1 = 1
@@ -400,6 +402,7 @@
 		<if test="wsSerialNo != null and wsSerialNo!=''">
 			AND ws.serial_no = #{wsSerialNo}
 		</if>
+		ORDER BY ws.modified_time,created_time DESC
 	</select>
 
 	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
