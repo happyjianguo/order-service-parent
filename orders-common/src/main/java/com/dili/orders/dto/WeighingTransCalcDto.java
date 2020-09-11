@@ -8,7 +8,6 @@ import java.util.Date;
  */
 public class WeighingTransCalcDto {
 
-	private int id;
 	private Long tradeAmount;
 	private String measureType;
 	private Long goodsId;
@@ -29,14 +28,6 @@ public class WeighingTransCalcDto {
 	private int totalTradeWeight;
 	private Date settlementTime;
 	private String tradeType;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public Long getTradeAmount() {
 		return tradeAmount;
