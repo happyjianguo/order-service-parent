@@ -215,7 +215,7 @@ public class ComprehensiveFee extends BaseDomain {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date operatorTimeStart;
+    private LocalDateTime operatorTimeStart;
 
     /**
      * 查询使用，结算结束时间
@@ -224,7 +224,7 @@ public class ComprehensiveFee extends BaseDomain {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date operatorTimeEnd;
+    private LocalDateTime operatorTimeEnd;
 
     /**
      * 获取综合收费id
@@ -706,19 +706,19 @@ public class ComprehensiveFee extends BaseDomain {
         this.version = version;
     }
 
-    public Date getOperatorTimeStart() {
+    public LocalDateTime getOperatorTimeStart() {
         return operatorTimeStart;
     }
 
-    public void setOperatorTimeStart(Date operatorTimeStart) {
+    public void setOperatorTimeStart(LocalDateTime operatorTimeStart) {
         this.operatorTimeStart = operatorTimeStart;
     }
 
-    public Date getOperatorTimeEnd() {
+    public LocalDateTime getOperatorTimeEnd() {
         return operatorTimeEnd;
     }
 
-    public void setOperatorTimeEnd(Date operatorTimeEnd) {
+    public void setOperatorTimeEnd(LocalDateTime operatorTimeEnd) {
         this.operatorTimeEnd = operatorTimeEnd;
     }
 
