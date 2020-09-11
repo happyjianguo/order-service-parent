@@ -36,7 +36,7 @@ public class GenericGlobalExceptionResolver {
     @ResponseBody
     public BaseOutput timeOut(Exception e) {
         LOGGER.error("error",e);
-        return BaseOutput.failure("服务异常");
+        return BaseOutput.failure("服务异常，请联系管理员");
     }
 
 

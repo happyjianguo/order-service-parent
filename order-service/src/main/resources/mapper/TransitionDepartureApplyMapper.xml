@@ -324,6 +324,9 @@
         <if test="accountId != null">
             AND customer_id = #{accountId}
         </if>
+        <if test="transTypeId != null">
+            AND trans_type_id = #{transTypeId}
+        </if>
         <if test="departments != null">
             AND customer_department_id IN
             (
