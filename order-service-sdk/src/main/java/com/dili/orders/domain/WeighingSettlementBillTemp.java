@@ -16,11 +16,6 @@ import java.util.Date;
 @Table(name = "`weighing_settlement_bill_temp`")
 public class WeighingSettlementBillTemp extends BaseDomain {
 
-    @Id
-    @Column(name = "`id`")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     /**
      * 过磅单号
      */
@@ -146,23 +141,6 @@ public class WeighingSettlementBillTemp extends BaseDomain {
      */
     @Column(name = "`trade_type`")
     private String tradeType;
-
-
-    /**
-     * @return id
-     */
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
 
     /**
