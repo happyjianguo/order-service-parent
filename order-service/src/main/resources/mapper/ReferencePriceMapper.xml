@@ -55,11 +55,11 @@
         INSERT INTO weighing_settlement_bill_daily(
           market_id, goods_id, settlement_time, max_price, min_price, max_trade_amount,
           min_trade_amount, max_trade_weight, min_trade_weight, trade_count, trade_price_count,total_trade_amount,
-          total_trade_weight,tarde_type
+          total_trade_weight,trade_type
         ) VALUES (
           #{marketId}, #{goodsId}, #{settlementTime}, #{maxPrice}, #{minPrice}, #{maxTradeAmount},
           #{minTradeAmount}, #{maxTradeWeight}, #{minTradeWeight}, #{tradeCount}, #{tradePriceCount},#{totalTradeAmount},
-          #{totalTradeWeight},#{tardeType}
+          #{totalTradeWeight},#{tradeType}
         )
     </insert>
 
@@ -100,14 +100,16 @@
                 settlement_time = #{settlementTime,jdbcType=INTEGER},
             </if>
         </set>
-        WHERE id = #{id,jdbcType=BIGINT}
+        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
+        AND market_id = #{marketId,jdbcType=BIGINT}
+        AND trade_type = #{tradeType}
     </update>
 
     <select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
         SELECT
-          id,
           market_id marketId,
           goods_id goodsId,
+          trade_type tradeType,
           max_price maxPrice,
           min_price minPrice,
           max_trade_amount maxTradeAmount,
@@ -158,7 +160,7 @@
         </set>
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
         AND market_id = #{marketId,jdbcType=BIGINT}
-        AND tarde_type = #{tardeType}
+        AND trade_type = #{tradeType}
     </update>
 
     
