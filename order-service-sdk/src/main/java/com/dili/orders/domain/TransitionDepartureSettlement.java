@@ -6,12 +6,14 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.*;
 
 /**
@@ -583,7 +585,11 @@ public class TransitionDepartureSettlement extends BaseDomain {
      * @param plate 车牌号
      */
     public void setPlate(String plate) {
-        this.plate = plate;
+        if (StringUtils.isNotBlank(plate) && !Objects.equals(plate.trim(), "")) {
+            this.plate = plate.trim();
+        } else {
+            this.plate = plate;
+        }
     }
 
     /**
