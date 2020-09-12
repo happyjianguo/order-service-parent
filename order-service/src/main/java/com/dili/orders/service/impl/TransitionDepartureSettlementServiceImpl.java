@@ -546,7 +546,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
             BaseOutput<PaymentTradeCommitResponseDto> paymentTradeCommitResponseDtoBaseOutput = payRpc.cancel(paymentTradeCommitDto);
             if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
-                throw new RuntimeException("转离场结算单撤销调用撤销交易rpc失败");
+                throw new RuntimeException(paymentTradeCommitResponseDtoBaseOutput.getMessage());
             }
             data = paymentTradeCommitResponseDtoBaseOutput.getData();
         }
