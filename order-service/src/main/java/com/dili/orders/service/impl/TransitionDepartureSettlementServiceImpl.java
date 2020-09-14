@@ -201,7 +201,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         transitionDepartureSettlement.setCode(sg_zlc_settlement.getData());
         transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
-        int insert = getActualDao().insert(transitionDepartureSettlement);
+        int insert = getActualDao().insertSelective(transitionDepartureSettlement);
         if (insert <= 0) {
             throw new RuntimeException("转离场结算单新增创建转离场结算单失败");
         }
