@@ -4,6 +4,7 @@ import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.MyBusinessType;
+import com.dili.orders.glossary.ApplyEnum;
 import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
@@ -130,11 +131,21 @@ public class TransitionDepartureApplyApi {
                 return BaseOutput.failure("申请单id不能为空");
             }
             //判断当前的这个结算单是否是今天的
-            LocalDate createTime = transitionDepartureApplyService.get(transitionDepartureApply.getId()).getOriginatorTime().toLocalDate();
+            TransitionDepartureApply transitionDepartureApply1 = transitionDepartureApplyService.get(transitionDepartureApply.getId());
+            if (Objects.isNull(transitionDepartureApply1)) {
+                return BaseOutput.failure("没有对应申请单信息");
+            }
+            //判断是否是待审批状态，如果是，则可以审批
+            if (!Objects.equals(transitionDepartureApply1.getApprovalState(), ApplyEnum.TOBEREVIEWED)) {
+                return BaseOutput.failure("该申请单状态不能再审批");
+            }
+            LocalDate createTime = transitionDepartureApply1.getOriginatorTime().toLocalDate();
             //如果为0，则表示为当天
             if (LocalDate.now().compareTo(createTime) != 0) {
                 return BaseOutput.failure("只能审批当天申请单");
             }
+            //乐观锁实现，需要先查询一次数据库，然后设置version
+            transitionDepartureApply.setVersion(transitionDepartureApply1.getVersion());
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

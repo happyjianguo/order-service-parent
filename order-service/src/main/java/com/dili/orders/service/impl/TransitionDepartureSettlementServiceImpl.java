@@ -489,6 +489,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //设置为已撤销的支付状态
 //        transitionDepartureSettlement.setPayStatus(3);
+        //设置乐观锁version
+        transitionDepartureSettlement.setVersion(getActualDao().selectByPrimaryKey(transitionDepartureSettlement.getId()).getVersion());
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.RESCINDED.getCode());
 
         //根据结算单的apply_id拿到申请单信息
@@ -546,7 +548,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             paymentTradeCommitDto.setTradeId(transitionDepartureSettlement.getPaymentNo());
             BaseOutput<PaymentTradeCommitResponseDto> paymentTradeCommitResponseDtoBaseOutput = payRpc.cancel(paymentTradeCommitDto);
             if (!paymentTradeCommitResponseDtoBaseOutput.isSuccess()) {
-                throw new RuntimeException("转离场结算单撤销调用撤销交易rpc失败");
+                throw new RuntimeException(paymentTradeCommitResponseDtoBaseOutput.getMessage());
             }
             data = paymentTradeCommitResponseDtoBaseOutput.getData();
         }
@@ -619,6 +621,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("查询车辆类型失败");
         }
         transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        transitionDepartureSettlement.setVersion(getActualDao().selectByPrimaryKey(transitionDepartureSettlement.getId()).getVersion());
         //结算单更新
         int i = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
         //判断结算单是否更新成功

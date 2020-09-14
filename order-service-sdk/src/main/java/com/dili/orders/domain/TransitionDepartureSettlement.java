@@ -6,13 +6,15 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -21,6 +23,10 @@ import javax.persistence.*;
  */
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
+
+    @Version
+    @Column(name = "`version`")
+    private Integer version;
 
     /**
      * 查询使用，客户id
@@ -583,7 +589,11 @@ public class TransitionDepartureSettlement extends BaseDomain {
      * @param plate 车牌号
      */
     public void setPlate(String plate) {
-        this.plate = plate;
+        if (StringUtils.isNotBlank(plate) && !Objects.equals(plate.trim(), "")) {
+            this.plate = plate.trim();
+        } else {
+            this.plate = plate;
+        }
     }
 
     /**
@@ -1072,5 +1082,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

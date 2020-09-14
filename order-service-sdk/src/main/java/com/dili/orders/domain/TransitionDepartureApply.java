@@ -6,13 +6,15 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -21,6 +23,10 @@ import javax.persistence.*;
  */
 @Table(name = "`transition_departure_apply`")
 public class TransitionDepartureApply extends BaseDomain {
+
+    @Version
+    @Column(name = "`version`")
+    private Integer version;
 
     /**
      * 查询使用，客户id
@@ -526,7 +532,11 @@ public class TransitionDepartureApply extends BaseDomain {
      * @param plate 车牌号
      */
     public void setPlate(String plate) {
-        this.plate = plate;
+        if (StringUtils.isNotBlank(plate) && !Objects.equals(plate.trim(), "")) {
+            this.plate = plate.trim();
+        } else {
+            this.plate = plate;
+        }
     }
 
     /**
@@ -646,7 +656,12 @@ public class TransitionDepartureApply extends BaseDomain {
      * @param transitionDepartureReason 转离场理由
      */
     public void setTransitionDepartureReason(String transitionDepartureReason) {
-        this.transitionDepartureReason = transitionDepartureReason;
+        if (StringUtils.isNotBlank(transitionDepartureReason) && !Objects.equals(transitionDepartureReason.trim(), "")) {
+            this.transitionDepartureReason = transitionDepartureReason.trim();
+        } else {
+            this.transitionDepartureReason = transitionDepartureReason;
+        }
+
     }
 
     /**
@@ -746,7 +761,11 @@ public class TransitionDepartureApply extends BaseDomain {
      * @param approvalReason 审核说明
      */
     public void setApprovalReason(String approvalReason) {
-        this.approvalReason = approvalReason;
+        if (StringUtils.isNotBlank(approvalReason) && Objects.equals(approvalReason.trim(), "")) {
+            this.approvalReason = approvalReason.trim();
+        } else {
+            this.approvalReason = approvalReason;
+        }
     }
 
     /**
@@ -954,7 +973,11 @@ public class TransitionDepartureApply extends BaseDomain {
     }
 
     public void setAddr(String addr) {
-        this.addr = addr;
+        if (StringUtils.isNotBlank(addr) && !Objects.equals(addr.trim(), "")) {
+            this.addr = addr.trim();
+        } else {
+            this.addr = addr;
+        }
     }
 
     public Long getMarketId() {
@@ -971,5 +994,13 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
