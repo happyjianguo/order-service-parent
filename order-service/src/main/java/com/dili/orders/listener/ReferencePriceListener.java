@@ -31,6 +31,16 @@ public class ReferencePriceListener {
     ReferencePriceService referencePriceService;
 
     /**
+     * 手动确认状态
+     */
+    enum Action {
+        ACCEPT,  // 处理成功
+        RETRY,   // 可以重试的错误
+    }
+
+    long tag = 0;
+
+    /**
      * 客户信息修改后，更新账户冗余信息
      */
     @RabbitListener(bindings = @QueueBinding(
@@ -38,12 +48,27 @@ public class ReferencePriceListener {
             exchange = @Exchange(value = EXCHANGE_REFERENCE_PRICE_CHANGE, type = ExchangeTypes.DIRECT)
     ))
     public void processCustomerInfo(Channel channel, Message message) {
+        Action action = Action.ACCEPT;
         try {
             String data = new String(message.getBody(), "UTF-8");
             LOGGER.info("接收MQ消息，开始计算参考价："+data);
             referencePriceService.calculateReferencePrice(data);
         } catch (Exception e) {
-            LOGGER.error("-------------计算参考价异常："+e.getMessage());
+            action = Action.RETRY;
+        } finally {
+            try {
+                // 通过finally块来保证Ack/Nack会且只会执行一次
+                if (action == Action.ACCEPT) {
+                    LOGGER.info("消费成功，删除消息");
+                    channel.basicAck(tag, true);
+                } else if (action == Action.RETRY) {
+                    LOGGER.info("消息重新进入队列");
+                    channel.basicNack(tag, false, true);
+                }
+            } catch (Exception e) {
+                LOGGER.error("-------------计算参考价异常："+e.getMessage());
+            }
+
         }
     }
 

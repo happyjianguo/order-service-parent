@@ -15,10 +15,6 @@ import java.util.Date;
  */
 @Table(name = "`weighing_reference_price`")
 public class WeighingReferencePrice extends BaseDomain {
-    @Id
-    @Column(name = "`id`")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     /**
      * 商品ID
@@ -64,25 +60,10 @@ public class WeighingReferencePrice extends BaseDomain {
     /**
      * 交易类型
      */
-    @Column(name = "`tarde_type`")
-    private String tardeType;
+    @Column(name = "`trade_type`")
+    private String tradeType;
 
 
-    /**
-     * @return id
-     */
-    @FieldDef(label="id")
-    @EditMode(editor = FieldEditor.Number, required = true)
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     /**
      * 获取商品ID
@@ -231,16 +212,16 @@ public class WeighingReferencePrice extends BaseDomain {
      */
     @FieldDef(label="交易类型")
     @EditMode(editor = FieldEditor.Text, required = true)
-    public String getTardeType() {
-        return tardeType;
+    public String getTradeType() {
+        return tradeType;
     }
 
     /**
-     * 设置交易类型
+     * 设置更新时间
      *
-     * @param trade_type 交易类型
+     * @param tradeType 更新时间
      */
-    public void setTardeType(String tardeType) {
-        this.tardeType = tardeType;
+    public void setTradeType(String tradeType) {
+        this.tradeType = tradeType;
     }
 }

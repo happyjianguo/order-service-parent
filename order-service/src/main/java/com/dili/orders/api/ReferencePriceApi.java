@@ -1,8 +1,9 @@
 package com.dili.orders.api;
 
-import com.dili.orders.config.GenericGlobalExceptionResolver;
+
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.util.MoneyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +52,13 @@ public class ReferencePriceApi {
             if (referencePrice == null || referencePrice == 0) {
                 return BaseOutput.successData(0);
             }
-            Double price = Double.valueOf(referencePrice.toString()) / 100;
-            return BaseOutput.successData(price);
+            return BaseOutput.successData(MoneyUtils.centToYuan(referencePrice));
         } catch (Exception e) {
             LOGGER.error("获取商品参考价异常："+e.getMessage());
             return BaseOutput.failure("500", "获取失败");
         }
     }
+
 
 }
 
