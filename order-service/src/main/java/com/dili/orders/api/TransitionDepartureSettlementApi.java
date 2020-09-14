@@ -216,10 +216,7 @@ public class TransitionDepartureSettlementApi {
     @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
     public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, @RequestParam(value = "revocatorId") Long revocatorId, @RequestParam(value = "revocatorPassword") String revocatorPassword) {
         try {
-            if (Objects.isNull(transitionDepartureSettlement.getId())) {
-                return BaseOutput.failure("转离场结算单id不能为空");
-            }
-            return transitionDepartureSettlementService.revocator(transitionDepartureSettlementService.get(transitionDepartureSettlement.getId()), revocatorId, revocatorPassword);
+            return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return BaseOutput.failure(e.getMessage());
