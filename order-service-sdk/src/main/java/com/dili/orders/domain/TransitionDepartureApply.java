@@ -8,13 +8,13 @@ import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+import tk.mybatis.mapper.annotation.Version;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -25,6 +25,7 @@ import javax.persistence.*;
 public class TransitionDepartureApply extends BaseDomain {
 
     @Version
+    @Column(name = "`version`")
     private Integer version;
 
     /**
