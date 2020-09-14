@@ -318,7 +318,7 @@ public class ComprehensiveFee extends BaseDomain {
      *
      * @return customer_name - 客户名称
      */
-    @FieldDef(label="客户名称", maxLength = 20)
+    @FieldDef(label="客户名称", maxLength = 40)
     @EditMode(editor = FieldEditor.Text, required = false)
     public String getCustomerName() {
         return customerName;
