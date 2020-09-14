@@ -489,6 +489,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
         //设置为已撤销的支付状态
 //        transitionDepartureSettlement.setPayStatus(3);
+        //设置乐观锁version
+        transitionDepartureSettlement.setVersion(getActualDao().selectByPrimaryKey(transitionDepartureSettlement.getId()).getVersion());
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.RESCINDED.getCode());
 
         //根据结算单的apply_id拿到申请单信息
