@@ -136,7 +136,7 @@ public class TransitionDepartureApplyApi {
                 return BaseOutput.failure("没有对应申请单信息");
             }
             //判断是否是待审批状态，如果是，则可以审批
-            if (!Objects.equals(transitionDepartureApply1.getApprovalState(), ApplyEnum.TOBEREVIEWED)) {
+            if (!Objects.equals(transitionDepartureApply1.getApprovalState(), ApplyEnum.TOBEREVIEWED.getCode())) {
                 return BaseOutput.failure("该申请单状态不能再审批");
             }
             LocalDate createTime = transitionDepartureApply1.getOriginatorTime().toLocalDate();
@@ -146,7 +146,10 @@ public class TransitionDepartureApplyApi {
             }
             //乐观锁实现，需要先查询一次数据库，然后设置version
             transitionDepartureApply.setVersion(transitionDepartureApply1.getVersion());
-            transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+            TransitionDepartureApply transitionDepartureApply2 = new TransitionDepartureApply();
+            transitionDepartureApply2.setId(transitionDepartureApply.getId());
+            transitionDepartureApply2.setApprovalState(ApplyEnum.TOBEREVIEWED.getCode());
+            transitionDepartureApplyService.updateSelectiveByExample(transitionDepartureApply, transitionDepartureApply2);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return BaseOutput.failure("修改失败");
