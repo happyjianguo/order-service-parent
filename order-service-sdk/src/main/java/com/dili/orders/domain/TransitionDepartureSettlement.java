@@ -24,6 +24,9 @@ import javax.persistence.*;
 @Table(name = "`transition_departure_settlement`")
 public class TransitionDepartureSettlement extends BaseDomain {
 
+    @Version
+    private Integer version;
+
     /**
      * 查询使用，客户id
      */
@@ -1078,5 +1081,13 @@ public class TransitionDepartureSettlement extends BaseDomain {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
