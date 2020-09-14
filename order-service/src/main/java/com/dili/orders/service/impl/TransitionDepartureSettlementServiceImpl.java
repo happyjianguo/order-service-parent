@@ -619,6 +619,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("查询车辆类型失败");
         }
         transitionDepartureSettlement.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        transitionDepartureSettlement.setVersion(getActualDao().selectByPrimaryKey(transitionDepartureSettlement.getId()).getVersion());
         //结算单更新
         int i = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
         //判断结算单是否更新成功
