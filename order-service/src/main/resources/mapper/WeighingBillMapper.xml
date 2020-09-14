@@ -239,6 +239,7 @@
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
 		<result column="operator_id" property="operationRecord.operatorId" />
+		<result column="operator_user_name" property="operationRecord.operatorUserName" />
 		<result column="operator_name" property="operationRecord.operatorName" />
 		<result column="operation_time" property="operationRecord.operationTime" />
 	</resultMap>
@@ -401,6 +402,9 @@
 		</if>
 		<if test="wsSerialNo != null and wsSerialNo!=''">
 			AND ws.serial_no = #{wsSerialNo}
+		</if>
+		<if test="marketId != null">
+			AND wb.market_id = #{marketId}
 		</if>
 		ORDER BY ws.modified_time,created_time DESC
 	</select>

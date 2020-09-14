@@ -40,7 +40,7 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private Integer unitWeight;
 
-	private Boolean reprint;
+	private Boolean reprint = false;
 
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
