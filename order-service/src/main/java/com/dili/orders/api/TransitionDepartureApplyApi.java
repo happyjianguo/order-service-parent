@@ -146,10 +146,7 @@ public class TransitionDepartureApplyApi {
             }
             //乐观锁实现，需要先查询一次数据库，然后设置version
             transitionDepartureApply.setVersion(transitionDepartureApply1.getVersion());
-            TransitionDepartureApply transitionDepartureApply2 = new TransitionDepartureApply();
-            transitionDepartureApply2.setId(transitionDepartureApply.getId());
-            transitionDepartureApply2.setApprovalState(ApplyEnum.TOBEREVIEWED.getCode());
-            transitionDepartureApplyService.updateSelectiveByExample(transitionDepartureApply, transitionDepartureApply2);
+            transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return BaseOutput.failure("修改失败");
