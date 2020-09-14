@@ -75,7 +75,6 @@ import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
@@ -375,7 +374,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		dto.setWeighingOperatorUserName(output.getData().getUserName());
 		dto.setWeighingOperatorName(output.getData().getRealName());
-		WeighingBill wbQuery = DTOUtils.newInstance(WeighingBill.class);
+		WeighingBill wbQuery = new WeighingBill();
 		wbQuery.setId(weighingStatement.getWeighingBillId());
 		WeighingBill wb = this.getActualDao().selectOne(wbQuery);
 		dto.setUnitWeight(wb.getUnitWeight());
@@ -944,13 +943,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
-		BaseOutput<QueryFeeOutput> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
+		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
+		BigDecimal buyerTotalFee = new BigDecimal(0L);
+		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
+			buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee());
+		}
 		if (!buyerFeeOutput.isSuccess()) {
 			throw new AppException("计算买家手续费失败");
 		}
 		if (!isFreeze(weighingBill)) {
-			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerFeeOutput.getData().getTotalFee().doubleValue()));
-			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerFeeOutput.getData().getTotalFee().doubleValue()));
+			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
 		}
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
@@ -989,13 +992,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
-		BaseOutput<QueryFeeOutput> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
+		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
+		BigDecimal sellerTotalFee = new BigDecimal(0L);
+		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
+			sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee());
+		}
 		if (!sellerFeeOutput.isSuccess()) {
 			throw new AppException("计算卖家手续费失败");
 		}
 		if (!isFreeze(weighingBill)) {
-			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerFeeOutput.getData().getTotalFee().doubleValue()));
-			ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerFeeOutput.getData().getTotalFee().doubleValue()));
+			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
+			ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
 		}
 		ws.setSellerCardNo(weighingBill.getSellerCardNo());
 		ws.setSellerId(weighingBill.getSellerId());
@@ -1143,39 +1150,43 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	}
 
-	private BaseOutput<QueryFeeOutput> calculatePoundage(WeighingBill weighingBill, WeighingStatement statement, Long marketId, String businessType) {
-		QueryFeeInput queryFeeInput = new QueryFeeInput();
-		Map<String, Object> map = new HashMap<>();
-		// 设置市场id
-		queryFeeInput.setMarketId(marketId);
-		// 设置业务类型
-		queryFeeInput.setBusinessType(businessType);
-		Long chargeItemId = this.getBuyerSellerRuleId(businessType, marketId);
-		queryFeeInput.setChargeItem(chargeItemId);
-		if (businessType.equals(OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE)) {
-			map.put("customerType", weighingBill.getBuyerType());
-			map.put("customerId", weighingBill.getBuyerId());
-		} else {
-			map.put("customerType", weighingBill.getSellerType());
-			map.put("customerId", weighingBill.getSellerId());
-		}
-		map.put("goodsId", weighingBill.getGoodsId());
-		LocalDateTime tradeTime = statement.getCreatedTime();
-		if (tradeTime == null) {
-			tradeTime = LocalDateTime.now();
-		}
-		map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-		map.put("unitPrice", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getUnitPrice())));
-		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-			map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
-		} else {
-			map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(10000)).setScale(2, RoundingMode.HALF_UP));
-		}
-		map.put("tradeType", weighingBill.getTradeType());
-		map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
-		queryFeeInput.setCalcParams(map);
-		queryFeeInput.setConditionParams(map);
-		return chargeRuleRpc.queryFee(queryFeeInput);
+	private BaseOutput<List<QueryFeeOutput>> calculatePoundage(WeighingBill weighingBill, WeighingStatement statement, Long marketId, String businessType) {
+		List<Long> chargeItemIds = this.getBuyerSellerRuleId(businessType, marketId);
+		List<QueryFeeInput> queryFeeInputList = new ArrayList<QueryFeeInput>(chargeItemIds.size());
+		chargeItemIds.forEach(c -> {
+			QueryFeeInput queryFeeInput = new QueryFeeInput();
+			Map<String, Object> map = new HashMap<>();
+			// 设置市场id
+			queryFeeInput.setMarketId(marketId);
+			// 设置业务类型
+			queryFeeInput.setBusinessType(businessType);
+			queryFeeInput.setChargeItem(c);
+			if (businessType.equals(OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE)) {
+				map.put("customerType", weighingBill.getBuyerType());
+				map.put("customerId", weighingBill.getBuyerId());
+			} else {
+				map.put("customerType", weighingBill.getSellerType());
+				map.put("customerId", weighingBill.getSellerId());
+			}
+			map.put("goodsId", weighingBill.getGoodsId());
+			LocalDateTime tradeTime = statement.getCreatedTime();
+			if (tradeTime == null) {
+				tradeTime = LocalDateTime.now();
+			}
+			map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+			map.put("unitPrice", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getUnitPrice())));
+			if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
+				map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
+			} else {
+				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(10000)).setScale(2, RoundingMode.HALF_UP));
+			}
+			map.put("tradeType", weighingBill.getTradeType());
+			map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
+			queryFeeInput.setCalcParams(map);
+			queryFeeInput.setConditionParams(map);
+			queryFeeInputList.add(queryFeeInput);
+		});
+		return chargeRuleRpc.batchQueryFee(queryFeeInputList);
 	}
 
 	private BaseOutput<PaymentTradeCommitResponseDto> commitTrade(WeighingBill weighingBill, WeighingStatement weighingStatement, String password) {
@@ -1232,7 +1243,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return commitOutput;
 	}
 
-	private Long getBuyerSellerRuleId(String businessType, Long marketId) {
+	private List<Long> getBuyerSellerRuleId(String businessType, Long marketId) {
 		BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
 		// 业务类型
 		businessChargeItemDto.setBusinessType(businessType);
@@ -1250,7 +1261,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (CollectionUtils.isEmpty(listBaseOutput.getData())) {
 			return null;
 		}
-		return listBaseOutput.getData().get(0).getId();
+		List<Long> ruleIds = new ArrayList<Long>(listBaseOutput.getData().size());
+		listBaseOutput.getData().forEach(bci -> ruleIds.add(bci.getId()));
+		return ruleIds;
 	}
 
 	private Long getMarketIdByOperatorId(Long operatorId) {

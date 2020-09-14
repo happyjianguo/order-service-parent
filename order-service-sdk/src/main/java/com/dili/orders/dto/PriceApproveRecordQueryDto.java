@@ -8,20 +8,32 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.ss.domain.annotation.Operator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 
 	@Transient
 	private String goodsSplitStr;
+	@JsonIgnore
+	@JSONField(serialize = false)
 	@Operator(Operator.IN)
 	@Column(name = "'goods_name'")
 	private List<String> goodsNames;
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Operator(Operator.GREAT_EQUAL_THAN)
 	@Column(name = "`weighing_time`")
 	private LocalDateTime weighingStartTime;
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	@Column(name = "`weighing_time`")
 	private LocalDateTime weighingEndTime;

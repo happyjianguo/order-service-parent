@@ -3,6 +3,7 @@ package com.dili.orders.api;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,8 @@ import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.dto.PriceApproveRecordQueryDto;
 import com.dili.orders.service.PriceApproveRecordService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.PageOutput;
+import com.github.pagehelper.Page;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-08-30 14:29:35.
@@ -28,9 +31,10 @@ public class PriceApproveRecordApi {
 	 * @return
 	 */
 	@RequestMapping("/listPage")
-	public BaseOutput<Object> listPageByExample(PriceApproveRecordQueryDto query) {
+	public PageOutput<Object> listPageByExample(@RequestBody PriceApproveRecordQueryDto query) {
 		List<PriceApproveRecord> list = this.priceApproveRecordService.listByExample(query);
-		return BaseOutput.success().setData(list);
+		Page<PriceApproveRecord> page = (Page<PriceApproveRecord>) list;
+		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal((int) page.getTotal());
 	}
 
 	/**
@@ -56,7 +60,7 @@ public class PriceApproveRecordApi {
 	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam Long approverId, @RequestParam String taskId) {
 		return this.priceApproveRecordService.accept(id, approverId, taskId);
 	}
-	
+
 	/**
 	 * 审批拒绝
 	 * 
