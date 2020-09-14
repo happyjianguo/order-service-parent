@@ -135,6 +135,8 @@ public class TransitionDepartureApplyApi {
             if (LocalDate.now().compareTo(createTime) != 0) {
                 return BaseOutput.failure("只能审批当天申请单");
             }
+            //乐观锁实现，需要先查询一次数据库，然后设置version
+            transitionDepartureApply.setVersion(transitionDepartureApplyService.get(transitionDepartureApply.getId()).getVersion());
             transitionDepartureApplyService.updateSelective(transitionDepartureApply);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
