@@ -17,6 +17,8 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tk.mybatis.mapper.annotation.Version;
+
 /**
  * 由MyBatis Generator工具自动生成
  * 
@@ -184,7 +186,7 @@ public class WeighingBill extends BaseDomain {
 	 */
 	@Column(name = "`market_id`")
 	private Long marketId;
-	
+
 	/**
 	 * 件数
 	 */
@@ -337,6 +339,10 @@ public class WeighingBill extends BaseDomain {
 	 */
 	@Column(name = "`process_definition_id`")
 	private String processDefinitionId;
+
+	@Version
+	@Column(name = "`version`")
+	private Integer version;
 
 	/**
 	 * @return id
@@ -872,7 +878,7 @@ public class WeighingBill extends BaseDomain {
 	public void setMarketId(Long marketId) {
 		this.marketId = marketId;
 	}
-	
+
 	/**
 	 * 获取件数
 	 *
@@ -1351,5 +1357,13 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setProcessDefinitionId(String processDefinitionId) {
 		this.processDefinitionId = processDefinitionId;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 }

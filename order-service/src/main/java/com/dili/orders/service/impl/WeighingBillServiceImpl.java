@@ -85,6 +85,7 @@ import com.dili.uap.sdk.rpc.UserRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
+import io.seata.spring.annotation.GlobalTransactional;
 import tk.mybatis.mapper.entity.Example;
 
 /**
@@ -214,6 +215,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return this.getActualDao().selectDetailById(id);
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> freeze(String serialNo, String buyerPassword, Long operatorId) {
@@ -383,6 +385,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return dto;
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
@@ -1027,6 +1030,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setSellerType(sellerOutput.getData().getCustomerMarketType());
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {

@@ -17,6 +17,8 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tk.mybatis.mapper.annotation.Version;
+
 /**
  * 由MyBatis Generator工具自动生成
  * 
@@ -154,6 +156,10 @@ public class WeighingStatement extends BaseDomain {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`modified_time`")
 	private LocalDateTime modifiedTime;
+
+	@Version
+	@Column(name = "`version`")
+	private Integer version;
 
 	/**
 	 * @return id
@@ -564,5 +570,13 @@ public class WeighingStatement extends BaseDomain {
 	 */
 	public void setModifiedTime(LocalDateTime modifiedTime) {
 		this.modifiedTime = modifiedTime;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 }

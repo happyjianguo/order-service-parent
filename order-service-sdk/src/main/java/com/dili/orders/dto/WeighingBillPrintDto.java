@@ -17,7 +17,7 @@ public class WeighingBillPrintDto extends WeighingBill {
 	 */
 	private String weighingOperatorName;
 
-	private Boolean reprint;
+	private Boolean reprint = false;
 
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
