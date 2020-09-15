@@ -81,14 +81,14 @@ public class ComprehensiveFeeApi {
      * @param operatorId 操作人ID
      * @param id 单据ID
      * @param operatorPassword 操作人密码
-     * @param userName 操作人真实名字
-     * @param operatorName 操作人账户名
+     * @param realName 操作人真实名字
+     * @param userName 操作人账户名
      * @return
      *
      */
     @RequestMapping(value = "/revocator")
-    public BaseOutput<Object> revocator(Long id, Long operatorId,String userName,String operatorPassword, String operatorName) {
-        return this.comprehensiveFeeService.revocator(id, operatorId, userName, operatorPassword, operatorName);
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String realName, String operatorPassword, String userName) {
+        return this.comprehensiveFeeService.revocator(id, operatorId, realName, operatorPassword, userName);
     }
 
     /**
