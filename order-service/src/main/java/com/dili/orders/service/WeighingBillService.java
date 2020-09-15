@@ -75,20 +75,18 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 *
 	 * @param id               过磅id
 	 * @param operatorId       操作员id
-	 * @param operatorPassword 操作员登录密码
 	 * @return
 	 */
-	BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword);
+	BaseOutput<Object> operatorInvalidate(Long id, Long operatorId);
 
 	/**
 	 * 操作员撤销过磅单
 	 *
 	 * @param id               过磅id
 	 * @param operatorId       操作员id
-	 * @param operatorPassword 操作员登录密码
 	 * @return
 	 */
-	BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword);
+	BaseOutput<Object> operatorWithdraw(Long id, Long operatorId);
 
 	/**
 	 * 结算

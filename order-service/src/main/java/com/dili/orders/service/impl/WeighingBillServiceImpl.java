@@ -492,19 +492,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId, String operatorPassword) {
+	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}
 		if (!weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue()) && !weighingBill.getState().equals(WeighingBillState.FROZEN.getValue())) {
 			return BaseOutput.failure("当前状态不能作废");
-		}
-
-		// 校验操作员密码
-		BaseOutput<Object> userOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
-		if (!userOutput.isSuccess()) {
-			return BaseOutput.failure("操作员密码错误");
 		}
 
 		Integer beforeUpdateState = weighingBill.getState();
@@ -566,14 +560,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * 在调用recordWithdrawAccountFlow的时候，卖家信息，在第一个streams中获取，买家信息在relation.streams中获取，按照刚哥的说法。
 	 * 不知道是否存在问题，目前是可以撤销成功
 	 * 
-	 * @param id               过磅id
-	 * @param operatorId       操作员id
-	 * @param operatorPassword 操作员登录密码
+	 * @param id         过磅id
+	 * @param operatorId 操作员id
 	 * @return
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId, String operatorPassword) {
+	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
@@ -592,12 +585,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		if (!weighingBill.getState().equals(WeighingBillState.SETTLED.getValue())) {
 			return BaseOutput.failure("当前状态不能撤销");
-		}
-
-		// 校验操作员密码
-		BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
-		if (!pwdOutput.isSuccess()) {
-			return pwdOutput;
 		}
 
 		LocalDateTime now = LocalDateTime.now();
