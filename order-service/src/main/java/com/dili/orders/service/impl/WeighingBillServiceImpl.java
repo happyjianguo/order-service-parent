@@ -1343,13 +1343,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LocalDateTime now = LocalDateTime.now();
 		User operator = this.getUserById(operatorId);
 		Long firmId = this.getMarketIdByOperatorId(operatorId);
+
+		Integer tradeType = PaymentTradeType.TRADE.getValue();
 		// 买家入账
 		if (weighingBill.getFrozenAmount() != null && weighingBill.getFrozenAmount() > 0) {
+			tradeType = PaymentTradeType.PREAUTHORIZED.getValue();
 			// 解冻
 			SerialRecordDo frozenRecord = new SerialRecordDo();
 			frozenRecord.setTradeNo(ws.getPayOrderNo());
+			frozenRecord.setTradeType(tradeType);
+			frozenRecord.setSerialNo(ws.getSerialNo());
 			frozenRecord.setCustomerType(weighingBill.getBuyerType());
-			frozenRecord.setAccountId(weighingBill.getBuyerAccount());
+			frozenRecord.setAccountId(weighingBill.getBuyerCardAccount());
 			frozenRecord.setAction(ActionType.INCOME.getCode());
 			frozenRecord.setAmount(Math.abs(paymentResult.getFrozenAmount()));
 			frozenRecord.setCardNo(weighingBill.getBuyerCardNo());
@@ -1373,8 +1378,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		Long buyerBalance = buyerStream.getBalance() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance());
 		SerialRecordDo buyerExpense = new SerialRecordDo();
 		buyerExpense.setTradeNo(ws.getPayOrderNo());
+		buyerExpense.setTradeType(tradeType);
+		buyerExpense.setSerialNo(ws.getSerialNo());
 		buyerExpense.setCustomerType(weighingBill.getBuyerType());
-		buyerExpense.setAccountId(weighingBill.getBuyerAccount());
+		buyerExpense.setAccountId(weighingBill.getBuyerCardAccount());
 		buyerExpense.setAction(ActionType.EXPENSE.getCode());
 		buyerExpense.setAmount(Math.abs(buyerStream.getAmount()));
 		buyerExpense.setCardNo(weighingBill.getBuyerCardNo());
@@ -1397,8 +1404,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerBalance = buyerPoundageStream.getBalance() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance());
 		SerialRecordDo buyerPoundage = new SerialRecordDo();
 		buyerPoundage.setTradeNo(ws.getPayOrderNo());
+		buyerPoundage.setTradeType(tradeType);
+		buyerPoundage.setSerialNo(ws.getSerialNo());
 		buyerPoundage.setCustomerType(weighingBill.getBuyerType());
-		buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
+		buyerPoundage.setAccountId(weighingBill.getBuyerCardAccount());
 		buyerPoundage.setAction(ActionType.EXPENSE.getCode());
 		buyerPoundage.setAmount(Math.abs(buyerPoundageStream.getAmount()));
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
@@ -1421,8 +1430,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		Long sellerBalance = sellerStream.getBalance() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance());
 		SerialRecordDo sellerIncome = new SerialRecordDo();
 		sellerIncome.setTradeNo(ws.getPayOrderNo());
+		sellerIncome.setTradeType(tradeType);
+		sellerIncome.setSerialNo(ws.getSerialNo());
 		sellerIncome.setCustomerType(weighingBill.getSellerType());
-		sellerIncome.setAccountId(weighingBill.getSellerAccount());
+		sellerIncome.setAccountId(weighingBill.getSellerCardAccount());
 		sellerIncome.setAction(ActionType.INCOME.getCode());
 		sellerIncome.setAmount(sellerStream.getAmount());
 		sellerIncome.setCardNo(weighingBill.getSellerCardNo());
@@ -1445,8 +1456,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerBalance = sellerPoundageStream.getBalance() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance());
 		SerialRecordDo sellerPoundage = new SerialRecordDo();
 		sellerPoundage.setTradeNo(ws.getPayOrderNo());
+		sellerPoundage.setTradeType(tradeType);
+		sellerPoundage.setSerialNo(ws.getSerialNo());
 		sellerPoundage.setCustomerType(weighingBill.getSellerType());
-		sellerPoundage.setAccountId(weighingBill.getSellerAccount());
+		sellerPoundage.setAccountId(weighingBill.getSellerCardAccount());
 		sellerPoundage.setAction(ActionType.EXPENSE.getCode());
 		sellerPoundage.setAmount(Math.abs(sellerPoundageStream.getAmount()));
 		sellerPoundage.setCardNo(weighingBill.getSellerCardNo());
@@ -1474,6 +1487,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
 		SerialRecordDo frozenRecord = new SerialRecordDo();
 		frozenRecord.setTradeNo(ws.getPayOrderNo());
+		frozenRecord.setTradeType(PaymentTradeType.PREAUTHORIZED.getValue());
+		frozenRecord.setSerialNo(ws.getSerialNo());
 		frozenRecord.setCustomerType(weighingBill.getBuyerType());
 		frozenRecord.setAccountId(weighingBill.getBuyerAccount());
 		frozenRecord.setAction(ActionType.INCOME.getCode());
@@ -1501,13 +1516,19 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		Long firmId = this.getMarketIdByOperatorId(operatorId);
 		User operator = this.getUserById(operatorId);
 		LocalDateTime now = LocalDateTime.now();
+		Integer tradeType = PaymentTradeType.TRADE.getValue();
+		if (ws.getFrozenAmount() != null && ws.getFrozenAmount() > 0) {
+			tradeType = PaymentTradeType.TRADE.getValue();
+		}
 		// 卖家手续费
 		PaymentStream sellerPoundageStream = tradeResponse.getStreams().stream().filter(s -> s.getType().equals(FeeType.SELLER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
 		Long sellerBalance = sellerPoundageStream.getBalance() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance());
 		SerialRecordDo sellerRefound = new SerialRecordDo();
 		sellerRefound.setTradeNo(ws.getPayOrderNo());
+		sellerRefound.setTradeType(tradeType);
+		sellerRefound.setSerialNo(ws.getSerialNo());
 		sellerRefound.setCustomerType(weighingBill.getBuyerType());
-		sellerRefound.setAccountId(weighingBill.getSellerAccount());
+		sellerRefound.setAccountId(weighingBill.getSellerCardAccount());
 		sellerRefound.setAction(ActionType.INCOME.getCode());
 		sellerRefound.setAmount(sellerPoundageStream.getAmount());
 		sellerRefound.setCardNo(weighingBill.getSellerCardNo());
@@ -1530,8 +1551,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerBalance = sellerExpenseStream.getBalance() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance());
 		SerialRecordDo sellerExpense = new SerialRecordDo();
 		sellerExpense.setTradeNo(ws.getPayOrderNo());
+		sellerExpense.setTradeType(tradeType);
+		sellerExpense.setSerialNo(ws.getSerialNo());
 		sellerExpense.setCustomerType(weighingBill.getSellerType());
-		sellerExpense.setAccountId(weighingBill.getSellerAccount());
+		sellerExpense.setAccountId(weighingBill.getSellerCardAccount());
 		sellerExpense.setAction(ActionType.EXPENSE.getCode());
 		sellerExpense.setAmount(Math.abs(sellerExpenseStream.getAmount()));
 		sellerExpense.setCardNo(weighingBill.getSellerCardNo());
@@ -1554,7 +1577,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream buyerPoundageStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType().equals(FeeType.BUYER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
 		Long buyerBalance = buyerPoundageStream.getBalance() - (tradeResponse.getRelation().getFrozenAmount() + tradeResponse.getRelation().getFrozenBalance());
 		SerialRecordDo buyerPoundage = new SerialRecordDo();
-		buyerPoundage.setAccountId(weighingBill.getBuyerAccount());
+		buyerPoundage.setTradeNo(ws.getPayOrderNo());
+		buyerPoundage.setTradeType(tradeType);
+		buyerPoundage.setSerialNo(ws.getSerialNo());
+		buyerPoundage.setAccountId(weighingBill.getBuyerCardAccount());
 		buyerPoundage.setAction(ActionType.INCOME.getCode());
 		buyerPoundage.setAmount(buyerPoundageStream.getAmount());
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
@@ -1576,7 +1602,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentStream buyerRefundStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType() == 0).findFirst().orElse(null);
 		buyerBalance = buyerRefundStream.getBalance() - (tradeResponse.getRelation().getFrozenAmount() + tradeResponse.getRelation().getFrozenBalance());
 		SerialRecordDo buyerRefund = new SerialRecordDo();
-		buyerRefund.setAccountId(weighingBill.getBuyerAccount());
+		buyerRefund.setTradeNo(ws.getPayOrderNo());
+		buyerRefund.setTradeType(tradeType);
+		buyerRefund.setSerialNo(ws.getSerialNo());
+		buyerRefund.setAccountId(weighingBill.getBuyerCardAccount());
 		buyerRefund.setAction(ActionType.INCOME.getCode());
 		buyerRefund.setAmount(buyerRefundStream.getAmount());
 		buyerRefund.setCardNo(weighingBill.getBuyerCardNo());
