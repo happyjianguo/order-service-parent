@@ -136,7 +136,7 @@ public class TransitionDepartureApplyApi {
                 return BaseOutput.failure("没有对应申请单信息");
             }
             //判断是否是待审批状态，如果是，则可以审批
-            if (!Objects.equals(transitionDepartureApply1.getApprovalState(), ApplyEnum.TOBEREVIEWED)) {
+            if (!Objects.equals(transitionDepartureApply1.getApprovalState(), ApplyEnum.TOBEREVIEWED.getCode())) {
                 return BaseOutput.failure("该申请单状态不能再审批");
             }
             LocalDate createTime = transitionDepartureApply1.getOriginatorTime().toLocalDate();
