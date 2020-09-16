@@ -132,13 +132,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      */
     @Override
     @Transactional
-    public void calculateReferencePrice(String jsonStr) {
-        // 将传入的JSON串转换为中间表对象添加到中间表
-        WeighingSettlementBillTemp weighingSettlementBill = JSONObject.parseObject(jsonStr,WeighingSettlementBillTemp.class);
-        if (weighingSettlementBill == null) {
-            LOGGER.info("格式转换错误，传入的消息无法正确进行转换");
-            return;
-        }
+    public void calculateReferencePrice(WeighingSettlementBillTemp weighingSettlementBill) {
         // 根据条件获取交易数据
         Map<String,Object> map = new HashMap<>(4);
         map.put("goodsId", weighingSettlementBill.getGoodsId());
@@ -146,12 +140,12 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         map.put("todayEndDate", getEndTime(0));
         map.put("marketId", weighingSettlementBill.getMarketId());
         map.put("tradeType", weighingSettlementBill.getTradeType());
-        getCumulativePrice(weighingSettlementBill,map);
+
+        this.getCumulativePrice(weighingSettlementBill,map);
         // 查询该市场下该商品当天的交易数据
         WeighingTransCalcDto transData = getActualDao().getTransDataByGoodsId(map);
-
         //从数据字典获取配置的交易笔数
-        int transCount = getTransCountByDictionary(weighingSettlementBill.getMarketId());
+        //int transCount = getTransCountByDictionary(weighingSettlementBill.getMarketId());
 
  /*       // 若当天参考价中间表没有数据
         if (transData == null) {
@@ -166,7 +160,6 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         WeighingReferencePrice referencePrice = new WeighingReferencePrice();
 
         // 取总平均值
-
         BigDecimal totalPrice = new BigDecimal(transData.getTotalTradeAmount());
         BigDecimal totalWeight = new BigDecimal(transData.getTotalTradeWeight());
         BigDecimal totalAvgPrice = totalPrice.divide(totalWeight.multiply(new BigDecimal(2)).divide(new BigDecimal(100)));

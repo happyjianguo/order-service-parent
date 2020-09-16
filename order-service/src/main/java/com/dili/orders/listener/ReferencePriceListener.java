@@ -1,24 +1,31 @@
 package com.dili.orders.listener;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dili.orders.api.ReferencePriceApi;
+import com.alibaba.fastjson.JSON;
 import com.dili.orders.config.WeighingBillMQConfig;
+import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.service.ReferencePriceService;
 import com.rabbitmq.client.Channel;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.ExchangeTypes;
-import org.springframework.amqp.rabbit.annotation.*;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.amqp.core.Message;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 参考价监听消息类
  * @author Tyler.Mao
  * @date 2020年8月20日10:10:11
  */
-@Component
+//@Component
 public class ReferencePriceListener {
 
 
@@ -28,7 +35,7 @@ public class ReferencePriceListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencePriceListener.class);
 
     @Autowired
-    ReferencePriceService referencePriceService;
+    private ReferencePriceService referencePriceService;
 
     /**
      * 手动确认状态
@@ -46,30 +53,75 @@ public class ReferencePriceListener {
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = QUEUE_REFERENCE_PRICE_CHANGE, autoDelete = "false"),
             exchange = @Exchange(value = EXCHANGE_REFERENCE_PRICE_CHANGE, type = ExchangeTypes.DIRECT)
-    ))
+    ), ackMode = "MANUAL")
     public void processCustomerInfo(Channel channel, Message message) {
-        Action action = Action.ACCEPT;
-        try {
-            String data = new String(message.getBody(), "UTF-8");
-            LOGGER.info("接收MQ消息，开始计算参考价："+data);
-            referencePriceService.calculateReferencePrice(data);
-        } catch (Exception e) {
-            action = Action.RETRY;
-        } finally {
-            try {
-                // 通过finally块来保证Ack/Nack会且只会执行一次
-                if (action == Action.ACCEPT) {
-                    LOGGER.info("消费成功，删除消息");
-                    channel.basicAck(tag, true);
-                } else if (action == Action.RETRY) {
-                    LOGGER.info("消息重新进入队列");
-                    channel.basicNack(tag, false, true);
-                }
-            } catch (Exception e) {
-                LOGGER.error("-------------计算参考价异常："+e.getMessage());
-            }
+        String data = new String(message.getBody(), StandardCharsets.UTF_8);
+        if (StringUtils.isBlank(data)) {
+            rejectMsg(channel, message.getMessageProperties().getDeliveryTag());
+            return;
+        }
+        LOGGER.info("接收MQ消息，开始计算参考价：{}", data);
 
+        WeighingSettlementBillTemp weighingSettlementBill;
+        try {
+            weighingSettlementBill = JSON.parseObject(data, WeighingSettlementBillTemp.class);
+        } catch (Exception e) {
+            LOGGER.error("deserialize json failed", e);
+            rejectMsg(channel, message.getMessageProperties().getDeliveryTag());
+            return;
+        }
+
+        try {
+            referencePriceService.calculateReferencePrice(weighingSettlementBill);
+            ackMsg(channel, message.getMessageProperties().getDeliveryTag());
+        } catch (Exception e) {
+            LOGGER.error("业务处理失败，开始重新投递", e);
+            Boolean redelivered = message.getMessageProperties().getRedelivered();
+            if (redelivered) {
+                // 消息已重复处理失败, 扔掉消息
+                rejectMsg(channel, message.getMessageProperties().getDeliveryTag());
+            } else {
+                nackMsg(channel, message.getMessageProperties().getDeliveryTag());
+            }
         }
     }
 
+    /**
+    *
+    * @author miaoguoxin
+    * @date 2020/9/16
+    */
+    private static void rejectMsg(Channel channel, long deliveryTag) {
+        try {
+            channel.basicReject(deliveryTag, false);
+        } catch (IOException e) {
+            LOGGER.error("reject message failed", e);
+        }
+    }
+
+    /**
+    *
+    * @author miaoguoxin
+    * @date 2020/9/16
+    */
+    private static void nackMsg(Channel channel, long deliveryTag) {
+        try {
+            channel.basicNack(deliveryTag, false, true);
+        } catch (IOException e) {
+            LOGGER.error("nack message failed", e);
+        }
+    }
+
+    /**
+    *
+    * @author miaoguoxin
+    * @date 2020/9/16
+    */
+    private static void ackMsg(Channel channel, long deliveryTag) {
+        try {
+            channel.basicAck(deliveryTag, false);
+        } catch (IOException e) {
+            LOGGER.error("ack message failed", e);
+        }
+    }
 }

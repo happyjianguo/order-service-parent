@@ -350,7 +350,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @Override
     @GlobalTransactional
     @Transactional(rollbackFor = Exception.class)
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String userName,String operatorPassword, String operatorName) {
+    public BaseOutput<Object> revocator(Long id, Long operatorId, String realName,String operatorPassword, String userName) {
         String cardQueryError = "检测收费支付-->查询账户失败";
         String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
@@ -408,7 +408,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新检测单状态和修改时间
         LocalDateTime now = LocalDateTime.now();
         comprehensiveFee.setModifiedTime(now);
-        comprehensiveFee.setRevocatorName(userName);
+        comprehensiveFee.setRevocatorName(realName);
         comprehensiveFee.setRevocatorTime(now);
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
         //更新comprehensive
@@ -428,7 +428,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setCustomerNo(comprehensiveFee.getCustomerCode());
         serialRecordDo.setOperatorId(comprehensiveFee.getOperatorId());
         serialRecordDo.setOperatorName(comprehensiveFee.getOperatorName());
-        serialRecordDo.setOperatorNo(operatorName);
+        serialRecordDo.setOperatorNo(userName);
         serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
         serialRecordDo.setOperateTime(LocalDateTime.now());
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
