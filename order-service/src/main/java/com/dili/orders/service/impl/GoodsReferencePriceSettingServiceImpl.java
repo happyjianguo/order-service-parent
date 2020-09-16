@@ -24,7 +24,9 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
     @Autowired
     private UidRpc uidRpc;
 
-    public GoodsReferencePriceSettingMapper getActualDao(){return (GoodsReferencePriceSettingMapper)getDao();}
+    public GoodsReferencePriceSettingMapper getActualDao(){
+        return (GoodsReferencePriceSettingMapper)getDao();
+    }
 
     @Override
     public List<GoodsReferencePriceSetting> getAllGoods(GoodsReferencePriceSetting goodsReferencePriceSetting) {

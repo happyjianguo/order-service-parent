@@ -1,6 +1,7 @@
 package com.dili.orders.service;
 
 import com.dili.orders.domain.WeighingReferencePrice;
+import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.ss.base.BaseService;
 
 /**
@@ -19,5 +20,5 @@ public interface ReferencePriceService extends BaseService<WeighingReferencePric
      * 根据商品计算参考价规则
      * @param jsonStr
      */
-    void calculateReferencePrice(String jsonStr);
+    void calculateReferencePrice(WeighingSettlementBillTemp billTemp);
 }
