@@ -5,12 +5,12 @@ public class OrdersConstant {
 	/**
 	 * 支付系统appid
 	 */
-	public static final String PAYMENT_APP_ID = "100101";
+	public static final String PAYMENT_APP_ID = "1040";
 
 	/**
 	 * 支付系统token
 	 */
-	public static final String PAYMENT_TOKEN = "abcd1234";
+	public static final String PAYMENT_TOKEN = "abcd1040";
 
 	/**
 	 * 支付系统账户余额查询请求参数

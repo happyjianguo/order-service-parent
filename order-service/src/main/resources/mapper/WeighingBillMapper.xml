@@ -246,6 +246,7 @@
 
 	<resultMap extends="BaseResultMap" id="DetailResultMap" type="com.dili.orders.dto.WeighingBillDetailDto">
 		<association property="statement">
+			<result column="ws_id" property="id" />
 			<result column="ws_serial_no" property="serialNo" />
 			<result column="trade_amount" property="tradeAmount" />
 			<result column="buyer_poundage" property="buyerPoundage" />
@@ -306,6 +307,7 @@
 	</sql>
 
 	<sql id="Ws_Join_Column_List">
+		ws.id AS ws_id,
 		ws.serial_no AS ws_serial_no,
 		ws.trade_amount,
 		ws.frozen_amount AS ws_frozen_amount,
@@ -514,6 +516,6 @@
 		weighing_bill_operation_record wbor ON wb.id =
 		wbor.weighing_bill_id
 		WHERE
-		wb.id=#{id}
+		ws.id=#{id}
 	</select>
 </mapper>
