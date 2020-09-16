@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
  * @author Tyler.Mao
  * @date 2020年8月20日10:10:11
  */
-@Component
+//@Component
 public class ReferencePriceListener {
 
 
