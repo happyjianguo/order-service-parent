@@ -104,7 +104,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param weighingBill
 	 * @return
 	 */
-	BaseOutput<Object> updateWeighingBill(WeighingBill weighingBill);
+	BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill weighingBill);
 
 	/**
 	 * 撤销过磅单

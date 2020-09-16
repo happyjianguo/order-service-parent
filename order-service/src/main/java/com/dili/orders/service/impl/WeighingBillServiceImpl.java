@@ -175,7 +175,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
-		return rows > 0 ? BaseOutput.success().setData(output.getData()) : BaseOutput.failure("保存过磅单失败");
+		return rows > 0 ? BaseOutput.success().setData(ws) : BaseOutput.failure("保存过磅单失败");
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -335,7 +335,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Override
 	public WeighingBillPrintDto getWeighingBillPrintData(String serialNo) {
-		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
+		WeighingStatement ws = this.getWeighingStatementBySerialNo(serialNo);
+		if (ws == null) {
+			return null;
+		}
+		WeighingBill weighingBill = this.getWeighingBillBySerialNo(ws.getWeighingSerialNo());
 		if (weighingBill == null) {
 			return null;
 		}
@@ -833,7 +837,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> updateWeighingBill(WeighingBill dto) {
+	public BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill dto) {
 		WeighingBill weighingBill = this.getWeighingBillBySerialNo(dto.getSerialNo());
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
@@ -892,7 +896,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存操作记录失败");
 		}
 
-		return rows > 0 ? BaseOutput.success() : BaseOutput.failure("更新过磅单失败");
+		return rows > 0 ? BaseOutput.successData(ws) : BaseOutput.failure("更新过磅单失败");
 	}
 
 	private boolean isWeighingBillRoughWeightUpdated(WeighingBill weighingBill, WeighingBill dto) {
