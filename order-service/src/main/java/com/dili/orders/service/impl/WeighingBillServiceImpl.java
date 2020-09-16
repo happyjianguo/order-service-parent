@@ -50,6 +50,7 @@ import com.dili.orders.dto.FundItem;
 import com.dili.orders.dto.PaymentStream;
 import com.dili.orders.dto.PaymentTradeCommitDto;
 import com.dili.orders.dto.PaymentTradeCommitResponseDto;
+import com.dili.orders.dto.PaymentTradeConfirmDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
 import com.dili.orders.dto.SerialRecordDo;
@@ -386,6 +387,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setUnitWeight(wb.getUnitWeight());
 		dto.setUnitPrice(wb.getUnitPrice());
 		dto.setMeasureType(wb.getMeasureType());
+		dto.setTareWeight(wb.getTareWeight());
+		dto.setRoughWeight(wb.getRoughWeight());
+		dto.setNetWeight(wb.getNetWeight());
+		// 查询买方余额
+		AccountRequestDto balanceQuery = new AccountRequestDto();
+		balanceQuery.setAccountId(wb.getBuyerAccount());
+		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
+		if (!balanceOutput.isSuccess()) {
+			LOGGER.error(balanceOutput.getMessage());
+			return null;
+		}
+		dto.setBuyerBalance(balanceOutput.getData().getAvailableAmount());
 		return dto;
 	}
 

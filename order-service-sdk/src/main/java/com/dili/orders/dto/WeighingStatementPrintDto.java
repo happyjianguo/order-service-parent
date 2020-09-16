@@ -2,9 +2,12 @@ package com.dili.orders.dto;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.WeighingStatement;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class WeighingStatementPrintDto extends WeighingStatement {
 
@@ -36,11 +39,36 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	private Long unitPrice;
 
 	/**
+	 * 皮重(2位小数，转化需要除以100)
+	 */
+	private Integer tareWeight;
+
+	/**
+	 * 毛重(2位小数，转化需要除以100)
+	 */
+	private Integer roughWeight;
+
+	/**
+	 * 净重(2位小数，转化需要除以100)
+	 */
+	private Integer netWeight;
+
+	/**
+	 * 买方余额
+	 */
+	private Long buyerBalance;
+
+	/**
+	 * 是否补打
+	 */
+	@JsonIgnore
+	@JSONField(serialize = false)
+	private Boolean reprint = false;
+
+	/**
 	 * 件重
 	 */
 	private Integer unitWeight;
-
-	private Boolean reprint = false;
 
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
@@ -88,6 +116,8 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 		this.reprint = reprint;
 	}
 
+	@JsonIgnore
+	@JSONField(serialize = false)
 	public String getReprintString() {
 		if (this.reprint) {
 			return "（补打）";
@@ -109,6 +139,38 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setUnitPrice(Long unitPrice) {
 		this.unitPrice = unitPrice;
+	}
+
+	public Integer getTareWeight() {
+		return tareWeight;
+	}
+
+	public void setTareWeight(Integer tareWeight) {
+		this.tareWeight = tareWeight;
+	}
+
+	public Integer getRoughWeight() {
+		return roughWeight;
+	}
+
+	public void setRoughWeight(Integer roughWeight) {
+		this.roughWeight = roughWeight;
+	}
+
+	public Integer getNetWeight() {
+		return netWeight;
+	}
+
+	public void setNetWeight(Integer netWeight) {
+		this.netWeight = netWeight;
+	}
+
+	public Long getBuyerBalance() {
+		return buyerBalance;
+	}
+
+	public void setBuyerBalance(Long buyerBalance) {
+		this.buyerBalance = buyerBalance;
 	}
 
 	public Integer getUnitWeight() {
