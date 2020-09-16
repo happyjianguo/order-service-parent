@@ -175,7 +175,7 @@ public class WeighingBillApi {
 	 * @return
 	 */
 	@RequestMapping(value = "/operatorInvalidate")
-	public BaseOutput<Object> operatorInvalidate(@RequestParam Long id, @RequestParam Long operatorId, @RequestParam String operatorPassword) {
+	public BaseOutput<Object> operatorInvalidate(@RequestParam Long id, @RequestParam Long operatorId) {
 		try {
 			return this.weighingBillService.operatorInvalidate(id, operatorId);
 		} catch (AppException e) {
@@ -192,7 +192,7 @@ public class WeighingBillApi {
 	 * @return
 	 */
 	@RequestMapping(value = "/operatorWithdraw")
-	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId, @RequestParam String operatorPassword) {
+	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId) {
 		try {
 			return this.weighingBillService.operatorWithdraw(id, operatorId);
 		} catch (AppException e) {

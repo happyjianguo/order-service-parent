@@ -1648,7 +1648,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		map.put("unitPrice", String.valueOf(weighingBill.getUnitPrice()));
 		// 设置件重
 		map.put("unitWeight", String.valueOf(weighingBill.getUnitWeight()));
-		// 设置重量
+		// 设置净重
 		map.put("netWeight", String.valueOf(weighingBill.getNetWeight()));
 		// 设置结算日期
 		map.put("settlementTime", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()));
