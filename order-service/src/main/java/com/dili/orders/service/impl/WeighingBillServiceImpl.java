@@ -1184,9 +1184,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 			map.put("unitPrice", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getUnitPrice())));
 			if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-				map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
+				// 公斤转换为斤
+				map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight() * 2)));
 			} else {
-				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(10000)).setScale(2, RoundingMode.HALF_UP));
+				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP));
 			}
 			map.put("tradeType", weighingBill.getTradeType());
 			map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
