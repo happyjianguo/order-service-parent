@@ -361,7 +361,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			dto.setWeighingOperatorUserName(output.getData().getUserName());
 			dto.setWeighingOperatorName(output.getData().getRealName());
 		}
-		return new PrintTemplateDataDto<WeighingBillPrintDto>("过磅单", dto);
+		return new PrintTemplateDataDto<WeighingBillPrintDto>("WeighingDocument", dto);
 	}
 
 	@Override
@@ -400,7 +400,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return null;
 		}
 		dto.setBuyerBalance(balanceOutput.getData().getAvailableAmount());
-		return new PrintTemplateDataDto<WeighingStatementPrintDto>("结算单", dto);
+		String tempName = wb.getMeasureType().equals(MeasureType.WEIGHT.getValue()) ? "SettlementDocument" : "SettlementPieceDocument";
+		return new PrintTemplateDataDto<WeighingStatementPrintDto>(tempName, dto);
 	}
 
 	@GlobalTransactional(rollbackFor = Exception.class)

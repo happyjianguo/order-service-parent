@@ -230,7 +230,9 @@
 	</update>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
+		<result column="ws_id" property="statement.id" />
 		<result column="ws_serial_no" property="statement.serialNo" />
+		<result column="ws_state" property="statement.state" />
 		<result column="trade_amount" property="statement.tradeAmount" />
 		<result column="ws_frozen_amount" property="statement.frozenAmount" />
 		<result column="buyer_poundage" property="statement.buyerPoundage" />
@@ -253,6 +255,7 @@
 			<result column="buyer_actual_amount" property="buyerActualAmount" />
 			<result column="seller_poundage" property="sellerPoundage" />
 			<result column="seller_actual_amount" property="sellerActualAmount" />
+			<result column="ws_frozen_amount" property="frozenAmount" />
 			<result column="ws_state" property="state" />
 		</association>
 		<collection javaType="java.util.ArrayList" ofType="com.dili.orders.domain.WeighingBillOperationRecord" property="records">
@@ -343,7 +346,8 @@
 		wb.id =
 		ws.weighing_bill_id
 		LEFT JOIN
-		( SELECT id,weighing_bill_id, operator_id, operation_type, operation_type_name,operator_user_name, operator_name, operation_time
+		( SELECT id,weighing_bill_id, operator_id, operation_type, operation_type_name,operator_user_name,
+		operator_name, operation_time
 		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON wb.id =
 		wbor.weighing_bill_id
 		WHERE 1 = 1
@@ -408,7 +412,7 @@
 		<if test="marketId != null">
 			AND wb.market_id = #{marketId}
 		</if>
-		ORDER BY ws.modified_time,created_time DESC
+		ORDER BY ws.created_time DESC
 	</select>
 
 	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
