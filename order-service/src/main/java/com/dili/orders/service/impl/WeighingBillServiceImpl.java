@@ -184,7 +184,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Override
 	public BaseOutput<Object> autoClose() {
 		Example example = new Example(WeighingBill.class);
-		example.createCriteria().andBetween("createdTime", LocalDate.now() + " 00:00:00", LocalDate.now() + " 23:59:59").andEqualTo("state", WeighingBillState.NO_SETTLEMENT.getValue());
+		example.createCriteria().andLessThanOrEqualTo("createdTime", LocalDateTime.now()).andEqualTo("state", WeighingBillState.NO_SETTLEMENT.getValue());
 		List<WeighingBill> wbList = this.getActualDao().selectByExample(example);
 		wbList.forEach(wb -> {
 			LocalDateTime now = LocalDateTime.now();
