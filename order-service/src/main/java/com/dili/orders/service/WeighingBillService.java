@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
@@ -131,7 +132,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param serialNo 过磅单号
 	 * @return
 	 */
-	WeighingBillPrintDto getWeighingBillPrintData(String serialNo);
+	PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo);
 
 	/**
 	 * 获取结算单打印数据
@@ -139,5 +140,5 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param serialNo 结算单号
 	 * @return
 	 */
-	WeighingStatementPrintDto getWeighingStatementPrintData(String serialNo);
+	PrintTemplateDataDto<WeighingStatementPrintDto> getWeighingStatementPrintData(String serialNo);
 }

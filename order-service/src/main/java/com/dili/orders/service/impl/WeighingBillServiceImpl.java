@@ -53,6 +53,7 @@ import com.dili.orders.dto.PaymentTradeCommitResponseDto;
 import com.dili.orders.dto.PaymentTradeConfirmDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
+import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.SerialRecordDo;
 import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
@@ -335,7 +336,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	@Override
-	public WeighingBillPrintDto getWeighingBillPrintData(String serialNo) {
+	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo) {
 		WeighingStatement ws = this.getWeighingStatementBySerialNo(serialNo);
 		if (ws == null) {
 			return null;
@@ -360,11 +361,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			dto.setWeighingOperatorUserName(output.getData().getUserName());
 			dto.setWeighingOperatorName(output.getData().getRealName());
 		}
-		return dto;
+		return new PrintTemplateDataDto<WeighingBillPrintDto>("过磅单", dto);
 	}
 
 	@Override
-	public WeighingStatementPrintDto getWeighingStatementPrintData(String serialNo) {
+	public PrintTemplateDataDto<WeighingStatementPrintDto> getWeighingStatementPrintData(String serialNo) {
 		WeighingStatement weighingStatement = this.getWeighingStatementBySerialNo(serialNo);
 		if (weighingStatement == null) {
 			return null;
@@ -399,7 +400,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return null;
 		}
 		dto.setBuyerBalance(balanceOutput.getData().getAvailableAmount());
-		return dto;
+		return new PrintTemplateDataDto<WeighingStatementPrintDto>("结算单", dto);
 	}
 
 	@GlobalTransactional(rollbackFor = Exception.class)

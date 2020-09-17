@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
@@ -208,7 +209,7 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping("/getWeighingBillPrintData")
 	public BaseOutput<Object> getWeighingBillPrintData(@RequestParam String serialNo) {
-		WeighingBillPrintDto dto = this.weighingBillService.getWeighingBillPrintData(serialNo);
+		PrintTemplateDataDto<WeighingBillPrintDto> dto = this.weighingBillService.getWeighingBillPrintData(serialNo);
 		return BaseOutput.success().setData(dto);
 	}
 
@@ -220,7 +221,7 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping("/getWeighingStatementPrintData")
 	public BaseOutput<Object> getWeighingStatementPrintData(@RequestParam String serialNo) {
-		WeighingStatementPrintDto dto = this.weighingBillService.getWeighingStatementPrintData(serialNo);
+		PrintTemplateDataDto<WeighingStatementPrintDto> dto = this.weighingBillService.getWeighingStatementPrintData(serialNo);
 		return BaseOutput.success().setData(dto);
 	}
 }
