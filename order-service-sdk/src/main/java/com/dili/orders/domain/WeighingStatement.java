@@ -22,7 +22,7 @@ import tk.mybatis.mapper.annotation.Version;
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-06-20 17:25:24.
+ * This file was generated on 2020-09-18 17:19:55.
  */
 @Table(name = "`weighing_statement`")
 public class WeighingStatement extends BaseDomain {
@@ -104,7 +104,7 @@ public class WeighingStatement extends BaseDomain {
 	private Long sellerActualAmount;
 
 	/**
-	 * 卖方手续费
+	 * 卖家手续费
 	 */
 	@Column(name = "`seller_poundage`")
 	private Long sellerPoundage;
@@ -140,6 +140,12 @@ public class WeighingStatement extends BaseDomain {
 	private String frozenOrderNo;
 
 	/**
+	 * 创建人id
+	 */
+	@Column(name = "`creator_id`")
+	private Long creatorId;
+
+	/**
 	 * 创建时间
 	 */
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -147,6 +153,12 @@ public class WeighingStatement extends BaseDomain {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`created_time`")
 	private LocalDateTime createdTime;
+
+	/**
+	 * 修改人id
+	 */
+	@Column(name = "`modifier_id`")
+	private Long modifierId;
 
 	/**
 	 * 更新时间
@@ -157,6 +169,9 @@ public class WeighingStatement extends BaseDomain {
 	@Column(name = "`modified_time`")
 	private LocalDateTime modifiedTime;
 
+	/**
+	 * 版本号，事务控制
+	 */
 	@Version
 	@Column(name = "`version`")
 	private Integer version;
@@ -418,16 +433,21 @@ public class WeighingStatement extends BaseDomain {
 	}
 
 	/**
-	 * 卖方手续费
+	 * 获取卖家手续费
 	 *
-	 * @return seller_poundage - 卖方手续费
+	 * @return seller_poundage - 卖家手续费
 	 */
-	@FieldDef(label = "卖方手续费")
+	@FieldDef(label = "卖家手续费")
 	@EditMode(editor = FieldEditor.Number, required = false)
 	public Long getSellerPoundage() {
 		return sellerPoundage;
 	}
 
+	/**
+	 * 设置卖家手续费
+	 *
+	 * @param sellerPoundage 卖家手续费
+	 */
 	public void setSellerPoundage(Long sellerPoundage) {
 		this.sellerPoundage = sellerPoundage;
 	}
@@ -533,6 +553,26 @@ public class WeighingStatement extends BaseDomain {
 	}
 
 	/**
+	 * 获取创建人id
+	 *
+	 * @return creator_id - 创建人id
+	 */
+	@FieldDef(label = "创建人id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getCreatorId() {
+		return creatorId;
+	}
+
+	/**
+	 * 设置创建人id
+	 *
+	 * @param creatorId 创建人id
+	 */
+	public void setCreatorId(Long creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	/**
 	 * 获取创建时间
 	 *
 	 * @return created_time - 创建时间
@@ -550,6 +590,26 @@ public class WeighingStatement extends BaseDomain {
 	 */
 	public void setCreatedTime(LocalDateTime createdTime) {
 		this.createdTime = createdTime;
+	}
+
+	/**
+	 * 获取修改人id
+	 *
+	 * @return modifier_id - 修改人id
+	 */
+	@FieldDef(label = "修改人id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getModifierId() {
+		return modifierId;
+	}
+
+	/**
+	 * 设置修改人id
+	 *
+	 * @param modifierId 修改人id
+	 */
+	public void setModifierId(Long modifierId) {
+		this.modifierId = modifierId;
 	}
 
 	/**
@@ -572,10 +632,22 @@ public class WeighingStatement extends BaseDomain {
 		this.modifiedTime = modifiedTime;
 	}
 
+	/**
+	 * 获取版本号，事务控制
+	 *
+	 * @return version - 版本号，事务控制
+	 */
+	@FieldDef(label = "版本号，事务控制")
+	@EditMode(editor = FieldEditor.Number, required = true)
 	public Integer getVersion() {
 		return version;
 	}
 
+	/**
+	 * 设置版本号，事务控制
+	 *
+	 * @param version 版本号，事务控制
+	 */
 	public void setVersion(Integer version) {
 		this.version = version;
 	}

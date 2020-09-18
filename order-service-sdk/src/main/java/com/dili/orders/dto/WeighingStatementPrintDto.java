@@ -70,6 +70,11 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private Integer unitWeight;
 
+	/**
+	 * 件数
+	 */
+	private Integer unitAmount;
+
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
 	}
@@ -179,6 +184,14 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setUnitWeight(Integer unitWeight) {
 		this.unitWeight = unitWeight;
+	}
+
+	public Integer getUnitAmount() {
+		return unitAmount;
+	}
+
+	public void setUnitAmount(Integer unitAmount) {
+		this.unitAmount = unitAmount;
 	}
 
 }
