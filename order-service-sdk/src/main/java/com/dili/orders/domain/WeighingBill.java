@@ -17,6 +17,8 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tk.mybatis.mapper.annotation.Version;
+
 /**
  * 由MyBatis Generator工具自动生成
  * 
@@ -230,6 +232,9 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 取重时间
 	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`fetch_weight_time`")
 	private LocalDateTime fetchWeightTime;
 
@@ -365,6 +370,7 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 版本号，乐观锁控制
 	 */
+	@Version
 	@Column(name = "`version`")
 	private Integer version;
 
