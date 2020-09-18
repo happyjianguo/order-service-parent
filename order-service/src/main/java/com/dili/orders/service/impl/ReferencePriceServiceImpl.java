@@ -1,6 +1,5 @@
 package com.dili.orders.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.domain.WeighingReferencePrice;
 import com.dili.orders.domain.WeighingSettlementBillTemp;
@@ -8,7 +7,7 @@ import com.dili.orders.dto.ReferencePriceDto;
 import com.dili.orders.dto.WeighingTransCalcDto;
 import com.dili.orders.mapper.ReferencePriceMapper;
 import com.dili.orders.service.ReferencePriceService;
-import com.dili.orders.util.CurrencyUtils;
+import com.dili.orders.service.referenceprice.ReferencePriceCalculator;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -22,7 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Tyler
@@ -45,6 +48,8 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
 
     @Autowired
     private DataDictionaryRpc dataDictionaryRpc;
+    @Autowired
+    private ReferencePriceCalculator referencePriceCalculator;
 
     /**
      * 获取参考价逻辑
@@ -131,7 +136,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * @param jsonStr 交易单据json
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void calculateReferencePrice(WeighingSettlementBillTemp weighingSettlementBill) {
         // 根据条件获取交易数据
         Map<String,Object> map = new HashMap<>(4);
@@ -160,11 +165,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         WeighingReferencePrice referencePrice = new WeighingReferencePrice();
 
         // 取总平均值
-        BigDecimal totalPrice = new BigDecimal(transData.getTotalTradeAmount());
-        BigDecimal totalWeight = new BigDecimal(transData.getTotalTradeWeight());
-        BigDecimal totalAvgPrice = totalPrice.divide(totalWeight.multiply(new BigDecimal(2)).divide(new BigDecimal(100)));
-
-        referencePrice.setTotalAvgCount(totalAvgPrice.longValue());
+        Long totalAvgPrice = referencePriceCalculator.getTotalAvgPrice(transData.getTotalTradeAmount(),
+                transData.getTotalTradeWeight());
+        referencePrice.setTotalAvgCount(totalAvgPrice);
         referencePrice.setGoodsId(weighingSettlementBill.getGoodsId());
         referencePrice.setMarketId(weighingSettlementBill.getMarketId());
         referencePrice.setSettlementTime(new Date());
@@ -179,17 +182,8 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         referencePrice.setTransCount(transData.getTradeCount());
 
         //计算去掉最大值最小值的平均值
-        BigDecimal MaxPrice = new BigDecimal(transData.getMaxTradeAmount());
-        BigDecimal MinPrice = new BigDecimal(transData.getMinTradeAmount());
-        BigDecimal maxWeight = new BigDecimal(transData.getMaxTradeWeight());
-        BigDecimal minWeight = new BigDecimal(transData.getMinTradeWeight());
-        BigDecimal totalTradeAmount = new BigDecimal(transData.getTotalTradeAmount());
-        BigDecimal totalTradeWeight = new BigDecimal(transData.getTotalTradeWeight());
-
-        BigDecimal partPrice = totalTradeAmount.subtract(MaxPrice).subtract(MinPrice);
-        BigDecimal partWeight = totalTradeWeight.subtract(maxWeight).subtract(minWeight);
-        partPrice = partPrice.divide(partWeight.multiply(new BigDecimal(2)).divide(new BigDecimal(100)));
-        referencePrice.setPartAvgCount(partPrice.longValue());
+        Long partPrice = referencePriceCalculator.getMiddleTotalAvgPrice(transData);
+        referencePrice.setPartAvgCount(partPrice);
 
         // 查询该商品是否存在参考价信息 若不存在 则添加 若存在 则更新
         int isExists =  getActualDao().getReferencePriceCountByGoodsIdIsExists(map);
@@ -215,16 +209,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         // 查询该市场下该商品当天的交易数据
         WeighingTransCalcDto transData = getActualDao().getTransDataByGoodsId(map);
 
-        // 将元/件的单据转换为元/斤
-        if (ReferencePriceDto.MONTH_TWO.equals(weighingSettlementBill.getMeasureType())) {
-            BigDecimal unitPrice = new BigDecimal(weighingSettlementBill.getUnitPrice());
-            BigDecimal unitWeight = new BigDecimal(weighingSettlementBill.getUnitWeight());
-            BigDecimal netWeight = new BigDecimal(weighingSettlementBill.getNetWeight());
-            unitPrice = unitPrice.divide(unitWeight.divide(new BigDecimal(100)));
-            BigDecimal price = unitPrice.multiply(netWeight.multiply(new BigDecimal(2)).divide(new BigDecimal(100)));
-            Long lastPrice = price.longValue();
-            weighingSettlementBill.setTradeAmount(lastPrice);
-        }
+        //计算交易额
+        Long tradeAmount = referencePriceCalculator.getTradeAmount(weighingSettlementBill);
+        weighingSettlementBill.setTradeAmount(tradeAmount);
 
         //若查询出的list为空 则初始化数据进行添加
         if (transData == null) {
@@ -257,38 +244,38 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
             transData.setMaxPrice(weighingSettlementBill.getUnitPrice());
             transData.setMaxTradeAmount(weighingSettlementBill.getTradeAmount());
             transData.setMaxTradeWeight(weighingSettlementBill.getNetWeight());
-            transData.setTradePriceCount(transData.getTradePriceCount()+1);
+            transData.setTradePriceCount(transData.getTradePriceCount() + 1);
         } else if (weighingSettlementBill.getUnitPrice() < transData.getMinPrice()) {
             // 若接收到的单据中单价小于最低价格
             // 更新最小价格、最小交易额、最小交易量、交易价格数
             transData.setMinPrice(weighingSettlementBill.getUnitPrice());
             transData.setMinTradeAmount(weighingSettlementBill.getTradeAmount());
             transData.setMinTradeWeight(weighingSettlementBill.getNetWeight());
-            transData.setTradePriceCount(transData.getTradePriceCount()+1);
+            transData.setTradePriceCount(transData.getTradePriceCount() + 1);
         } else if (transData.getTradePriceCount() == 1 && transData.getMaxPrice().equals(weighingSettlementBill.getUnitPrice())) {
             // 若表中只有一个价格 且与传入的价格相同 累加最大最小交易额与最大最小交易量
-            transData.setMaxTradeAmount(transData.getMaxTradeAmount()+weighingSettlementBill.getTradeAmount());
-            transData.setMaxTradeWeight(transData.getMaxTradeWeight()+weighingSettlementBill.getNetWeight());
-            transData.setMinTradeAmount(transData.getMinTradeAmount()+weighingSettlementBill.getTradeAmount());
-            transData.setMinTradeWeight(transData.getMinTradeWeight()+weighingSettlementBill.getNetWeight());
+            transData.setMaxTradeAmount(transData.getMaxTradeAmount() + weighingSettlementBill.getTradeAmount());
+            transData.setMaxTradeWeight(transData.getMaxTradeWeight() + weighingSettlementBill.getNetWeight());
+            transData.setMinTradeAmount(transData.getMinTradeAmount() + weighingSettlementBill.getTradeAmount());
+            transData.setMinTradeWeight(transData.getMinTradeWeight() + weighingSettlementBill.getNetWeight());
         } else if (transData.getMaxPrice().equals(weighingSettlementBill.getUnitPrice())) {
             // 若等于最大价格 则更新最大交易额、最大交易量
-            transData.setMaxTradeAmount(transData.getMaxTradeAmount()+weighingSettlementBill.getTradeAmount());
-            transData.setMaxTradeWeight(transData.getMaxTradeWeight()+weighingSettlementBill.getNetWeight());
+            transData.setMaxTradeAmount(transData.getMaxTradeAmount() + weighingSettlementBill.getTradeAmount());
+            transData.setMaxTradeWeight(transData.getMaxTradeWeight() + weighingSettlementBill.getNetWeight());
         } else if (transData.getMinPrice().equals(weighingSettlementBill.getUnitPrice())) {
             // 若等于最小价格 则更新最小交易额、最小交易量
-            transData.setMinTradeAmount(transData.getMinTradeAmount()+weighingSettlementBill.getTradeAmount());
-            transData.setMinTradeWeight(transData.getMinTradeWeight()+weighingSettlementBill.getNetWeight());
+            transData.setMinTradeAmount(transData.getMinTradeAmount() + weighingSettlementBill.getTradeAmount());
+            transData.setMinTradeWeight(transData.getMinTradeWeight() + weighingSettlementBill.getNetWeight());
         } else {
             // 若小于最大值 大于最小值 更新交易价格数
-            transData.setTradePriceCount(transData.getTradePriceCount()+1);
+            transData.setTradePriceCount(transData.getTradePriceCount() + 1);
         }
 
         // 交易笔数加一
-        transData.setTradeCount(transData.getTradeCount()+1);
+        transData.setTradeCount(transData.getTradeCount() + 1);
         // 累加该商品总交易额与交易量
-        transData.setTotalTradeAmount(transData.getTotalTradeAmount()+weighingSettlementBill.getTradeAmount());
-        transData.setTotalTradeWeight(transData.getTotalTradeWeight()+weighingSettlementBill.getNetWeight());
+        transData.setTotalTradeAmount(transData.getTotalTradeAmount() + weighingSettlementBill.getTradeAmount());
+        transData.setTotalTradeWeight(transData.getTotalTradeWeight() + weighingSettlementBill.getNetWeight());
         transData.setSettlementTime(new Date());
         // 更新参考中间价单据表
         LOGGER.info("--------------更新参考价中间表数据-----------------");
