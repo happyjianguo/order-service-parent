@@ -25,6 +25,11 @@ import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
+import com.dili.customer.sdk.domain.Customer;
+import com.dili.customer.sdk.dto.RelatedDto;
+import com.dili.customer.sdk.dto.RelatedQuery;
+import com.dili.customer.sdk.rpc.CustomerRpc;
+import com.dili.customer.sdk.rpc.RelatedRpc;
 import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.config.WeighingBillMQConfig;
@@ -50,7 +55,6 @@ import com.dili.orders.dto.FundItem;
 import com.dili.orders.dto.PaymentStream;
 import com.dili.orders.dto.PaymentTradeCommitDto;
 import com.dili.orders.dto.PaymentTradeCommitResponseDto;
-import com.dili.orders.dto.PaymentTradeConfirmDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
 import com.dili.orders.dto.PrintTemplateDataDto;
@@ -136,6 +140,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private WeighingStatementMapper weighingStatementMapper;
 	@Autowired
 	private RuntimeRpc runtimeRpc;
+	@Autowired
+	private RelatedRpc relatedRpc;
+	@Autowired
+	private CustomerRpc customerRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -998,6 +1006,25 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerContact(buyerOutput.getData().getCustomerContactsPhone());
 		weighingBill.setBuyerCardAccount(buyerOutput.getData().getAccountId());
 		weighingBill.setBuyerType(buyerOutput.getData().getCustomerMarketType());
+		RelatedQuery query = new RelatedQuery();
+		query.setCustomerId(buyerOutput.getData().getCustomerId());
+		query.setMarketId(weighingBill.getMarketId());
+		BaseOutput<List<RelatedDto>> relatedOutput = this.relatedRpc.getParent(query);
+		if (!relatedOutput.isSuccess()) {
+			throw new AppException(relatedOutput.getMessage());
+		}
+		if (CollectionUtils.isEmpty(relatedOutput.getData())) {
+			throw new AppException("未查询到买方代理人");
+		}
+		weighingBill.setBuyerAgentId(relatedOutput.getData().get(0).getCustomerId());
+		BaseOutput<Customer> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getCustomerId(), weighingBill.getMarketId());
+		if (!agentOutput.isSuccess()) {
+			throw new AppException(agentOutput.getMessage());
+		}
+		if (agentOutput.getData() == null) {
+			throw new AppException("未查询到买方代理人");
+		}
+		weighingBill.setBuyerAgentName(agentOutput.getData().getName());
 	}
 
 	private void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
@@ -1034,6 +1061,25 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setSellerContact(sellerOutput.getData().getCustomerContactsPhone());
 		weighingBill.setSellerCardAccount(sellerOutput.getData().getAccountId());
 		weighingBill.setSellerType(sellerOutput.getData().getCustomerMarketType());
+		RelatedQuery query = new RelatedQuery();
+		query.setCustomerId(sellerOutput.getData().getCustomerId());
+		query.setMarketId(weighingBill.getMarketId());
+		BaseOutput<List<RelatedDto>> relatedOutput = this.relatedRpc.getParent(query);
+		if (!relatedOutput.isSuccess()) {
+			throw new AppException(relatedOutput.getMessage());
+		}
+		if (CollectionUtils.isEmpty(relatedOutput.getData())) {
+			throw new AppException("未查询到买方代理人");
+		}
+		weighingBill.setSellerAgentId(relatedOutput.getData().get(0).getCustomerId());
+		BaseOutput<Customer> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getCustomerId(), weighingBill.getMarketId());
+		if (!agentOutput.isSuccess()) {
+			throw new AppException(agentOutput.getMessage());
+		}
+		if (agentOutput.getData() == null) {
+			throw new AppException("未查询到买方代理人");
+		}
+		weighingBill.setSellerAgentName(agentOutput.getData().getName());
 	}
 
 	@GlobalTransactional(rollbackFor = Exception.class)

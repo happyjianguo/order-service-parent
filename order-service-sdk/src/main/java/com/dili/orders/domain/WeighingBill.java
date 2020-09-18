@@ -17,12 +17,10 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import tk.mybatis.mapper.annotation.Version;
-
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-08-25 17:50:21.
+ * This file was generated on 2020-09-18 08:48:36.
  */
 @Table(name = "`weighing_bill`")
 public class WeighingBill extends BaseDomain {
@@ -98,6 +96,18 @@ public class WeighingBill extends BaseDomain {
 	private String buyerType;
 
 	/**
+	 * 买家代理人id
+	 */
+	@Column(name = "`buyer_agent_id`")
+	private Long buyerAgentId;
+
+	/**
+	 * 买家代理人姓名
+	 */
+	@Column(name = "`buyer_agent_name`")
+	private String buyerAgentName;
+
+	/**
 	 * 卖方id
 	 */
 	@Column(name = "`seller_id`")
@@ -146,6 +156,18 @@ public class WeighingBill extends BaseDomain {
 	private String sellerType;
 
 	/**
+	 * 卖家代理人id
+	 */
+	@Column(name = "`seller_agent_id`")
+	private Long sellerAgentId;
+
+	/**
+	 * 卖家代理人姓名
+	 */
+	@Column(name = "`seller_agent_name`")
+	private String sellerAgentName;
+
+	/**
 	 * 商品id
 	 */
 	@Column(name = "`goods_id`")
@@ -182,25 +204,19 @@ public class WeighingBill extends BaseDomain {
 	private String goodsOriginCityName;
 
 	/**
-	 * 市场id
-	 */
-	@Column(name = "`market_id`")
-	private Long marketId;
-
-	/**
 	 * 件数
 	 */
 	@Column(name = "`unit_amount`")
 	private Integer unitAmount;
 
 	/**
-	 * 单价（分）
+	 * 单价（分），元/斤
 	 */
 	@Column(name = "`unit_price`")
 	private Long unitPrice;
 
 	/**
-	 * 件重(2位小数，转化需要除以100)
+	 * 件重(2位小数，转化需要除以100)，单位斤
 	 */
 	@Column(name = "`unit_weight`")
 	private Integer unitWeight;
@@ -214,9 +230,6 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 取重时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`fetch_weight_time`")
 	private LocalDateTime fetchWeightTime;
 
@@ -301,6 +314,9 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 结算时间
 	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`settlement_time`")
 	private LocalDateTime settlementTime;
 
@@ -340,7 +356,15 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`process_definition_id`")
 	private String processDefinitionId;
 
-	@Version
+	/**
+	 * 市场id
+	 */
+	@Column(name = "`market_id`")
+	private Long marketId;
+
+	/**
+	 * 版本号，乐观锁控制
+	 */
 	@Column(name = "`version`")
 	private Integer version;
 
@@ -581,6 +605,46 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
+	 * 获取买家代理人id
+	 *
+	 * @return buyer_agent_id - 买家代理人id
+	 */
+	@FieldDef(label = "买家代理人id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getBuyerAgentId() {
+		return buyerAgentId;
+	}
+
+	/**
+	 * 设置买家代理人id
+	 *
+	 * @param buyerAgentId 买家代理人id
+	 */
+	public void setBuyerAgentId(Long buyerAgentId) {
+		this.buyerAgentId = buyerAgentId;
+	}
+
+	/**
+	 * 获取买家代理人姓名
+	 *
+	 * @return buyer_agent_name - 买家代理人姓名
+	 */
+	@FieldDef(label = "买家代理人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getBuyerAgentName() {
+		return buyerAgentName;
+	}
+
+	/**
+	 * 设置买家代理人姓名
+	 *
+	 * @param buyerAgentName 买家代理人姓名
+	 */
+	public void setBuyerAgentName(String buyerAgentName) {
+		this.buyerAgentName = buyerAgentName;
+	}
+
+	/**
 	 * 获取卖方id
 	 *
 	 * @return seller_id - 卖方id
@@ -741,6 +805,46 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
+	 * 获取卖家代理人id
+	 *
+	 * @return seller_agent_id - 卖家代理人id
+	 */
+	@FieldDef(label = "卖家代理人id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getSellerAgentId() {
+		return sellerAgentId;
+	}
+
+	/**
+	 * 设置卖家代理人id
+	 *
+	 * @param sellerAgentId 卖家代理人id
+	 */
+	public void setSellerAgentId(Long sellerAgentId) {
+		this.sellerAgentId = sellerAgentId;
+	}
+
+	/**
+	 * 获取卖家代理人姓名
+	 *
+	 * @return seller_agent_name - 卖家代理人姓名
+	 */
+	@FieldDef(label = "卖家代理人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getSellerAgentName() {
+		return sellerAgentName;
+	}
+
+	/**
+	 * 设置卖家代理人姓名
+	 *
+	 * @param sellerAgentName 卖家代理人姓名
+	 */
+	public void setSellerAgentName(String sellerAgentName) {
+		this.sellerAgentName = sellerAgentName;
+	}
+
+	/**
 	 * 获取商品id
 	 *
 	 * @return goods_id - 商品id
@@ -861,25 +965,6 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
-	 * 获取市场id
-	 *
-	 * @return market_id - 市场id
-	 */
-	@EditMode(editor = FieldEditor.Number, required = false)
-	public Long getMarketId() {
-		return marketId;
-	}
-
-	/**
-	 * 设置市场id
-	 *
-	 * @param marketId 市场id
-	 */
-	public void setMarketId(Long marketId) {
-		this.marketId = marketId;
-	}
-
-	/**
 	 * 获取件数
 	 *
 	 * @return unit_amount - 件数
@@ -900,40 +985,40 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
-	 * 获取单价（分）
+	 * 获取单价（分），元/斤
 	 *
-	 * @return unit_price - 单价（分）
+	 * @return unit_price - 单价（分），元/斤
 	 */
-	@FieldDef(label = "单价（分）")
+	@FieldDef(label = "单价（分），元/斤")
 	@EditMode(editor = FieldEditor.Number, required = true)
 	public Long getUnitPrice() {
 		return unitPrice;
 	}
 
 	/**
-	 * 设置单价（分）
+	 * 设置单价（分），元/斤
 	 *
-	 * @param unitPrice 单价（分）
+	 * @param unitPrice 单价（分），元/斤
 	 */
 	public void setUnitPrice(Long unitPrice) {
 		this.unitPrice = unitPrice;
 	}
 
 	/**
-	 * 获取件重(2位小数，转化需要除以100)
+	 * 获取件重(2位小数，转化需要除以100)，单位斤
 	 *
-	 * @return unit_weight - 件重(2位小数，转化需要除以100)
+	 * @return unit_weight - 件重(2位小数，转化需要除以100)，单位斤
 	 */
-	@FieldDef(label = "件重(2位小数，转化需要除以100)")
+	@FieldDef(label = "件重(2位小数，转化需要除以100)，单位斤")
 	@EditMode(editor = FieldEditor.Number, required = false)
 	public Integer getUnitWeight() {
 		return unitWeight;
 	}
 
 	/**
-	 * 设置件重(2位小数，转化需要除以100)
+	 * 设置件重(2位小数，转化需要除以100)，单位斤
 	 *
-	 * @param unitWeight 件重(2位小数，转化需要除以100)
+	 * @param unitWeight 件重(2位小数，转化需要除以100)，单位斤
 	 */
 	public void setUnitWeight(Integer unitWeight) {
 		this.unitWeight = unitWeight;
@@ -985,7 +1070,7 @@ public class WeighingBill extends BaseDomain {
 	 * @return rough_weight - 毛重(2位小数，转化需要除以100)
 	 */
 	@FieldDef(label = "毛重(2位小数，转化需要除以100)")
-	@EditMode(editor = FieldEditor.Number, required = true)
+	@EditMode(editor = FieldEditor.Number, required = false)
 	public Integer getRoughWeight() {
 		return roughWeight;
 	}
@@ -1359,10 +1444,42 @@ public class WeighingBill extends BaseDomain {
 		this.processDefinitionId = processDefinitionId;
 	}
 
+	/**
+	 * 获取市场id
+	 *
+	 * @return market_id - 市场id
+	 */
+	@FieldDef(label = "市场id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getMarketId() {
+		return marketId;
+	}
+
+	/**
+	 * 设置市场id
+	 *
+	 * @param marketId 市场id
+	 */
+	public void setMarketId(Long marketId) {
+		this.marketId = marketId;
+	}
+
+	/**
+	 * 获取版本号，乐观锁控制
+	 *
+	 * @return version - 版本号，乐观锁控制
+	 */
+	@FieldDef(label = "版本号，乐观锁控制")
+	@EditMode(editor = FieldEditor.Number, required = true)
 	public Integer getVersion() {
 		return version;
 	}
 
+	/**
+	 * 设置版本号，乐观锁控制
+	 *
+	 * @param version 版本号，乐观锁控制
+	 */
 	public void setVersion(Integer version) {
 		this.version = version;
 	}
