@@ -102,7 +102,16 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>5.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.udojava</groupId>
+			<artifactId>EvalEx</artifactId>
+			<version>2.5</version>
+		</dependency>
 		<!-- =============== spring cloud starters =============== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
