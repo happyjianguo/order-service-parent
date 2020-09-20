@@ -1,5 +1,6 @@
 package com.dili.orders.api;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.orders.domain.WeighingBill;
-import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.domain.WeighingStatementState;
 import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
@@ -20,7 +21,6 @@ import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
 
 /**
@@ -223,5 +223,14 @@ public class WeighingBillApi {
 	public BaseOutput<Object> getWeighingStatementPrintData(@RequestParam String serialNo) {
 		PrintTemplateDataDto<WeighingStatementPrintDto> dto = this.weighingBillService.getWeighingStatementPrintData(serialNo);
 		return BaseOutput.success().setData(dto);
+	}
+
+	@RequestMapping("/sourceSync")
+	public BaseOutput<Object> sourceSync(@RequestParam Long id) {
+		WeighingBillQueryDto wbQuery = new WeighingBillQueryDto();
+		wbQuery.setIdStart(id);
+		wbQuery.setStatementStates(Arrays.asList(WeighingStatementState.PAID.getValue()));
+		List<WeighingBillListPageDto> list = this.weighingBillService.listByExampleModified(wbQuery);
+		return BaseOutput.successData(list);
 	}
 }

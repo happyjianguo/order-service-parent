@@ -452,6 +452,9 @@
 		wb.id =
 		ws.weighing_bill_id
 		WHERE 1 = 1
+		<if test="idStart != null">
+			AND wb.id <![CDATA[>]]> #{idStart}
+		</if>
 		<if test="state != null">
 			AND wb.state=#{state}
 		</if>

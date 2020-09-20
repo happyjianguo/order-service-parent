@@ -22,6 +22,14 @@ public class WeighingBillQueryDto extends WeighingBill {
 	 */
 	@Transient
 	private static final long serialVersionUID = -789812465777179417L;
+
+	/**
+	 * 查询大于改id的数据
+	 */
+	@Operator(Operator.GREAT_THAN)
+	@Column(name = "`id`")
+	private Long idStart;
+
 	/**
 	 * 状态
 	 */
@@ -63,6 +71,14 @@ public class WeighingBillQueryDto extends WeighingBill {
 	 * 是否过滤掉价格异常数据
 	 */
 	private Boolean filterByPriceState = false;
+
+	public Long getIdStart() {
+		return idStart;
+	}
+
+	public void setIdStart(Long idStart) {
+		this.idStart = idStart;
+	}
 
 	public List<Integer> getStates() {
 		return states;
