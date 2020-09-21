@@ -441,7 +441,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
 		if (!pwdOutput.isSuccess()) {
-			return BaseOutput.failure("买方密码错误");
+			return pwdOutput;
 		}
 
 		AccountPasswordValidateDto sellerPwdDto = new AccountPasswordValidateDto();
@@ -449,7 +449,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPwdDto.setPassword(sellerPassword);
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
 		if (!pwdOutput.isSuccess()) {
-			return BaseOutput.failure("卖方密码错误");
+			return pwdOutput;
 		}
 
 		LocalDateTime now = LocalDateTime.now();
@@ -916,7 +916,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
 		if (!pwdOutput.isSuccess()) {
-			return BaseOutput.failure("买方密码错误");
+			return pwdOutput;
 		}
 
 		AccountPasswordValidateDto sellerPwdDto = new AccountPasswordValidateDto();
@@ -924,7 +924,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPwdDto.setPassword(sellerPassword);
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
 		if (!pwdOutput.isSuccess()) {
-			return BaseOutput.failure("卖方密码错误");
+			return pwdOutput;
 		}
 
 		LocalDateTime now = LocalDateTime.now();
@@ -1050,7 +1050,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			} else {
 				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP));
 			}
-			map.put("tradeType", weighingBill.getTradeTypeId());
+			map.put("tradeTypeId", weighingBill.getTradeTypeId());
 			map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
 			queryFeeInput.setCalcParams(map);
 			queryFeeInput.setConditionParams(map);
