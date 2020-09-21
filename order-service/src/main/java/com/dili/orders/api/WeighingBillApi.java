@@ -225,6 +225,12 @@ public class WeighingBillApi {
 		return BaseOutput.success().setData(dto);
 	}
 
+	/**
+	 * 朔源系统同步接口
+	 * 
+	 * @param id 从大于id（不包含）的数据开始同步
+	 * @return
+	 */
 	@RequestMapping("/sourceSync")
 	public BaseOutput<Object> sourceSync(@RequestParam Long id) {
 		WeighingBillQueryDto wbQuery = new WeighingBillQueryDto();
