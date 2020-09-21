@@ -95,7 +95,7 @@ public class TransitionDepartureSettlementApi {
         //获取余额返回，类型为元
         BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
         if (!oneAccountCard1.isSuccess()) {
-            return BaseOutput.failure("根据卡查询客户失败");
+            return BaseOutput.failure(oneAccountCard1.getMessage());
         }
         //获取账户资金信息
         BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
