@@ -15,6 +15,7 @@ import java.util.Objects;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -144,6 +145,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private RelatedRpc relatedRpc;
 	@Autowired
 	private CustomerRpc customerRpc;
+	@Value("${orders.checkPrice:false}")
+	private Boolean checkPrice;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -168,6 +171,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		Long firmId = this.getMarketIdByOperatorId(weighingBill.getCreatorId());
 		WeighingStatement ws = this.buildWeighingStatement(weighingBill, firmId);
+		ws.setCreatorId(weighingBill.getCreatorId());
 		rows = this.weighingStatementMapper.insertSelective(ws);
 		if (rows <= 0) {
 			throw new AppException("保存结算单失败");
@@ -275,12 +279,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		LocalDateTime now = LocalDateTime.now();
 		weighingBill.setState(WeighingBillState.FROZEN.getValue());
+		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
 
+		weighingStatement.setModifierId(operatorId);
 		weighingStatement.setModifiedTime(now);
 		weighingStatement.setState(WeighingStatementState.FROZEN.getValue());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
@@ -379,17 +385,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return null;
 		}
 		WeighingStatementPrintDto dto = BeanConver.copyBean(weighingStatement, WeighingStatementPrintDto.class);
-		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
-		WeighingOperationType opType = WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG.get(WeighingStatementState.valueOf(weighingStatement.getState()));
-		wborQuery.setOperationType(opType.getValue());
-		wborQuery.setWeighingBillId(weighingStatement.getWeighingBillId());
-		List<WeighingBillOperationRecord> opList = this.wbrMapper.select(wborQuery);
-		BaseOutput<User> output = this.userRpc.get(opList.get(0).getOperatorId());
-		if (!output.isSuccess()) {
-			throw new AppException(output.getMessage());
-		}
-		dto.setWeighingOperatorUserName(output.getData().getUserName());
-		dto.setWeighingOperatorName(output.getData().getRealName());
+		// 设置过磅信息
 		WeighingBill wbQuery = new WeighingBill();
 		wbQuery.setId(weighingStatement.getWeighingBillId());
 		WeighingBill wb = this.getActualDao().selectOne(wbQuery);
@@ -399,6 +395,30 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setTareWeight(wb.getTareWeight());
 		dto.setRoughWeight(wb.getRoughWeight());
 		dto.setNetWeight(wb.getNetWeight());
+		dto.setUnitAmount(wb.getUnitAmount());
+
+		// 设置操作信息
+		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
+		wborQuery.setWeighingBillId(weighingStatement.getWeighingBillId());
+		List<WeighingBillOperationRecord> opList = this.wbrMapper.select(wborQuery);
+		Long weighingOperatorId = wb.getModifierId() != null ? wb.getModifierId() : wb.getCreatorId();
+		WeighingBillOperationRecord weighingOp = opList.stream().filter(op -> op.getOperationType().equals(WeighingOperationType.WEIGH.getValue()) && op.getOperatorId().equals(weighingOperatorId))
+				.findFirst().orElse(null);
+		if (weighingOp == null) {
+			throw new AppException("未找到过磅操作信息");
+		}
+		dto.setWeighingOperatorUserName(weighingOp.getOperatorUserName());
+		dto.setWeighingOperatorName(weighingOp.getOperatorName());
+
+		// 设置结算员信息
+		Long settlementOperatorId = weighingStatement.getModifierId() != null ? weighingStatement.getModifierId() : weighingStatement.getCreatorId();
+		WeighingBillOperationRecord settleOp = opList.stream().filter(op -> op.getOperationType().equals(WeighingOperationType.SETTLE.getValue()) && op.getOperatorId().equals(settlementOperatorId))
+				.findFirst().orElse(null);
+		if (settleOp == null) {
+			throw new AppException("未找到过磅操作信息");
+		}
+		dto.setSettlementOperatorName(settleOp.getOperatorName());
+		dto.setSettlementOperatorUserName(settleOp.getOperatorUserName());
 		// 查询买方余额
 		AccountRequestDto balanceQuery = new AccountRequestDto();
 		balanceQuery.setAccountId(wb.getBuyerAccount());
@@ -447,6 +467,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		LocalDateTime now = LocalDateTime.now();
 		weighingBill.setState(WeighingBillState.INVALIDATED.getValue());
+		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
@@ -457,6 +478,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingStatement ws = this.getNoSettlementWeighingStatementByWeighingBillId(weighingBill.getId());
 		if (ws != null) {
 			ws.setState(WeighingStatementState.INVALIDATED.getValue());
+			ws.setModifierId(operatorId);
 			ws.setModifiedTime(LocalDateTime.now());
 			rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
 			if (rows <= 0) {
@@ -532,6 +554,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		LocalDateTime now = LocalDateTime.now();
 		weighingBill.setState(WeighingBillState.INVALIDATED.getValue());
+		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
@@ -542,6 +565,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingStatement ws = this.getNoSettlementWeighingStatementByWeighingBillId(weighingBill.getId());
 		if (ws != null) {
 			ws.setState(WeighingStatementState.INVALIDATED.getValue());
+			ws.setModifierId(operatorId);
 			ws.setModifiedTime(LocalDateTime.now());
 			rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
 			if (rows <= 0) {
@@ -616,6 +640,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		LocalDateTime now = LocalDateTime.now();
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
+		weighingStatement.setModifierId(operatorId);
 		weighingStatement.setModifiedTime(now);
 		int rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
@@ -623,6 +648,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
@@ -644,6 +670,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		// 重新生成一条结算单
 		WeighingStatement newWeighingStatement = this.buildWeighingStatement(weighingBill, this.getMarketIdByOperatorId(operatorId));
+		newWeighingStatement.setCreatorId(operatorId);
 		newWeighingStatement.setPayOrderNo(weighingStatement.getPayOrderNo());
 		rows = this.weighingStatementMapper.insertSelective(newWeighingStatement);
 		if (rows <= 0) {
@@ -711,43 +738,45 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getBuyerActualAmount() - balanceOutput.getData().getAvailableAmount())));
 		}
 
-		// 检查中间价
-		if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
-			// 获取商品中间价
-			Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId), weighingBill.getTradeType());
-			if (referencePrice != null && referencePrice > 0) {
-				// 比较价格
-				Long actualPrice = this.getConvertUnitPrice(weighingBill);
-				if (actualPrice <= referencePrice) {
-					// 没有审批过且价格异常需要走审批流程
-					PriceApproveRecord approve = new PriceApproveRecord();
-					approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
-					approve.setBuyerId(weighingBill.getBuyerId());
-					approve.setBuyerName(weighingBill.getBuyerName());
-					approve.setGoodsId(weighingBill.getGoodsId());
-					approve.setGoodsName(weighingBill.getGoodsName());
-					approve.setReferencePrice(referencePrice);
-					approve.setSellerCardNo(weighingBill.getSellerCardNo());
-					approve.setSellerId(weighingBill.getSellerId());
-					approve.setSellerName(weighingBill.getSellerName());
-					approve.setTradeType(weighingBill.getTradeType());
-					approve.setTradeWeight(this.getWeighingBillTradeWeight(weighingBill));
-					approve.setUnitPrice(actualPrice);
-					approve.setWeighingBillId(weighingBill.getId());
-					approve.setWeighingBillSerialNo(serialNo);
-					approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
-					int rows = this.priceApproveMapper.insertSelective(approve);
-					if (rows <= 0) {
-						BaseOutput.failure("保存价格审批记录失败");
+		if (this.checkPrice) {
+			// 检查中间价
+			if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
+				// 获取商品中间价
+				Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId), weighingBill.getTradeType());
+				if (referencePrice != null && referencePrice > 0) {
+					// 比较价格
+					Long actualPrice = this.getConvertUnitPrice(weighingBill);
+					if (actualPrice <= referencePrice) {
+						// 没有审批过且价格异常需要走审批流程
+						PriceApproveRecord approve = new PriceApproveRecord();
+						approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
+						approve.setBuyerId(weighingBill.getBuyerId());
+						approve.setBuyerName(weighingBill.getBuyerName());
+						approve.setGoodsId(weighingBill.getGoodsId());
+						approve.setGoodsName(weighingBill.getGoodsName());
+						approve.setReferencePrice(referencePrice);
+						approve.setSellerCardNo(weighingBill.getSellerCardNo());
+						approve.setSellerId(weighingBill.getSellerId());
+						approve.setSellerName(weighingBill.getSellerName());
+						approve.setTradeType(weighingBill.getTradeType());
+						approve.setTradeWeight(this.getWeighingBillTradeWeight(weighingBill));
+						approve.setUnitPrice(actualPrice);
+						approve.setWeighingBillId(weighingBill.getId());
+						approve.setWeighingBillSerialNo(serialNo);
+						approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
+						int rows = this.priceApproveMapper.insertSelective(approve);
+						if (rows <= 0) {
+							BaseOutput.failure("保存价格审批记录失败");
+						}
+						BaseOutput<ProcessInstanceMapping> output = this.runtimeRpc.startProcessInstanceByKey(OrdersConstant.PRICE_APPROVE_PROCESS_DEFINITION_KEY, approve.getId().toString(),
+								operatorId.toString(), new HashMap<String, Object>());
+						if (!output.isSuccess()) {
+							throw new AppException(output.getMessage());
+						}
+						approve.setProcessDefinitionId(output.getData().getProcessDefinitionId());
+						approve.setProcessInstanceId(output.getData().getProcessInstanceId());
+						this.priceApproveMapper.updateByPrimaryKeySelective(approve);
 					}
-					BaseOutput<ProcessInstanceMapping> output = this.runtimeRpc.startProcessInstanceByKey(OrdersConstant.PRICE_APPROVE_PROCESS_DEFINITION_KEY, approve.getId().toString(),
-							operatorId.toString(), new HashMap<String, Object>());
-					if (!output.isSuccess()) {
-						throw new AppException(output.getMessage());
-					}
-					approve.setProcessDefinitionId(output.getData().getProcessDefinitionId());
-					approve.setProcessInstanceId(output.getData().getProcessInstanceId());
-					this.priceApproveMapper.updateByPrimaryKeySelective(approve);
 				}
 			}
 		}
@@ -787,12 +816,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LocalDateTime now = LocalDateTime.now();
 		weighingBill.setState(WeighingBillState.SETTLED.getValue());
 		weighingBill.setSettlementTime(now);
+		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
 
+		weighingStatement.setModifierId(operatorId);
 		weighingStatement.setModifiedTime(now);
 		weighingStatement.setState(WeighingStatementState.PAID.getValue());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
@@ -902,6 +933,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("更新过磅单失败");
 		}
+		ws.setModifierId(dto.getModifierId());
 		ws.setModifiedTime(LocalDateTime.now());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
 
@@ -1127,6 +1159,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		LocalDateTime now = LocalDateTime.now();
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
+		weighingStatement.setModifierId(operatorId);
 		weighingStatement.setModifiedTime(now);
 		int rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
@@ -1134,6 +1167,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
@@ -1154,6 +1188,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		// 重新生成一条结算单
 		WeighingStatement newWs = this.buildWeighingStatement(weighingBill, this.getMarketIdByOperatorId(operatorId));
+		newWs.setCreatorId(operatorId);
 		newWs.setState(WeighingStatementState.UNPAID.getValue());
 		rows = this.weighingStatementMapper.insertSelective(newWs);
 		if (rows <= 0) {
