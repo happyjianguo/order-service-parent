@@ -48,7 +48,7 @@ public class ReferencePriceApi {
             return BaseOutput.failure("请传入正确的参数");
         }
         try {
-            Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId, marketId, tradeType);
+            Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId, marketId, Long.valueOf(tradeType));
             if (referencePrice == null || referencePrice == 0) {
                 return BaseOutput.successData(0);
             }

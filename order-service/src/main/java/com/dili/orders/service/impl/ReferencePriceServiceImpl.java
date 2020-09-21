@@ -59,7 +59,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * @return Long
      */
     @Override
-    public Long getReferencePriceByGoodsId(Long goodsId, Long marketId, String tradeType) {
+    public Long getReferencePriceByGoodsId(Long goodsId, Long marketId, Long tradeType) {
         LOGGER.info("--------------开始获取到市场"+marketId+"下该商品"+goodsId+"，交易类型为"+tradeType+"的参考价-------------");
         int transCount = getTransCountByDictionary(marketId);
         // 根据goodsId查询参考价规则表获取商品规则

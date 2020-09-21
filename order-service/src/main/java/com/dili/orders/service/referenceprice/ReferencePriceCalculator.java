@@ -8,7 +8,6 @@ import com.udojava.evalex.Expression;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * 专门用于计算中间价的各种数量
@@ -44,7 +43,7 @@ public class ReferencePriceCalculator {
                     .with("netWeight", getRealWeight(billTemp.getNetWeight()))
                     .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                     .eval();
-            return tradeAmount.setScale(2, RoundingMode.DOWN).longValue();
+            return tradeAmount.longValue();
         }
         return billTemp.getTradeAmount();
     }
@@ -60,7 +59,7 @@ public class ReferencePriceCalculator {
                 .with("totalTradeWeight", getRealWeight(totalTradeWeight))
                 .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                 .eval();
-        return result.setScale(2, RoundingMode.DOWN).longValue();
+        return result.longValue();
     }
 
     /**
@@ -78,7 +77,7 @@ public class ReferencePriceCalculator {
                 .with("minWeight", getRealWeight(transData.getMinTradeWeight()))
                 .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                 .eval();
-        return result.setScale(2, RoundingMode.DOWN).longValue();
+        return result.longValue();
     }
 
     /**
