@@ -476,6 +476,9 @@
 		<if test="serialNo != null">
 			AND wb.serial_no = #{serialNo}
 		</if>
+		<if test="wsSerialNo != null">
+			AND ws.serial_no = #{wsSerialNo}
+		</if>
 		<if test="operatorId != null">
 			AND wb.creator_id = #{operatorId}
 		</if>
