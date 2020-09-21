@@ -610,7 +610,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * json 修改，再调用方法buildWeighingStatement的时候，重新创建了一个结算单，并且设置了PayOrderNo
 	 * 在调用recordWithdrawAccountFlow的时候，卖家信息，在第一个streams中获取，买家信息在relation.streams中获取，按照刚哥的说法。
 	 * 不知道是否存在问题，目前是可以撤销成功
-	 *
+	 * 
 	 * @param id         过磅id
 	 * @param operatorId 操作员id
 	 * @return
@@ -742,7 +742,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 检查中间价
 			if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
 				// 获取商品中间价
-				Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId), Long.valueOf(weighingBill.getTradeType()));
+				Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId), weighingBill.getTradeType());
 				if (referencePrice != null && referencePrice > 0) {
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);
