@@ -370,9 +370,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             return BaseOutput.failure("当前状态不能撤销");
         }
 
-        if ("".equals(operatorPassword)) {
-            return BaseOutput.failure("请输入密码");
-        }
         // 校验操作员密码
         BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
         if (!pwdOutput.isSuccess()) {
@@ -405,9 +402,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             data = paymentOutput.getData();
         }
 
-        //更新检测单状态和修改时间
+        //更新检测单状态
         LocalDateTime now = LocalDateTime.now();
-        comprehensiveFee.setModifiedTime(now);
+        comprehensiveFee.setRevocatorId(operatorId);
         comprehensiveFee.setRevocatorName(realName);
         comprehensiveFee.setRevocatorTime(now);
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
