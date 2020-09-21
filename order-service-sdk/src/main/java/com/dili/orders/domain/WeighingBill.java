@@ -46,6 +46,12 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 交易类型
 	 */
+	@Column(name = "`trade_type_id`")
+	private Long tradeTypeId;
+
+	/**
+	 * 交易类型
+	 */
 	@Column(name = "`trade_type`")
 	private String tradeType;
 
@@ -430,12 +436,20 @@ public class WeighingBill extends BaseDomain {
 		this.measureType = measureType;
 	}
 
+	public Long getTradeTypeId() {
+		return tradeTypeId;
+	}
+
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
+	}
+
 	/**
 	 * 获取交易类型
 	 *
 	 * @return trade_type - 交易类型
 	 */
-	@FieldDef(label = "交易类型", maxLength = 50)
+	@FieldDef(label = "交易类型", maxLength = 20)
 	@EditMode(editor = FieldEditor.Text, required = true)
 	public String getTradeType() {
 		return tradeType;
