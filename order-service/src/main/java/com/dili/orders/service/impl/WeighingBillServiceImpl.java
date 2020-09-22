@@ -337,12 +337,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	@Override
-	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo) {
-		WeighingStatement ws = this.getWeighingStatementBySerialNo(serialNo);
-		if (ws == null) {
-			return null;
-		}
-		WeighingBill weighingBill = this.getWeighingBillBySerialNo(ws.getWeighingSerialNo());
+	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo) {		
+		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
 		if (weighingBill == null) {
 			return null;
 		}
