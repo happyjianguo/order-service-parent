@@ -351,7 +351,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @GlobalTransactional
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput<Object> revocator(Long id, Long operatorId, String realName,String operatorPassword, String userName) {
-        String cardQueryError = "检测收费支付-->查询账户失败";
         String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
@@ -381,9 +380,11 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         dto.setCardNo(comprehensiveFee.getCustomerCardNo());
         BaseOutput<UserAccountCardResponseDto> oneAccountCard = accountRpc.getSingle(dto);
         if (!oneAccountCard.isSuccess()) {
-            BaseOutput.failure(cardQueryError);
+            BaseOutput.failure(oneAccountCard.getMessage());
             LOGGER.error(oneAccountCard.getMessage());
-            throw new AppException(cardQueryError);
+            throw new AppException(oneAccountCard.getMessage());
+
+
         }
 
         //新建支付返回实体，后面操作记录会用到
@@ -397,7 +398,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
             if (!paymentOutput.isSuccess()) {
                 LOGGER.error(paymentOutput.getMessage());
-                throw new AppException("退款失败");
+                throw new AppException(paymentOutput.getMessage());
             }
             data = paymentOutput.getData();
         }
