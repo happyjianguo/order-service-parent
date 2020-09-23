@@ -52,7 +52,6 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
 
     @Override
     public BaseOutput<GoodsReferencePriceSetting> updateGoodsReferencePriceSetting(GoodsReferencePriceSetting goodsReferencePriceSetting) {
-        goodsReferencePriceSetting.setVersion(goodsReferencePriceSetting.getVersion() + 1);
         int update = getActualDao().updateByPrimaryKey(goodsReferencePriceSetting);
         if (update <= 0) {
             throw new AppException("品类参考价修改-->修改品类参考价失败");

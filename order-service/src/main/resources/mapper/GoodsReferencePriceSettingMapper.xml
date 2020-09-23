@@ -71,7 +71,7 @@
         modifier_id = #{modifierId,jdbcType=BIGINT},
       </if>
       <if test="version != null">
-        version = #{version,jdbcType=INTEGER},
+        version = version + 1,
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
