@@ -436,6 +436,9 @@
 		<if test="marketId != null">
 			AND wb.market_id = #{marketId}
 		</if>
+		<if test="operatorId != null">
+			AND (wb.creator_id = #{operatorId} OR wb.modifier_id = #{operatorId})
+		</if>
 		ORDER BY ws.created_time DESC
 	</select>
 

@@ -337,7 +337,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	@Override
-	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo) {		
+	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo) {
 		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
 		if (weighingBill == null) {
 			return null;
@@ -379,6 +379,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setRoughWeight(wb.getRoughWeight());
 		dto.setNetWeight(wb.getNetWeight());
 		dto.setUnitAmount(wb.getUnitAmount());
+		dto.setBuyerCode(wb.getBuyerCode());
+		dto.setSellerCode(wb.getSellerCode());
+		dto.setGoodsName(wb.getGoodsName());
+		dto.setPlateNumber(wb.getPlateNumber());
 
 		// 设置操作信息
 		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
