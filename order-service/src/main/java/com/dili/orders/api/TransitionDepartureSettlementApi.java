@@ -107,7 +107,7 @@ public class TransitionDepartureSettlementApi {
         //获取账户资金信息
         BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
         //设置余额，并且返回为元
-        transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getBalance() / 100));
+        transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getAvailableAmount() / 100));
         BaseOutput<TradeTypeDto> tradeTypeDtoBaseOutput = this.tradeTypeRpc.get(Long.valueOf(transitionDepartureSettlement.getTransTypeId()));
         if (!tradeTypeDtoBaseOutput.isSuccess()) {
             return BaseOutput.failure(tradeTypeDtoBaseOutput.getMessage());
