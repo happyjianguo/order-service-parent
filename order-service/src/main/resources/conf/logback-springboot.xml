@@ -2,11 +2,11 @@
 <configuration >
     <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
     <!-- 日志名称 -->
-    <property name="LOG_NAME" value="asset-service" />
+    <property name="LOG_NAME" value="orders-service" />
     <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
     <property name="LOG_HOME" value="logs" />
     <!-- 文件输出格式 -->
-    <property name="PATTERN" value="[assets-dev]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
+    <property name="PATTERN" value="[orders-dev]%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
 
     <!-- 开发环境 -->
     <!-- 开发环境 -->
