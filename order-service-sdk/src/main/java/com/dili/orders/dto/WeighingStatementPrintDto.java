@@ -94,6 +94,10 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 * 车牌号
 	 */
 	private String plateNumber;
+	/**
+	 * 交易类型id
+	 */
+	private Long tradeTypeId;
 
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
@@ -244,6 +248,14 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setPlateNumber(String plateNumber) {
 		this.plateNumber = plateNumber;
+	}
+
+	public Long getTradeTypeId() {
+		return tradeTypeId;
+	}
+
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
 	}
 
 }

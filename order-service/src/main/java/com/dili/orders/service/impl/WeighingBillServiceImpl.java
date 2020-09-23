@@ -383,6 +383,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setSellerCode(wb.getSellerCode());
 		dto.setGoodsName(wb.getGoodsName());
 		dto.setPlateNumber(wb.getPlateNumber());
+		dto.setTradeTypeId(wb.getTradeTypeId());
 
 		// 设置操作信息
 		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
