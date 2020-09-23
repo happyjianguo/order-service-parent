@@ -1,13 +1,17 @@
 package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.dto.TradeTypeDto;
+import com.dili.assets.sdk.dto.TradeTypeQuery;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.AccountSimpleResponseDto;
 import com.dili.orders.dto.BalanceResponseDto;
 import com.dili.orders.dto.MyBusinessType;
+import com.dili.orders.dto.TradeType;
 import com.dili.orders.glossary.BizTypeEnum;
 import com.dili.orders.rpc.CardRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
@@ -49,6 +53,9 @@ public class TransitionDepartureSettlementApi {
 
     @Autowired
     private CardRpc cardRpc;
+
+    @Autowired
+    private TradeTypeRpc tradeTypeRpc;
 
     /**
      * @param transitionDepartureSettlement
@@ -101,6 +108,11 @@ public class TransitionDepartureSettlementApi {
         BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
         //设置余额，并且返回为元
         transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getBalance() / 100));
+        BaseOutput<TradeTypeDto> tradeTypeDtoBaseOutput = this.tradeTypeRpc.get(Long.valueOf(transitionDepartureSettlement.getTransTypeId()));
+        if (!tradeTypeDtoBaseOutput.isSuccess()) {
+            return BaseOutput.failure(tradeTypeDtoBaseOutput.getMessage());
+        }
+        transitionDepartureSettlement.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
