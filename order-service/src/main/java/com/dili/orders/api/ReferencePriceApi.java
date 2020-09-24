@@ -15,8 +15,7 @@ import java.util.Objects;
 
 
 /**
- * 由MyBatis Generator工具自动生成
- * This file was generated on 2020-06-17 08:52:43.
+ * 参考价获取接口类
  * @author Tyler
  * @date 2020年8月17日10:18:00
  */
