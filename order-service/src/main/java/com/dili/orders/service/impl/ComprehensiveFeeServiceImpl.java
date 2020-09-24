@@ -157,7 +157,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             //请求与支付，两边的账户id对应关系如下
             paymentTradePrepareDto.setAccountId(oneAccountCard.getData().getFundAccountId());
             //12为缴费类型
-            paymentTradePrepareDto.setType(12);
+            paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
             paymentTradePrepareDto.setAmount(comprehensiveFee.getChargeAmount());
             paymentTradePrepareDto.setSerialNo(comprehensiveFee.getCode());
@@ -207,7 +207,21 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         SerialRecordDo serialRecordDo = new SerialRecordDo();
-        setSerialRecordDoValue(marketId, operatorId, operatorName, operatorUserName, comprehensiveFee, typeName, fundItemCode, fundItemName, prepare, oneAccountCard, data, serialRecordDo);
+        //判断是否走了支付
+        if (Objects.nonNull(data)) {
+            serialRecordDo.setAmount(data.getAmount());
+            //期初余额
+            serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
+            serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
+            serialRecordDo.setOperateTime(data.getWhen());
+            serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        }
+        if(prepare != null && Objects.nonNull(prepare.getData())){
+            serialRecordDo.setTradeNo(prepare.getData().getTradeId());
+        }
+        //12为缴费类型
+        serialRecordDo.setTradeType(TradeType.FEE.getCode());
+        setSerialRecordDoValue(marketId, operatorId, operatorName, operatorUserName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         //根据商品ID获取商品名称
@@ -337,24 +351,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         SerialRecordDo serialRecordDo = new SerialRecordDo();
-        serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
-        serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
-        serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
-        serialRecordDo.setCustomerName(comprehensiveFee.getCustomerName());
-        serialRecordDo.setCustomerNo(comprehensiveFee.getCustomerCode());
-        serialRecordDo.setOperatorId(comprehensiveFee.getOperatorId());
-        serialRecordDo.setOperatorName(comprehensiveFee.getOperatorName());
-        serialRecordDo.setOperatorNo(userName);
-        serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
-        serialRecordDo.setOperateTime(LocalDateTime.now());
-        serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
-        serialRecordDo.setFundItem(fundItemCode);
-        serialRecordDo.setFundItemName(fundItemName);
-        //40为撤销缴费
-        serialRecordDo.setTradeType(40);
-        serialRecordDo.setSerialNo(comprehensiveFee.getCode());
-        serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
+        serialRecordDo.setTradeType(TradeType.CANCEL.getCode());
         serialRecordDo.setTradeNo(comprehensiveFee.getPaymentNo());
+        setSerialRecordDoValue(comprehensiveFee.getMarketId(), comprehensiveFee.getOperatorId(), comprehensiveFee.getOperatorName(), userName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
         //判断是否走了支付
         if (Objects.nonNull(data)) {
             serialRecordDo.setAmount(data.getAmount());
@@ -413,7 +412,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //更新更新人和更新时间
         comprehensiveFee.setModifierId(operatorId);
         comprehensiveFee.setModifiedTime(LocalDateTime.now());
-        comprehensiveFee.setVersion(comprehensiveFee.getVersion()+1);
     }
 
     /**
@@ -426,16 +424,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
      * @param typeName 单据类型名称
      * @param fundItemCode 资金类型编码
      * @param fundItemName 资金类型名称
-     * @param prepare 准备单据返回数据
      * @param oneAccountCard 卡信息返回数据
-     * @param data 准备支付单保存返回数据
      * @param serialRecordDo 操作记录DO
      */
-    private void setSerialRecordDoValue(Long marketId, Long operatorId, String operatorName, String operatorUserName, ComprehensiveFee comprehensiveFee, String typeName, int fundItemCode, String fundItemName, BaseOutput<CreateTradeResponseDto> prepare, BaseOutput<UserAccountCardResponseDto> oneAccountCard, PaymentTradeCommitResponseDto data, SerialRecordDo serialRecordDo) {
+    private void setSerialRecordDoValue(Long marketId, Long operatorId, String operatorName, String operatorUserName, ComprehensiveFee comprehensiveFee, String typeName, int fundItemCode, String fundItemName, BaseOutput<UserAccountCardResponseDto> oneAccountCard, SerialRecordDo serialRecordDo) {
         serialRecordDo.setAccountId(oneAccountCard.getData().getAccountId());
         serialRecordDo.setCardNo(oneAccountCard.getData().getCardNo());
         serialRecordDo.setAmount(comprehensiveFee.getChargeAmount());
-        serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         serialRecordDo.setCustomerId(oneAccountCard.getData().getCustomerId());
         serialRecordDo.setCustomerName(comprehensiveFee.getCustomerName());
         serialRecordDo.setCustomerNo(comprehensiveFee.getCustomerCode());
@@ -446,18 +441,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setNotes(typeName + comprehensiveFee.getCode());
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
-        //12为缴费类型
-        serialRecordDo.setTradeType(12);
         serialRecordDo.setSerialNo(comprehensiveFee.getCode());
         serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
-        //判断是否走了支付
-        if (Objects.nonNull(data)) {
-            serialRecordDo.setEndBalance(data.getBalance() - comprehensiveFee.getChargeAmount()-data.getFrozenBalance());
-            serialRecordDo.setStartBalance(data.getBalance()-data.getFrozenBalance());
-            serialRecordDo.setOperateTime(data.getWhen());
-        }
-        if(prepare != null && Objects.nonNull(prepare.getData())){
-            serialRecordDo.setTradeNo(prepare.getData().getTradeId());
-        }
+
     }
 }
