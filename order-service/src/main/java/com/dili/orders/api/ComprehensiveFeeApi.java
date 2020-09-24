@@ -25,6 +25,9 @@ import java.util.*;
 @RequestMapping("/api/comprehensiveFee")
 public class ComprehensiveFeeApi {
 
+    /** 检查收费计费规则型号  */
+    private static final String TEST_FEE = "TEST_FEE";
+
     @Autowired
     ComprehensiveFeeService comprehensiveFeeService;
 
@@ -152,7 +155,7 @@ public class ComprehensiveFeeApi {
         //根据业务类型获取收费项
         BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
         //业务类型
-        businessChargeItemDto.setBusinessType("TEST_FEE");
+        businessChargeItemDto.setBusinessType(TEST_FEE);
         //市场id
         businessChargeItemDto.setMarketId(marketId);
         BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
@@ -161,14 +164,14 @@ public class ComprehensiveFeeApi {
             return listBaseOutput;
         }
         //设置收费项id
-        List<QueryFeeInput> queryFeeInputList=new ArrayList<QueryFeeInput>();
-        if (listBaseOutput.getData()!=null&&listBaseOutput.getData().size()>0) {
-            for (BusinessChargeItemDto bcDto:listBaseOutput.getData()) {
+        List<QueryFeeInput> queryFeeInputList = new ArrayList<QueryFeeInput>();
+        if (listBaseOutput.getData() != null && listBaseOutput.getData().size() > 0) {
+            for (BusinessChargeItemDto bcDto : listBaseOutput.getData()) {
                 QueryFeeInput queryFeeInput = new QueryFeeInput();
                 //设置市场id
                 queryFeeInput.setMarketId(marketId);
                 //设置业务类型
-                queryFeeInput.setBusinessType("TEST_FEE");
+                queryFeeInput.setBusinessType(TEST_FEE);
                 //设置收费项ID
                 queryFeeInput.setChargeItem(bcDto.getId());
                 //条件指标
@@ -185,7 +188,4 @@ public class ComprehensiveFeeApi {
         }
         return chargeRuleRpc.batchQueryFee(queryFeeInputList);
     }
-
-
-
 }
