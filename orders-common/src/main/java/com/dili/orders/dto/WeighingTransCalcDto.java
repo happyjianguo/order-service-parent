@@ -12,20 +12,20 @@ public class WeighingTransCalcDto {
 	private String measureType;
 	private Long goodsId;
 	private Long marketId;
-	private int netWeight;
-	private int unitWeight;
-	private int unitAmount;
+	private Integer netWeight;
+	private Integer unitWeight;
+	private Integer unitAmount;
 	private Long unitPrice;
 	private Long maxPrice;
 	private Long minPrice;
 	private Long maxTradeAmount;
 	private Long minTradeAmount;
-	private int maxTradeWeight;
-	private int minTradeWeight;
-	private int tradeCount;
-	private int tradePriceCount;
+	private Integer maxTradeWeight;
+	private Integer minTradeWeight;
+	private Integer tradeCount;
+	private Integer tradePriceCount;
 	private Long totalTradeAmount;
-	private int totalTradeWeight;
+	private Integer totalTradeWeight;
 	private Date settlementTime;
 	private String tradeType;
 
@@ -61,27 +61,27 @@ public class WeighingTransCalcDto {
 		this.marketId = marketId;
 	}
 
-	public int getNetWeight() {
+	public Integer getNetWeight() {
 		return netWeight;
 	}
 
-	public void setNetWeight(int netWeight) {
+	public void setNetWeight(Integer netWeight) {
 		this.netWeight = netWeight;
 	}
 
-	public int getUnitWeight() {
+	public Integer getUnitWeight() {
 		return unitWeight;
 	}
 
-	public void setUnitWeight(int unitWeight) {
+	public void setUnitWeight(Integer unitWeight) {
 		this.unitWeight = unitWeight;
 	}
 
-	public int getUnitAmount() {
+	public Integer getUnitAmount() {
 		return unitAmount;
 	}
 
-	public void setUnitAmount(int unitAmount) {
+	public void setUnitAmount(Integer unitAmount) {
 		this.unitAmount = unitAmount;
 	}
 
@@ -125,35 +125,35 @@ public class WeighingTransCalcDto {
 		this.minTradeAmount = minTradeAmount;
 	}
 
-	public int getMaxTradeWeight() {
+	public Integer getMaxTradeWeight() {
 		return maxTradeWeight;
 	}
 
-	public void setMaxTradeWeight(int maxTradeWeight) {
+	public void setMaxTradeWeight(Integer maxTradeWeight) {
 		this.maxTradeWeight = maxTradeWeight;
 	}
 
-	public int getMinTradeWeight() {
+	public Integer getMinTradeWeight() {
 		return minTradeWeight;
 	}
 
-	public void setMinTradeWeight(int minTradeWeight) {
+	public void setMinTradeWeight(Integer minTradeWeight) {
 		this.minTradeWeight = minTradeWeight;
 	}
 
-	public int getTradeCount() {
+	public Integer getTradeCount() {
 		return tradeCount;
 	}
 
-	public void setTradeCount(int tradeCount) {
+	public void setTradeCount(Integer tradeCount) {
 		this.tradeCount = tradeCount;
 	}
 
-	public int getTradePriceCount() {
+	public Integer getTradePriceCount() {
 		return tradePriceCount;
 	}
 
-	public void setTradePriceCount(int tradePriceCount) {
+	public void setTradePriceCount(Integer tradePriceCount) {
 		this.tradePriceCount = tradePriceCount;
 	}
 
@@ -165,11 +165,11 @@ public class WeighingTransCalcDto {
 		this.totalTradeAmount = totalTradeAmount;
 	}
 
-	public int getTotalTradeWeight() {
+	public Integer getTotalTradeWeight() {
 		return totalTradeWeight;
 	}
 
-	public void setTotalTradeWeight(int totalTradeWeight) {
+	public void setTotalTradeWeight(Integer totalTradeWeight) {
 		this.totalTradeWeight = totalTradeWeight;
 	}
 
