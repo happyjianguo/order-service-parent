@@ -3,30 +3,90 @@ package com.dili.orders.dto;
 import java.util.Date;
 
 /**
- * 用于计算参考价
+ * 用于计算参考价实体类
  * @author Tyler.Mao
  */
 public class WeighingTransCalcDto {
 
+	/**
+	 * 交易额
+	 */
 	private Long tradeAmount;
+	/**
+	 * 计量类型
+	 */
 	private String measureType;
+	/**
+	 * 商品id
+	 */
 	private Long goodsId;
+	/**
+	 * 市场id
+	 */
 	private Long marketId;
+	/**
+	 * 重量
+	 */
 	private Integer netWeight;
+	/**
+	 * 单件重量
+	 */
 	private Integer unitWeight;
+	/**
+	 * 单件金额
+	 */
 	private Integer unitAmount;
+	/**
+	 * 单价
+	 */
 	private Long unitPrice;
+	/**
+	 * 最大价格
+	 */
 	private Long maxPrice;
+	/**
+	 * 最小价格
+	 */
 	private Long minPrice;
+	/**
+	 * 最大交易额
+	 */
 	private Long maxTradeAmount;
+	/**
+	 * 最小交易额
+	 */
 	private Long minTradeAmount;
+	/**
+	 * 最大交易量
+	 */
 	private Integer maxTradeWeight;
+	/**
+	 * 最小交易量
+	 */
 	private Integer minTradeWeight;
+	/**
+	 * 交易数量
+	 */
 	private Integer tradeCount;
+	/**
+	 * 交易价格数量
+	 */
 	private Integer tradePriceCount;
+	/**
+	 * 总交易金额
+	 */
 	private Long totalTradeAmount;
+	/**
+	 * 总交易量
+	 */
 	private Integer totalTradeWeight;
+	/**
+	 * 结算时间
+	 */
 	private Date settlementTime;
+	/**
+	 * 交易类型
+	 */
 	private String tradeType;
 
 	public Long getTradeAmount() {
