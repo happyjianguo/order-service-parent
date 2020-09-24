@@ -134,7 +134,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             fundItemName = FundItem.QUERY_FEE.getName();
         }
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
-        if (comprehensiveFee.getOrderStatus() != ComprehensiveFeeState.NO_SETTLEMEN.getValue()) {
+        if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.NO_SETTLEMEN.getValue())) {
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
         setComprehensiveFeeValue(operatorId, operatorName, comprehensiveFee);
@@ -219,7 +219,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if(prepare != null && Objects.nonNull(prepare.getData())){
             serialRecordDo.setTradeNo(prepare.getData().getTradeId());
         }
-        //12为缴费类型
         serialRecordDo.setTradeType(TradeType.FEE.getCode());
         setSerialRecordDoValue(marketId, operatorId, operatorName, operatorUserName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
         serialRecordList.add(serialRecordDo);
@@ -443,6 +442,5 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setFundItemName(fundItemName);
         serialRecordDo.setSerialNo(comprehensiveFee.getCode());
         serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
-
     }
 }
