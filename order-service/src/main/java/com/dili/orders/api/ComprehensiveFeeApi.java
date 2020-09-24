@@ -8,6 +8,7 @@ import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
@@ -64,13 +65,12 @@ public class ComprehensiveFeeApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> insert(@RequestBody ComprehensiveFee comprehensiveFee) {
+    public BaseOutput<ComprehensiveFee> insert(@RequestBody ComprehensiveFee comprehensiveFee) throws Exception{
         try {
             comprehensiveFeeService.insertComprehensiveFee(comprehensiveFee);
             return BaseOutput.successData(comprehensiveFee);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return BaseOutput.failure("新增失败" + e.getMessage());
+        } catch (AppException e) {
+            return BaseOutput.failure("新增失败:" + e.getMessage());
         }
     }
     /**
@@ -85,11 +85,10 @@ public class ComprehensiveFeeApi {
      *
      */
     @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> revocator(@RequestBody ComprehensiveFee comprehensiveFee, Long operatorId, String realName, String operatorPassword, String userName) {
+    public BaseOutput<ComprehensiveFee> revocator(@RequestBody ComprehensiveFee comprehensiveFee, Long operatorId, String realName, String operatorPassword, String userName) throws Exception{
         try{
             return this.comprehensiveFeeService.revocator(comprehensiveFee, operatorId, realName, operatorPassword, userName);
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (AppException e) {
             return BaseOutput.failure(e.getMessage());
         }
 
@@ -118,11 +117,10 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) {
+    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) throws Exception{
         try {
             return comprehensiveFeeService.pay(id, password, marketId, operatorId, operatorName, operatorUserName);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AppException e) {
             return BaseOutput.failure(e.getMessage());
         }
     }
@@ -133,11 +131,10 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/scheduleUpdate", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput<String> scheduleUpdate() {
+    public BaseOutput<String> scheduleUpdate() throws Exception{
         try {
             return comprehensiveFeeService.scheduleUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AppException e) {
             return BaseOutput.failure("综合收费将前一天未结算单据关闭定时任务执行失败");
         }
     }
