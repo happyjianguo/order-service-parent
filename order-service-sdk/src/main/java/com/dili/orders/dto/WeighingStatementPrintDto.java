@@ -75,6 +75,30 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private Integer unitAmount;
 
+	/**
+	 * 买家编号
+	 */
+	private String buyerCode;
+
+	/**
+	 * 卖家编号
+	 */
+	private String sellerCode;
+
+	/**
+	 * 品类名称
+	 */
+	private String goodsName;
+
+	/**
+	 * 车牌号
+	 */
+	private String plateNumber;
+	/**
+	 * 交易类型id
+	 */
+	private Long tradeTypeId;
+
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
 	}
@@ -192,6 +216,46 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setUnitAmount(Integer unitAmount) {
 		this.unitAmount = unitAmount;
+	}
+
+	public String getBuyerCode() {
+		return buyerCode;
+	}
+
+	public void setBuyerCode(String buyerCode) {
+		this.buyerCode = buyerCode;
+	}
+
+	public String getSellerCode() {
+		return sellerCode;
+	}
+
+	public void setSellerCode(String sellerCode) {
+		this.sellerCode = sellerCode;
+	}
+
+	public String getGoodsName() {
+		return goodsName;
+	}
+
+	public void setGoodsName(String goodsName) {
+		this.goodsName = goodsName;
+	}
+
+	public String getPlateNumber() {
+		return plateNumber;
+	}
+
+	public void setPlateNumber(String plateNumber) {
+		this.plateNumber = plateNumber;
+	}
+
+	public Long getTradeTypeId() {
+		return tradeTypeId;
+	}
+
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
 	}
 
 }

@@ -7,6 +7,7 @@
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
 		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
@@ -321,6 +322,7 @@
 		wb.unit_amount,
 		wb.unit_weight,
 		wb.trade_type,
+		wb.trade_type_id,
 		wb.frozen_amount,
 		wb.state,
 		wb.created_time,
@@ -390,8 +392,8 @@
 		<if test="state != null">
 			AND wb.state=#{state}
 		</if>
-		<if test="tradeType != null">
-			AND wb.trade_type=#{tradeType}
+		<if test="tradeTypeId != null">
+			AND wb.trade_type_id=#{tradeTypeId}
 		</if>
 		<if test="goodsNames != null">
 			AND wb.goods_name IN
@@ -435,6 +437,9 @@
 		</if>
 		<if test="marketId != null">
 			AND wb.market_id = #{marketId}
+		</if>
+		<if test="operatorId != null">
+			AND (wb.creator_id = #{operatorId} OR wb.modifier_id = #{operatorId})
 		</if>
 		ORDER BY ws.created_time DESC
 	</select>
