@@ -2,6 +2,8 @@ package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
+import com.dili.assets.sdk.dto.TradeTypeDto;
+import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.Customer;
 import com.dili.customer.sdk.rpc.CustomerRpc;
@@ -83,6 +85,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
+
+    @Autowired
+    private TradeTypeRpc tradeTypeRpc;
 
     @Override
     public PageOutput<List<TransitionDepartureSettlement>> listByQueryParams(TransitionDepartureSettlement transitionDepartureSettlement) {
@@ -295,6 +300,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (i <= 0) {
             return BaseOutput.failure("修改申请单状态失败");
         }
+        //根据交易类型id获取交易类型
+        BaseOutput<TradeTypeDto> tradeTypeDtoBaseOutput = this.tradeTypeRpc.get(Long.valueOf(transitionDepartureSettlement.getTransTypeId()));
+        if (!tradeTypeDtoBaseOutput.isSuccess()) {
+            return BaseOutput.failure(tradeTypeDtoBaseOutput.getMessage());
+        }
+        transitionDepartureSettlement.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
 
         //设置支付时间
         transitionDepartureSettlement.setPayTime(LocalDateTime.now());
