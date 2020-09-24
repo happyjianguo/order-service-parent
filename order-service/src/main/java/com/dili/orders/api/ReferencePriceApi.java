@@ -3,13 +3,17 @@ package com.dili.orders.api;
 
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.exception.AppException;
 import com.dili.ss.util.MoneyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
@@ -52,7 +56,7 @@ public class ReferencePriceApi {
                 return BaseOutput.successData(0);
             }
             return BaseOutput.successData(MoneyUtils.centToYuan(referencePrice));
-        } catch (Exception e) {
+        } catch (AppException e) {
             LOGGER.error("获取商品参考价异常："+e.getMessage());
             return BaseOutput.failure("500", "获取失败");
         }
