@@ -66,9 +66,6 @@ public class ComprehensiveFeeApi {
     @RequestMapping(value = "/insert", method = {RequestMethod.POST})
     public BaseOutput<ComprehensiveFee> insert(@RequestBody ComprehensiveFee comprehensiveFee) {
         try {
-            if (comprehensiveFee.getCreatedTime() == null) {
-                comprehensiveFee.setCreatedTime(LocalDateTime.now());
-            }
             comprehensiveFeeService.insertComprehensiveFee(comprehensiveFee);
             return BaseOutput.successData(comprehensiveFee);
         } catch (Exception e) {
