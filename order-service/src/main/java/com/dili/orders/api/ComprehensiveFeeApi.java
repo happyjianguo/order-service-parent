@@ -78,8 +78,9 @@ public class ComprehensiveFeeApi {
     }
     /**
      * 撤销操作
+     * @param comprehensiveFee comprehensiveFee对象
      * @param operatorId 操作人ID
-     * @param id 单据ID
+     * @param comprehensiveFee object
      * @param operatorPassword 操作人密码
      * @param realName 操作人真实名字
      * @param userName 操作人账户名
@@ -87,9 +88,9 @@ public class ComprehensiveFeeApi {
      *
      */
     @RequestMapping(value = "/revocator")
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String realName, String operatorPassword, String userName) {
+    public BaseOutput<ComprehensiveFee> revocator(@RequestBody ComprehensiveFee comprehensiveFee, Long operatorId, String realName, String operatorPassword, String userName) {
         try{
-            return this.comprehensiveFeeService.revocator(id, operatorId, realName, operatorPassword, userName);
+            return this.comprehensiveFeeService.revocator(comprehensiveFee, operatorId, realName, operatorPassword, userName);
         }catch (Exception e) {
             e.printStackTrace();
             return BaseOutput.failure(e.getMessage());

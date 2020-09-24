@@ -34,14 +34,14 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	/**
 	 * 操作员撤销
 	 *
-	 * @param id               检测单id
+	 * @param comprehensiveFee comprehensiveFee对象
 	 * @param operatorId       操作员id
 	 * @param userName         用户真实名字
 	 * @param operatorPassword 操作员登录密码
 	 * @param operatorName     操作员登录名
 	 * @return
 	 */
-	BaseOutput<Object> revocator(Long id, Long operatorId, String userName, String operatorPassword, String operatorName);
+	BaseOutput<ComprehensiveFee> revocator(ComprehensiveFee comprehensiveFee, Long operatorId, String userName, String operatorPassword, String operatorName);
 
 	/**
 	 * 支付

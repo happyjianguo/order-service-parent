@@ -350,12 +350,12 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @Override
     @GlobalTransactional
     @Transactional(rollbackFor = Exception.class)
-    public BaseOutput<Object> revocator(Long id, Long operatorId, String realName,String operatorPassword, String userName) {
+    public BaseOutput<ComprehensiveFee> revocator(ComprehensiveFee comprehensiveFee, Long operatorId, String realName,String operatorPassword, String userName) {
         String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
         //根据id获取到comprehensive对象
-        ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
+//        ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
         if (comprehensiveFee == null) {
             return BaseOutput.failure("检测单不存在");
         }
@@ -404,13 +404,12 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
 
         //更新检测单状态
-        LocalDateTime now = LocalDateTime.now();
-        comprehensiveFee.setRevocatorId(operatorId);
-        comprehensiveFee.setRevocatorName(realName);
-        comprehensiveFee.setRevocatorTime(now);
+        //设置乐观锁version
+        comprehensiveFee.setVersion(getActualDao().selectByPrimaryKey(comprehensiveFee.getId()).getVersion());
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
-        //更新comprehensive
-        int rows = this.comprehensiveFeeMapper.updateByPrimaryKeySelective(comprehensiveFee);
+        //修改结算单的支付状态
+        int rows = getActualDao().updateByPrimaryKeySelective(comprehensiveFee);
+        //判断结算单修改是否成功，不成功则抛出异常
         if (rows <= 0) {
             LOGGER.error("更新检测单状态失败");
             return BaseOutput.failure("更新检测单状态失败");
