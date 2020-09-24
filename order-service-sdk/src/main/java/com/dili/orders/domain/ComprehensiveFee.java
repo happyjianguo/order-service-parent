@@ -14,9 +14,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * 
- * This file was generated on 2020-08-11 17:31:37.
+ * 综合收费实体类
+ *
+ * @data 2020/8/30
+ * @author henry
  */
 @Table(name = "`comprehensive_fee`")
 public class ComprehensiveFee extends BaseDomain {
@@ -78,12 +79,14 @@ public class ComprehensiveFee extends BaseDomain {
 
     /**
      * 单据类型
+     * {@link com.dili.orders.domain.ComprehensiveFeeType}
      */
     @Column(name = "`order_type`")
     private Integer orderType;
 
     /**
      * 单据状态
+     * {@link com.dili.orders.domain.ComprehensiveFeeState}
      */
     @Column(name = "`order_status`")
     private Integer orderStatus;

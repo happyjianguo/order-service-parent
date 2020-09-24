@@ -136,7 +136,7 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/scheduleUpdate", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput scheduleUpdate() {
+    public BaseOutput<String> scheduleUpdate() {
         try {
             return comprehensiveFeeService.scheduleUpdate();
         } catch (Exception e) {
@@ -154,7 +154,7 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/fee", method = {RequestMethod.GET, RequestMethod.POST})
-    public BaseOutput getFee( Long marketId, Long customerId, String type) {
+    public BaseOutput<?> getFee( Long marketId, Long customerId, String type) {
         //根据业务类型获取收费项
         BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
         //业务类型

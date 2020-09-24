@@ -100,7 +100,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //设置默认版本号为0
         comprehensiveFee.setVersion(0);
         //根据uid设置结算单的code
-        //根据uid设置结算单的code
         BaseOutput<String> output = this.uidRpc.bizNumber("sg_comprehensive_fee");
         if (!output.isSuccess()) {
             LOGGER.error(output.getMessage());
@@ -118,7 +117,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @Override
     @GlobalTransactional
     @Transactional(rollbackFor = Exception.class)
-    public BaseOutput pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName) {
+    public BaseOutput<ComprehensiveFee> pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName) {
         //根据id获取当前的结算单信息
         ComprehensiveFee comprehensiveFee = get(id);
         Integer orderType = comprehensiveFee.getOrderType();
@@ -313,7 +312,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public BaseOutput scheduleUpdate() throws ParseException {
+    public BaseOutput<String> scheduleUpdate() throws ParseException {
         LOGGER.info("综合收费将前天未结算单据关闭定时任务开始");
         ComprehensiveFee comprehensiveFee = new ComprehensiveFee();
         //设置查询参数
@@ -355,7 +354,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
         //根据id获取到comprehensive对象
-//        ComprehensiveFee comprehensiveFee = this.getActualDao().selectByPrimaryKey(id);
         if (comprehensiveFee == null) {
             return BaseOutput.failure("检测单不存在");
         }
