@@ -18,4 +18,8 @@ public class UidStatic {
      */
     public static final String SG_WEIGHING_STATEMENT_CODE = "sg_weighing_statement";
 
+    /**
+     * 过磅单结算单code
+     */
+    public static final String SG_COMPREHENSIVE_STATEMENT_CODE = "sg_comprehensive_fee";
 }

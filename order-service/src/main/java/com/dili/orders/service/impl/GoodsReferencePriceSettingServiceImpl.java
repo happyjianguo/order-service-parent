@@ -1,14 +1,11 @@
 package com.dili.orders.service.impl;
 
-
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.mapper.GoodsReferencePriceSettingMapper;
-import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -20,9 +17,6 @@ import java.util.List;
  */
 @Service
 public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<GoodsReferencePriceSetting,Long> implements GoodsReferencePriceSettingService {
-
-    @Autowired
-    private UidRpc uidRpc;
 
     public GoodsReferencePriceSettingMapper getActualDao(){
         return (GoodsReferencePriceSettingMapper)getDao();
