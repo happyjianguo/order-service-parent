@@ -353,15 +353,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
-        //根据id获取到comprehensive对象
-        if (comprehensiveFee == null) {
-            return BaseOutput.failure("检测单不存在");
-        }
 
-        LocalDate todayDate = LocalDate.now();
-        LocalDateTime opTime = comprehensiveFee.getModifiedTime() == null ? comprehensiveFee.getCreatedTime() : comprehensiveFee.getModifiedTime();
-        if (!todayDate.equals(opTime.toLocalDate())) {
-            return BaseOutput.failure("只能对当日的检测交易进行撤销操作");
+
+        //判断当前的这个结算单是否是今天的
+        LocalDate createTime = comprehensiveFee.getCreatedTime().toLocalDate();
+        //如果为0，则表示为当天
+        if (LocalDate.now().compareTo(createTime) != 0) {
+            return BaseOutput.failure("只有当天的结算单可以撤销");
         }
         if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.SETTLED.getValue())) {
             return BaseOutput.failure("当前状态不能撤销");
@@ -446,6 +444,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
-        return BaseOutput.success();
+        return BaseOutput.successData(comprehensiveFee);
     }
 }

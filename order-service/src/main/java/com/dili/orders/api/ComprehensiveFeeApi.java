@@ -87,7 +87,7 @@ public class ComprehensiveFeeApi {
      * @return
      *
      */
-    @RequestMapping(value = "/revocator")
+    @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
     public BaseOutput<ComprehensiveFee> revocator(@RequestBody ComprehensiveFee comprehensiveFee, Long operatorId, String realName, String operatorPassword, String userName) {
         try{
             return this.comprehensiveFeeService.revocator(comprehensiveFee, operatorId, realName, operatorPassword, userName);
