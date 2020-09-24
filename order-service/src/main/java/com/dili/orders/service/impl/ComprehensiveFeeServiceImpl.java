@@ -51,13 +51,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     private UserRpc userRpc;
 
     @Autowired
-    private ComprehensiveFeeMapper comprehensiveFeeMapper;
-
-    @Autowired
     private PayRpc payRpc;
-
-    @Autowired
-    private RabbitMQMessageService mqService;
 
     @Autowired
     private AccountRpc accountRpc;
