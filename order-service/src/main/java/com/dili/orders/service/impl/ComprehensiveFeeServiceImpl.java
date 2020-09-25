@@ -318,8 +318,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
-        // 退款
-        //判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
+        // 退款，并判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
         if (StringUtils.isNotBlank(comprehensiveFee.getPaymentNo())) {
             PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
             cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
@@ -330,8 +329,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             }
             data = paymentOutput.getData();
         }
-        //更新检测单状态
-        //设置乐观锁version
+        //更新检测单状态,设置乐观锁version
         comprehensiveFee.setVersion(getActualDao().selectByPrimaryKey(comprehensiveFee.getId()).getVersion());
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
         //修改结算单的支付状态
