@@ -341,7 +341,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         SerialRecordDo serialRecordDo = new SerialRecordDo();
         serialRecordDo.setTradeType(TradeType.CANCEL.getCode());
         serialRecordDo.setTradeNo(comprehensiveFee.getPaymentNo());
-        setSerialRecordDoValue(comprehensiveFee.getMarketId(), comprehensiveFee.getOperatorId(), comprehensiveFee.getOperatorName(), userName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
+        setSerialRecordDoValue(comprehensiveFee.getMarketId(), operatorId, realName, userName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
         //判断是否走了支付
         if (Objects.nonNull(data)) {
             serialRecordDo.setAmount(data.getAmount());
