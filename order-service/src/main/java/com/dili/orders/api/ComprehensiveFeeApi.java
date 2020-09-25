@@ -77,9 +77,8 @@ public class ComprehensiveFeeApi {
     }
     /**
      * 撤销操作
-     * @param comprehensiveFee comprehensiveFee对象
+     * @param comprehensiveFee 检测收费
      * @param operatorId 操作人ID
-     * @param comprehensiveFee object
      * @param operatorPassword 操作人密码
      * @param realName 操作人真实名字
      * @param userName 操作人账户名

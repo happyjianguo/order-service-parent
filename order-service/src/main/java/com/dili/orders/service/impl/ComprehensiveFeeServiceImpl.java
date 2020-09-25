@@ -335,7 +335,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         comprehensiveFee.setVersion(getActualDao().selectByPrimaryKey(comprehensiveFee.getId()).getVersion());
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
         //修改结算单的支付状态
-        int rows = getActualDao().updateByPrimaryKeySelective(comprehensiveFee);
+        int rows = getActualDao().updateByIdAndVersion(comprehensiveFee);
         //判断结算单修改是否成功，不成功则抛出异常
         if (rows <= 0) {
             LOGGER.error("更新检测单状态失败");
