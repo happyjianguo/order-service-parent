@@ -13,7 +13,6 @@ import com.dili.orders.dto.WeighingTransCalcDto;
 public class UnitPriceLtLowPriceStrategy implements UpdateTransDataTempInfoStrategy{
     @Override
     public WeighingTransCalcDto setData(WeighingTransCalcDto transData, WeighingSettlementBillTemp weighingSettlementBill) {
-        System.out.println("------策略：UnitPriceLtLowPriceStrategy");
         transData.setMinPrice(weighingSettlementBill.getUnitPrice());
         transData.setMinTradeAmount(weighingSettlementBill.getTradeAmount());
         transData.setMinTradeWeight(weighingSettlementBill.getNetWeight());

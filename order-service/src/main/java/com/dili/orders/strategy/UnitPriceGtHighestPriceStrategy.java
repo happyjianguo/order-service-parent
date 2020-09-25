@@ -13,7 +13,6 @@ import com.dili.orders.dto.WeighingTransCalcDto;
 public class UnitPriceGtHighestPriceStrategy implements UpdateTransDataTempInfoStrategy{
     @Override
     public WeighingTransCalcDto setData(WeighingTransCalcDto transData, WeighingSettlementBillTemp weighingSettlementBill) {
-        System.out.println("------策略：UnitPriceGtHighestPriceStrategy");
         transData.setMaxPrice(weighingSettlementBill.getUnitPrice());
         transData.setMaxTradeAmount(weighingSettlementBill.getTradeAmount());
         transData.setMaxTradeWeight(weighingSettlementBill.getNetWeight());

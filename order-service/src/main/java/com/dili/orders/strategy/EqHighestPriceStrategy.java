@@ -12,7 +12,6 @@ import com.dili.orders.dto.WeighingTransCalcDto;
 public class EqHighestPriceStrategy implements UpdateTransDataTempInfoStrategy{
     @Override
     public WeighingTransCalcDto setData(WeighingTransCalcDto transData, WeighingSettlementBillTemp weighingSettlementBill) {
-        System.out.println("------策略：EqHighestPriceStrategy");
         transData.setMaxTradeAmount(transData.getMaxTradeAmount() + weighingSettlementBill.getTradeAmount());
         transData.setMaxTradeWeight(transData.getMaxTradeWeight() + weighingSettlementBill.getNetWeight());
         return transData;

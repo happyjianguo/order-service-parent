@@ -12,7 +12,6 @@ import com.dili.orders.dto.WeighingTransCalcDto;
 public class EqLowPriceStrategy implements UpdateTransDataTempInfoStrategy{
     @Override
     public WeighingTransCalcDto setData(WeighingTransCalcDto transData, WeighingSettlementBillTemp weighingSettlementBill) {
-        System.out.println("------策略：EqLowPriceStrategy");
         transData.setMinTradeAmount(transData.getMinTradeAmount() + weighingSettlementBill.getTradeAmount());
         transData.setMinTradeWeight(transData.getMinTradeWeight() + weighingSettlementBill.getNetWeight());
         return transData;

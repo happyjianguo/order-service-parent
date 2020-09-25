@@ -12,7 +12,6 @@ import com.dili.orders.dto.WeighingTransCalcDto;
 public class BetweenLowAndHighestStrategy implements UpdateTransDataTempInfoStrategy {
     @Override
     public WeighingTransCalcDto setData(WeighingTransCalcDto transData, WeighingSettlementBillTemp weighingSettlementBill) {
-        System.out.println("------策略：BetweenLowAndHighestStrategy");
         // 更新最大价格、最大交易额、最大交易量、交易价格数
         transData.setMaxPrice(weighingSettlementBill.getUnitPrice());
         transData.setMaxTradeAmount(weighingSettlementBill.getTradeAmount());
