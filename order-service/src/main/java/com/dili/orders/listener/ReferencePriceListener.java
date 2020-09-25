@@ -37,15 +37,6 @@ public class ReferencePriceListener {
     @Autowired
     private ReferencePriceService referencePriceService;
 
-    /**
-     * 手动确认状态
-     */
-    enum Action {
-        ACCEPT,  // 处理成功
-        RETRY,   // 可以重试的错误
-    }
-
-    long tag = 0;
 
     /**
      * 客户信息修改后，更新账户冗余信息
@@ -72,6 +63,7 @@ public class ReferencePriceListener {
         }
 
         try {
+            //开始计算参考价
             referencePriceService.calculateReferencePrice(weighingSettlementBill);
             ackMsg(channel, message.getMessageProperties().getDeliveryTag());
         } catch (Exception e) {
@@ -87,10 +79,10 @@ public class ReferencePriceListener {
     }
 
     /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/16
-    */
+     *
+     * @author miaoguoxin
+     * @date 2020/9/16
+     */
     private static void rejectMsg(Channel channel, long deliveryTag) {
         try {
             channel.basicReject(deliveryTag, false);
@@ -100,10 +92,10 @@ public class ReferencePriceListener {
     }
 
     /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/16
-    */
+     *
+     * @author miaoguoxin
+     * @date 2020/9/16
+     */
     private static void nackMsg(Channel channel, long deliveryTag) {
         try {
             channel.basicNack(deliveryTag, false, true);
@@ -113,10 +105,10 @@ public class ReferencePriceListener {
     }
 
     /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/16
-    */
+     *
+     * @author miaoguoxin
+     * @date 2020/9/16
+     */
     private static void ackMsg(Channel channel, long deliveryTag) {
         try {
             channel.basicAck(deliveryTag, false);

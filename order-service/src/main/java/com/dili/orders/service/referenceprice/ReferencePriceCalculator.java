@@ -2,8 +2,8 @@ package com.dili.orders.service.referenceprice;
 
 import cn.hutool.core.util.NumberUtil;
 import com.dili.orders.domain.MeasureType;
+import com.dili.orders.domain.WeighingSettlementBillDaily;
 import com.dili.orders.domain.WeighingSettlementBillTemp;
-import com.dili.orders.dto.WeighingTransCalcDto;
 import com.udojava.evalex.Expression;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +22,8 @@ public class ReferencePriceCalculator {
     private static final Integer KG_TO_JIN_RATE = 2;
     /**重量换算单位，传过来都是化成了整数  如：100.24，传过来就是10024*/
     private static final Integer WEIGHT_CONVERT_RATE = 100;
+    /**计算单价公式*/
+    private static final String CAL_UNIT_PRICE_FORMULA = "unitPrice/(unitWeight*rate)";
     /**计算交易额公式*/
     private static final String CAL_TRADE_AMOUNT_FORMULA = "(unitPrice/unitWeight)*netWeight*rate";
     /**计算总平均价公式*/
@@ -29,6 +31,24 @@ public class ReferencePriceCalculator {
     /**计算中间价公式*/
     private static final String CAL_MIDDLE_PRICE_FORMULA = "(totalTradeAmount-maxAmount-minAmount)/((totalTradeWeight-maxWeight-minWeight)*rate)";
 
+
+    /**
+    * 计算单价
+    * @author miaoguoxin
+    * @date 2020/9/25
+    */
+    public Long getUnitPrice(WeighingSettlementBillTemp billTemp) {
+        if (MeasureType.PIECE.getValue().equals(billTemp.getMeasureType())) {
+            //  元/件转元/斤
+            BigDecimal unitPrice = new Expression(CAL_UNIT_PRICE_FORMULA)
+                    .with("unitPrice", BigDecimal.valueOf(billTemp.getUnitPrice()))
+                    .with("unitWeight", getRealWeight(billTemp.getUnitWeight()))
+                    .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
+                    .eval();
+            return unitPrice.setScale(2, RoundingMode.DOWN).longValue();
+        }
+        return billTemp.getUnitPrice();
+    }
 
     /**
      * 计算交易额
@@ -64,11 +84,15 @@ public class ReferencePriceCalculator {
     }
 
     /**
-     *  获取中间平均价（去除最高价和最低价）
+     *  计算参考价（去除最高价和最低价之后）
      * @author miaoguoxin
      * @date 2020/9/16
      */
-    public Long getMiddleTotalAvgPrice(WeighingTransCalcDto transData) {
+    public Long getReferenceAvgPrice(WeighingSettlementBillDaily  transData) {
+        //当价格数不超过2时，是算不出中间值的，故取平均值即可
+        if (transData.getTradePriceCount() <= 2) {
+            return this.getTotalAvgPrice(transData.getTotalTradeAmount(), transData.getTotalTradeWeight());
+        }
         BigDecimal result = new Expression(CAL_MIDDLE_PRICE_FORMULA)
                 .with("totalTradeAmount", BigDecimal.valueOf(transData.getTotalTradeAmount()))
                 .with("maxAmount", BigDecimal.valueOf(transData.getMaxTradeAmount()))
@@ -80,6 +104,7 @@ public class ReferencePriceCalculator {
                 .eval();
         return result.setScale(2, RoundingMode.DOWN).longValue();
     }
+
 
     /**
      * 转换真正的重量

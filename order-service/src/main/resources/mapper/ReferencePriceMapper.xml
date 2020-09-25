@@ -2,23 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.orders.mapper.ReferencePriceMapper">
 
-    <select id="getReferencePriceByGoodsId" parameterType="map" resultType="com.dili.orders.domain.WeighingReferencePrice" >
+    <select id="getReferencePriceByGoodsId" parameterType="com.dili.orders.dto.ReferencePriceQueryDto" resultType="com.dili.orders.domain.WeighingReferencePrice" >
         SELECT
-          goods_id goodsId,
-          total_avg_count totalAvgCount,
-          part_avg_count partAvgCount,
-          trans_count transCount,
-          trans_price_count transPriceCount
+          goods_id,
+          total_avg_count ,
+          part_avg_count ,
+          trans_count ,
+          trans_price_count
         FROM
           weighing_reference_price
         WHERE goods_id = #{goodsId,jdbcType=BIGINT}
         AND market_id = #{marketId,jdbcType=BIGINT}
-        <![CDATA[
-        AND settlement_time >= #{todayStartDate}
-        AND settlement_time <= #{todayEndDate}
-        ]]>
+        AND trade_type=#{tradeType}
+        AND settlement_day=#{settlementDay}
     </select>
-    
+
     <select id="getGoodsRuleByGoodsId" parameterType="Long" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
         SELECT
           reference_rule referenceRule,
@@ -29,115 +27,81 @@
         AND market_id = #{marketId,jdbcType=BIGINT}
     </select>
 
-    <!--<select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
-        SELECT
-          COUNT(wb.id) cransCount,
-          wb.measure_type measureType,
-          SUM(ws.trade_amount) tradeAmount,
-          SUM(wb.net_weight) netWeight,
-          SUM(wb.unit_amount) unitAmount,
-          wb.unit_price unitPrice,
-          wb.unit_weight unitWeight
-        FROM
-          weighing_bill wb
-        JOIN weighing_statement ws ON wb.id = ws.weighing_bill_id
-        WHERE ws.state = #{state}
-        AND wb.goods_id = #{goodsId}
-        <![CDATA[
-        AND wb.settlement_time >= #{todayStartDate}
-        AND wb.settlement_time <= #{todayEndDate}
-        ]]>
-        &lt;!&ndash; AND wb.market_id = #{marketId,jdbcType=BIGINT} &ndash;&gt;
-        GROUP BY wb.measure_type,wb.unit_price,wb.unit_weight
-    </select>-->
 
-    <insert id="addTransDataTempInfo" useGeneratedKeys="true" parameterType="com.dili.orders.domain.WeighingSettlementBillTemp" >
+    <select id="getTransDataByGoodsId" parameterType="com.dili.orders.dto.ReferencePriceQueryDto" resultType="com.dili.orders.domain.WeighingSettlementBillDaily">
+        SELECT
+            id,
+            market_id,
+            goods_id,
+            trade_type,
+            max_price ,
+            min_price ,
+            max_trade_amount ,
+            min_trade_amount ,
+            max_trade_weight ,
+            min_trade_weight ,
+            trade_count ,
+            trade_price_count ,
+            total_trade_amount ,
+            total_trade_weight,
+            settlement_time,
+            settlement_day
+        FROM
+            weighing_settlement_bill_daily
+        WHERE goods_id = #{goodsId}
+          AND market_id = #{marketId}
+          AND trade_type=#{tradeType}
+          AND settlement_day=#{settlementDay}
+    </select>
+
+    <insert id="insertDaily" useGeneratedKeys="true" keyProperty="id" parameterType="com.dili.orders.domain.WeighingSettlementBillDaily">
         INSERT INTO weighing_settlement_bill_daily(
-          market_id, goods_id, settlement_time, max_price, min_price, max_trade_amount,
-          min_trade_amount, max_trade_weight, min_trade_weight, trade_count, trade_price_count,total_trade_amount,
-          total_trade_weight,trade_type
+            market_id, goods_id, settlement_time, settlement_day,max_price, min_price, max_trade_amount,
+            min_trade_amount, max_trade_weight, min_trade_weight, trade_count, trade_price_count,total_trade_amount,
+            total_trade_weight,trade_type
         ) VALUES (
-          #{marketId}, #{goodsId}, #{settlementTime}, #{maxPrice}, #{minPrice}, #{maxTradeAmount},
-          #{minTradeAmount}, #{maxTradeWeight}, #{minTradeWeight}, #{tradeCount}, #{tradePriceCount},#{totalTradeAmount},
-          #{totalTradeWeight},#{tradeType}
-        )
+                     #{marketId}, #{goodsId}, #{settlementTime},#{settlementDay}, #{maxPrice}, #{minPrice}, #{maxTradeAmount},
+                     #{minTradeAmount}, #{maxTradeWeight}, #{minTradeWeight}, #{tradeCount}, #{tradePriceCount},#{totalTradeAmount},
+                     #{totalTradeWeight},#{tradeType}
+                 )
     </insert>
 
-    <update id="updateTransDataTempInfo" parameterType="com.dili.orders.dto.WeighingTransCalcDto" >
+    <update id="updateDaily" parameterType="com.dili.orders.domain.WeighingSettlementBillDaily" >
         UPDATE weighing_settlement_bill_daily
         <set>
             <if test="maxPrice != null">
-                max_price = #{maxPrice,jdbcType=BIGINT},
+                max_price = #{maxPrice},
             </if>
             <if test="minPrice != null">
-                min_price = #{minPrice,jdbcType=BIGINT},
+                min_price = #{minPrice},
             </if>
             <if test="maxTradeAmount != null">
-                max_trade_amount = #{maxTradeAmount,jdbcType=INTEGER},
+                max_trade_amount = #{maxTradeAmount},
             </if>
             <if test="minTradeAmount != null">
-                min_trade_amount = #{minTradeAmount,jdbcType=INTEGER},
+                min_trade_amount = #{minTradeAmount},
             </if>
             <if test="maxTradeWeight != null">
-                max_trade_weight = #{maxTradeWeight,jdbcType=INTEGER},
+                max_trade_weight = #{maxTradeWeight},
             </if>
             <if test="minTradeWeight != null">
-                min_trade_weight = #{minTradeWeight,jdbcType=INTEGER},
+                min_trade_weight = #{minTradeWeight},
             </if>
             <if test="tradeCount != null">
-                trade_count = #{tradeCount,jdbcType=INTEGER},
+                trade_count = #{tradeCount},
             </if>
             <if test="tradePriceCount != null">
-                trade_price_count = #{tradePriceCount,jdbcType=INTEGER},
+                trade_price_count = #{tradePriceCount},
             </if>
             <if test="totalTradeAmount != null">
-                total_trade_amount = #{totalTradeAmount,jdbcType=INTEGER},
+                total_trade_amount = #{totalTradeAmount},
             </if>
             <if test="totalTradeWeight != null">
-                total_trade_weight = #{totalTradeWeight,jdbcType=INTEGER},
-            </if>
-            <if test="settlementTime != null">
-                settlement_time = #{settlementTime,jdbcType=INTEGER},
+                total_trade_weight = #{totalTradeWeight},
             </if>
         </set>
-        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
-        AND market_id = #{marketId,jdbcType=BIGINT}
-        AND trade_type = #{tradeType}
+        WHERE id = #{id}
     </update>
-
-    <select id="getTransDataByGoodsId" parameterType="map" resultType="com.dili.orders.dto.WeighingTransCalcDto">
-        SELECT
-          market_id marketId,
-          goods_id goodsId,
-          trade_type tradeType,
-          max_price maxPrice,
-          min_price minPrice,
-          max_trade_amount maxTradeAmount,
-          min_trade_amount minTradeAmount,
-          max_trade_weight maxTradeWeight,
-          min_trade_weight minTradeWeight,
-          trade_count tradeCount,
-          trade_price_count tradePriceCount,
-          total_trade_amount totalTradeAmount,
-          total_trade_weight totalTradeWeight
-        FROM
-          weighing_settlement_bill_daily
-        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
-        AND market_id = #{marketId,jdbcType=BIGINT}
-        <![CDATA[
-        AND settlement_time >= #{todayStartDate}
-        AND settlement_time <= #{todayEndDate}
-        ]]>
-    </select>
-
-    <select id="getReferencePriceCountByGoodsIdIsExists" resultType="int" parameterType="map">
-        SELECT
-          count(1)
-        FROM
-          weighing_reference_price
-        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
-        AND market_id = #{marketId,jdbcType=BIGINT}
-    </select>
 
     <update id="updateReferencePriceByGoods" parameterType="com.dili.orders.domain.WeighingReferencePrice" >
         UPDATE weighing_reference_price
@@ -163,5 +127,5 @@
         AND trade_type = #{tradeType}
     </update>
 
-    
+
 </mapper>
