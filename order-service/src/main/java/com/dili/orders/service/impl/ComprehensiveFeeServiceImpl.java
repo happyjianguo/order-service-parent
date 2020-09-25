@@ -289,6 +289,14 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     @GlobalTransactional
     @Transactional(rollbackFor = Exception.class)
     public BaseOutput<ComprehensiveFee> revocator(ComprehensiveFee comprehensiveFee, Long operatorId, String realName,String operatorPassword, String userName) {
+        //更新检测收费单
+        int rows = getActualDao().updateByIdAndVersion(comprehensiveFee);
+        //判断结算单修改是否成功，不成功则抛出异常
+        if (rows <= 0) {
+            LOGGER.error("当前状态不能撤销");
+            BaseOutput.failure("当前状态不能撤销");
+            throw new AppException("当前状态不能撤销");
+        }
         String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
@@ -296,25 +304,15 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         LocalDate createTime = comprehensiveFee.getCreatedTime().toLocalDate();
         //如果为0，则表示为当天
         if (LocalDate.now().compareTo(createTime) != 0) {
-            return BaseOutput.failure("只有当天的结算单可以撤销");
-        }
-        if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.SETTLED.getValue())) {
-            return BaseOutput.failure("当前状态不能撤销");
+            BaseOutput.failure("只有当天的结算单可以撤销");
+            throw new AppException("只有当天的结算单可以撤销");
         }
         // 校验操作员密码
         BaseOutput<Object> pwdOutput = this.userRpc.validatePassword(operatorId, operatorPassword);
         if (!pwdOutput.isSuccess()) {
             LOGGER.error(pwdOutput.getMessage());
-            return BaseOutput.failure("操作员密码错误");
-        }
-        //更新检测单状态
-        comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
-        //更新检测收费单
-        int rows = getActualDao().updateByIdAndVersion(comprehensiveFee);
-        //判断结算单修改是否成功，不成功则抛出异常
-        if (rows <= 0) {
-            LOGGER.error("更新检测单状态失败");
-            return BaseOutput.failure("更新检测单状态失败");
+            BaseOutput.failure(pwdOutput.getMessage());
+            throw new AppException(pwdOutput.getMessage());
         }
         //调用卡号查询账户信息
         CardQueryDto dto = new CardQueryDto();
