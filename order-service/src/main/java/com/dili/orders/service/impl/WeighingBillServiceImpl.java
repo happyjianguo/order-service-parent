@@ -1264,7 +1264,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		Integer tradeType = PaymentTradeType.TRADE.getValue();
 		// 买家入账
-		if (weighingBill.getFrozenAmount() != null && weighingBill.getFrozenAmount() > 0) {
+		if (ws.getFrozenAmount() != null && ws.getFrozenAmount() > 0) {
 			tradeType = PaymentTradeType.PREAUTHORIZED.getValue();
 			// 解冻
 			SerialRecordDo frozenRecord = new SerialRecordDo();
