@@ -23,26 +23,33 @@ public class UpdateTransDataTempInfoStrategyContext {
      * @param weighingSettlementBill
      */
     public UpdateTransDataTempInfoStrategyContext(WeighingTransCalcDto transData, WeighingSettlementBillTemp weighingSettlementBill) {
+        // 若小于最大值 大于最小值 更新交易价格数
+        this.strategy = new BetweenLowAndHighestStrategy();
+
         //如果本次交易的数据中的单价大于原来商品的最大单价则需要更新商品的最大单价
         if (weighingSettlementBill.getUnitPrice() > transData.getMaxPrice()) {
-            // 若接收到的单据中单价大于最高单价
             this.strategy = new UnitPriceGtHighestPriceStrategy();
-        } else if (weighingSettlementBill.getUnitPrice() < transData.getMinPrice()) {
-            // 若接收到的单据中单价小于最低价格
-            // 更新最小价格、最小交易额、最小交易量、交易价格数
+        }
+
+        // 若接收到的单据中单价小于最低价格
+        // 更新最小价格、最小交易额、最小交易量、交易价格数
+        if (weighingSettlementBill.getUnitPrice() < transData.getMinPrice()) {
             this.strategy = new UnitPriceLtLowPriceStrategy();
-        } else if (transData.getTradePriceCount() == 1 && transData.getMaxPrice().equals(weighingSettlementBill.getUnitPrice())) {
-            // 若表中只有一个价格 且与传入的价格相同 累加最大最小交易额与最大最小交易量
+        }
+
+        // 若表中只有一个价格 且与传入的价格相同 累加最大最小交易额与最大最小交易量
+        if (transData.getTradePriceCount() == 1 && transData.getMaxPrice().equals(weighingSettlementBill.getUnitPrice())) {
             this.strategy = new OneAndEqPriceStrategy();
-        } else if (transData.getMaxPrice().equals(weighingSettlementBill.getUnitPrice())) {
-            // 若等于最大价格 则更新最大交易额、最大交易量
+        }
+
+        // 若等于最大价格 则更新最大交易额、最大交易量
+        if (transData.getMaxPrice().equals(weighingSettlementBill.getUnitPrice())) {
             this.strategy = new EqHighestPriceStrategy();
-        } else if (transData.getMinPrice().equals(weighingSettlementBill.getUnitPrice())) {
-            // 若等于最小价格 则更新最小交易额、最小交易量
+        }
+
+        // 若等于最小价格 则更新最小交易额、最小交易量
+        if (transData.getMinPrice().equals(weighingSettlementBill.getUnitPrice())) {
             this.strategy = new EqLowPriceStrategy();
-        } else {
-            // 若小于最大值 大于最小值 更新交易价格数
-            this.strategy = new BetweenLowAndHighestStrategy();
         }
     }
 
