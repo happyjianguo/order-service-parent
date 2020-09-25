@@ -307,6 +307,15 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             LOGGER.error(pwdOutput.getMessage());
             return BaseOutput.failure("操作员密码错误");
         }
+        //更新检测单状态
+        comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
+        //更新检测收费单
+        int rows = getActualDao().updateByIdAndVersion(comprehensiveFee);
+        //判断结算单修改是否成功，不成功则抛出异常
+        if (rows <= 0) {
+            LOGGER.error("更新检测单状态失败");
+            return BaseOutput.failure("更新检测单状态失败");
+        }
         //调用卡号查询账户信息
         CardQueryDto dto = new CardQueryDto();
         dto.setCardNo(comprehensiveFee.getCustomerCardNo());
@@ -328,16 +337,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                 throw new AppException(paymentOutput.getMessage());
             }
             data = paymentOutput.getData();
-        }
-        //更新检测单状态,设置乐观锁version
-        comprehensiveFee.setVersion(getActualDao().selectByPrimaryKey(comprehensiveFee.getId()).getVersion());
-        comprehensiveFee.setOrderStatus(ComprehensiveFeeState.WITHDRAWN.getValue());
-        //修改结算单的支付状态
-        int rows = getActualDao().updateByIdAndVersion(comprehensiveFee);
-        //判断结算单修改是否成功，不成功则抛出异常
-        if (rows <= 0) {
-            LOGGER.error("更新检测单状态失败");
-            return BaseOutput.failure("更新检测单状态失败");
         }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
