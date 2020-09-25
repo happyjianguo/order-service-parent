@@ -3,90 +3,30 @@ package com.dili.orders.dto;
 import java.util.Date;
 
 /**
- * 用于计算参考价实体类
+ * 用于计算参考价
  * @author Tyler.Mao
  */
 public class WeighingTransCalcDto {
 
-	/**
-	 * 交易额
-	 */
 	private Long tradeAmount;
-	/**
-	 * 计量类型
-	 */
 	private String measureType;
-	/**
-	 * 商品id
-	 */
 	private Long goodsId;
-	/**
-	 * 市场id
-	 */
 	private Long marketId;
-	/**
-	 * 重量
-	 */
-	private Integer netWeight;
-	/**
-	 * 单件重量
-	 */
-	private Integer unitWeight;
-	/**
-	 * 单件金额
-	 */
-	private Integer unitAmount;
-	/**
-	 * 单价
-	 */
+	private int netWeight;
+	private int unitWeight;
+	private int unitAmount;
 	private Long unitPrice;
-	/**
-	 * 最大价格
-	 */
 	private Long maxPrice;
-	/**
-	 * 最小价格
-	 */
 	private Long minPrice;
-	/**
-	 * 最大交易额
-	 */
 	private Long maxTradeAmount;
-	/**
-	 * 最小交易额
-	 */
 	private Long minTradeAmount;
-	/**
-	 * 最大交易量
-	 */
-	private Integer maxTradeWeight;
-	/**
-	 * 最小交易量
-	 */
-	private Integer minTradeWeight;
-	/**
-	 * 交易数量
-	 */
-	private Integer tradeCount;
-	/**
-	 * 交易价格数量
-	 */
-	private Integer tradePriceCount;
-	/**
-	 * 总交易金额
-	 */
+	private int maxTradeWeight;
+	private int minTradeWeight;
+	private int tradeCount;
+	private int tradePriceCount;
 	private Long totalTradeAmount;
-	/**
-	 * 总交易量
-	 */
-	private Integer totalTradeWeight;
-	/**
-	 * 结算时间
-	 */
+	private int totalTradeWeight;
 	private Date settlementTime;
-	/**
-	 * 交易类型
-	 */
 	private String tradeType;
 
 	public Long getTradeAmount() {
@@ -121,27 +61,27 @@ public class WeighingTransCalcDto {
 		this.marketId = marketId;
 	}
 
-	public Integer getNetWeight() {
+	public int getNetWeight() {
 		return netWeight;
 	}
 
-	public void setNetWeight(Integer netWeight) {
+	public void setNetWeight(int netWeight) {
 		this.netWeight = netWeight;
 	}
 
-	public Integer getUnitWeight() {
+	public int getUnitWeight() {
 		return unitWeight;
 	}
 
-	public void setUnitWeight(Integer unitWeight) {
+	public void setUnitWeight(int unitWeight) {
 		this.unitWeight = unitWeight;
 	}
 
-	public Integer getUnitAmount() {
+	public int getUnitAmount() {
 		return unitAmount;
 	}
 
-	public void setUnitAmount(Integer unitAmount) {
+	public void setUnitAmount(int unitAmount) {
 		this.unitAmount = unitAmount;
 	}
 
@@ -185,35 +125,35 @@ public class WeighingTransCalcDto {
 		this.minTradeAmount = minTradeAmount;
 	}
 
-	public Integer getMaxTradeWeight() {
+	public int getMaxTradeWeight() {
 		return maxTradeWeight;
 	}
 
-	public void setMaxTradeWeight(Integer maxTradeWeight) {
+	public void setMaxTradeWeight(int maxTradeWeight) {
 		this.maxTradeWeight = maxTradeWeight;
 	}
 
-	public Integer getMinTradeWeight() {
+	public int getMinTradeWeight() {
 		return minTradeWeight;
 	}
 
-	public void setMinTradeWeight(Integer minTradeWeight) {
+	public void setMinTradeWeight(int minTradeWeight) {
 		this.minTradeWeight = minTradeWeight;
 	}
 
-	public Integer getTradeCount() {
+	public int getTradeCount() {
 		return tradeCount;
 	}
 
-	public void setTradeCount(Integer tradeCount) {
+	public void setTradeCount(int tradeCount) {
 		this.tradeCount = tradeCount;
 	}
 
-	public Integer getTradePriceCount() {
+	public int getTradePriceCount() {
 		return tradePriceCount;
 	}
 
-	public void setTradePriceCount(Integer tradePriceCount) {
+	public void setTradePriceCount(int tradePriceCount) {
 		this.tradePriceCount = tradePriceCount;
 	}
 
@@ -225,11 +165,11 @@ public class WeighingTransCalcDto {
 		this.totalTradeAmount = totalTradeAmount;
 	}
 
-	public Integer getTotalTradeWeight() {
+	public int getTotalTradeWeight() {
 		return totalTradeWeight;
 	}
 
-	public void setTotalTradeWeight(Integer totalTradeWeight) {
+	public void setTotalTradeWeight(int totalTradeWeight) {
 		this.totalTradeWeight = totalTradeWeight;
 	}
 
