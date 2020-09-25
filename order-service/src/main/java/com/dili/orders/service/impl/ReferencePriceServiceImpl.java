@@ -118,7 +118,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
 
         //查询昨天的参考价中间表数据 设置查询昨天数据的条件
         map.put(TODAY_START_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.MIN));
-        map.put(TODAY_END_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.MIN));
+        map.put(TODAY_END_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.MAX));
         // 根据商品获取最近的参考价信息
         WeighingReferencePrice yesReferencePrice = getActualDao().getReferencePriceByGoodsId(map);
         // 若为规则1
