@@ -20,11 +20,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 参考价服务实现类
+ *
  * @author Tyler
  * @date 2020年8月17日09:43:29
  */
@@ -49,18 +55,22 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * 商品id的字段名
      */
     private final String GOODS_ID_CONDITION_NAME = "goodsId";
+
     /**
      * 今天开始时间对应的查询条件名
      */
     private final String TODAY_START_DATE_CONDITION_NAME = "todayStartDate";
+
     /**
      * 今天结束时间对应的查询条件名
      */
     private final String TODAY_END_DATE_CONDITION_NAME = "todayEndDate";
+
     /**
      * 市场id对应的查询条件名
      */
     private final String MARKET_ID_CONDITION_NAME = "marketId";
+
     /**
      * 交易类型对应的查询条件名
      */
@@ -98,52 +108,27 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         // 拼接查询条件
         Map<String, Object> map = new HashMap<>(4);
         map.put(GOODS_ID_CONDITION_NAME, goodsId);
-        map.put(TODAY_START_DATE_CONDITION_NAME, getStartTime(0));
-        map.put(TODAY_END_DATE_CONDITION_NAME, getEndTime(0));
+        //查询今天的参考价中间表数据 设置查询今天数据的条件
+        map.put(TODAY_START_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(0), LocalTime.MIN));
+        map.put(TODAY_END_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(0), LocalTime.MAX));
         map.put(MARKET_ID_CONDITION_NAME, marketId);
         map.put(TRADE_TYPE_CONDITION_NAME, tradeType);
 
         WeighingReferencePrice todayReferencePrice = getActualDao().getReferencePriceByGoodsId(map);
 
-        map.put(TODAY_START_DATE_CONDITION_NAME, getStartTime(-1));
-        map.put(TODAY_END_DATE_CONDITION_NAME, getEndTime(-1));
+        //查询昨天的参考价中间表数据 设置查询昨天数据的条件
+        map.put(TODAY_START_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.MIN));
+        map.put(TODAY_END_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.MIN));
         // 根据商品获取最近的参考价信息
         WeighingReferencePrice yesReferencePrice = getActualDao().getReferencePriceByGoodsId(map);
         // 若为规则1
         if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_ONE) {
-            // 判断当天是否有数据、并且交易笔数是否大于N
-            if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
-                // 交易金额数是否大于2
-                if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                    return calculateReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(), marketId);
-                } else {
-                    return calculateReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(), marketId);
-                }
-            } else {
-                // 取上一日的参考价数据
-                if (yesReferencePrice == null) {
-                    LOGGER.info("--------------上一日参考价中间表无商品数据-------------");
-                    return null;
-                }
-                // 判断上一日交易金额是否大于N 、 交易价格数是否大于2
-                if (yesReferencePrice.getTransCount() > transCount && yesReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
-                    return calculateReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(), marketId);
-                } else {
-                    return calculateReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(), marketId);
-                }
-            }
+            //计算结果
+            return calculationRuleOne(todayReferencePrice, yesReferencePrice, transCount, marketId);
             // 若为规则二
         } else if (ruleSetting.getReferenceRule() == ReferencePriceDto.RULE_TWO) {
-            if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
-                return calculateReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(), marketId);
-            } else {
-                // 取上一日的参考价数据
-                if (yesReferencePrice == null) {
-                    LOGGER.info("--------------上一日参考价中间表无商品数据-------------");
-                    return null;
-                }
-                return calculateReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(), marketId);
-            }
+            //计算结果
+            return calculationRuleTwo(todayReferencePrice, yesReferencePrice, transCount, marketId);
         }
         LOGGER.info("--------------未获取到市场" + marketId + "下商品" + goodsId + "，交易类型为" + tradeType + "所匹配的参考价-------------");
         return null;
@@ -153,7 +138,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
     /**
      * 根据商品计算参考价规则
      *
-     * @param jsonStr 交易单据json
+     * @param weighingSettlementBill 交易数据
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -163,9 +148,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         //商品id
         map.put(GOODS_ID_CONDITION_NAME, weighingSettlementBill.getGoodsId());
         //今天的最早时间 00:00:00
-        map.put(TODAY_START_DATE_CONDITION_NAME, getStartTime(0));
+        map.put(TODAY_START_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(0), LocalTime.MIN));
         //今天的最晚时间 23:59:59
-        map.put(TODAY_END_DATE_CONDITION_NAME, getEndTime(0));
+        map.put(TODAY_END_DATE_CONDITION_NAME, LocalDateTime.of(LocalDate.now().plusDays(0), LocalTime.MAX));
         //市场id
         map.put(MARKET_ID_CONDITION_NAME, weighingSettlementBill.getMarketId());
         //交易类型
@@ -185,22 +170,15 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
 
 
         WeighingReferencePrice referencePrice = new WeighingReferencePrice();
-
-        referencePrice.setTotalAvgCount(totalAvgPrice.longValue());
-        referencePrice.setGoodsId(weighingSettlementBill.getGoodsId());
-        referencePrice.setMarketId(weighingSettlementBill.getMarketId());
-        referencePrice.setSettlementTime(new Date());
-        //获取交易价格数目
-        referencePrice.setTransPriceCount(transData.getTradePriceCount());
-        // 获取交易类型
-        referencePrice.setTradeType(transData.getTradeType());
-        //取交易笔数
-        referencePrice.setTransCount(transData.getTradeCount());
         //计算去掉最大值最小值的平均值
         Long partPrice = calculationAvg(transData.getMaxTradeAmount(), transData.getMinTradeAmount()
                 , transData.getMaxTradeWeight(), transData.getMinTradeWeight()
                 , transData.getTotalTradeAmount(), transData.getTotalTradeWeight());
-        referencePrice.setPartAvgCount(partPrice);
+
+        // 设置参考价数据
+        setReferencePriceValue(referencePrice, weighingSettlementBill.getGoodsId(), weighingSettlementBill.getMarketId(),
+                transData.getTradePriceCount(), transData.getTradeType(), transData.getTradeCount(),
+                totalAvgPrice, partPrice);
 
         // 查询该商品是否存在参考价信息 若不存在 则添加 若存在 则更新
         int isExists = getActualDao().getReferencePriceCountByGoodsIdIsExists(map);
@@ -290,6 +268,32 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         weighingSettlementBill.setTradeType(weighingSettlementBill.getTradeType());
     }
 
+    /**
+     * 设置参考价数据
+     *
+     * @param goodsId         商品id
+     * @param marketId        市场id
+     * @param tradePriceCount 交易价格数
+     * @param tradeType       交易类型
+     * @param tradeCount      交易笔数
+     * @param totalAvgPrice   总平均价
+     * @param partPrice       单价
+     * @param referencePrice
+     */
+    private void setReferencePriceValue(WeighingReferencePrice referencePrice, Long goodsId, Long marketId, Integer tradePriceCount, String tradeType, Integer tradeCount, BigDecimal totalAvgPrice, Long partPrice) {
+        referencePrice.setTotalAvgCount(totalAvgPrice.longValue());
+        referencePrice.setGoodsId(goodsId);
+        referencePrice.setMarketId(marketId);
+        referencePrice.setSettlementTime(new Date());
+        //获取交易价格数目
+        referencePrice.setTransPriceCount(tradePriceCount);
+        // 获取交易类型
+        referencePrice.setTradeType(tradeType);
+        //取交易笔数
+        referencePrice.setTransCount(tradeCount);
+        referencePrice.setPartAvgCount(partPrice);
+    }
+
 
     /**
      * 计算去掉最大值最小值的平均值
@@ -317,6 +321,62 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         //总交易额/(总交易量*2)/100
         partPrice = partPrice.divide(partWeight.multiply(new BigDecimal(2)).divide(new BigDecimal(100)));
         return partPrice.longValue();
+    }
+
+    /**
+     * 参考价最终计算规则一
+     *
+     * @param todayReferencePrice
+     * @param yesReferencePrice
+     * @param transCount
+     * @param marketId
+     * @return
+     */
+    private Long calculationRuleOne(WeighingReferencePrice todayReferencePrice, WeighingReferencePrice yesReferencePrice, Integer transCount, Long marketId) {
+        // 判断当天是否有数据、并且交易笔数是否大于N
+        if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
+            // 交易金额数是否大于2
+            if (todayReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
+                return calculateReferencePriceByDownwardRange(todayReferencePrice.getPartAvgCount(), marketId);
+            } else {
+                return calculateReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(), marketId);
+            }
+        } else {
+            // 取上一日的参考价数据
+            if (yesReferencePrice == null) {
+                LOGGER.info("--------------上一日参考价中间表无商品数据-------------");
+                return null;
+            }
+            // 判断上一日交易金额是否大于N 、 交易价格数是否大于2
+            if (yesReferencePrice.getTransCount() > transCount && yesReferencePrice.getTransPriceCount() > ReferencePriceDto.TRANS_PRICE_COUNT) {
+                return calculateReferencePriceByDownwardRange(yesReferencePrice.getPartAvgCount(), marketId);
+            } else {
+                return calculateReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(), marketId);
+            }
+        }
+    }
+
+
+    /**
+     * 参考价最终计算规则二
+     *
+     * @param todayReferencePrice
+     * @param yesReferencePrice
+     * @param transCount
+     * @param marketId
+     * @return
+     */
+    private Long calculationRuleTwo(WeighingReferencePrice todayReferencePrice, WeighingReferencePrice yesReferencePrice, Integer transCount, Long marketId) {
+        if (todayReferencePrice != null && todayReferencePrice.getTransCount() > transCount) {
+            return calculateReferencePriceByDownwardRange(todayReferencePrice.getTotalAvgCount(), marketId);
+        } else {
+            // 取上一日的参考价数据
+            if (yesReferencePrice == null) {
+                LOGGER.info("--------------上一日参考价中间表无商品数据-------------");
+                return null;
+            }
+            return calculateReferencePriceByDownwardRange(yesReferencePrice.getTotalAvgCount(), marketId);
+        }
     }
 
 
@@ -412,71 +472,4 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         return 0;
     }
 
-
-    /**
-     * 获取当天的开始时间
-     *
-     * @param day 天数
-     * @return
-     */
-    private String getStartTime(int day) {
-
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Calendar calendar = Calendar.getInstance();
-        // 时
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        // 分
-        calendar.set(Calendar.MINUTE, 0);
-        // 秒
-        calendar.set(Calendar.SECOND, 0);
-        // 毫秒
-        calendar.set(Calendar.MILLISECOND, 0);
-        if (day != 0) {
-            calendar.add(Calendar.DAY_OF_MONTH, day);
-        }
-        Date time = calendar.getTime();
-        String dateStr = df.format(time);
-        return dateStr;
-    }
-
-    /**
-     * 获取当天的结束时间
-     *
-     * @param day 天数
-     * @return
-     */
-    private String getEndTime(int day) {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        // 时
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        // 分
-        calendar.set(Calendar.MINUTE, 59);
-        // 秒
-        calendar.set(Calendar.SECOND, 59);
-        // 毫秒
-        calendar.set(Calendar.MILLISECOND, 999);
-        if (day != 0) {
-            calendar.add(Calendar.DAY_OF_MONTH, day);
-        }
-        Date time = calendar.getTime();
-        String dateStr = df.format(time);
-        return dateStr;
-    }
-
-    /**
-     * 去除小数点后多余的0
-     *
-     * @param s 需要去除的数
-     * @return
-     */
-    public String replace(String s) {
-        if (null != s && s.indexOf(".") > 0) {
-            //去掉多余的0
-            s = s.replaceAll("0+?$", "");
-            //如最后一位是.则去掉
-            s = s.replaceAll("[.]$", "");
-        }
-        return s;
-    }
 }
