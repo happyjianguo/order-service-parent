@@ -5,25 +5,20 @@ import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.ss.base.BaseService;
 
 /**
- * Description: 参考价计算接口定义
- *
- * @date:    2020/8/21
- * @author:   Tyler
+ * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
  */
 public interface ReferencePriceService extends BaseService<WeighingReferencePrice, Long> {
 
     /**
      * 获取参考价逻辑
      * @param goodsId
-     * @param marketId
-     * @param tradeType
      * @return Long
      */
     Long getReferencePriceByGoodsId(Long goodsId, Long marketId, String tradeType);
 
     /**
      * 根据商品计算参考价规则
-     * @param billTemp
+     * @param jsonStr
      */
     void calculateReferencePrice(WeighingSettlementBillTemp billTemp);
 }
