@@ -165,7 +165,7 @@
         version = version + 1,
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER} and order_status = #{orderStatus,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER} and order_status = 2
   </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT

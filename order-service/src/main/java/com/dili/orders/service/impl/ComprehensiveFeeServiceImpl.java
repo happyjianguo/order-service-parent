@@ -293,9 +293,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         int rows = getActualDao().updateByIdAndVersion(comprehensiveFee);
         //判断结算单修改是否成功，不成功则抛出异常
         if (rows <= 0) {
-            LOGGER.error("当前状态不能撤销");
-            BaseOutput.failure("当前状态不能撤销");
-            throw new AppException("当前状态不能撤销");
+            LOGGER.error("当前状态不能撤销或已撤销，请刷新列表页面查看");
+            BaseOutput.failure("当前状态不能撤销或已撤销，请刷新列表页面查看");
+            throw new AppException("当前状态不能撤销或已撤销，请刷新列表页面查看");
         }
         String typeName = "撤销，检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
