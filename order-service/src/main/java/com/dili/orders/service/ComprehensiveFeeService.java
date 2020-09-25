@@ -19,14 +19,14 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	/**
 	 * 根据页面条件查询
 	 * 
-	 * @param comprehensiveFee comprehensiveFee对象
+	 * @param comprehensiveFee 检测收费
 	 * @return
 	 */
 	PageOutput<List<ComprehensiveFee>> listByQueryParams(ComprehensiveFee comprehensiveFee);
 
 	/**
 	 * 新增
-	 * @param comprehensiveFee   comprehensiveFee对象
+	 * @param comprehensiveFee   检测收费
 	 * @return
 	 */
 	BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee);
@@ -34,7 +34,7 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	/**
 	 * 操作员撤销
 	 *
-	 * @param comprehensiveFee comprehensiveFee对象
+	 * @param comprehensiveFee 检测收费
 	 * @param operatorId       操作员id
 	 * @param userName         用户真实名字
 	 * @param operatorPassword 操作员登录密码

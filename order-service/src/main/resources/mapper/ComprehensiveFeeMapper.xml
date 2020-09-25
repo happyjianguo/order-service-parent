@@ -143,6 +143,96 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <update id="updateByIdAndVersion" parameterType="com.dili.orders.domain.ComprehensiveFee">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update comprehensive_fee
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="customerCode != null">
+        customer_code = #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null">
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCardNo != null">
+        customer_card_no = #{customerCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectionNum != null">
+        inspection_num = #{inspectionNum,jdbcType=INTEGER},
+      </if>
+      <if test="chargeAmount != null">
+        charge_amount = #{chargeAmount,jdbcType=BIGINT},
+      </if>
+      <if test="plate != null">
+        plate = #{plate,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null">
+        order_type = #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="orderStatus != null">
+        order_status = #{orderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="inspectionItem != null">
+        inspection_item = #{inspectionItem,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorId != null">
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="operatorName != null">
+        operator_name = #{operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorTime != null">
+        operator_time = #{operatorTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="revocatorId != null">
+        revocator_id = #{revocatorId,jdbcType=BIGINT},
+      </if>
+      <if test="revocatorName != null">
+        revocator_name = #{revocatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="revocatorTime != null">
+        revocator_time = #{revocatorTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creatorId != null">
+        creator_id = #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="modifiedTime != null">
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifierId != null">
+        modifier_id = #{modifierId,jdbcType=BIGINT},
+      </if>
+      <if test="version != null">
+        version = version + 1,
+      </if>
+      <if test="paymentNo != null">
+        payment_no = #{paymentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="customerType != null">
+        customer_type = #{customerType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER}
+  </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT
     *
