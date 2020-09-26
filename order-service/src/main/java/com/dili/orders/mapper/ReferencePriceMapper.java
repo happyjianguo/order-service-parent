@@ -32,7 +32,7 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
      * 更新参考价信息
      * @param referencePrice
      */
-    void updateReferencePriceByGoods(WeighingReferencePrice referencePrice);
+    void updateReferencePrice(WeighingReferencePrice referencePrice);
 
     /*--------------------------weighing_settlement_bill_daily----------------------*/
 

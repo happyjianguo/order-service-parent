@@ -6,6 +6,9 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -14,7 +17,10 @@ import java.util.Date;
  */
 @Table(name = "`weighing_reference_price`")
 public class WeighingReferencePrice extends BaseDomain {
-
+    @Id
+    @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     /**商品ID*/
     @Column(name = "`goods_id`")
     private Long goodsId;
@@ -43,21 +49,29 @@ public class WeighingReferencePrice extends BaseDomain {
     @Column(name = "`trade_type`")
     private String tradeType;
 
-    public static WeighingReferencePrice copyFromDailyData(WeighingSettlementBillDaily daily, Long totalAvgCount, Long referenceAvgCount) {
-        WeighingReferencePrice referencePrice = new WeighingReferencePrice();
-        referencePrice.setGoodsId(daily.getGoodsId());
-        referencePrice.setMarketId(daily.getMarketId());
-        referencePrice.setSettlementTime(daily.getSettlementTime());
-        referencePrice.setSettlementDay(daily.getSettlementDay());
+    public void copyFromDailyData(WeighingSettlementBillDaily daily, Long totalAvgCount, Long referenceAvgCount) {
+        this.setGoodsId(daily.getGoodsId());
+        this.setMarketId(daily.getMarketId());
+        this.setSettlementTime(daily.getSettlementTime());
+        this.setSettlementDay(daily.getSettlementDay());
         //获取交易价格数目
-        referencePrice.setTransPriceCount(daily.getTradePriceCount());
+        this.setTransPriceCount(daily.getTradePriceCount());
         // 获取交易类型
-        referencePrice.setTradeType(daily.getTradeType());
+        this.setTradeType(daily.getTradeType());
         //取交易笔数
-        referencePrice.setTransCount(daily.getTradeCount());
-        referencePrice.setTotalAvgCount(totalAvgCount);
-        referencePrice.setPartAvgCount(referenceAvgCount);
-        return referencePrice;
+        this.setTransCount(daily.getTradeCount());
+        this.setTotalAvgCount(totalAvgCount);
+        this.setPartAvgCount(referenceAvgCount);
+    }
+
+    @FieldDef(label = "id")
+    @EditMode(editor = FieldEditor.Number, required = true)
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @FieldDef(label = "商品ID")

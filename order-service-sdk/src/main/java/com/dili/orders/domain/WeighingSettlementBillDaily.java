@@ -34,7 +34,7 @@ public class WeighingSettlementBillDaily implements Serializable {
     private Integer minTradeWeight;
     /**交易总次数*/
     private Integer tradeCount;
-    /**最低价去重后，统计的不同的交易单价数量*/
+    /**交易单价数量（即当有多个相同最大值或最小值时，只计算一次）*/
     private Integer tradePriceCount;
     /**总的交易额*/
     private Long totalTradeAmount;

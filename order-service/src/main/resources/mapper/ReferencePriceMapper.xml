@@ -4,6 +4,7 @@
 
     <select id="getReferencePriceByGoodsId" parameterType="com.dili.orders.dto.ReferencePriceQueryDto" resultType="com.dili.orders.domain.WeighingReferencePrice" >
         SELECT
+          id,
           goods_id,
           total_avg_count ,
           part_avg_count ,
@@ -103,28 +104,23 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateReferencePriceByGoods" parameterType="com.dili.orders.domain.WeighingReferencePrice" >
+    <update id="updateReferencePrice" parameterType="com.dili.orders.domain.WeighingReferencePrice" >
         UPDATE weighing_reference_price
         <set>
             <if test="totalAvgCount != null">
-                total_avg_count = #{totalAvgCount,jdbcType=BIGINT},
+                total_avg_count = #{totalAvgCount},
             </if>
             <if test="partAvgCount != null">
-                part_avg_count = #{partAvgCount,jdbcType=BIGINT},
+                part_avg_count = #{partAvgCount},
             </if>
             <if test="transCount != null">
-                trans_count = #{transCount,jdbcType=INTEGER},
+                trans_count = #{transCount},
             </if>
             <if test="transPriceCount != null">
-                trans_price_count = #{transPriceCount,jdbcType=INTEGER},
-            </if>
-            <if test="settlementTime != null">
-                settlement_time = #{settlementTime,jdbcType=INTEGER},
+                trans_price_count = #{transPriceCount},
             </if>
         </set>
-        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
-        AND market_id = #{marketId,jdbcType=BIGINT}
-        AND trade_type = #{tradeType}
+        WHERE id = #{id}
     </update>
 
 
