@@ -3,15 +3,14 @@ package com.dili.orders.service.referenceprice;
 import cn.hutool.core.util.NumberUtil;
 import com.dili.orders.domain.MeasureType;
 import com.dili.orders.domain.WeighingSettlementBillDaily;
-import com.dili.orders.domain.WeighingSettlementBillTemp;
+import com.dili.orders.dto.WeighingSettlementDto;
 import com.udojava.evalex.Expression;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
- * 专门用于计算中间价的各种数量
+ * 专门用于计算参考价的各种数量
  * @Auther: miaoguoxin
  * @Date: 2020/9/16 12:17
  */
@@ -33,11 +32,11 @@ public class ReferencePriceCalculator {
 
 
     /**
-    * 计算单价
-    * @author miaoguoxin
-    * @date 2020/9/25
-    */
-    public Long getUnitPrice(WeighingSettlementBillTemp billTemp) {
+     * 计算单价
+     * @author miaoguoxin
+     * @date 2020/9/25
+     */
+    public Long getUnitPrice(WeighingSettlementDto billTemp) {
         if (MeasureType.PIECE.getValue().equals(billTemp.getMeasureType())) {
             //  元/件转元/斤
             BigDecimal unitPrice = new Expression(CAL_UNIT_PRICE_FORMULA)
@@ -45,7 +44,7 @@ public class ReferencePriceCalculator {
                     .with("unitWeight", getRealWeight(billTemp.getUnitWeight()))
                     .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                     .eval();
-            return unitPrice.setScale(2, RoundingMode.DOWN).longValue();
+            return unitPrice.longValue();
         }
         return billTemp.getUnitPrice();
     }
@@ -55,7 +54,7 @@ public class ReferencePriceCalculator {
      * @author miaoguoxin
      * @date 2020/9/16
      */
-    public Long getTradeAmount(WeighingSettlementBillTemp billTemp) {
+    public Long getTradeAmount(WeighingSettlementDto billTemp) {
         if (MeasureType.PIECE.getValue().equals(billTemp.getMeasureType())) {
             // 将元/件的单据转换为元/斤
             BigDecimal tradeAmount = new Expression(CAL_TRADE_AMOUNT_FORMULA)
@@ -64,7 +63,7 @@ public class ReferencePriceCalculator {
                     .with("netWeight", getRealWeight(billTemp.getNetWeight()))
                     .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                     .eval();
-            return tradeAmount.setScale(2, RoundingMode.DOWN).longValue();
+            return tradeAmount.longValue();
         }
         return billTemp.getTradeAmount();
     }
@@ -80,7 +79,7 @@ public class ReferencePriceCalculator {
                 .with("totalTradeWeight", getRealWeight(totalTradeWeight))
                 .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                 .eval();
-        return result.setScale(2, RoundingMode.DOWN).longValue();
+        return result.longValue();
     }
 
     /**
@@ -88,7 +87,7 @@ public class ReferencePriceCalculator {
      * @author miaoguoxin
      * @date 2020/9/16
      */
-    public Long getReferenceAvgPrice(WeighingSettlementBillDaily  transData) {
+    public Long getReferenceAvgPrice(WeighingSettlementBillDaily transData) {
         //当价格数不超过2时，是算不出中间值的，故取平均值即可
         if (transData.getTradePriceCount() <= 2) {
             return this.getTotalAvgPrice(transData.getTotalTradeAmount(), transData.getTotalTradeWeight());
@@ -102,7 +101,43 @@ public class ReferencePriceCalculator {
                 .with("minWeight", getRealWeight(transData.getMinTradeWeight()))
                 .with("rate", BigDecimal.valueOf(KG_TO_JIN_RATE))
                 .eval();
-        return result.setScale(2, RoundingMode.DOWN).longValue();
+        return result.longValue();
+    }
+
+
+    /**
+     * 比较价格并设置对应值
+     * @author miaoguoxin
+     * @date 2020/9/26
+     */
+    public void comparePrice(WeighingSettlementBillDaily daily, WeighingSettlementDto settlementBill) {
+        Long maxPrice = daily.getMaxPrice();
+        Long minPrice = daily.getMinPrice();
+        Long unitPrice = this.getUnitPrice(settlementBill);
+        if (!unitPrice.equals(minPrice) && !unitPrice.equals(maxPrice)) {
+            //价格不同的情况,视为交易价格数变化
+            daily.setTradePriceCount(daily.getTradePriceCount() + 1);
+        }
+        if (unitPrice < minPrice) {
+            daily.setMinPrice(unitPrice);
+            daily.setMinTradeAmount(settlementBill.getTradeAmount());
+            daily.setMinTradeWeight(settlementBill.getNetWeight());
+        }
+        if (unitPrice.equals(minPrice)) {
+            //计算中间价的时候是去掉所有最小值，故这里需要累加
+            daily.setMinTradeAmount(daily.getMinTradeAmount() + settlementBill.getTradeAmount());
+            daily.setMinTradeWeight(daily.getMinTradeWeight() + settlementBill.getNetWeight());
+        }
+        if (unitPrice > maxPrice) {
+            daily.setMaxPrice(unitPrice);
+            daily.setMaxTradeAmount(settlementBill.getTradeAmount());
+            daily.setMaxTradeWeight(settlementBill.getNetWeight());
+        }
+        if (unitPrice.equals(maxPrice)) {
+            //同上
+            daily.setMaxTradeAmount(daily.getMaxTradeAmount() + settlementBill.getTradeAmount());
+            daily.setMaxTradeWeight(daily.getMaxTradeWeight() + settlementBill.getNetWeight());
+        }
     }
 
 

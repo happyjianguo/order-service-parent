@@ -3,6 +3,7 @@ package com.dili.orders.listener;
 import com.alibaba.fastjson.JSON;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.domain.WeighingSettlementBillTemp;
+import com.dili.orders.dto.WeighingSettlementDto;
 import com.dili.orders.service.ReferencePriceService;
 import com.rabbitmq.client.Channel;
 import org.apache.commons.lang3.StringUtils;
@@ -53,9 +54,9 @@ public class ReferencePriceListener {
         }
         LOGGER.info("接收MQ消息，开始计算参考价：{}", data);
 
-        WeighingSettlementBillTemp weighingSettlementBill;
+        WeighingSettlementDto weighingSettlementBill;
         try {
-            weighingSettlementBill = JSON.parseObject(data, WeighingSettlementBillTemp.class);
+            weighingSettlementBill = JSON.parseObject(data, WeighingSettlementDto.class);
         } catch (Exception e) {
             LOGGER.error("deserialize json failed", e);
             rejectMsg(channel, message.getMessageProperties().getDeliveryTag());

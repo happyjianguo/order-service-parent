@@ -4,9 +4,9 @@ import cn.hutool.core.date.DateUtil;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.domain.WeighingReferencePrice;
 import com.dili.orders.domain.WeighingSettlementBillDaily;
-import com.dili.orders.domain.WeighingSettlementBillTemp;
 import com.dili.orders.dto.ReferencePriceDto;
 import com.dili.orders.dto.ReferencePriceQueryDto;
+import com.dili.orders.dto.WeighingSettlementDto;
 import com.dili.orders.mapper.ReferencePriceMapper;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.orders.service.referenceprice.ReferencePriceCalculator;
@@ -132,7 +132,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void calculateReferencePrice(WeighingSettlementBillTemp weighingSettlementBill) {
+    public void calculateReferencePrice(WeighingSettlementDto weighingSettlementBill) {
         // 根据条件获取交易数据
         ReferencePriceQueryDto queryParam = new ReferencePriceQueryDto();
         queryParam.setGoodsId(weighingSettlementBill.getGoodsId());
@@ -163,10 +163,10 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
     }
 
     /**
-     * 计算价格中间表数据
+     * 计算每日参考价数据
      */
-    private WeighingSettlementBillDaily getCumulativePrice(WeighingSettlementBillTemp weighingSettlementBill, ReferencePriceQueryDto queryParam) {
-        // 查询该市场下该商品当天的交易数据
+    private WeighingSettlementBillDaily getCumulativePrice(WeighingSettlementDto weighingSettlementBill, ReferencePriceQueryDto queryParam) {
+        // 查询当天的交易数据
         WeighingSettlementBillDaily transData = this.getActualDao().getTransDataByGoodsId(queryParam);
         //计算交易额
         Long tradeAmount = referencePriceCalculator.getTradeAmount(weighingSettlementBill);
@@ -176,41 +176,17 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         if (transData == null) {
             transData = WeighingSettlementBillDaily.create(weighingSettlementBill, unitPrice);
             getActualDao().insertDaily(transData);
-            LOGGER.info("--------------新增参考价中间表数据-----------------");
+            LOGGER.info("--------------新增每日参考价数据-----------------");
             return transData;
         }
-        Long maxPrice = transData.getMaxPrice();
-        Long minPrice = transData.getMinPrice();
-        if (!unitPrice.equals(minPrice) && !unitPrice.equals(maxPrice)) {
-            //价格不同的情况,视为交易价格数变化
-            transData.setTradePriceCount(transData.getTradePriceCount() + 1);
-        }
-        if (unitPrice < minPrice) {
-            transData.setMinPrice(unitPrice);
-            transData.setMinTradeAmount(weighingSettlementBill.getTradeAmount());
-            transData.setMinTradeWeight(weighingSettlementBill.getNetWeight());
-        }
-        if (unitPrice.equals(minPrice)) {
-            //计算中间价的时候是去掉所有最小值，故这里需要累加
-            transData.setMinTradeAmount(transData.getMinTradeAmount() + weighingSettlementBill.getTradeAmount());
-            transData.setMinTradeWeight(transData.getMinTradeWeight() + weighingSettlementBill.getNetWeight());
-        }
-        if (unitPrice > maxPrice) {
-            transData.setMaxPrice(unitPrice);
-            transData.setMaxTradeAmount(weighingSettlementBill.getTradeAmount());
-            transData.setMaxTradeWeight(weighingSettlementBill.getNetWeight());
-        }
-        if (unitPrice.equals(maxPrice)) {
-            //同上
-            transData.setMaxTradeAmount(transData.getMaxTradeAmount() + weighingSettlementBill.getTradeAmount());
-            transData.setMaxTradeWeight(transData.getMaxTradeWeight() + weighingSettlementBill.getNetWeight());
-        }
+        //比较价格并设置值
+        referencePriceCalculator.comparePrice(transData, weighingSettlementBill);
+
         transData.setTradeCount(transData.getTradeCount() + 1);
-        // 累加该商品总交易额与交易量
         transData.setTotalTradeAmount(transData.getTotalTradeAmount() + weighingSettlementBill.getTradeAmount());
         transData.setTotalTradeWeight(transData.getTotalTradeWeight() + weighingSettlementBill.getNetWeight());
-        // 更新参考中间价单据表
-        LOGGER.info("--------------更新参考价中间表数据-----------------");
+        // 更新参考价单据表
+        LOGGER.info("--------------更新每日参考价数据-----------------");
         this.getActualDao().updateDaily(transData);
         return transData;
     }

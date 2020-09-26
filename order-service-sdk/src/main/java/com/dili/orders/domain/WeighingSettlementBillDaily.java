@@ -1,5 +1,6 @@
 package com.dili.orders.domain;
 
+import com.dili.orders.dto.WeighingSettlementDto;
 import com.dili.ss.util.DateUtils;
 
 import java.io.Serializable;
@@ -49,7 +50,7 @@ public class WeighingSettlementBillDaily implements Serializable {
      * @author miaoguoxin
      * @date 2020/9/25
      */
-    public static WeighingSettlementBillDaily create(WeighingSettlementBillTemp temp, Long unitPrice) {
+    public static WeighingSettlementBillDaily create(WeighingSettlementDto temp, Long unitPrice) {
         WeighingSettlementBillDaily transData = new WeighingSettlementBillDaily();
         transData.setGoodsId(temp.getGoodsId());
         transData.setMarketId(temp.getMarketId());
