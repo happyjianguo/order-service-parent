@@ -27,9 +27,10 @@ public class ReferencePriceCalculator {
     private static final String CAL_TRADE_AMOUNT_FORMULA = "(unitPrice/unitWeight)*netWeight*rate";
     /**计算总平均价公式*/
     private static final String CAL_TOTAL_AVG_PRICE_FORMULA = "totalTradeAmount/(totalTradeWeight*rate)";
-    /**计算中间价公式*/
-    private static final String CAL_MIDDLE_PRICE_FORMULA = "(totalTradeAmount-maxAmount-minAmount)/((totalTradeWeight-maxWeight-minWeight)*rate)";
-
+    /**计算参考价公式*/
+    private static final String CAL_REFERENCE_PRICE_FORMULA = "(totalTradeAmount-maxAmount-minAmount)/((totalTradeWeight-maxWeight-minWeight)*rate)";
+    /**计算下调幅度参考价公式*/
+    private static final String CAL_DOWNWARD_RANGE_REFERENCE_PRICE_FORMULA="(1-downwardRange)*referencePrice";
 
     /**
      * 计算单价
@@ -92,7 +93,7 @@ public class ReferencePriceCalculator {
         if (transData.getTradePriceCount() <= 2) {
             return this.getTotalAvgPrice(transData.getTotalTradeAmount(), transData.getTotalTradeWeight());
         }
-        BigDecimal result = new Expression(CAL_MIDDLE_PRICE_FORMULA)
+        BigDecimal result = new Expression(CAL_REFERENCE_PRICE_FORMULA)
                 .with("totalTradeAmount", BigDecimal.valueOf(transData.getTotalTradeAmount()))
                 .with("maxAmount", BigDecimal.valueOf(transData.getMaxTradeAmount()))
                 .with("minAmount", BigDecimal.valueOf(transData.getMinTradeAmount()))
@@ -138,6 +139,19 @@ public class ReferencePriceCalculator {
             daily.setMaxTradeAmount(daily.getMaxTradeAmount() + settlementBill.getTradeAmount());
             daily.setMaxTradeWeight(daily.getMaxTradeWeight() + settlementBill.getNetWeight());
         }
+    }
+
+    /**
+    * 计算下调幅度后的参考价
+    * @author miaoguoxin
+    * @date 2020/9/27
+    */
+    public Long getDownwardRangeReferencePrice(double downwardRange, Long referencePrice) {
+        BigDecimal result = new Expression(CAL_DOWNWARD_RANGE_REFERENCE_PRICE_FORMULA)
+                .with("downwardRange", BigDecimal.valueOf(downwardRange))
+                .with("referencePrice", BigDecimal.valueOf(referencePrice))
+                .eval();
+        return result.longValue();
     }
 
 

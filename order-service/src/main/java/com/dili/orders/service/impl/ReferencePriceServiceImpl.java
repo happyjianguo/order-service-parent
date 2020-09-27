@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -37,12 +36,12 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
     /**
      * 交易笔数 Code
      */
-    private final String TRANS_COUNT = "transCount";
+    private static final String TRANS_COUNT = "transCount";
 
     /**
      * 下浮幅度 Code
      */
-    private final String DOWNWARD_RANGE = "downwardRange";
+    private static final String DOWNWARD_RANGE = "downwardRange";
 
     @Autowired
     private DataDictionaryRpc dataDictionaryRpc;
@@ -140,7 +139,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         queryParam.setTradeType(weighingSettlementBill.getTradeType());
         queryParam.setSettlementDay(DateUtil.today());
 
-        // 计算当天中间价数据
+        // 计算每日参考价数据
         WeighingSettlementBillDaily transData = this.getCumulativePrice(weighingSettlementBill, queryParam);
         //计算去掉最大值最小值的平均值
         Long partPrice = referencePriceCalculator.getReferenceAvgPrice(transData);
@@ -227,10 +226,7 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         if (downwardRange == 0) {
             return referencePrice;
         }
-        BigDecimal range = new BigDecimal(1).subtract(new BigDecimal(downwardRange));
-        BigDecimal price = new BigDecimal(referencePrice);
-        price = range.multiply(price);
-        return price.longValue();
+        return referencePriceCalculator.getDownwardRangeReferencePrice(downwardRange, referencePrice);
     }
 
     /**
