@@ -1,6 +1,7 @@
 package com.dili.orders.api;
 
 
+import com.dili.orders.dto.WeighingSettlementDto;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.util.MoneyUtils;
@@ -59,6 +60,15 @@ public class ReferencePriceApi {
         }
     }
 
-
+    /**
+    *
+    * @author miaoguoxin
+    * @date 2020/9/27
+    */
+    @PostMapping("/test")
+    public BaseOutput<?> test(@RequestBody WeighingSettlementDto dto){
+        referencePriceService.calculateReferencePrice(dto);
+        return BaseOutput.success();
+    }
 }
 

@@ -3,6 +3,7 @@ package com.dili.orders.listener;
 import com.alibaba.fastjson.JSON;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.domain.WeighingSettlementBillTemp;
+import com.dili.orders.dto.WeighingSettlementDto;
 import com.dili.orders.service.ReferencePriceService;
 import com.rabbitmq.client.Channel;
 import org.apache.commons.lang3.StringUtils;
@@ -37,15 +38,6 @@ public class ReferencePriceListener {
     @Autowired
     private ReferencePriceService referencePriceService;
 
-    /**
-     * 手动确认状态
-     */
-    enum Action {
-        ACCEPT,  // 处理成功
-        RETRY,   // 可以重试的错误
-    }
-
-    long tag = 0;
 
     /**
      * 客户信息修改后，更新账户冗余信息
@@ -62,9 +54,9 @@ public class ReferencePriceListener {
         }
         LOGGER.info("接收MQ消息，开始计算参考价：{}", data);
 
-        WeighingSettlementBillTemp weighingSettlementBill;
+        WeighingSettlementDto weighingSettlementBill;
         try {
-            weighingSettlementBill = JSON.parseObject(data, WeighingSettlementBillTemp.class);
+            weighingSettlementBill = JSON.parseObject(data, WeighingSettlementDto.class);
         } catch (Exception e) {
             LOGGER.error("deserialize json failed", e);
             rejectMsg(channel, message.getMessageProperties().getDeliveryTag());
@@ -72,6 +64,7 @@ public class ReferencePriceListener {
         }
 
         try {
+            //开始计算参考价
             referencePriceService.calculateReferencePrice(weighingSettlementBill);
             ackMsg(channel, message.getMessageProperties().getDeliveryTag());
         } catch (Exception e) {
@@ -87,10 +80,10 @@ public class ReferencePriceListener {
     }
 
     /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/16
-    */
+     *
+     * @author miaoguoxin
+     * @date 2020/9/16
+     */
     private static void rejectMsg(Channel channel, long deliveryTag) {
         try {
             channel.basicReject(deliveryTag, false);
@@ -100,10 +93,10 @@ public class ReferencePriceListener {
     }
 
     /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/16
-    */
+     *
+     * @author miaoguoxin
+     * @date 2020/9/16
+     */
     private static void nackMsg(Channel channel, long deliveryTag) {
         try {
             channel.basicNack(deliveryTag, false, true);
@@ -113,10 +106,10 @@ public class ReferencePriceListener {
     }
 
     /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/16
-    */
+     *
+     * @author miaoguoxin
+     * @date 2020/9/16
+     */
     private static void ackMsg(Channel channel, long deliveryTag) {
         try {
             channel.basicAck(deliveryTag, false);
