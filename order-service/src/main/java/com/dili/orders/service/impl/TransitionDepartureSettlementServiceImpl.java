@@ -396,8 +396,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             List<FeeDto> feeDtos = new ArrayList();
             FeeDto feeDto = new FeeDto();
             feeDto.setAmount(transitionDepartureSettlement.getChargeAmount());
-            feeDto.setType(FeeType.ZLC_FEE.getValue());
-            feeDto.setTypeName("转离场收费");
+            //判断是转场还是离场
+            if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
+                //相等为转场
+                feeDto.setType(FundItem.TRANSFER_FEE.getCode());
+                feeDto.setTypeName(FundItem.TRANSFER_FEE.getName());
+            } else {
+                feeDto.setType(FundItem.LEAVE_FEE.getCode());
+                feeDto.setTypeName(FundItem.LEAVE_FEE.getName());
+            }
             feeDtos.add(feeDto);
             paymentTradeCommitDto.setFees(feeDtos);
 
