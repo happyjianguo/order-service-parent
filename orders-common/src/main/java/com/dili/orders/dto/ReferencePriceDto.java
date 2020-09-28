@@ -32,9 +32,5 @@ public class ReferencePriceDto {
 	 */
 	public static final int MONTH_ONE = 1;
 
-	/**
-	 * MONTH_TWO 2
-	 */
-	public static final String MONTH_TWO = "2";
 
 }

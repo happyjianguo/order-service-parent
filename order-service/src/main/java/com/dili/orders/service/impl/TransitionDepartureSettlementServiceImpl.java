@@ -470,7 +470,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         // 校验操作员密码
         BaseOutput<Object> userOutput = this.userRpc.validatePassword(revocatorId, revocatorPassword);
         if (!userOutput.isSuccess()) {
-            return BaseOutput.failure("操作员密码错误");
+            return BaseOutput.failure(userOutput.getMessage());
         }
 
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
