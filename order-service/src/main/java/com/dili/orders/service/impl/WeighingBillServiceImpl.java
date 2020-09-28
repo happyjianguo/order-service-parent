@@ -221,17 +221,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	private Customer getCustomerAgent(UserAccountCardResponseDto customerInfo, WeighingBill weighingBill) {
 		// 卖家代理人
-		RelatedQuery sellerQuery = new RelatedQuery();
-		sellerQuery.setCustomerId(customerInfo.getCustomerId());
-		sellerQuery.setMarketId(weighingBill.getMarketId());
-		BaseOutput<List<RelatedDto>> relatedOutput = this.relatedRpc.getParent(sellerQuery);
+		RelatedQuery agentQuery = new RelatedQuery();
+		agentQuery.setCustomerId(customerInfo.getCustomerId());
+		agentQuery.setMarketId(weighingBill.getMarketId());
+		BaseOutput<List<RelatedDto>> relatedOutput = this.relatedRpc.getParent(agentQuery);
 		if (!relatedOutput.isSuccess()) {
 			throw new AppException(relatedOutput.getMessage());
 		}
 		if (CollectionUtils.isEmpty(relatedOutput.getData())) {
 			return null;
 		}
-		BaseOutput<Customer> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getCustomerId(), weighingBill.getMarketId());
+		BaseOutput<Customer> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getParent(), weighingBill.getMarketId());
 		if (!agentOutput.isSuccess()) {
 			throw new AppException(agentOutput.getMessage());
 		}
@@ -782,6 +782,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getBuyerActualAmount() - balanceOutput.getData().getAvailableAmount())));
 		}
 
+		boolean priceApprove = false;
 		if (this.checkPrice) {
 			// 检查中间价
 			if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
@@ -792,6 +793,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);
 					if (actualPrice <= referencePrice) {
+						priceApprove = true;
 						// 没有审批过且价格异常需要走审批流程
 						PriceApproveRecord approve = new PriceApproveRecord();
 						approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
@@ -830,7 +832,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
 			BaseOutput<?> output = this.prepareTrade(weighingBill, weighingStatement);
 			if (!output.isSuccess()) {
-				return BaseOutput.failure(output.getMessage());
+				throw new AppException(output.getMessage());
 			}
 		}
 
@@ -866,7 +868,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setModifiedTime(now);
 		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
-			return BaseOutput.failure("更新过磅单状态失败");
+			throw new AppException("更新过磅单状态失败");
+
 		}
 
 		weighingStatement.setModifierId(operatorId);
@@ -874,7 +877,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingStatement.setState(WeighingStatementState.PAID.getValue());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
-			return BaseOutput.failure("更新过磅单状态失败");
+			throw new AppException("更新过磅单状态失败");
 		}
 
 		User operator = this.getUserById(operatorId);
@@ -899,7 +902,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
-		return BaseOutput.successData(weighingBill.getState());
+		return BaseOutput.successData(priceApprove);
 	}
 
 	@Transactional(rollbackFor = Exception.class)

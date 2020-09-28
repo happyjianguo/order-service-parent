@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
@@ -1141,6 +1142,9 @@ public class WeighingBill extends BaseDomain {
 	 * @param plateNumber 车牌号
 	 */
 	public void setPlateNumber(String plateNumber) {
+		if (StringUtils.isBlank(plateNumber)) {
+			this.plateNumber = null;
+		}
 		this.plateNumber = plateNumber;
 	}
 
