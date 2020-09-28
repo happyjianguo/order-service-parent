@@ -2,13 +2,10 @@ package com.dili.orders.mapper;
 
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.domain.WeighingReferencePrice;
-import com.dili.orders.domain.WeighingSettlementBillTemp;
-import com.dili.orders.dto.WeighingTransCalcDto;
+import com.dili.orders.domain.WeighingSettlementBillDaily;
+import com.dili.orders.dto.ReferencePriceQueryDto;
 import com.dili.ss.base.MyMapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Tyler
@@ -22,44 +19,38 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
      * @param marketId
      * @return
      */
-    GoodsReferencePriceSetting getGoodsRuleByGoodsId(@Param(value = "goodsId") Long goodsId, @Param(value = "marketId")Long marketId);
+    GoodsReferencePriceSetting getGoodsRuleByGoodsId(@Param(value = "goodsId") Long goodsId, @Param(value = "marketId") Long marketId);
 
     /**
      * 根据商品信息查询参考价表中数据
-     * @param map
      * @return
      */
-    WeighingReferencePrice getReferencePriceByGoodsId(Map<String,Object> map);
+    WeighingReferencePrice getReferencePriceByGoodsId(ReferencePriceQueryDto queryDto);
 
-    /**
-     * 根据商品查询交易单据
-     * @param map
-     * @return
-     */
-    WeighingTransCalcDto getTransDataByGoodsId(Map<String,Object> map);
-
-    /**
-     * 根据商品ID查询商品是否存在
-     * @param map
-     * @return
-     */
-    int getReferencePriceCountByGoodsIdIsExists(Map<String,Object> map);
 
     /**
      * 更新参考价信息
      * @param referencePrice
      */
-    void updateReferencePriceByGoods(WeighingReferencePrice referencePrice);
+    void updateReferencePrice(WeighingReferencePrice referencePrice);
+
+    /*--------------------------weighing_settlement_bill_daily----------------------*/
 
     /**
-     * 添加参考价中间表信息
-     * @param weighingSettlementBill
+     * 根据商品查询交易单据
+     * @return
      */
-    void addTransDataTempInfo(WeighingSettlementBillTemp weighingSettlementBill);
+    WeighingSettlementBillDaily getTransDataByGoodsId(ReferencePriceQueryDto queryDto);
 
     /**
      * 更新参考价中间表信息
-     * @param weighingTransCalcDto
      */
-    void updateTransDataTempInfo(WeighingTransCalcDto weighingTransCalcDto);
+    void updateDaily(WeighingSettlementBillDaily  daily);
+
+    /**
+     * 添加当日参考价数据(weighing_settlement_bill_daily)
+     * @author miaoguoxin
+     * @date 2020/9/25
+     */
+    void insertDaily(WeighingSettlementBillDaily  daily);
 }

@@ -281,7 +281,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         transitionDepartureSettlement.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
         //设置余额
-        transitionDepartureSettlement.setCustomerBalance(String.valueOf(accountFund.getBalance() / 100));
+        transitionDepartureSettlement.setCustomerBalance(String.valueOf(Long.valueOf(accountFund.getAvailableAmount() - transitionDepartureSettlement.getChargeAmount()).doubleValue() / 100));
         //设置为已支付状态
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
@@ -396,8 +396,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             List<FeeDto> feeDtos = new ArrayList();
             FeeDto feeDto = new FeeDto();
             feeDto.setAmount(transitionDepartureSettlement.getChargeAmount());
-            feeDto.setType(FeeType.ZLC_FEE.getValue());
-            feeDto.setTypeName("转离场收费");
+            //判断是转场还是离场
+            if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
+                //相等为转场
+                feeDto.setType(FundItem.TRANSFER_FEE.getCode());
+                feeDto.setTypeName(FundItem.TRANSFER_FEE.getName());
+            } else {
+                feeDto.setType(FundItem.LEAVE_FEE.getCode());
+                feeDto.setTypeName(FundItem.LEAVE_FEE.getName());
+            }
             feeDtos.add(feeDto);
             paymentTradeCommitDto.setFees(feeDtos);
 
@@ -443,13 +450,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.nonNull(data)) {
             serialRecordDo.setTradeType(TradeType.FEE.getCode());
             serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
-            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
             //返回的值是负值，还是加就行了
             serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
+        serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
         //操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
@@ -470,7 +477,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         // 校验操作员密码
         BaseOutput<Object> userOutput = this.userRpc.validatePassword(revocatorId, revocatorPassword);
         if (!userOutput.isSuccess()) {
-            return BaseOutput.failure("操作员密码错误");
+            return BaseOutput.failure(userOutput.getMessage());
         }
 
         //判断结算单的支付状态是否为2（已结算）,不是则直接返回
@@ -591,7 +598,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.nonNull(data)) {
             serialRecordDo.setTradeType(TradeType.FEE.getCode());
             serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
-            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setAmount(data.getAmount());
             //期初余额
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
@@ -599,6 +605,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
+        serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
         //操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);

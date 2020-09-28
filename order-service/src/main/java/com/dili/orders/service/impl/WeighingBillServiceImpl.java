@@ -1342,7 +1342,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setAccountId(weighingBill.getSellerAccount());
 		prepareDto.setAmount(ws.getTradeAmount());
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
-		prepareDto.setSerialNo(weighingBill.getSerialNo());
+		prepareDto.setSerialNo(ws.getSerialNo());
 		prepareDto.setType(PaymentTradeType.TRADE.getValue());
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
 		if (!paymentOutput.isSuccess()) {
