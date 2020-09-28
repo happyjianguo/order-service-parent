@@ -145,8 +145,6 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 		this.reprint = reprint;
 	}
 
-	@JsonIgnore
-	@JSONField(serialize = false)
 	public String getReprintString() {
 		if (this.reprint) {
 			return "（补打）";
