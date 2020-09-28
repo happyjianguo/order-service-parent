@@ -450,13 +450,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.nonNull(data)) {
             serialRecordDo.setTradeType(TradeType.FEE.getCode());
             serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
-            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
             //返回的值是负值，还是加就行了
             serialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
+        serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
         //操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
@@ -598,7 +598,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.nonNull(data)) {
             serialRecordDo.setTradeType(TradeType.FEE.getCode());
             serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
-            serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
             serialRecordDo.setAmount(data.getAmount());
             //期初余额
             serialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
@@ -606,6 +605,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             serialRecordDo.setOperateTime(data.getWhen());
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
+        serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
         //操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
