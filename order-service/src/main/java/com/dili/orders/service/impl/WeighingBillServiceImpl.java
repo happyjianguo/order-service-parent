@@ -61,6 +61,7 @@ import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
 import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.SerialRecordDo;
+import com.dili.orders.dto.SettlementResultDto;
 import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
@@ -289,7 +290,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> freeze(String serialNo, String buyerPassword, Long operatorId) {
+	public BaseOutput<SettlementResultDto> freeze(String serialNo, String buyerPassword, Long operatorId) {
 		WeighingBill query = new WeighingBill();
 		query.setSerialNo(serialNo);
 		WeighingBill weighingBill = this.getActualDao().selectOne(query);
@@ -393,7 +394,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setNotes(String.format("冻结，过磅单号%s", weighingBill.getSerialNo()));
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(Arrays.asList(srDto)));
 
-		return BaseOutput.successData(weighingBill.getState());
+		return BaseOutput.successData(new SettlementResultDto(weighingStatement, false));
 	}
 
 	public WeighingBillMapper getActualDao() {
@@ -747,7 +748,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
+	public BaseOutput<SettlementResultDto> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
 		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
@@ -902,7 +903,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
-		return BaseOutput.successData(priceApprove);
+		return BaseOutput.successData(new SettlementResultDto(weighingStatement, priceApprove));
 	}
 
 	@Transactional(rollbackFor = Exception.class)
