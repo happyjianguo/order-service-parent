@@ -65,13 +65,17 @@
 		<!-- WARNING - @mbg.generated -->
 		id, serial_no, measure_type, trade_type, buyer_id, buyer_code, buyer_card_no, buyer_card_account,
 		buyer_account, buyer_name, buyer_contact, buyer_type, buyer_agent_id, buyer_agent_name,
-		seller_id, seller_code, seller_card_no, seller_card_account, seller_account, seller_name,
+		seller_id,
+		seller_code, seller_card_no, seller_card_account, seller_account, seller_name,
 		seller_contact, seller_type, seller_agent_id, seller_agent_name, goods_id, goods_name,
-		goods_code, goods_key_code, goods_origin_city_id, goods_origin_city_name, unit_amount,
+		goods_code, goods_key_code,
+		goods_origin_city_id, goods_origin_city_name, unit_amount,
 		unit_price, unit_weight, fetched_weight, fetch_weight_time, rough_weight, net_weight,
-		plate_number, tare_weight, subtraction_rate, subtraction_weight, estimated_net_weight,
+		plate_number, tare_weight, subtraction_rate,
+		subtraction_weight, estimated_net_weight,
 		frozen_amount, tare_bill_number, state, created_time, modified_time, settlement_time,
-		creator_id, modifier_id, check_price, price_state, process_instance_id, process_definition_id,
+		creator_id, modifier_id, check_price, price_state, process_instance_id,
+		process_definition_id,
 		market_id, version
 	</sql>
 	<select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -458,7 +462,8 @@
 		ws.weighing_bill_id
 		WHERE 1 = 1
 		<if test="idStart != null">
-			AND wb.id <![CDATA[>]]> #{idStart}
+			AND wb.id <![CDATA[>]]>
+			#{idStart}
 		</if>
 		<if test="state != null">
 			AND wb.state=#{state}
@@ -485,7 +490,7 @@
 			AND ws.serial_no = #{wsSerialNo}
 		</if>
 		<if test="operatorId != null">
-			AND wb.creator_id = #{operatorId}
+			AND ((ws.modifier_id IS NULL AND ws.creator_id = #{operatorId}) OR ws.modifier_id = #{operatorId})
 		</if>
 		<if test="createdStart != null">
 			AND wb.created_time <![CDATA[>=]]>
