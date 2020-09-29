@@ -61,7 +61,6 @@ import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
 import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.SerialRecordDo;
-import com.dili.orders.dto.SettlementResultDto;
 import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
@@ -290,7 +289,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<SettlementResultDto> freeze(String serialNo, String buyerPassword, Long operatorId) {
+	public BaseOutput<WeighingStatement> freeze(String serialNo, String buyerPassword, Long operatorId) {
 		WeighingBill query = new WeighingBill();
 		query.setSerialNo(serialNo);
 		WeighingBill weighingBill = this.getActualDao().selectOne(query);
@@ -394,7 +393,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setNotes(String.format("冻结，过磅单号%s", weighingBill.getSerialNo()));
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(Arrays.asList(srDto)));
 
-		return BaseOutput.successData(new SettlementResultDto(weighingStatement, false));
+		return BaseOutput.successData(weighingStatement);
 	}
 
 	public WeighingBillMapper getActualDao() {
@@ -745,7 +744,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<SettlementResultDto> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
+	public BaseOutput<WeighingStatement> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
 		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
@@ -780,7 +779,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getBuyerActualAmount() - balanceOutput.getData().getAvailableAmount())));
 		}
 
-		boolean priceApprove = false;
 		if (this.checkPrice) {
 			// 检查中间价
 			if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
@@ -791,7 +789,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);
 					if (actualPrice <= referencePrice) {
-						priceApprove = true;
 						// 没有审批过且价格异常需要走审批流程
 						PriceApproveRecord approve = new PriceApproveRecord();
 						approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
@@ -822,6 +819,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setProcessDefinitionId(output.getData().getProcessDefinitionId());
 						approve.setProcessInstanceId(output.getData().getProcessInstanceId());
 						this.priceApproveMapper.updateByPrimaryKeySelective(approve);
+						return BaseOutput.failure("交易单价低于参考价，需人工审核");
 					}
 				}
 			}
@@ -900,7 +898,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
-		return BaseOutput.successData(new SettlementResultDto(weighingStatement, priceApprove));
+		return BaseOutput.successData(weighingStatement);
 	}
 
 	@Transactional(rollbackFor = Exception.class)

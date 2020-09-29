@@ -5,7 +5,6 @@ import java.util.List;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.PrintTemplateDataDto;
-import com.dili.orders.dto.SettlementResultDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
@@ -51,7 +50,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param operatorId
 	 * @return
 	 */
-	BaseOutput<SettlementResultDto> freeze(String serialNo, String buyerPassword, Long operatorId);
+	BaseOutput<WeighingStatement> freeze(String serialNo, String buyerPassword, Long operatorId);
 
 	/**
 	 * 作废过磅单
@@ -98,7 +97,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param operatorId    TODO
 	 * @return
 	 */
-	BaseOutput<SettlementResultDto> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId);
+	BaseOutput<WeighingStatement> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId);
 
 	/**
 	 * 修改过磅单
