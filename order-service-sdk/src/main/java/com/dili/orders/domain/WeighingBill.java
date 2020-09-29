@@ -356,18 +356,6 @@ public class WeighingBill extends BaseDomain {
 	private Integer priceState;
 
 	/**
-	 * 流程实例id
-	 */
-	@Column(name = "`process_instance_id`")
-	private String processInstanceId;
-
-	/**
-	 * 流程定义id
-	 */
-	@Column(name = "`process_definition_id`")
-	private String processDefinitionId;
-
-	/**
 	 * 市场id
 	 */
 	@Column(name = "`market_id`")
@@ -1422,46 +1410,6 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setPriceState(Integer priceState) {
 		this.priceState = priceState;
-	}
-
-	/**
-	 * 获取流程实例id
-	 *
-	 * @return process_instance_id - 流程实例id
-	 */
-	@FieldDef(label = "流程实例id", maxLength = 64)
-	@EditMode(editor = FieldEditor.Text, required = false)
-	public String getProcessInstanceId() {
-		return processInstanceId;
-	}
-
-	/**
-	 * 设置流程实例id
-	 *
-	 * @param processInstanceId 流程实例id
-	 */
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
-
-	/**
-	 * 获取流程定义id
-	 *
-	 * @return process_definition_id - 流程定义id
-	 */
-	@FieldDef(label = "流程定义id", maxLength = 64)
-	@EditMode(editor = FieldEditor.Text, required = false)
-	public String getProcessDefinitionId() {
-		return processDefinitionId;
-	}
-
-	/**
-	 * 设置流程定义id
-	 *
-	 * @param processDefinitionId 流程定义id
-	 */
-	public void setProcessDefinitionId(String processDefinitionId) {
-		this.processDefinitionId = processDefinitionId;
 	}
 
 	/**
