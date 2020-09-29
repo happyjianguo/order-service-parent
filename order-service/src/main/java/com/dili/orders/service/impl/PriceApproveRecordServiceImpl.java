@@ -38,7 +38,7 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> accept(Long id, Long approverId, String taskId) {
+	public BaseOutput<Object> accept(Long id, Long approverId, String notes, String taskId) {
 		PriceApproveRecord approve = this.getActualDao().selectByPrimaryKey(id);
 		if (approve == null) {
 			return BaseOutput.failure("审批记录不存在");
@@ -53,6 +53,7 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			return BaseOutput.failure("查询用户信息失败");
 		}
 		approve.setApproverId(approverId);
+		approve.setNotes(notes);
 		approve.setApproverName(userOutput.getData().getRealName());
 		approve.setApproveTime(LocalDateTime.now());
 		int rows = this.getActualDao().updateByPrimaryKeySelective(approve);
@@ -75,7 +76,7 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> reject(Long id, Long approverId, String taskId) {
+	public BaseOutput<Object> reject(Long id, Long approverId, String notes, String taskId) {
 		PriceApproveRecord approve = this.getActualDao().selectByPrimaryKey(id);
 		if (approve == null) {
 			return BaseOutput.failure("审批记录不存在");
@@ -90,6 +91,7 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			return BaseOutput.failure("查询用户信息失败");
 		}
 		approve.setApproverId(approverId);
+		approve.setNotes(notes);
 		approve.setApproverName(userOutput.getData().getRealName());
 		approve.setApproveTime(LocalDateTime.now());
 		int rows = this.getActualDao().updateByPrimaryKeySelective(approve);
