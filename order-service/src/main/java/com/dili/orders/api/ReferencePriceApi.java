@@ -60,15 +60,6 @@ public class ReferencePriceApi {
         }
     }
 
-    /**
-    *
-    * @author miaoguoxin
-    * @date 2020/9/27
-    */
-    @PostMapping("/test")
-    public BaseOutput<?> test(@RequestBody WeighingSettlementDto dto){
-        referencePriceService.calculateReferencePrice(dto);
-        return BaseOutput.success();
-    }
+
 }
 

@@ -14,18 +14,20 @@ public interface PriceApproveRecordService extends BaseService<PriceApproveRecor
 	 * 
 	 * @param id         id
 	 * @param approverId 审批人id
+	 * @param notes TODO
 	 * @param taskId     流程任务id
 	 * @return
 	 */
-	BaseOutput<Object> accept(Long id, Long approverId, String taskId);
+	BaseOutput<Object> accept(Long id, Long approverId, String notes, String taskId);
 	
 	/**
 	 * 审批拒绝
 	 * 
 	 * @param id         id
 	 * @param approverId 审批人id
+	 * @param notes TODO
 	 * @param taskId     流程任务id
 	 * @return
 	 */
-	BaseOutput<Object> reject(Long id, Long approverId, String taskId);
+	BaseOutput<Object> reject(Long id, Long approverId, String notes, String taskId);
 }

@@ -78,6 +78,12 @@ public class PriceApproveRecord extends BaseDomain {
 	private String sellerCardNo;
 
 	/**
+	 * 市场id
+	 */
+	@Column(name = "`market_id`")
+	private Long marketId;
+
+	/**
 	 * 交易类型
 	 */
 	@Column(name = "`trade_type`")
@@ -597,5 +603,13 @@ public class PriceApproveRecord extends BaseDomain {
 
 	public void setProcessDefinitionId(String processDefinitionId) {
 		this.processDefinitionId = processDefinitionId;
+	}
+
+	public Long getMarketId() {
+		return marketId;
+	}
+
+	public void setMarketId(Long marketId) {
+		this.marketId = marketId;
 	}
 }
