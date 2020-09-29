@@ -3,6 +3,7 @@ package com.dili.orders.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.assets.sdk.dto.TradeTypeDto;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.Customer;
@@ -159,7 +160,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
@@ -324,7 +325,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
@@ -633,7 +634,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setMarketId(marketId);
         //设置id
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("查询车辆类型失败");
         }

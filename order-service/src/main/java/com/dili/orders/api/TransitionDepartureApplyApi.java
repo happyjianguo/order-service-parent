@@ -1,11 +1,11 @@
 package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.glossary.ApplyEnum;
-import com.dili.orders.rpc.AssetsRpc;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.ss.domain.BaseOutput;
@@ -97,7 +97,7 @@ public class TransitionDepartureApplyApi {
             carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
             carTypeForJmsfDTO.setMarketId(transitionDepartureApply.getMarketId());
             carTypeForJmsfDTO.setId(transitionDepartureApply.getCarTypeId());
-            BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+            BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
             if (!listBaseOutput.isSuccess()) {
                 throw new RuntimeException("进门收费车型查询失败");
             }
