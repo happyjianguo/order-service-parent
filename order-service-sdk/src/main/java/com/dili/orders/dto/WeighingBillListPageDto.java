@@ -24,6 +24,7 @@ public class WeighingBillListPageDto extends WeighingBill {
 
 	private WeighingStatement statement;
 	private WeighingBillOperationRecord operationRecord;
+	private String tradeTypeName;
 
 	public WeighingStatement getStatement() {
 		return statement;
@@ -60,6 +61,14 @@ public class WeighingBillListPageDto extends WeighingBill {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	public LocalDateTime getWeighingOperationTime() {
 		return super.getModifiedTime() != null ? super.getModifiedTime() : super.getCreatedTime();
+	}
+
+	public String getTradeTypeName() {
+		return tradeTypeName;
+	}
+
+	public void setTradeTypeName(String tradeTypeName) {
+		this.tradeTypeName = tradeTypeName;
 	}
 
 }
