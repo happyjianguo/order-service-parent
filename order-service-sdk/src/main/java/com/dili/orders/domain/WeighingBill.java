@@ -1132,6 +1132,7 @@ public class WeighingBill extends BaseDomain {
 	public void setPlateNumber(String plateNumber) {
 		if (StringUtils.isBlank(plateNumber)) {
 			this.plateNumber = null;
+			return;
 		}
 		this.plateNumber = plateNumber;
 	}
