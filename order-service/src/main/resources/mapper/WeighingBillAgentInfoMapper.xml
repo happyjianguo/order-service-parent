@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.orders.mapper.WeighingBillAgentInfoMapper">
+  <resultMap id="BaseResultMap" type="com.dili.orders.domain.WeighingBillAgentInfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="buyer_agent_id" jdbcType="BIGINT" property="buyerAgentId" />
+    <result column="buyer_agent_name" jdbcType="VARCHAR" property="buyerAgentName" />
+    <result column="buyer_agent_code" jdbcType="VARCHAR" property="buyerAgentCode" />
+    <result column="buyer_agent_type" jdbcType="VARCHAR" property="buyerAgentType" />
+    <result column="seller_agent_id" jdbcType="BIGINT" property="sellerAgentId" />
+    <result column="seller_agent_name" jdbcType="VARCHAR" property="sellerAgentName" />
+    <result column="seller_agent_code" jdbcType="VARCHAR" property="sellerAgentCode" />
+    <result column="seller_agent_type" jdbcType="VARCHAR" property="sellerAgentType" />
+    <result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
+    <result column="weighing_bill_serial_no" jdbcType="VARCHAR" property="weighingBillSerialNo" />
+    <result column="weighing_statement_id" jdbcType="BIGINT" property="weighingStatementId" />
+    <result column="weighing_statement_serial_no" jdbcType="VARCHAR" property="weighingStatementSerialNo" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, buyer_agent_id, buyer_agent_name, buyer_agent_code, buyer_agent_type, seller_agent_id, 
+    seller_agent_name, seller_agent_code, seller_agent_type, weighing_bill_id, weighing_bill_serial_no, 
+    weighing_statement_id, weighing_statement_serial_no
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from weighing_bill_agent_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <update id="updateBy" parameterType="com.dili.orders.domain.WeighingBillAgentInfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update weighing_bill_agent_info
+    <set>
+      <if test="buyerAgentId != null">
+        buyer_agent_id = #{buyerAgentId,jdbcType=BIGINT},
+      </if>
+      <if test="buyerAgentName != null">
+        buyer_agent_name = #{buyerAgentName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerAgentCode != null">
+        buyer_agent_code = #{buyerAgentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerAgentType != null">
+        buyer_agent_type = #{buyerAgentType,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerAgentId != null">
+        seller_agent_id = #{sellerAgentId,jdbcType=BIGINT},
+      </if>
+      <if test="sellerAgentName != null">
+        seller_agent_name = #{sellerAgentName,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerAgentCode != null">
+        seller_agent_code = #{sellerAgentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerAgentType != null">
+        seller_agent_type = #{sellerAgentType,jdbcType=VARCHAR},
+      </if>
+      <if test="weighingBillId != null">
+        weighing_bill_id = #{weighingBillId,jdbcType=BIGINT},
+      </if>
+      <if test="weighingBillSerialNo != null">
+        weighing_bill_serial_no = #{weighingBillSerialNo,jdbcType=VARCHAR},
+      </if>
+      <if test="weighingStatementId != null">
+        weighing_statement_id = #{weighingStatementId,jdbcType=BIGINT},
+      </if>
+      <if test="weighingStatementSerialNo != null">
+        weighing_statement_serial_no = #{weighingStatementSerialNo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

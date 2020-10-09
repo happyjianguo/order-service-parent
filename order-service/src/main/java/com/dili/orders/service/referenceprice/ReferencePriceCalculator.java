@@ -8,6 +8,7 @@ import com.udojava.evalex.Expression;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * 专门用于计算参考价的各种数量
@@ -19,7 +20,7 @@ public class ReferencePriceCalculator {
 
     /**重量都是公斤，需要转换成斤*/
     private static final Integer KG_TO_JIN_RATE = 2;
-    /**重量换算单位，传过来都是化成了整数  如：100.24，传过来就是10024*/
+    /**重量换算倍率，传过来都是化成了整数  如：100.24，传过来就是10024*/
     private static final Integer WEIGHT_CONVERT_RATE = 100;
     /**计算单价公式*/
     private static final String CAL_UNIT_PRICE_FORMULA = "unitPrice/(unitWeight*rate)";
@@ -151,7 +152,7 @@ public class ReferencePriceCalculator {
                 .with("downwardRange", BigDecimal.valueOf(downwardRange))
                 .with("referencePrice", BigDecimal.valueOf(referencePrice))
                 .eval();
-        return result.longValue();
+        return result.setScale(0, RoundingMode.HALF_UP).longValue();
     }
 
 
