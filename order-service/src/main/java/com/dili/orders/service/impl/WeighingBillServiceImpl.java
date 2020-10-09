@@ -308,8 +308,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("未查询到结算单信息");
 		}
 
-		this.setWeighingStatementFrozenAmount(weighingBill, weighingStatement);
-
 		// 判断余额是否足够
 		AccountRequestDto balanceQuery = new AccountRequestDto();
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
@@ -766,12 +764,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("未查询到结算单信息");
 		}
 
-		// 设置交易金额
-		this.setWeighingStatementTradeAmount(weighingBill, weighingStatement);
-		// 计算手续费
-		this.setBuyerPoundage(weighingBill, weighingStatement, marketId);
-		this.setSellerPoundage(weighingBill, weighingStatement, marketId);
-
 		// 判断余额是否足够
 		AccountRequestDto balanceQuery = new AccountRequestDto();
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
@@ -780,7 +772,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure(balanceOutput.getMessage());
 		}
 		Long banlance = balanceOutput.getData().getAvailableAmount();
-		if (weighingStatement.getFrozenAmount() != null) {
+		if (weighingStatement.getState().equals(WeighingStatementState.FROZEN.getValue()) && weighingStatement.getFrozenAmount() != null) {
 			banlance += weighingStatement.getFrozenAmount();
 		}
 		if (banlance < weighingStatement.getBuyerActualAmount()) {
@@ -907,38 +899,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
 		return BaseOutput.successData(weighingStatement);
-	}
-
-	private void setSellerPoundage(WeighingBill weighingBill, WeighingStatement weighingStatement, Long marketId) {
-		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, weighingStatement, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
-		if (!sellerFeeOutput.isSuccess()) {
-			throw new AppException(sellerFeeOutput.getMessage());
-		}
-		BigDecimal sellerTotalFee = new BigDecimal(0L);
-		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
-			sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee());
-		}
-		if (!sellerFeeOutput.isSuccess()) {
-			throw new AppException("计算卖家手续费失败");
-		}
-		weighingStatement.setSellerActualAmount(weighingStatement.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
-		weighingStatement.setSellerPoundage(MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
-	}
-
-	private void setBuyerPoundage(WeighingBill weighingBill, WeighingStatement weighingStatement, Long marketId) {
-		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, weighingStatement, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
-		if (!buyerFeeOutput.isSuccess()) {
-			throw new AppException(buyerFeeOutput.getMessage());
-		}
-		BigDecimal buyerTotalFee = new BigDecimal(0L);
-		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
-			buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee());
-		}
-		if (!buyerFeeOutput.isSuccess()) {
-			throw new AppException("计算买家手续费失败");
-		}
-		weighingStatement.setBuyerActualAmount(weighingStatement.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
-		weighingStatement.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -1152,6 +1112,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setWeighingBillId(weighingBill.getId());
 		ws.setWeighingSerialNo(weighingBill.getSerialNo());
 
+		if (this.isFreeze(weighingBill)) {
+			this.setWeighingStatementFrozenAmount(weighingBill, ws);
+		} else {
+			this.setWeighingStatementTradeAmount(weighingBill, ws);
+		}
 		this.setWeighingStatementBuyerInfo(weighingBill, ws, marketId);
 		this.setWeighingStatementSellerInfo(weighingBill, ws, marketId);
 		ws.setState(WeighingStatementState.UNPAID.getValue());
@@ -1754,6 +1719,21 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
+		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
+		if (!buyerFeeOutput.isSuccess()) {
+			throw new AppException(buyerFeeOutput.getMessage());
+		}
+		BigDecimal buyerTotalFee = new BigDecimal(0L);
+		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
+			buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee());
+		}
+		if (!buyerFeeOutput.isSuccess()) {
+			throw new AppException("计算买家手续费失败");
+		}
+		if (!isFreeze(weighingBill)) {
+			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+		}
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
 		ws.setBuyerName(weighingBill.getBuyerName());
@@ -1764,6 +1744,21 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
+		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
+		if (!sellerFeeOutput.isSuccess()) {
+			throw new AppException(sellerFeeOutput.getMessage());
+		}
+		BigDecimal sellerTotalFee = new BigDecimal(0L);
+		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
+			sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee());
+		}
+		if (!sellerFeeOutput.isSuccess()) {
+			throw new AppException("计算卖家手续费失败");
+		}
+		if (!isFreeze(weighingBill)) {
+			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
+			ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
+		}
 		ws.setSellerCardNo(weighingBill.getSellerCardNo());
 		ws.setSellerId(weighingBill.getSellerId());
 		ws.setSellerName(weighingBill.getSellerName());
