@@ -269,19 +269,6 @@
           AND a.id=#{id}
     </select>
 
-    <select id="getListByCustomerId" parameterType="com.dili.orders.domain.TransitionDepartureApply" resultType="com.dili.orders.domain.TransitionDepartureApply">
-        SELECT
-          *
-        FROM transition_departure_apply a
-        WHERE 1 = 1
-        AND a.customer_card_no=#{customerCardNo}
-        AND a.market_id=#{marketId}
-        AND a.originator_time <![CDATA[>=]]> DATE_FORMAT(#{beginTime},'%Y-%m-%d 00:00:00')
-        AND a.originator_time <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y-%m-%d 23:59:59')
-        AND a.approval_state=2
-        AND (a.pay_status IN ( 1, 3 ) or a.pay_status is null)
-        ORDER BY a.originator_time DESC
-    </select>
     <select id="listByQueryParams" parameterType="com.dili.orders.domain.TransitionDepartureApply"
             resultType="com.dili.orders.domain.TransitionDepartureApply">
         SELECT
@@ -335,6 +322,24 @@
             </foreach>
             )
         </if>
+        <if test="sort !=null and sort!='' and order !=null and order !=''">
+            ORDER BY ${sort} ${order}
+        </if>
+        <if test="sort ==null or sort==''">
+            ORDER BY a.originator_time DESC
+        </if>
+    </select>
+    <select id="getListByCustomerId" parameterType="com.dili.orders.domain.TransitionDepartureApply" resultType="com.dili.orders.domain.TransitionDepartureApply">
+        SELECT
+          *
+        FROM transition_departure_apply a
+        WHERE 1 = 1
+        AND a.customer_card_no=#{customerCardNo}
+        AND a.market_id=#{marketId}
+        AND a.originator_time <![CDATA[>=]]> DATE_FORMAT(#{beginTime},'%Y-%m-%d 00:00:00')
+        AND a.originator_time <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y-%m-%d 23:59:59')
+        AND a.approval_state=2
+        AND (a.pay_status IN ( 1, 3 ) or a.pay_status is null)
         ORDER BY a.originator_time DESC
     </select>
     <!--定时任务，修改当天的所有未结算的结算单状态为已关闭，同时也要修改对应申请单的状态为已关闭-->
