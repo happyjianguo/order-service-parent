@@ -1,5 +1,7 @@
 package com.dili.orders.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import javax.persistence.Transient;
@@ -50,4 +52,10 @@ public class WeighingBillDetailDto extends WeighingBill {
 		}
 		return MoneyUtils.centToYuan(this.getUnitPrice());
 	}
+
+	@Override
+	public Integer getUnitWeight() {
+		return super.getUnitWeight() == null ? null : new BigDecimal(super.getUnitWeight()).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP).intValue();
+	}
+
 }

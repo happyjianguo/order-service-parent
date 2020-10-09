@@ -13,6 +13,7 @@ import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.mapper.PriceApproveRecordMapper;
 import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.service.PriceApproveRecordService;
+import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
@@ -31,6 +32,8 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 	private TaskRpc taskRpc;
 	@Autowired
 	private WeighingBillMapper weighingBillMapper;
+	@Autowired
+	private WeighingBillService weighingBillService;
 
 	public PriceApproveRecordMapper getActualDao() {
 		return (PriceApproveRecordMapper) getDao();
@@ -104,7 +107,11 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 		if (rows <= 0) {
 			throw new AppException("更新过磅单价格状态失败");
 		}
-		BaseOutput<String> output = this.taskRpc.complete(taskId);
+		BaseOutput<?> output = this.weighingBillService.operatorInvalidate(approve.getWeighingBillId(), approverId);
+		if (!output.isSuccess()) {
+			throw new AppException("作废过磅单失败");
+		}
+		output = this.taskRpc.complete(taskId);
 		if (!output.isSuccess()) {
 			LOGGER.error(output.getMessage());
 			throw new AppException("流程实例执行失败");
