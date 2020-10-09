@@ -85,178 +85,6 @@
 		from weighing_bill
 		where id = #{id,jdbcType=BIGINT}
 	</select>
-	<update id="updateBy" parameterType="com.dili.orders.domain.WeighingBill">
-		<!-- WARNING - @mbg.generated -->
-		update weighing_bill
-		<set>
-			<if test="serialNo != null">
-				serial_no = #{serialNo,jdbcType=VARCHAR},
-			</if>
-			<if test="measureType != null">
-				measure_type = #{measureType,jdbcType=VARCHAR},
-			</if>
-			<if test="tradeType != null">
-				trade_type = #{tradeType,jdbcType=VARCHAR},
-			</if>
-			<if test="buyerId != null">
-				buyer_id = #{buyerId,jdbcType=BIGINT},
-			</if>
-			<if test="buyerCode != null">
-				buyer_code = #{buyerCode,jdbcType=VARCHAR},
-			</if>
-			<if test="buyerCardNo != null">
-				buyer_card_no = #{buyerCardNo,jdbcType=VARCHAR},
-			</if>
-			<if test="buyerCardAccount != null">
-				buyer_card_account = #{buyerCardAccount,jdbcType=BIGINT},
-			</if>
-			<if test="buyerAccount != null">
-				buyer_account = #{buyerAccount,jdbcType=BIGINT},
-			</if>
-			<if test="buyerName != null">
-				buyer_name = #{buyerName,jdbcType=VARCHAR},
-			</if>
-			<if test="buyerContact != null">
-				buyer_contact = #{buyerContact,jdbcType=VARCHAR},
-			</if>
-			<if test="buyerType != null">
-				buyer_type = #{buyerType,jdbcType=VARCHAR},
-			</if>
-			<if test="buyerAgentId != null">
-				buyer_agent_id = #{buyerAgentId,jdbcType=BIGINT},
-			</if>
-			<if test="buyerAgentName != null">
-				buyer_agent_name = #{buyerAgentName,jdbcType=VARCHAR},
-			</if>
-			<if test="sellerId != null">
-				seller_id = #{sellerId,jdbcType=BIGINT},
-			</if>
-			<if test="sellerCode != null">
-				seller_code = #{sellerCode,jdbcType=VARCHAR},
-			</if>
-			<if test="sellerCardNo != null">
-				seller_card_no = #{sellerCardNo,jdbcType=VARCHAR},
-			</if>
-			<if test="sellerCardAccount != null">
-				seller_card_account = #{sellerCardAccount,jdbcType=BIGINT},
-			</if>
-			<if test="sellerAccount != null">
-				seller_account = #{sellerAccount,jdbcType=BIGINT},
-			</if>
-			<if test="sellerName != null">
-				seller_name = #{sellerName,jdbcType=VARCHAR},
-			</if>
-			<if test="sellerContact != null">
-				seller_contact = #{sellerContact,jdbcType=VARCHAR},
-			</if>
-			<if test="sellerType != null">
-				seller_type = #{sellerType,jdbcType=VARCHAR},
-			</if>
-			<if test="sellerAgentId != null">
-				seller_agent_id = #{sellerAgentId,jdbcType=BIGINT},
-			</if>
-			<if test="sellerAgentName != null">
-				seller_agent_name = #{sellerAgentName,jdbcType=VARCHAR},
-			</if>
-			<if test="goodsId != null">
-				goods_id = #{goodsId,jdbcType=BIGINT},
-			</if>
-			<if test="goodsName != null">
-				goods_name = #{goodsName,jdbcType=VARCHAR},
-			</if>
-			<if test="goodsCode != null">
-				goods_code = #{goodsCode,jdbcType=VARCHAR},
-			</if>
-			<if test="goodsKeyCode != null">
-				goods_key_code = #{goodsKeyCode,jdbcType=VARCHAR},
-			</if>
-			<if test="goodsOriginCityId != null">
-				goods_origin_city_id = #{goodsOriginCityId,jdbcType=BIGINT},
-			</if>
-			<if test="goodsOriginCityName != null">
-				goods_origin_city_name = #{goodsOriginCityName,jdbcType=VARCHAR},
-			</if>
-			<if test="unitAmount != null">
-				unit_amount = #{unitAmount,jdbcType=INTEGER},
-			</if>
-			<if test="unitPrice != null">
-				unit_price = #{unitPrice,jdbcType=BIGINT},
-			</if>
-			<if test="unitWeight != null">
-				unit_weight = #{unitWeight,jdbcType=INTEGER},
-			</if>
-			<if test="fetchedWeight != null">
-				fetched_weight = #{fetchedWeight,jdbcType=INTEGER},
-			</if>
-			<if test="fetchWeightTime != null">
-				fetch_weight_time = #{fetchWeightTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="roughWeight != null">
-				rough_weight = #{roughWeight,jdbcType=INTEGER},
-			</if>
-			<if test="netWeight != null">
-				net_weight = #{netWeight,jdbcType=INTEGER},
-			</if>
-			<if test="plateNumber != null">
-				plate_number = #{plateNumber,jdbcType=VARCHAR},
-			</if>
-			<if test="tareWeight != null">
-				tare_weight = #{tareWeight,jdbcType=INTEGER},
-			</if>
-			<if test="subtractionRate != null">
-				subtraction_rate = #{subtractionRate,jdbcType=INTEGER},
-			</if>
-			<if test="subtractionWeight != null">
-				subtraction_weight = #{subtractionWeight,jdbcType=INTEGER},
-			</if>
-			<if test="estimatedNetWeight != null">
-				estimated_net_weight = #{estimatedNetWeight,jdbcType=INTEGER},
-			</if>
-			<if test="frozenAmount != null">
-				frozen_amount = #{frozenAmount,jdbcType=BIGINT},
-			</if>
-			<if test="tareBillNumber != null">
-				tare_bill_number = #{tareBillNumber,jdbcType=VARCHAR},
-			</if>
-			<if test="state != null">
-				state = #{state,jdbcType=INTEGER},
-			</if>
-			<if test="createdTime != null">
-				created_time = #{createdTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="modifiedTime != null">
-				modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="settlementTime != null">
-				settlement_time = #{settlementTime,jdbcType=TIMESTAMP},
-			</if>
-			<if test="creatorId != null">
-				creator_id = #{creatorId,jdbcType=BIGINT},
-			</if>
-			<if test="modifierId != null">
-				modifier_id = #{modifierId,jdbcType=BIGINT},
-			</if>
-			<if test="checkPrice != null">
-				check_price = #{checkPrice,jdbcType=INTEGER},
-			</if>
-			<if test="priceState != null">
-				price_state = #{priceState,jdbcType=INTEGER},
-			</if>
-			<if test="processInstanceId != null">
-				process_instance_id = #{processInstanceId,jdbcType=VARCHAR},
-			</if>
-			<if test="processDefinitionId != null">
-				process_definition_id = #{processDefinitionId,jdbcType=VARCHAR},
-			</if>
-			<if test="marketId != null">
-				market_id = #{marketId,jdbcType=BIGINT},
-			</if>
-			<if test="version != null">
-				version = #{version,jdbcType=INTEGER},
-			</if>
-		</set>
-		where id = #{id,jdbcType=BIGINT}
-	</update>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
 		<result column="ws_id" property="statement.id" />
@@ -273,6 +101,22 @@
 		<result column="operator_user_name" property="operationRecord.operatorUserName" />
 		<result column="operator_name" property="operationRecord.operatorName" />
 		<result column="operation_time" property="operationRecord.operationTime" />
+	</resultMap>
+
+	<resultMap extends="BaseResultMap" id="ClientListResultMap" type="com.dili.orders.dto.WeighingBillClientListDto">
+		<result column="ws_id" property="statement.id" />
+		<result column="ws_serial_no" property="statement.serialNo" />
+		<result column="ws_state" property="statement.state" />
+		<result column="trade_amount" property="statement.tradeAmount" />
+		<result column="ws_frozen_amount" property="statement.frozenAmount" />
+		<result column="buyer_poundage" property="statement.buyerPoundage" />
+		<result column="buyer_actual_amount" property="statement.buyerActualAmount" />
+		<result column="seller_poundage" property="statement.sellerPoundage" />
+		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
+		<result column="ws_state" property="statement.state" />
+		<result column="operator_id" property="weighingOperatorId" />
+		<result column="operator_name" property="weighingOperatorName" />
+		<result column="operation_time" property="weighingOperationTime" />
 	</resultMap>
 
 	<resultMap extends="BaseResultMap" id="DetailResultMap" type="com.dili.orders.dto.WeighingBillDetailDto">
@@ -448,19 +292,35 @@
 		ORDER BY ws.created_time DESC
 	</select>
 
-	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
+	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="ClientListResultMap">
 		SELECT
 		<include refid="Base_Join_Column_List" />
 		,
 		<include refid="Ws_Join_Column_List" />
+		,
+		<include refid="Wbor_Join_Column_List" />
 		FROM
 		weighing_bill wb
-		INNER JOIN
-		weighing_statement ws
-		ON
-		wb.id =
-		ws.weighing_bill_id
-		WHERE 1 = 1
+		INNER JOIN weighing_statement ws ON wb.id = ws.weighing_bill_id
+		LEFT JOIN (
+		SELECT
+		id,
+		weighing_bill_id,
+		operator_id,
+		operation_type,
+		operation_type_name,
+		operator_user_name,
+		operator_name,
+		MAX( operation_time ) AS operation_time
+		FROM
+		weighing_bill_operation_record
+		WHERE
+		operation_type = 1
+		GROUP BY
+		weighing_bill_id
+		) wbor ON wb.id = wbor.weighing_bill_id
+		WHERE
+		1 = 1
 		<if test="idStart != null">
 			AND wb.id <![CDATA[>]]>
 			#{idStart}
@@ -551,15 +411,20 @@
 		<include refid="Wbor_Join_Column_List" />
 		FROM
 		weighing_bill wb
-		INNER JOIN
-		weighing_statement ws
-		ON
-		wb.id =
-		ws.weighing_bill_id
-		LEFT JOIN
-		weighing_bill_operation_record wbor ON wb.id =
-		wbor.weighing_bill_id
+		INNER JOIN weighing_statement ws ON wb.id = ws.weighing_bill_id
+		LEFT JOIN (
+		SELECT
+		id,
+		weighing_bill_id,
+		operator_id,
+		operation_type,
+		operation_type_name,
+		operator_user_name,
+		operator_name, MAX( operation_time ) AS operation_time
+		FROM weighing_bill_operation_record
+		GROUP BY weighing_bill_id,operation_type
+		) wbor ON wb.id = wbor.weighing_bill_id
 		WHERE
-		ws.id=#{id}
+		ws.id = #{id}
 	</select>
 </mapper>

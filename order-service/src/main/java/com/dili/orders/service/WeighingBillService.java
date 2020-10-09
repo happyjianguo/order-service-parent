@@ -5,6 +5,7 @@ import java.util.List;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.PrintTemplateDataDto;
+import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
@@ -124,7 +125,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @param weighingBill
 	 * @return
 	 */
-	List<WeighingBillListPageDto> listByExampleModified(WeighingBillQueryDto weighingBill);
+	List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill);
 
 	/**
 	 * 获取过磅单打印数据
