@@ -1,14 +1,11 @@
 package com.dili.orders.service.impl;
 
-
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.mapper.GoodsReferencePriceSettingMapper;
-import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -20,9 +17,6 @@ import java.util.List;
  */
 @Service
 public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<GoodsReferencePriceSetting,Long> implements GoodsReferencePriceSettingService {
-
-    @Autowired
-    private UidRpc uidRpc;
 
     public GoodsReferencePriceSettingMapper getActualDao(){
         return (GoodsReferencePriceSettingMapper)getDao();
@@ -52,7 +46,6 @@ public class GoodsReferencePriceSettingServiceImpl extends BaseServiceImpl<Goods
 
     @Override
     public BaseOutput<GoodsReferencePriceSetting> updateGoodsReferencePriceSetting(GoodsReferencePriceSetting goodsReferencePriceSetting) {
-        goodsReferencePriceSetting.setVersion(goodsReferencePriceSetting.getVersion() + 1);
         int update = getActualDao().updateByPrimaryKey(goodsReferencePriceSetting);
         if (update <= 0) {
             throw new AppException("品类参考价修改-->修改品类参考价失败");

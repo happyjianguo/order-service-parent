@@ -126,7 +126,7 @@
         modifier_id = #{modifierId,jdbcType=BIGINT},
       </if>
       <if test="version != null">
-        version = #{version,jdbcType=INTEGER},
+        version = version + 1,
       </if>
       <if test="paymentNo != null">
         payment_no = #{paymentNo,jdbcType=VARCHAR},
@@ -142,6 +142,30 @@
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByIdAndVersion" parameterType="com.dili.orders.domain.ComprehensiveFee">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update comprehensive_fee
+    <set>
+      <if test="orderStatus != null">
+        order_status = 3,
+      </if>
+      <if test="revocatorId != null">
+        revocator_id = #{revocatorId,jdbcType=BIGINT},
+      </if>
+      <if test="revocatorName != null">
+        revocator_name = #{revocatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="revocatorTime != null">
+        revocator_time = #{revocatorTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null">
+        version = version + 1,
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER} and order_status = 2
   </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT

@@ -20,4 +20,6 @@ public interface ComprehensiveFeeMapper extends MyMapper<ComprehensiveFee> {
     List<ComprehensiveFee> scheduleUpdateSelect(ComprehensiveFee comprehensiveFee);
 
     void scheduleUpdate(@Param("set") HashSet<Long> cfIds);
+
+    Integer updateByIdAndVersion(ComprehensiveFee comprehensiveFee);
 }

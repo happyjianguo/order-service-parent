@@ -46,7 +46,7 @@ public class GoodsReferencePriceSetting extends BaseDomain {
     private String goodsName;
 
     /**
-     * 参考价规则
+     * 参考价规则{@link com.dili.orders.domain.ReferenceRule}
      */
     @Column(name = "`reference_rule`")
     private Integer referenceRule;
