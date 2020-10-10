@@ -177,7 +177,6 @@
 		wb.plate_number,
 		wb.goods_origin_city_name,
 		wb.goods_origin_city_id,
-		wb.created_time,
 		wb.modified_time,
 		wb.settlement_time,
 		wb.estimated_net_weight
@@ -289,7 +288,12 @@
 		<if test="operatorId != null">
 			AND (wb.creator_id = #{operatorId} OR wb.modifier_id = #{operatorId})
 		</if>
-		ORDER BY ws.created_time DESC
+		<if test="sort !=null and sort!='' and order !=null and order !=''">
+            ORDER BY ${sort} ${order}
+        </if>
+        <if test="sort ==null or sort==''">
+            ORDER BY ws.created_time DESC
+        </if>
 	</select>
 
 	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="ClientListResultMap">

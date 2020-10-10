@@ -444,6 +444,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setGoodsName(wb.getGoodsName());
 		dto.setPlateNumber(wb.getPlateNumber());
 		dto.setTradeTypeId(wb.getTradeTypeId());
+		dto.setSubtractionRate(wb.getSubtractionRate());
+		dto.setSubtractionWeight(wb.getSubtractionWeight());
 
 		// 设置结算员信息
 		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
@@ -1731,14 +1733,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		BigDecimal buyerTotalFee = new BigDecimal(0L);
 		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
-			buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee());
+			buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
 		}
 		if (!buyerFeeOutput.isSuccess()) {
 			throw new AppException("计算买家手续费失败");
 		}
 		if (!isFreeze(weighingBill)) {
-			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.setScale(2, RoundingMode.HALF_UP).doubleValue()));
-			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.setScale(2, RoundingMode.HALF_UP).doubleValue()));
+			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
 		}
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
@@ -1756,7 +1758,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		BigDecimal sellerTotalFee = new BigDecimal(0L);
 		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
-			sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee());
+			sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
 		}
 		if (!sellerFeeOutput.isSuccess()) {
 			throw new AppException("计算卖家手续费失败");
