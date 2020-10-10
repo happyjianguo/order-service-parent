@@ -23,7 +23,7 @@ public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 	@JsonIgnore
 	@JSONField(serialize = false)
 	@Operator(Operator.IN)
-	@Column(name = "'goods_name'")
+	@Column(name = "goods_name")
 	private List<String> goodsNames;
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")

@@ -37,6 +37,7 @@ import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.MeasureType;
 import com.dili.orders.domain.PriceApproveRecord;
+import com.dili.orders.domain.PriceState;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingBillAgentInfo;
 import com.dili.orders.domain.WeighingBillOperationRecord;
@@ -810,6 +811,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						int rows = this.priceApproveMapper.insertSelective(approve);
 						if (rows <= 0) {
 							BaseOutput.failure("保存价格审批记录失败");
+						}
+						weighingBill.setPriceState(PriceState.APPROVING.getValue());
+						rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+						if (rows <= 0) {
+							BaseOutput.failure("更新过磅单价格状态失败");
 						}
 						BaseOutput<ProcessInstanceMapping> output = this.runtimeRpc.startProcessInstanceByKey(OrdersConstant.PRICE_APPROVE_PROCESS_DEFINITION_KEY, approve.getId().toString(),
 								operatorId.toString(), new HashMap<String, Object>());
@@ -1731,8 +1737,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("计算买家手续费失败");
 		}
 		if (!isFreeze(weighingBill)) {
-			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
-			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.setScale(2, RoundingMode.HALF_UP).doubleValue()));
+			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.setScale(2, RoundingMode.HALF_UP).doubleValue()));
 		}
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
