@@ -967,6 +967,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 更新结算单买卖家信息，重新算费用
 		if (this.isFreeze(weighingBill)) {
 			this.setWeighingStatementFrozenAmount(weighingBill, ws);
+			if (weighingBill.getFrozenAmount() != null) {
+				weighingBill.setFrozenAmount(ws.getFrozenAmount());
+			}
 		} else {
 			this.setWeighingStatementTradeAmount(weighingBill, ws);
 		}
