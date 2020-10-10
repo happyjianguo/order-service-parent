@@ -1610,6 +1610,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setTradeNo(ws.getPayOrderNo());
 		buyerPoundage.setTradeType(tradeType);
 		buyerPoundage.setSerialNo(ws.getSerialNo());
+		buyerPoundage.setCustomerType(weighingBill.getBuyerType());
 		buyerPoundage.setAccountId(weighingBill.getBuyerCardAccount());
 		buyerPoundage.setAction(ActionType.INCOME.getCode());
 		buyerPoundage.setAmount(buyerPoundageStream.getAmount());
@@ -1635,6 +1636,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerRefund.setTradeNo(ws.getPayOrderNo());
 		buyerRefund.setTradeType(tradeType);
 		buyerRefund.setSerialNo(ws.getSerialNo());
+		buyerRefund.setCustomerType(weighingBill.getBuyerType());
 		buyerRefund.setAccountId(weighingBill.getBuyerCardAccount());
 		buyerRefund.setAction(ActionType.INCOME.getCode());
 		buyerRefund.setAmount(buyerRefundStream.getAmount());
