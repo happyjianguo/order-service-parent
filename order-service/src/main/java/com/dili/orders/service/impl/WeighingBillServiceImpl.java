@@ -375,7 +375,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentTradeCommitResponseDto data = freezeOutput.getData();
 		SerialRecordDo srDto = new SerialRecordDo();
 		srDto.setCustomerType(weighingBill.getBuyerType());
-		srDto.setAccountId(weighingBill.getBuyerAccount());
+		srDto.setAccountId(weighingBill.getBuyerCardAccount());
+		srDto.setTradeNo(weighingStatement.getPayOrderNo());
+		srDto.setTradeType(PaymentTradeType.PREAUTHORIZED.getValue());
+		srDto.setSerialNo(weighingStatement.getSerialNo());
 		srDto.setAction(ActionType.EXPENSE.getCode());
 		srDto.setAmount(data.getFrozenAmount());
 		srDto.setCardNo(weighingBill.getBuyerCardNo());
