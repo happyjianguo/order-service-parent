@@ -2,6 +2,9 @@ package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryQuery;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.assets.sdk.rpc.CategoryRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.orders.config.RabbitMQConfig;
@@ -10,6 +13,7 @@ import com.dili.orders.domain.*;
 import com.dili.orders.dto.*;
 import com.dili.orders.mapper.ComprehensiveFeeMapper;
 import com.dili.orders.rpc.AccountRpc;
+import com.dili.orders.rpc.CardRpc;
 import com.dili.orders.rpc.PayRpc;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.ComprehensiveFeeService;
@@ -54,6 +58,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     private PayRpc payRpc;
 
     @Autowired
+    private CardRpc cardRpc;
+
+    @Autowired
     private AccountRpc accountRpc;
 
     @Autowired
@@ -61,6 +68,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Autowired
     CategoryRpc categoryRpc;
+
+    @Autowired
+    AssetsRpc assetsRpc;
 
 
     public ComprehensiveFeeMapper getActualDao() {
@@ -219,7 +229,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         //根据商品ID获取商品名称
         String inspectionItem = comprehensiveFee.getInspectionItem();
-        comprehensiveFee.setInspectionItem(getItemNameByItemId(inspectionItem));
+        comprehensiveFee.setInspectionItem(getItemNameByItemId(inspectionItem,comprehensiveFee.getMarketId()));
         return BaseOutput.successData(comprehensiveFee);
     }
 
@@ -229,17 +239,18 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
      * @param inspectionItem
      * @return
      */
-    public String getItemNameByItemId(String inspectionItem) {
+    public String getItemNameByItemId(String inspectionItem,Long marketId) {
         String returnName = "";
         if (StringUtils.isNotBlank(inspectionItem)) {
             List<String> ids = Arrays.asList(inspectionItem.split(","));
-            CategoryDTO categoryDTO = new CategoryDTO();
-
-            categoryDTO.setIds(ids);
-            List<CategoryDTO> list = categoryRpc.getTree(categoryDTO).getData();
+            CusCategoryQuery cusCategoryQuery=new CusCategoryQuery();
+            cusCategoryQuery.setIds(ids);
+            cusCategoryQuery.setMarketId(marketId);
+            BaseOutput<List<CusCategoryDTO>> result=assetsRpc.listCusCategory(cusCategoryQuery);
+            List<CusCategoryDTO> list = result.getData();
             if (list != null && list.size() > 0) {
                 StringBuffer name=new StringBuffer("");
-                for (CategoryDTO cgdto : list) {
+                for (CusCategoryDTO cgdto : list) {
                     name.append(",");
                     name.append(cgdto.getName());
                 }
