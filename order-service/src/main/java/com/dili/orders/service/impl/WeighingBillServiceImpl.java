@@ -1119,7 +1119,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
-		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_BILL_SERIAL_NO_GENERATE_RULE_CODE);
+		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_STATEMENT_SERIAL_NO_GENERATE_RULE_CODE);
 		if (!output.isSuccess()) {
 			throw new AppException(output.getMessage());
 		}
