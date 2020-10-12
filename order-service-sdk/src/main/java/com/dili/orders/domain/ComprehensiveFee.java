@@ -97,6 +97,18 @@ public class ComprehensiveFee extends BaseDomain {
     private String inspectionItem;
 
     /**
+     * 检测商品名称
+     */
+    @Column(name = "`inspection_item_name`")
+    private String inspectionItemName;
+
+    /**
+     * 账户余额
+     */
+    @Column(name = "`balance`")
+    private Long balance;
+
+    /**
      * 备注
      */
     @Column(name = "`remark`")
@@ -797,6 +809,36 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
+    }
+
+    /**
+     * 测试商品名称
+     *
+     * @return customer_type - 客户类型
+     */
+    @FieldDef(label = "检测商品名称",maxLength = 500)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getInspectionItemName() {
+        return inspectionItemName;
+    }
+
+    public void setInspectionItemName(String inspectionItemName) {
+        this.inspectionItemName = inspectionItemName;
+    }
+
+    /**
+     * 账户余额
+     *
+     * @return department_id - 部门ID
+     */
+    @FieldDef(label = "账户余额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Long balance) {
+        this.balance = balance;
     }
 
     public List<Long> getDepartments() {

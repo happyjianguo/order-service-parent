@@ -1,11 +1,7 @@
 package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.CategoryDTO;
-import com.dili.assets.sdk.dto.CusCategoryDTO;
-import com.dili.assets.sdk.dto.CusCategoryQuery;
 import com.dili.assets.sdk.rpc.AssetsRpc;
-import com.dili.assets.sdk.rpc.CategoryRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
@@ -65,9 +61,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
 
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
-
-    @Autowired
-    CategoryRpc categoryRpc;
 
     @Autowired
     AssetsRpc assetsRpc;
@@ -142,6 +135,14 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
         setComprehensiveFeeValue(operatorId, operatorName, comprehensiveFee);
+        //查询余额
+        BaseOutput<AccountSimpleResponseDto> oneAccountCardForBalance = cardRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
+        if (!oneAccountCardForBalance.isSuccess()) {
+            return BaseOutput.failure("根据卡查询客户失败");
+        }
+        //获取账户资金信息
+        BalanceResponseDto accountFund = oneAccountCardForBalance.getData().getAccountFund();
+        comprehensiveFee.setBalance(accountFund.getBalance()-comprehensiveFee.getChargeAmount());
         int i = updateSelective(comprehensiveFee);
         if (i <= 0) {
             return BaseOutput.failure(updateError);
@@ -227,39 +228,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         setSerialRecordDoValue(marketId, operatorId, operatorName, operatorUserName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
-        //根据商品ID获取商品名称
-        String inspectionItem = comprehensiveFee.getInspectionItem();
-        comprehensiveFee.setInspectionItem(getItemNameByItemId(inspectionItem,comprehensiveFee.getMarketId()));
         return BaseOutput.successData(comprehensiveFee);
-    }
-
-
-    /**
-     * 根据商品ID获取商品名称
-     * @param inspectionItem
-     * @return
-     */
-    public String getItemNameByItemId(String inspectionItem,Long marketId) {
-        String returnName = "";
-        if (StringUtils.isNotBlank(inspectionItem)) {
-            List<String> ids = Arrays.asList(inspectionItem.split(","));
-            CusCategoryQuery cusCategoryQuery=new CusCategoryQuery();
-            cusCategoryQuery.setIds(ids);
-            cusCategoryQuery.setMarketId(marketId);
-            BaseOutput<List<CusCategoryDTO>> result=assetsRpc.listCusCategory(cusCategoryQuery);
-            List<CusCategoryDTO> list = result.getData();
-            if (list != null && list.size() > 0) {
-                StringBuffer name=new StringBuffer("");
-                for (CusCategoryDTO cgdto : list) {
-                    name.append(",");
-                    name.append(cgdto.getName());
-                }
-                if (name.length() > 0) {
-                    returnName = name.substring(1);
-                }
-            }
-        }
-        return returnName;
     }
 
     @Override
