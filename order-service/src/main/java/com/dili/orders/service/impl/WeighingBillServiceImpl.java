@@ -794,7 +794,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				if (referencePrice != null && referencePrice > 0) {
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);
-					if (actualPrice <= referencePrice) {
+					if (actualPrice < referencePrice) {
 						// 没有审批过且价格异常需要走审批流程
 						PriceApproveRecord approve = new PriceApproveRecord();
 						approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
@@ -811,6 +811,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setUnitPrice(actualPrice);
 						approve.setWeighingBillId(weighingBill.getId());
 						approve.setWeighingBillSerialNo(serialNo);
+						approve.setStatementId(weighingStatement.getId());
+						approve.setStatementSerialNo(weighingStatement.getSerialNo());
 						approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
 						approve.setMarketId(weighingBill.getMarketId());
 						int rows = this.priceApproveMapper.insertSelective(approve);
