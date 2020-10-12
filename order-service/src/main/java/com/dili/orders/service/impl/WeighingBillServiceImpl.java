@@ -983,15 +983,21 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setModifierId(dto.getModifierId());
 		ws.setModifiedTime(LocalDateTime.now());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
-
-		// 插入一条过磅信息
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, this.getUserById(weighingBill.getModifierId()), WeighingOperationType.WEIGH);
-		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
+			throw new AppException("更新过磅单失败");
 		}
 
-		return rows > 0 ? BaseOutput.successData(ws) : BaseOutput.failure("更新过磅单失败");
+		// 判断是否是未结算单，否则记录过磅时间
+		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+			// 插入一条过磅信息
+			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, this.getUserById(weighingBill.getModifierId()), WeighingOperationType.WEIGH);
+			rows = this.wbrMapper.insertSelective(wbor);
+			if (rows <= 0) {
+				throw new AppException("保存操作记录失败");
+			}
+		}
+
+		return BaseOutput.successData(ws);
 	}
 
 	@GlobalTransactional(rollbackFor = Exception.class)
