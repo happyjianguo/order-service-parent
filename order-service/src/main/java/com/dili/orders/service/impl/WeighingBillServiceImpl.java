@@ -794,7 +794,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				if (referencePrice != null && referencePrice > 0) {
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);
-					if (actualPrice <= referencePrice) {
+					if (actualPrice < referencePrice) {
 						// 没有审批过且价格异常需要走审批流程
 						PriceApproveRecord approve = new PriceApproveRecord();
 						approve.setBuyerCardNo(weighingBill.getBuyerCardNo());
