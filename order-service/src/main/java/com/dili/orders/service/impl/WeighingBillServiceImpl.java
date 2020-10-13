@@ -1194,20 +1194,24 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setTradeId(weighingStatement.getPayOrderNo());
 		dto.setBusinessId(weighingBill.getBuyerCardAccount());
 		List<FeeDto> fees = new ArrayList<FeeDto>(2);
-		// 买家手续费
-		FeeDto buyerFee = new FeeDto();
-		buyerFee.setAmount(weighingStatement.getBuyerPoundage());
-		buyerFee.setType(FeeType.BUYER_POUNDAGE.getValue());
-		buyerFee.setTypeName(FeeType.BUYER_POUNDAGE.getName());
-		buyerFee.setUseFor(FeeUse.BUYER.getValue());
-		fees.add(buyerFee);
-		// 卖家手续费
-		FeeDto sellerFee = new FeeDto();
-		sellerFee.setAmount(weighingStatement.getSellerPoundage());
-		sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
-		sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
-		sellerFee.setUseFor(FeeUse.SELLER.getValue());
-		fees.add(sellerFee);
+		if (weighingStatement.getBuyerPoundage() != null && weighingStatement.getBuyerPoundage() > 0) {
+			// 买家手续费
+			FeeDto buyerFee = new FeeDto();
+			buyerFee.setAmount(weighingStatement.getBuyerPoundage());
+			buyerFee.setType(FeeType.BUYER_POUNDAGE.getValue());
+			buyerFee.setTypeName(FeeType.BUYER_POUNDAGE.getName());
+			buyerFee.setUseFor(FeeUse.BUYER.getValue());
+			fees.add(buyerFee);
+		}
+		if (weighingStatement.getSellerPoundage() != null && weighingStatement.getSellerPoundage() > 0) {
+			// 卖家手续费
+			FeeDto sellerFee = new FeeDto();
+			sellerFee.setAmount(weighingStatement.getSellerPoundage());
+			sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
+			sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
+			sellerFee.setUseFor(FeeUse.SELLER.getValue());
+			fees.add(sellerFee);
+		}
 		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commitTrade(dto);
 		return commitOutput;
@@ -1221,20 +1225,24 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setTradeId(weighingStatement.getPayOrderNo());
 		dto.setAmount(weighingStatement.getTradeAmount());
 		List<FeeDto> fees = new ArrayList<FeeDto>(2);
-		// 买家手续费
-		FeeDto buyerFee = new FeeDto();
-		buyerFee.setAmount(weighingStatement.getBuyerPoundage());
-		buyerFee.setType(FeeType.BUYER_POUNDAGE.getValue());
-		buyerFee.setTypeName(FeeType.BUYER_POUNDAGE.getName());
-		buyerFee.setUseFor(FeeUse.BUYER.getValue());
-		fees.add(buyerFee);
-		// 卖家手续费
-		FeeDto sellerFee = new FeeDto();
-		sellerFee.setAmount(weighingStatement.getSellerPoundage());
-		sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
-		sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
-		sellerFee.setUseFor(FeeUse.SELLER.getValue());
-		fees.add(sellerFee);
+		if (weighingStatement.getBuyerPoundage() != null && weighingStatement.getBuyerPoundage() > 0) {
+			// 买家手续费
+			FeeDto buyerFee = new FeeDto();
+			buyerFee.setAmount(weighingStatement.getBuyerPoundage());
+			buyerFee.setType(FeeType.BUYER_POUNDAGE.getValue());
+			buyerFee.setTypeName(FeeType.BUYER_POUNDAGE.getName());
+			buyerFee.setUseFor(FeeUse.BUYER.getValue());
+			fees.add(buyerFee);
+		}
+		if (weighingStatement.getSellerPoundage() != null && weighingStatement.getSellerPoundage() > 0) {
+			// 卖家手续费
+			FeeDto sellerFee = new FeeDto();
+			sellerFee.setAmount(weighingStatement.getSellerPoundage());
+			sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
+			sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
+			sellerFee.setUseFor(FeeUse.SELLER.getValue());
+			fees.add(sellerFee);
+		}
 		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.confirm(dto);
 		return commitOutput;
