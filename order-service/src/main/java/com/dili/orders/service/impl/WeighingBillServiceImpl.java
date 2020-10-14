@@ -186,16 +186,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingBillAgentInfo agentInfo = null;
 		Customer buyerAgent = this.getCustomerAgent(buyerInfo, bill);
 		Customer sellerAgent = this.getCustomerAgent(sellerInfo, bill);
-		if (buyerAgent != null) {
+		if (buyerAgent != null || sellerAgent != null) {
 			agentInfo = new WeighingBillAgentInfo();
 			agentInfo.setWeighingBillId(bill.getId());
 			agentInfo.setWeighingBillSerialNo(bill.getSerialNo());
 			agentInfo.setWeighingStatementId(statement.getId());
 			agentInfo.setWeighingStatementSerialNo(statement.getSerialNo());
+		}
+		if (buyerAgent != null) {
 			this.setBuyerAgentInfo(agentInfo, buyerAgent);
 		}
 		if (sellerAgent != null) {
-			agentInfo = agentInfo != null ? agentInfo : new WeighingBillAgentInfo();
 			this.setSellerAgentInfo(agentInfo, sellerAgent);
 		}
 		if (agentInfo != null) {
