@@ -313,7 +313,9 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //查询余额
         BaseOutput<AccountSimpleResponseDto> oneAccountCardForBalance = cardRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
         if (!oneAccountCardForBalance.isSuccess()) {
-            return BaseOutput.failure("根据卡查询客户失败");
+            LOGGER.error(oneAccountCardForBalance.getMessage());
+            BaseOutput.failure(oneAccountCardForBalance.getMessage());
+            throw new AppException(oneAccountCardForBalance.getMessage());
         }
         //获取账户资金信息
         BalanceResponseDto accountFund = oneAccountCardForBalance.getData().getAccountFund();
