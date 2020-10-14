@@ -819,6 +819,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setStatementSerialNo(weighingStatement.getSerialNo());
 						approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
 						approve.setMarketId(weighingBill.getMarketId());
+						// 乐观锁版本默认0
+						approve.setVersion(0);
 						int rows = this.priceApproveMapper.insertSelective(approve);
 						if (rows <= 0) {
 							BaseOutput.failure("保存价格审批记录失败");
