@@ -310,6 +310,13 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             BaseOutput.failure(pwdOutput.getMessage());
             throw new AppException(pwdOutput.getMessage());
         }
+        //查询余额
+        BaseOutput<AccountSimpleResponseDto> oneAccountCardForBalance = cardRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
+        if (!oneAccountCardForBalance.isSuccess()) {
+            return BaseOutput.failure("根据卡查询客户失败");
+        }
+        //获取账户资金信息
+        BalanceResponseDto accountFund = oneAccountCardForBalance.getData().getAccountFund();
         //调用卡号查询账户信息
         CardQueryDto dto = new CardQueryDto();
         dto.setCardNo(comprehensiveFee.getCustomerCardNo());
@@ -336,8 +343,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                 data = paymentOutput.getData();
             }else{
                 //期初余额
-                serialRecordDo.setStartBalance(comprehensiveFee.getBalance());
-                serialRecordDo.setEndBalance(comprehensiveFee.getBalance());
+                serialRecordDo.setStartBalance(accountFund.getAvailableAmount());
+                serialRecordDo.setEndBalance(accountFund.getAvailableAmount());
                 serialRecordDo.setOperateTime(LocalDateTime.now());
                 serialRecordDo.setAction(ActionType.INCOME.getCode());
             }
