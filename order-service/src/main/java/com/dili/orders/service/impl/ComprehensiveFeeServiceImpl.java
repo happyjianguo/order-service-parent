@@ -225,6 +225,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             serialRecordDo.setEndBalance(accountFund.getAvailableAmount());
             serialRecordDo.setOperateTime(LocalDateTime.now());
             serialRecordDo.setAction(ActionType.EXPENSE.getCode());
+            serialRecordDo.setTradeChannel(null);
         }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
@@ -239,8 +240,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         if (prepare != null && Objects.nonNull(prepare.getData())) {
             serialRecordDo.setTradeNo(prepare.getData().getTradeId());
+            serialRecordDo.setTradeType(TradeType.FEE.getCode());
         }
-        serialRecordDo.setTradeType(TradeType.FEE.getCode());
         setSerialRecordDoValue(marketId, operatorId, operatorName, operatorUserName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCardForPay, serialRecordDo);
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
@@ -349,6 +350,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             serialRecordDo.setEndBalance(accountFund.getAvailableAmount());
             serialRecordDo.setOperateTime(LocalDateTime.now());
             serialRecordDo.setAction(ActionType.INCOME.getCode());
+            serialRecordDo.setTradeChannel(null);
         }
 
         //对接操作记录
