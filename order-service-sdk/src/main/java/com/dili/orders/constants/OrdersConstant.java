@@ -72,4 +72,14 @@ public class OrdersConstant {
 	 */
 	public static final String PRICE_APPROVE_PROCESS_DEFINITION_KEY = "weighingBillPriceApprove";
 
+	/**
+	 * 交易过磅单号生成规则配置编码
+	 */
+	public static final String WEIGHING_BILL_SERIAL_NO_GENERATE_RULE_CODE = "sg_weighing_bill";
+
+	/**
+	 * 交易过结算单号生成规则配置编码
+	 */
+	public static final String WEIGHING_STATEMENT_SERIAL_NO_GENERATE_RULE_CODE = "sg_weighing_statement";
+
 }

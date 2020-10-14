@@ -3,6 +3,7 @@ package com.dili.orders.mapper;
 import java.util.List;
 
 import com.dili.orders.domain.WeighingBill;
+import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
@@ -14,5 +15,5 @@ public interface WeighingBillMapper extends MyMapper<WeighingBill> {
 	
 	WeighingBillDetailDto selectDetailById(Long id);
 
-	List<WeighingBillListPageDto> selectByExampleModified(WeighingBillQueryDto weighingBill);
+	List<WeighingBillClientListDto> selectByExampleModified(WeighingBillQueryDto weighingBill);
 }

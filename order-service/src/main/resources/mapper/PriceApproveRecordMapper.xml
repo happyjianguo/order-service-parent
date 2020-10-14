@@ -6,15 +6,17 @@
       WARNING - @mbg.generated
     -->
     <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
     <result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
     <result column="weighing_bill_serial_no" jdbcType="VARCHAR" property="weighingBillSerialNo" />
+    <result column="statement_id" jdbcType="BIGINT" property="statementId" />
+    <result column="statement_serial_no" jdbcType="VARCHAR" property="statementSerialNo" />
     <result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
     <result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
     <result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
     <result column="seller_id" jdbcType="BIGINT" property="sellerId" />
     <result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
     <result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
+    <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
     <result column="goods_id" jdbcType="BIGINT" property="goodsId" />
     <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
@@ -27,15 +29,18 @@
     <result column="approve_time" jdbcType="TIMESTAMP" property="approveTime" />
     <result column="notes" jdbcType="VARCHAR" property="notes" />
     <result column="weighing_time" jdbcType="TIMESTAMP" property="weighingTime" />
+    <result column="process_instance_id" jdbcType="VARCHAR" property="processInstanceId" />
+    <result column="process_definition_id" jdbcType="VARCHAR" property="processDefinitionId" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbg.generated
     -->
-    id, serial_no, weighing_bill_id, weighing_bill_serial_no, buyer_id, buyer_name, buyer_card_no, 
-    seller_id, seller_name, seller_card_no, trade_type, goods_id, goods_name, trade_weight, 
-    unit_price, reference_price, state, approver_id, approver_name, approve_time, notes, 
-    weighing_time
+    id, weighing_bill_id, weighing_bill_serial_no, statement_id, statement_serial_no, 
+    buyer_id, buyer_name, buyer_card_no, seller_id, seller_name, seller_card_no, market_id, 
+    trade_type, goods_id, goods_name, trade_weight, unit_price, reference_price, state, 
+    approver_id, approver_name, approve_time, notes, weighing_time, process_instance_id, 
+    process_definition_id
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -52,14 +57,17 @@
     -->
     update price_approve_record
     <set>
-      <if test="serialNo != null">
-        serial_no = #{serialNo,jdbcType=VARCHAR},
-      </if>
       <if test="weighingBillId != null">
         weighing_bill_id = #{weighingBillId,jdbcType=BIGINT},
       </if>
       <if test="weighingBillSerialNo != null">
         weighing_bill_serial_no = #{weighingBillSerialNo,jdbcType=VARCHAR},
+      </if>
+      <if test="statementId != null">
+        statement_id = #{statementId,jdbcType=BIGINT},
+      </if>
+      <if test="statementSerialNo != null">
+        statement_serial_no = #{statementSerialNo,jdbcType=VARCHAR},
       </if>
       <if test="buyerId != null">
         buyer_id = #{buyerId,jdbcType=BIGINT},
@@ -78,6 +86,9 @@
       </if>
       <if test="sellerCardNo != null">
         seller_card_no = #{sellerCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
       </if>
       <if test="tradeType != null">
         trade_type = #{tradeType,jdbcType=VARCHAR},
@@ -114,6 +125,12 @@
       </if>
       <if test="weighingTime != null">
         weighing_time = #{weighingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processInstanceId != null">
+        process_instance_id = #{processInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="processDefinitionId != null">
+        process_definition_id = #{processDefinitionId,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

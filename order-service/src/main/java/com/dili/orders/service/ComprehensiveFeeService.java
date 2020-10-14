@@ -19,14 +19,14 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	/**
 	 * 根据页面条件查询
 	 * 
-	 * @param comprehensiveFee comprehensiveFee对象
+	 * @param comprehensiveFee 检测收费
 	 * @return
 	 */
 	PageOutput<List<ComprehensiveFee>> listByQueryParams(ComprehensiveFee comprehensiveFee);
 
 	/**
 	 * 新增
-	 * @param comprehensiveFee   comprehensiveFee对象
+	 * @param comprehensiveFee   检测收费
 	 * @return
 	 */
 	BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee);
@@ -34,14 +34,14 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	/**
 	 * 操作员撤销
 	 *
-	 * @param id               检测单id
+	 * @param comprehensiveFee 检测收费
 	 * @param operatorId       操作员id
 	 * @param userName         用户真实名字
 	 * @param operatorPassword 操作员登录密码
 	 * @param operatorName     操作员登录名
 	 * @return
 	 */
-	BaseOutput<Object> revocator(Long id, Long operatorId, String userName, String operatorPassword, String operatorName);
+	BaseOutput<ComprehensiveFee> revocator(ComprehensiveFee comprehensiveFee, Long operatorId, String userName, String operatorPassword, String operatorName);
 
 	/**
 	 * 支付
@@ -53,11 +53,11 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	 * @param operatorUserName   操作员真实姓名
 	 * @return
 	 */
-	BaseOutput pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName);
+	BaseOutput<ComprehensiveFee> pay(Long id, String password, Long marketId, Long operatorId, String operatorName, String operatorUserName);
 
 	/**
 	 * 定时任务，每天凌晨12点更新当天为结算的单子，支付状态更改为已关闭状态
 	 * @throws   ParseException
 	 */
-	BaseOutput scheduleUpdate() throws ParseException;
+	BaseOutput<String> scheduleUpdate() throws ParseException;
 }

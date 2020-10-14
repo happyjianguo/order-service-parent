@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatementState;
 import com.dili.orders.dto.PrintTemplateDataDto;
+import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
@@ -58,7 +59,7 @@ public class WeighingBillApi {
 	 */
 	@RequestMapping(value = "/listByExample", method = { RequestMethod.POST })
 	public @ResponseBody BaseOutput<List<WeighingBillListPageDto>> listByExample(@RequestBody WeighingBillQueryDto weighingBill) throws Exception {
-		List<WeighingBillListPageDto> list = weighingBillService.listByExampleModified(weighingBill);
+		List<WeighingBillClientListDto> list = weighingBillService.listByExampleModified(weighingBill);
 		return BaseOutput.success().setData(list);
 	}
 
@@ -236,7 +237,7 @@ public class WeighingBillApi {
 		WeighingBillQueryDto wbQuery = new WeighingBillQueryDto();
 		wbQuery.setIdStart(id);
 		wbQuery.setStatementStates(Arrays.asList(WeighingStatementState.PAID.getValue()));
-		List<WeighingBillListPageDto> list = this.weighingBillService.listByExampleModified(wbQuery);
+		List<WeighingBillClientListDto> list = this.weighingBillService.listByExampleModified(wbQuery);
 		return BaseOutput.successData(list);
 	}
 }

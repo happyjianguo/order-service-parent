@@ -70,7 +70,7 @@ public class WeighingBillQueryDto extends WeighingBill {
 	/**
 	 * 是否过滤掉价格异常数据
 	 */
-	private Boolean filterByPriceState = false;
+	private Boolean filterByPriceState = true;
 
 	public Long getIdStart() {
 		return idStart;

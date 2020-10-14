@@ -10,13 +10,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
- * 由MyBatis Generator工具自动生成
- * 
- * This file was generated on 2020-08-11 17:31:37.
+ * 综合收费实体类
+ *
+ * @data 2020/8/30
+ * @author henry
  */
 @Table(name = "`comprehensive_fee`")
 public class ComprehensiveFee extends BaseDomain {
@@ -78,12 +78,14 @@ public class ComprehensiveFee extends BaseDomain {
 
     /**
      * 单据类型
+     * {@link com.dili.orders.domain.ComprehensiveFeeType}
      */
     @Column(name = "`order_type`")
     private Integer orderType;
 
     /**
      * 单据状态
+     * {@link com.dili.orders.domain.ComprehensiveFeeState}
      */
     @Column(name = "`order_status`")
     private Integer orderStatus;
@@ -93,6 +95,18 @@ public class ComprehensiveFee extends BaseDomain {
      */
     @Column(name = "`inspection_item`")
     private String inspectionItem;
+
+    /**
+     * 检测商品名称
+     */
+    @Column(name = "`inspection_item_name`")
+    private String inspectionItemName;
+
+    /**
+     * 账户余额
+     */
+    @Column(name = "`balance`")
+    private Long balance;
 
     /**
      * 备注
@@ -795,6 +809,36 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
+    }
+
+    /**
+     * 检测商品名称
+     *
+     * @return customer_type - 客户类型
+     */
+    @FieldDef(label = "检测商品名称",maxLength = 500)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getInspectionItemName() {
+        return inspectionItemName;
+    }
+
+    public void setInspectionItemName(String inspectionItemName) {
+        this.inspectionItemName = inspectionItemName;
+    }
+
+    /**
+     * 账户余额
+     *
+     * @return department_id - 部门ID
+     */
+    @FieldDef(label = "账户余额")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Long balance) {
+        this.balance = balance;
     }
 
     public List<Long> getDepartments() {

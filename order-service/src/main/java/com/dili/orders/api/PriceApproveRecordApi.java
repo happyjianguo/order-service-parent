@@ -53,12 +53,13 @@ public class PriceApproveRecordApi {
 	 * 
 	 * @param id         id
 	 * @param approverId 审批人id
+	 * @param notes      说明
 	 * @param taskId     流程实例id
 	 * @return
 	 */
 	@RequestMapping("/approveAccept")
-	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam Long approverId, @RequestParam String taskId) {
-		return this.priceApproveRecordService.accept(id, approverId, taskId);
+	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId) {
+		return this.priceApproveRecordService.accept(id, approverId, notes, taskId);
 	}
 
 	/**
@@ -66,12 +67,13 @@ public class PriceApproveRecordApi {
 	 * 
 	 * @param id         id
 	 * @param approverId 审批人id
+	 * @param notes      说明
 	 * @param taskId     流程实例id
 	 * @return
 	 */
 	@RequestMapping("/approveReject")
-	public BaseOutput<Object> approveReject(@RequestParam Long id, @RequestParam Long approverId, @RequestParam String taskId) {
-		return this.priceApproveRecordService.reject(id, approverId, taskId);
+	public BaseOutput<Object> approveReject(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId) {
+		return this.priceApproveRecordService.reject(id, approverId, notes, taskId);
 	}
 
 }

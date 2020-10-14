@@ -10,9 +10,11 @@ import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.domain.PriceState;
 import com.dili.orders.domain.WeighingBill;
+import com.dili.orders.domain.WeighingBillState;
 import com.dili.orders.mapper.PriceApproveRecordMapper;
 import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.service.PriceApproveRecordService;
+import com.dili.orders.service.WeighingBillService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
@@ -31,6 +33,8 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 	private TaskRpc taskRpc;
 	@Autowired
 	private WeighingBillMapper weighingBillMapper;
+	@Autowired
+	private WeighingBillService weighingBillService;
 
 	public PriceApproveRecordMapper getActualDao() {
 		return (PriceApproveRecordMapper) getDao();
@@ -38,13 +42,20 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> accept(Long id, Long approverId, String taskId) {
+	public BaseOutput<Object> accept(Long id, Long approverId, String notes, String taskId) {
 		PriceApproveRecord approve = this.getActualDao().selectByPrimaryKey(id);
 		if (approve == null) {
 			return BaseOutput.failure("审批记录不存在");
 		}
 		if (!approve.getState().equals(PriceState.APPROVING.getValue())) {
 			return BaseOutput.failure("当前状态不能审批");
+		}
+		WeighingBill wb = this.weighingBillMapper.selectByPrimaryKey(approve.getWeighingBillId());
+		if (wb == null) {
+			return BaseOutput.failure("过磅单不存在");
+		}
+		if (!wb.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue()) && !wb.getState().equals(WeighingBillState.FROZEN.getValue())) {
+			return BaseOutput.failure("当前过磅单状态不能进行审批操作");
 		}
 		approve.setState(PriceState.ACCEPTED.getValue());
 		BaseOutput<User> userOutput = this.userRpc.get(approverId);
@@ -53,13 +64,13 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			return BaseOutput.failure("查询用户信息失败");
 		}
 		approve.setApproverId(approverId);
+		approve.setNotes(notes);
 		approve.setApproverName(userOutput.getData().getRealName());
 		approve.setApproveTime(LocalDateTime.now());
 		int rows = this.getActualDao().updateByPrimaryKeySelective(approve);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新审批记录失败");
 		}
-		WeighingBill wb = this.weighingBillMapper.selectByPrimaryKey(approve.getWeighingBillId());
 		wb.setPriceState(PriceState.ACCEPTED.getValue());
 		rows = this.weighingBillMapper.updateByPrimaryKeySelective(wb);
 		if (rows <= 0) {
@@ -75,13 +86,20 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> reject(Long id, Long approverId, String taskId) {
+	public BaseOutput<Object> reject(Long id, Long approverId, String notes, String taskId) {
 		PriceApproveRecord approve = this.getActualDao().selectByPrimaryKey(id);
 		if (approve == null) {
 			return BaseOutput.failure("审批记录不存在");
 		}
 		if (!approve.getState().equals(PriceState.APPROVING.getValue())) {
 			return BaseOutput.failure("当前状态不能审批");
+		}
+		WeighingBill wb = this.weighingBillMapper.selectByPrimaryKey(approve.getWeighingBillId());
+		if (wb == null) {
+			return BaseOutput.failure("过磅单不存在");
+		}
+		if (!wb.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue()) && !wb.getState().equals(WeighingBillState.FROZEN.getValue())) {
+			return BaseOutput.failure("当前过磅单状态不能进行审批操作");
 		}
 		approve.setState(PriceState.REJECTED.getValue());
 		BaseOutput<User> userOutput = this.userRpc.get(approverId);
@@ -90,19 +108,23 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			return BaseOutput.failure("查询用户信息失败");
 		}
 		approve.setApproverId(approverId);
+		approve.setNotes(notes);
 		approve.setApproverName(userOutput.getData().getRealName());
 		approve.setApproveTime(LocalDateTime.now());
 		int rows = this.getActualDao().updateByPrimaryKeySelective(approve);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新审批记录失败");
 		}
-		WeighingBill wb = this.weighingBillMapper.selectByPrimaryKey(approve.getWeighingBillId());
 		wb.setPriceState(PriceState.REJECTED.getValue());
 		rows = this.weighingBillMapper.updateByPrimaryKeySelective(wb);
 		if (rows <= 0) {
 			throw new AppException("更新过磅单价格状态失败");
 		}
-		BaseOutput<String> output = this.taskRpc.complete(taskId);
+		BaseOutput<?> output = this.weighingBillService.operatorInvalidate(approve.getWeighingBillId(), approverId);
+		if (!output.isSuccess()) {
+			throw new AppException("作废过磅单失败");
+		}
+		output = this.taskRpc.complete(taskId);
 		if (!output.isSuccess()) {
 			LOGGER.error(output.getMessage());
 			throw new AppException("流程实例执行失败");

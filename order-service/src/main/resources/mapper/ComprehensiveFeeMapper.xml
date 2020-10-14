@@ -33,6 +33,8 @@
     <result column="market_id" jdbcType="BIGINT" property="marketId" />
     <result column="department_id" jdbcType="BIGINT" property="departmentId" />
     <result column="customer_type" jdbcType="VARCHAR" property="customerType" />
+    <result column="balance" jdbcType="BIGINT" property="balance" />
+    <result column="inspection_item_name" jdbcType="VARCHAR" property="inspectionItemName" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -42,7 +44,7 @@
     charge_amount, plate, order_type, order_status, inspection_item, remark, operator_id, 
     operator_name, operator_time, revocator_id, revocator_name, revocator_time, created_time, 
     creator_id, modified_time, modifier_id, version, payment_no, market_id, department_id,
-    customer_type
+    customer_type,inspection_item_name,balance
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -126,7 +128,7 @@
         modifier_id = #{modifierId,jdbcType=BIGINT},
       </if>
       <if test="version != null">
-        version = #{version,jdbcType=INTEGER},
+        version = version + 1,
       </if>
       <if test="paymentNo != null">
         payment_no = #{paymentNo,jdbcType=VARCHAR},
@@ -140,8 +142,38 @@
       <if test="customerType != null">
         customer_type = #{customerType,jdbcType=VARCHAR},
       </if>
+      <if test="balance != null">
+        balance = #{balance,jdbcType=BIGINT},
+      </if>
+      <if test="inspection_item_name != null">
+        inspection_item_name = #{inspectionItemName,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByIdAndVersion" parameterType="com.dili.orders.domain.ComprehensiveFee">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update comprehensive_fee
+    <set>
+      <if test="orderStatus != null">
+        order_status = 3,
+      </if>
+      <if test="revocatorId != null">
+        revocator_id = #{revocatorId,jdbcType=BIGINT},
+      </if>
+      <if test="revocatorName != null">
+        revocator_name = #{revocatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="revocatorTime != null">
+        revocator_time = #{revocatorTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null">
+        version = version + 1,
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER} and order_status = 2
   </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT

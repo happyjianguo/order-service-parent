@@ -3,6 +3,7 @@ package com.dili.orders.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.assets.sdk.dto.TradeTypeDto;
+import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.Customer;
@@ -159,7 +160,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
@@ -324,7 +325,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
@@ -373,6 +374,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
             paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
+            //判断是转场还是离场
+            if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
+                //相等为转场
+                paymentTradePrepareDto.setDescription("车辆转场");
+            } else {
+                paymentTradePrepareDto.setDescription("车辆离场");
+            }
             //创建预支付信息
             BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
@@ -633,7 +641,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setMarketId(marketId);
         //设置id
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarType(carTypeForJmsfDTO);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("查询车辆类型失败");
         }

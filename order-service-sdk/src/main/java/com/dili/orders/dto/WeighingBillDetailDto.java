@@ -1,14 +1,23 @@
 package com.dili.orders.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Transient;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.MeasureType;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingBillOperationRecord;
+import com.dili.orders.domain.WeighingOperationType;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.ss.util.MoneyUtils;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class WeighingBillDetailDto extends WeighingBill {
 
@@ -20,6 +29,10 @@ public class WeighingBillDetailDto extends WeighingBill {
 
 	private WeighingStatement statement;
 	private List<WeighingBillOperationRecord> records;
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime weighingTime;
 
 	public WeighingStatement getStatement() {
 		return statement;
@@ -50,4 +63,18 @@ public class WeighingBillDetailDto extends WeighingBill {
 		}
 		return MoneyUtils.centToYuan(this.getUnitPrice());
 	}
+
+	@Override
+	public Integer getUnitWeight() {
+		return super.getUnitWeight() == null ? null : new BigDecimal(super.getUnitWeight()).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP).intValue();
+	}
+
+	public LocalDateTime getWeighingTime() {
+		return weighingTime;
+	}
+
+	public void setWeighingTime(LocalDateTime weighingTime) {
+		this.weighingTime = weighingTime;
+	}
+
 }
