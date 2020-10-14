@@ -812,6 +812,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setUnitPrice(actualPrice);
 						approve.setWeighingBillId(weighingBill.getId());
 						approve.setWeighingBillSerialNo(serialNo);
+						approve.setStatementId(weighingStatement.getId());
+						approve.setStatementSerialNo(weighingStatement.getSerialNo());
 						approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
 						approve.setMarketId(weighingBill.getMarketId());
 						int rows = this.priceApproveMapper.insertSelective(approve);
