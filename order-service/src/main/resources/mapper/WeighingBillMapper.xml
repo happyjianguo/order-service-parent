@@ -120,6 +120,7 @@
 	</resultMap>
 
 	<resultMap extends="BaseResultMap" id="DetailResultMap" type="com.dili.orders.dto.WeighingBillDetailDto">
+		<result column="weighing_time" property="weighingTime" />
 		<association property="statement">
 			<result column="ws_id" property="id" />
 			<result column="ws_serial_no" property="serialNo" />
@@ -289,11 +290,11 @@
 			AND (wb.creator_id = #{operatorId} OR wb.modifier_id = #{operatorId})
 		</if>
 		<if test="sort !=null and sort!='' and order !=null and order !=''">
-            ORDER BY ${sort} ${order}
-        </if>
-        <if test="sort ==null or sort==''">
-            ORDER BY ws.created_time DESC
-        </if>
+			ORDER BY ${sort} ${order}
+		</if>
+		<if test="sort ==null or sort==''">
+			ORDER BY ws.created_time DESC
+		</if>
 	</select>
 
 	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="ClientListResultMap">
@@ -413,6 +414,7 @@
 		<include refid="Ws_Join_Column_List" />
 		,
 		<include refid="Wbor_Join_Column_List" />
+		,( CASE wbor.operation_type WHEN 1 THEN wbor.operation_time ELSE NULL END ) AS weighing_time
 		FROM
 		weighing_bill wb
 		INNER JOIN weighing_statement ws ON wb.id = ws.weighing_bill_id
@@ -424,7 +426,8 @@
 		operation_type,
 		operation_type_name,
 		operator_user_name,
-		operator_name, MAX( operation_time ) AS operation_time
+		operator_name,
+		MAX( operation_time ) AS operation_time
 		FROM weighing_bill_operation_record
 		GROUP BY weighing_bill_id,operation_type
 		) wbor ON wb.id = wbor.weighing_bill_id
