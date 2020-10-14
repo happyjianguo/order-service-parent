@@ -319,22 +319,31 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             LOGGER.error(oneAccountCard.getMessage());
             throw new AppException(oneAccountCard.getMessage());
         }
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
-        // 退款，并判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
+        // 退款，并判断是否存在交易单号
         if (StringUtils.isNotBlank(comprehensiveFee.getPaymentNo())) {
-            PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
-            cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
-            BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
-            if (!paymentOutput.isSuccess()) {
-                LOGGER.error(paymentOutput.getMessage());
-                throw new AppException(paymentOutput.getMessage());
+            //判断支付金额是否为0元，0元不走支付
+            if(!Objects.equals(comprehensiveFee.getChargeAmount(), 0L)) {
+                PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+                cancelDto.setTradeId(comprehensiveFee.getPaymentNo());
+                BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+                if (!paymentOutput.isSuccess()) {
+                    LOGGER.error(paymentOutput.getMessage());
+                    throw new AppException(paymentOutput.getMessage());
+                }
+                data = paymentOutput.getData();
+            }else{
+                //期初余额
+                serialRecordDo.setStartBalance(comprehensiveFee.getBalance());
+                serialRecordDo.setEndBalance(comprehensiveFee.getBalance());
+                serialRecordDo.setOperateTime(LocalDateTime.now());
+                serialRecordDo.setAction(ActionType.INCOME.getCode());
             }
-            data = paymentOutput.getData();
         }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
-        SerialRecordDo serialRecordDo = new SerialRecordDo();
         serialRecordDo.setTradeType(TradeType.CANCEL.getCode());
         serialRecordDo.setTradeNo(comprehensiveFee.getPaymentNo());
         setSerialRecordDoValue(comprehensiveFee.getMarketId(), operatorId, realName, userName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
