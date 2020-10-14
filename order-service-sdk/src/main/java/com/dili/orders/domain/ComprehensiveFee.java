@@ -812,7 +812,7 @@ public class ComprehensiveFee extends BaseDomain {
     }
 
     /**
-     * 测试商品名称
+     * 检测商品名称
      *
      * @return customer_type - 客户类型
      */
