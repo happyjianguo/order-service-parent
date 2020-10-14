@@ -99,6 +99,16 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private Long tradeTypeId;
 
+	/**
+	 * 除杂比例
+	 */
+	private Integer subtractionRate;
+
+	/**
+	 * 除杂重量(2位小数，转化需要除以100)
+	 */
+	private Integer subtractionWeight;
+
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
 	}
@@ -254,6 +264,22 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setTradeTypeId(Long tradeTypeId) {
 		this.tradeTypeId = tradeTypeId;
+	}
+
+	public Integer getSubtractionRate() {
+		return subtractionRate;
+	}
+
+	public void setSubtractionRate(Integer subtractionRate) {
+		this.subtractionRate = subtractionRate;
+	}
+
+	public Integer getSubtractionWeight() {
+		return subtractionWeight;
+	}
+
+	public void setSubtractionWeight(Integer subtractionWeight) {
+		this.subtractionWeight = subtractionWeight;
 	}
 
 }

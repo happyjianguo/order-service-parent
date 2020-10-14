@@ -17,10 +17,12 @@ import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tk.mybatis.mapper.annotation.Version;
+
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-08-30 14:29:35.
+ * This file was generated on 2020-10-10 17:26:22.
  */
 @Table(name = "`price_approve_record`")
 public class PriceApproveRecord extends BaseDomain {
@@ -40,6 +42,18 @@ public class PriceApproveRecord extends BaseDomain {
 	 */
 	@Column(name = "`weighing_bill_serial_no`")
 	private String weighingBillSerialNo;
+
+	/**
+	 * 结算单id
+	 */
+	@Column(name = "`statement_id`")
+	private Long statementId;
+
+	/**
+	 * 结算单号
+	 */
+	@Column(name = "`statement_serial_no`")
+	private String statementSerialNo;
 
 	/**
 	 * 买家id
@@ -84,7 +98,7 @@ public class PriceApproveRecord extends BaseDomain {
 	private Long marketId;
 
 	/**
-	 * 交易类型
+	 * 交易类型编码
 	 */
 	@Column(name = "`trade_type`")
 	private String tradeType;
@@ -174,6 +188,13 @@ public class PriceApproveRecord extends BaseDomain {
 	private String processDefinitionId;
 
 	/**
+	 * 版本号，乐观锁控制
+	 */
+	@Version
+	@Column(name = "`version`")
+	private Integer version;
+
+	/**
 	 * @return id
 	 */
 	@FieldDef(label = "id")
@@ -227,6 +248,46 @@ public class PriceApproveRecord extends BaseDomain {
 	 */
 	public void setWeighingBillSerialNo(String weighingBillSerialNo) {
 		this.weighingBillSerialNo = weighingBillSerialNo;
+	}
+
+	/**
+	 * 获取结算单id
+	 *
+	 * @return statement_id - 结算单id
+	 */
+	@FieldDef(label = "结算单id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getStatementId() {
+		return statementId;
+	}
+
+	/**
+	 * 设置结算单id
+	 *
+	 * @param statementId 结算单id
+	 */
+	public void setStatementId(Long statementId) {
+		this.statementId = statementId;
+	}
+
+	/**
+	 * 获取结算单号
+	 *
+	 * @return statement_serial_no - 结算单号
+	 */
+	@FieldDef(label = "结算单号", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getStatementSerialNo() {
+		return statementSerialNo;
+	}
+
+	/**
+	 * 设置结算单号
+	 *
+	 * @param statementSerialNo 结算单号
+	 */
+	public void setStatementSerialNo(String statementSerialNo) {
+		this.statementSerialNo = statementSerialNo;
 	}
 
 	/**
@@ -350,20 +411,40 @@ public class PriceApproveRecord extends BaseDomain {
 	}
 
 	/**
-	 * 获取交易类型
+	 * 获取市场id
 	 *
-	 * @return trade_type - 交易类型
+	 * @return market_id - 市场id
 	 */
-	@FieldDef(label = "交易类型", maxLength = 10)
+	@FieldDef(label = "市场id")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getMarketId() {
+		return marketId;
+	}
+
+	/**
+	 * 设置市场id
+	 *
+	 * @param marketId 市场id
+	 */
+	public void setMarketId(Long marketId) {
+		this.marketId = marketId;
+	}
+
+	/**
+	 * 获取交易类型编码
+	 *
+	 * @return trade_type - 交易类型编码
+	 */
+	@FieldDef(label = "交易类型编码", maxLength = 10)
 	@EditMode(editor = FieldEditor.Text, required = true)
 	public String getTradeType() {
 		return tradeType;
 	}
 
 	/**
-	 * 设置交易类型
+	 * 设置交易类型编码
 	 *
-	 * @param tradeType 交易类型
+	 * @param tradeType 交易类型编码
 	 */
 	public void setTradeType(String tradeType) {
 		this.tradeType = tradeType;
@@ -589,27 +670,51 @@ public class PriceApproveRecord extends BaseDomain {
 		this.weighingTime = weighingTime;
 	}
 
+	/**
+	 * 获取流程实例id
+	 *
+	 * @return process_instance_id - 流程实例id
+	 */
+	@FieldDef(label = "流程实例id", maxLength = 64)
+	@EditMode(editor = FieldEditor.Text, required = false)
 	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
 
+	/**
+	 * 设置流程实例id
+	 *
+	 * @param processInstanceId 流程实例id
+	 */
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
 
+	/**
+	 * 获取流程定义id
+	 *
+	 * @return process_definition_id - 流程定义id
+	 */
+	@FieldDef(label = "流程定义id", maxLength = 64)
+	@EditMode(editor = FieldEditor.Text, required = false)
 	public String getProcessDefinitionId() {
 		return processDefinitionId;
 	}
 
+	/**
+	 * 设置流程定义id
+	 *
+	 * @param processDefinitionId 流程定义id
+	 */
 	public void setProcessDefinitionId(String processDefinitionId) {
 		this.processDefinitionId = processDefinitionId;
 	}
 
-	public Long getMarketId() {
-		return marketId;
+	public Integer getVersion() {
+		return version;
 	}
 
-	public void setMarketId(Long marketId) {
-		this.marketId = marketId;
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 }

@@ -374,6 +374,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
             paymentTradePrepareDto.setAmount(transitionDepartureSettlement.getChargeAmount());
+            //判断是转场还是离场
+            if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
+                //相等为转场
+                paymentTradePrepareDto.setDescription("车辆转场");
+            } else {
+                paymentTradePrepareDto.setDescription("车辆离场");
+            }
             //创建预支付信息
             BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
