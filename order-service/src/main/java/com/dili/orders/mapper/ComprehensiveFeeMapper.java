@@ -2,6 +2,7 @@ package com.dili.orders.mapper;
 
 import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.ss.base.MyMapper;
+import com.dili.ss.domain.BaseOutput;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.HashSet;
@@ -22,4 +23,6 @@ public interface ComprehensiveFeeMapper extends MyMapper<ComprehensiveFee> {
     void scheduleUpdate(@Param("set") HashSet<Long> cfIds);
 
     Integer updateByIdAndVersion(ComprehensiveFee comprehensiveFee);
+
+    ComprehensiveFee selectCountAndTotal(ComprehensiveFee comprehensiveFee);
 }
