@@ -282,7 +282,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         transitionDepartureSettlement.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
         //设置余额
-        transitionDepartureSettlement.setCustomerBalance(String.valueOf(Long.valueOf(accountFund.getAvailableAmount() - transitionDepartureSettlement.getChargeAmount()).doubleValue() / 100));
+        transitionDepartureSettlement.setCustomerBalance(String.format("%.2f",Long.valueOf(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()).doubleValue() / 100));
         //设置为已支付状态
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
