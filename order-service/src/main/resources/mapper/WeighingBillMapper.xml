@@ -159,6 +159,7 @@
 		wb.seller_name,
 		wb.seller_contact,
 		wb.seller_account,
+		wb.price_state,
 		wb.goods_id,
 		wb.goods_key_code,
 		wb.goods_name,
