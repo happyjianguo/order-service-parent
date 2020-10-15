@@ -220,10 +220,10 @@
 		wb.id =
 		ws.weighing_bill_id
 		LEFT JOIN
-		( SELECT id,weighing_bill_id, operator_id, operation_type, operation_type_name,operator_user_name,
+		( SELECT id,weighing_bill_id,statement_id, operator_id, operation_type, operation_type_name,operator_user_name,
 		operator_name, operation_time
-		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON wb.id =
-		wbor.weighing_bill_id
+		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON ws.id =
+		wbor.statement_id
 		WHERE 1 = 1
 		<if test="statementStates != null">
 			AND ws.state IN

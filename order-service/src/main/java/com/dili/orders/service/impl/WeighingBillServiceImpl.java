@@ -186,16 +186,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingBillAgentInfo agentInfo = null;
 		Customer buyerAgent = this.getCustomerAgent(buyerInfo, bill);
 		Customer sellerAgent = this.getCustomerAgent(sellerInfo, bill);
-		if (buyerAgent != null) {
+		if (buyerAgent != null || sellerAgent != null) {
 			agentInfo = new WeighingBillAgentInfo();
 			agentInfo.setWeighingBillId(bill.getId());
 			agentInfo.setWeighingBillSerialNo(bill.getSerialNo());
 			agentInfo.setWeighingStatementId(statement.getId());
 			agentInfo.setWeighingStatementSerialNo(statement.getSerialNo());
+		}
+		if (buyerAgent != null) {
 			this.setBuyerAgentInfo(agentInfo, buyerAgent);
 		}
 		if (sellerAgent != null) {
-			agentInfo = agentInfo != null ? agentInfo : new WeighingBillAgentInfo();
 			this.setSellerAgentInfo(agentInfo, sellerAgent);
 		}
 		if (agentInfo != null) {
@@ -717,12 +718,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingBillAgentInfo agentInfoQuery = new WeighingBillAgentInfo();
 		agentInfoQuery.setWeighingStatementId(weighingStatement.getId());
 		WeighingBillAgentInfo agentInfo = this.agentInfoMapper.selectOne(agentInfoQuery);
-		agentInfo.setId(null);
-		agentInfo.setWeighingStatementId(newWs.getId());
-		agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
-		rows = this.agentInfoMapper.insertSelective(agentInfo);
-		if (rows <= 0) {
-			throw new AppException("保存代理人信息失败");
+		if (agentInfo != null) {
+			agentInfo.setId(null);
+			agentInfo.setWeighingStatementId(newWs.getId());
+			agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
+			rows = this.agentInfoMapper.insertSelective(agentInfo);
+			if (rows <= 0) {
+				throw new AppException("保存代理人信息失败");
+			}
 		}
 
 		// 恢复皮重单
@@ -816,6 +819,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setStatementSerialNo(weighingStatement.getSerialNo());
 						approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
 						approve.setMarketId(weighingBill.getMarketId());
+						// 乐观锁版本默认0
+						approve.setVersion(0);
 						int rows = this.priceApproveMapper.insertSelective(approve);
 						if (rows <= 0) {
 							BaseOutput.failure("保存价格审批记录失败");
@@ -1081,12 +1086,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WeighingBillAgentInfo agentInfoQuery = new WeighingBillAgentInfo();
 		agentInfoQuery.setWeighingStatementId(weighingStatement.getId());
 		WeighingBillAgentInfo agentInfo = this.agentInfoMapper.selectOne(agentInfoQuery);
-		agentInfo.setId(null);
-		agentInfo.setWeighingStatementId(newWs.getId());
-		agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
-		rows = this.agentInfoMapper.insertSelective(agentInfo);
-		if (rows <= 0) {
-			throw new AppException("保存代理人信息失败");
+		if (agentInfo != null) {
+			agentInfo.setId(null);
+			agentInfo.setWeighingStatementId(newWs.getId());
+			agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
+			rows = this.agentInfoMapper.insertSelective(agentInfo);
+			if (rows <= 0) {
+				throw new AppException("保存代理人信息失败");
+			}
 		}
 
 		// 恢复皮重单
