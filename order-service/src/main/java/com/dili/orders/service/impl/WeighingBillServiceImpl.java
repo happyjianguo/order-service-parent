@@ -484,13 +484,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		Integer beforeUpdateState = weighingBill.getState();
 
 		// 校验买卖双方密码
+		PaymentErrorCode buyerError = null;
+		PaymentErrorCode sellerError = null;
 		AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
 		buyerPwdDto.setAccountId(weighingBill.getBuyerAccount());
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
-				return BaseOutput.failure(PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION.getName()).setCode(PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION.getCode());
+				buyerError = PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION;
 			}
 			return pwdOutput;
 		}
@@ -501,9 +503,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
-				return BaseOutput.failure(PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION.getName()).setCode(PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION.getCode());
+				sellerError = PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION;
 			}
 			return pwdOutput;
+		}
+
+		if (buyerError != null && sellerError != null) {
+			return BaseOutput.failure(PaymentErrorCode.BUYER_SELLER_PASSWORD_INCORRECT_EXCEPTION.getCode(), PaymentErrorCode.BUYER_SELLER_PASSWORD_INCORRECT_EXCEPTION.getName());
+		} else if (buyerError != null) {
+			return BaseOutput.failure(buyerError.getCode(), buyerError.getName());
+		} else if (sellerError != null) {
+			return BaseOutput.failure(sellerError.getCode(), sellerError.getName());
 		}
 
 		LocalDateTime now = LocalDateTime.now();
@@ -1013,13 +1023,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		// 校验买卖双方密码
+		PaymentErrorCode buyerError = null;
+		PaymentErrorCode sellerError = null;
 		AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
 		buyerPwdDto.setAccountId(weighingBill.getBuyerAccount());
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
-				return BaseOutput.failure(PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION.getName()).setCode(PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION.getCode());
+				buyerError = PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION;
 			}
 			return pwdOutput;
 		}
@@ -1030,9 +1042,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
-				return BaseOutput.failure(PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION.getName()).setCode(PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION.getCode());
+				sellerError = PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION;
 			}
 			return pwdOutput;
+		}
+
+		if (buyerError != null && sellerError != null) {
+			return BaseOutput.failure(PaymentErrorCode.BUYER_SELLER_PASSWORD_INCORRECT_EXCEPTION.getCode(), PaymentErrorCode.BUYER_SELLER_PASSWORD_INCORRECT_EXCEPTION.getName());
+		} else if (buyerError != null) {
+			return BaseOutput.failure(buyerError.getCode(), buyerError.getName());
+		} else if (sellerError != null) {
+			return BaseOutput.failure(sellerError.getCode(), sellerError.getName());
 		}
 
 		LocalDateTime now = LocalDateTime.now();
