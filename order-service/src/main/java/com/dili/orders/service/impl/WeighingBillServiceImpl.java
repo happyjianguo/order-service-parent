@@ -493,8 +493,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				buyerError = PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION;
+			} else {
+				return pwdOutput;
 			}
-			return pwdOutput;
 		}
 
 		AccountPasswordValidateDto sellerPwdDto = new AccountPasswordValidateDto();
@@ -504,8 +505,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				sellerError = PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION;
+			} else {
+				return pwdOutput;
 			}
-			return pwdOutput;
 		}
 
 		if (buyerError != null && sellerError != null) {
@@ -1032,8 +1034,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				buyerError = PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION;
+			} else {
+				return pwdOutput;
 			}
-			return pwdOutput;
 		}
 
 		AccountPasswordValidateDto sellerPwdDto = new AccountPasswordValidateDto();
@@ -1043,8 +1046,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (!pwdOutput.isSuccess()) {
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				sellerError = PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION;
+			} else {
+				return pwdOutput;
 			}
-			return pwdOutput;
 		}
 
 		if (buyerError != null && sellerError != null) {
