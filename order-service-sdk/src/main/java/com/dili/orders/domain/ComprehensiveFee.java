@@ -222,6 +222,17 @@ public class ComprehensiveFee extends BaseDomain {
     @Transient
     private Long userId;
 
+    /**
+     *查询使用，交易总笔数
+     */
+    @Transient
+    private Integer transactionsNumCount;
+
+    /**
+     *查询使用，交易总额
+     */
+    @Transient
+    private Long transactionsTotal;
 
     /**
      * 查询使用，结算开始时间
@@ -847,5 +858,21 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setDepartments(List<Long> departments) {
         this.departments = departments;
+    }
+
+    public Integer getTransactionsNumCount() {
+        return transactionsNumCount;
+    }
+
+    public void setTransactionsNumCount(Integer transactionsNumCount) {
+        this.transactionsNumCount = transactionsNumCount;
+    }
+
+    public Long getTransactionsTotal() {
+        return transactionsTotal;
+    }
+
+    public void setTransactionsTotal(Long transactionsTotal) {
+        this.transactionsTotal = transactionsTotal;
     }
 }

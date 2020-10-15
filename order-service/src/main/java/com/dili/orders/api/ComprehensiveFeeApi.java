@@ -61,6 +61,18 @@ public class ComprehensiveFeeApi {
     }
 
     /**
+     * 根据参数查询总交易数和总交易金额
+     *
+     * @param comprehensiveFee
+     * @return String
+     * @throws Exception
+     */
+    @RequestMapping(value = "/selectCountAndTotal", method = {RequestMethod.POST})
+    public BaseOutput<ComprehensiveFee> selectCountAndTotal(@RequestBody ComprehensiveFee comprehensiveFee) {
+        return comprehensiveFeeService.selectCountAndTotal(comprehensiveFee);
+    }
+
+    /**
      * 新增comprehensiveFee
      *
      * @param comprehensiveFee

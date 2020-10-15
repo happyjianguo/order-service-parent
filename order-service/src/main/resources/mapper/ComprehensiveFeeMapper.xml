@@ -221,6 +221,51 @@
     </if>
     order by ${sort} ${order}
   </select>
+  <select id="selectCountAndTotal" resultType="com.dili.orders.domain.ComprehensiveFee">
+    SELECT
+    COUNT(*) AS transactionsNumCount,SUM(charge_amount) AS transactionsTotal
+    FROM comprehensive_fee s
+    WHERE 1 = 1
+    AND order_status not in(1,4)
+    <if test="orderType != null">
+      AND order_type = #{orderType}
+    </if>
+    <if test="orderStatus != null">
+      AND order_status = #{orderStatus}
+    </if>
+    <if test="customerId != null">
+      AND customer_id=#{customerId}
+    </if>
+    <if test="operatorId != null">
+      AND operator_id=#{operatorId}
+    </if>
+    <if test="operatorTimeStart != null">
+      AND operator_time  <![CDATA[>=]]> #{operatorTimeStart}
+    </if>
+    <if test="operatorTimeEnd != null">
+      AND operator_time  <![CDATA[<=]]> #{operatorTimeEnd}
+    </if>
+    <if test="code != null and code!=''">
+      AND code = #{code}
+    </if>
+    <if test="userId != null">
+      AND creator_id=#{userId}
+    </if>
+    <if test="customerCardNo != null and customerCardNo!=''">
+      AND customer_card_no=#{customerCardNo}
+    </if>
+    <if test="marketId != null">
+      AND market_id=#{marketId}
+    </if>
+    <if test="departments != null">
+      AND department_id IN
+      (
+      <foreach item="item" index="index" collection="departments" open="" separator="," close="">
+        #{item}
+      </foreach>
+      )
+    </if>
+  </select>
   <select id="scheduleUpdateSelect" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT
     *

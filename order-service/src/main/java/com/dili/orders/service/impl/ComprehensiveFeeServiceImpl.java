@@ -87,6 +87,11 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         return output;
     }
 
+    @Override
+    public BaseOutput<ComprehensiveFee> selectCountAndTotal(ComprehensiveFee comprehensiveFee) {
+        ComprehensiveFee result=getActualDao().selectCountAndTotal(comprehensiveFee);
+        return BaseOutput.successData(result);
+    }
 
     @Override
     public BaseOutput<ComprehensiveFee> insertComprehensiveFee(ComprehensiveFee comprehensiveFee) {

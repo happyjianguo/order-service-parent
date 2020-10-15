@@ -25,6 +25,14 @@ public interface ComprehensiveFeeService extends BaseService<ComprehensiveFee, L
 	PageOutput<List<ComprehensiveFee>> listByQueryParams(ComprehensiveFee comprehensiveFee);
 
 	/**
+	 * 根据页面条件查询交易总数和交易总额
+	 *
+	 * @param comprehensiveFee 检测收费
+	 * @return
+	 */
+	BaseOutput<ComprehensiveFee> selectCountAndTotal(ComprehensiveFee comprehensiveFee);
+
+	/**
 	 * 新增
 	 * @param comprehensiveFee   检测收费
 	 * @return
