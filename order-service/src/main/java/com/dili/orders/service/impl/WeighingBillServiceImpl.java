@@ -1796,11 +1796,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException(buyerFeeOutput.getMessage());
 		}
 		BigDecimal buyerTotalFee = new BigDecimal(0L);
-		if (CollectionUtils.isNotEmpty(buyerFeeOutput.getData())) {
-			for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
-				if (qfo.getTotalFee() != null) {
-					buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-				}
+		if (CollectionUtils.isEmpty(buyerFeeOutput.getData())) {
+			throw new AppException("未匹配到计费规则，请联系管理员");
+		}
+		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
+			if (qfo.getTotalFee() != null) {
+				buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
 			}
 		}
 		if (!isFreeze(weighingBill)) {
@@ -1822,11 +1823,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException(sellerFeeOutput.getMessage());
 		}
 		BigDecimal sellerTotalFee = new BigDecimal(0L);
-		if (CollectionUtils.isNotEmpty(sellerFeeOutput.getData())) {
-			for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
-				if (qfo.getTotalFee() != null) {
-					sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-				}
+		if (CollectionUtils.isEmpty(sellerFeeOutput.getData())) {
+			throw new AppException("未匹配到计费规则，请联系管理员");
+		}
+		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
+			if (qfo.getTotalFee() != null) {
+				sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
 			}
 		}
 		if (!isFreeze(weighingBill)) {
