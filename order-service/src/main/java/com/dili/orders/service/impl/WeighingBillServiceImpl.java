@@ -69,6 +69,8 @@ import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
+import com.dili.orders.dto.WeighingStatementAppletDto;
+import com.dili.orders.dto.WeighingStatementAppletQuery;
 import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.orders.mapper.PriceApproveRecordMapper;
 import com.dili.orders.mapper.WeighingBillAgentInfoMapper;

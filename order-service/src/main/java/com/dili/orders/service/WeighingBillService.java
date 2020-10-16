@@ -10,6 +10,8 @@ import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
+import com.dili.orders.dto.WeighingStatementAppletDto;
+import com.dili.orders.dto.WeighingStatementAppletQuery;
 import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
@@ -75,8 +77,8 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 操作员作废过磅单
 	 *
-	 * @param id               过磅id
-	 * @param operatorId       操作员id
+	 * @param id         过磅id
+	 * @param operatorId 操作员id
 	 * @return
 	 */
 	BaseOutput<Object> operatorInvalidate(Long id, Long operatorId);
@@ -84,8 +86,8 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 操作员撤销过磅单
 	 *
-	 * @param id               过磅id
-	 * @param operatorId       操作员id
+	 * @param id         过磅id
+	 * @param operatorId 操作员id
 	 * @return
 	 */
 	BaseOutput<Object> operatorWithdraw(Long id, Long operatorId);
@@ -142,4 +144,5 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @return
 	 */
 	PrintTemplateDataDto<WeighingStatementPrintDto> getWeighingStatementPrintData(String serialNo);
+
 }
