@@ -5,6 +5,7 @@ import java.util.List;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.WeighingStatementAppletDto;
 import com.dili.orders.dto.WeighingStatementAppletQuery;
+import com.dili.orders.dto.WeighingStatementAppletStateCountDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.PageOutput;
 
@@ -20,4 +21,12 @@ public interface WeighingStatementService extends BaseService<WeighingStatement,
 	 * @return
 	 */
 	PageOutput<List<WeighingStatementAppletDto>> listApplet(WeighingStatementAppletQuery query);
+
+	/**
+	 * 小程序状态统计
+	 * 
+	 * @param query
+	 * @return
+	 */
+	List<WeighingStatementAppletStateCountDto> stateCountStatistics(WeighingStatementAppletQuery query);
 }

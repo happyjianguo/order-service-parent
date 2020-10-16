@@ -18,6 +18,7 @@ public class WeighingStatementAppletQuery extends WeighingStatement {
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime endTime;
+	private Long accountId;
 
 	public LocalDateTime getStartTime() {
 		return startTime;
@@ -33,6 +34,14 @@ public class WeighingStatementAppletQuery extends WeighingStatement {
 
 	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
+	}
+
+	public Long getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(Long accountId) {
+		this.accountId = accountId;
 	}
 
 }

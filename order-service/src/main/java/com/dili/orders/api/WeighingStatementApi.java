@@ -36,8 +36,25 @@ public class WeighingStatementApi {
 		return BaseOutput.success().setData(dto);
 	}
 
-	@RequestMapping(value = "/listApplet")
+	/**
+	 * 小程序分页查询
+	 * 
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/listByApplet")
 	public BaseOutput<?> listApplet(@RequestBody WeighingStatementAppletQuery query) {
 		return this.weighingStatementService.listApplet(query);
+	}
+
+	/**
+	 * 小程序状态统计
+	 * 
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/stateCountStatistics")
+	public BaseOutput<?> stateCountStatistics(@RequestBody WeighingStatementAppletQuery query) {
+		return BaseOutput.successData(this.weighingStatementService.stateCountStatistics(query));
 	}
 }

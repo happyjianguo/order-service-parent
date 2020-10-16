@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.dto.WeighingStatementAppletDto;
 import com.dili.orders.dto.WeighingStatementAppletQuery;
+import com.dili.orders.dto.WeighingStatementAppletStateCountDto;
 import com.dili.orders.mapper.WeighingStatementMapper;
 import com.dili.orders.service.WeighingStatementService;
 import com.dili.ss.base.BaseServiceImpl;
@@ -36,5 +37,10 @@ public class WeighingStatementServiceImpl extends BaseServiceImpl<WeighingStatem
 		Page<WeighingStatementAppletDto> pageList = (Page<WeighingStatementAppletDto>) list;
 		long total = pageList.getTotal();
 		return PageOutput.success().setData(list).setTotal((int) total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
+	}
+
+	@Override
+	public List<WeighingStatementAppletStateCountDto> stateCountStatistics(WeighingStatementAppletQuery query) {
+		return this.getActualDao().selectStateCount(query);
 	}
 }

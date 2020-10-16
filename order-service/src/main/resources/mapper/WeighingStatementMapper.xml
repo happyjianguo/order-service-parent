@@ -64,15 +64,33 @@
 		ws.version
 	</sql>
 
-	<resultMap extends="BaseResultMap" id="AppletListRM" type="com.dili.orders.dto.WeighingStatementAppletDto" />
+	<resultMap extends="BaseResultMap" id="AppletListRM" type="com.dili.orders.dto.WeighingStatementAppletDto">
+		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
+		<result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+		<result column="unit_amount" jdbcType="INTEGER" property="unitAmount" />
+		<result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
+		<result column="unit_weight" jdbcType="INTEGER" property="unitWeight" />
+		<result column="net_weight" jdbcType="INTEGER" property="netWeight" />
+	</resultMap>
+	<resultMap type="com.dili.orders.dto.WeighingStatementAppletStateCountDto" id="AppletStateCountRM">
+		<result column="state" property="state" />
+		<result column="state_count" property="stateCount" />
+	</resultMap>
 
 	<select id="listApplet" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletListRM">
-		SELECT
+		SELECT DISTINCT
 		<include refid="Join_Column_List" />
+		,wb.measure_type,
+		wb.goods_name,
+		wb.unit_amount,
+		wb.unit_price,
+		wb.unit_weight,
+		wb.net_weight
 		FROM
 		weighing_statement ws
 		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
-		INNER JOIN weighing_bill_operation_record wbor
+		INNER JOIN
+		weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
 		WHERE
 		1 =1
 		<if test="state != null">
@@ -83,13 +101,49 @@
 			</choose>
 		</if>
 		<if test="startTime != null">
-			AND wbor.operation_time <![CDATA[>=]]> #{startTime}
+			AND wbor.operation_time <![CDATA[>=]]>
+			#{startTime}
 		</if>
 		<if test="endTime != null">
-			AND wbor.operation_time <![CDATA[<=]]> #{endTime}
+			AND wbor.operation_time <![CDATA[<=]]>
+			#{endTime}
+		</if>
+		<if test="accountId != null">
+			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
 		</if>
 	</select>
 
+	<select id="selectStateCount" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletStateCountRM">
+		SELECT
+		ws.state,
+		count(*) AS state_count
+		FROM
+		weighing_statement ws
+		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
+		INNER JOIN weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
+		AND ((
+		ws.state = 2
+		AND wbor.operation_type = 4
+		)
+		OR ( ws.state = 3 AND wbor.operation_type = 5 )
+		OR ( ws.state = 4 AND wbor.operation_type = 2 ))
+		WHERE
+		1 = 1
+		AND ws.state IN ( 2, 3, 4 )
+		<if test="startTime != null">
+			AND wbor.operation_time <![CDATA[>=]]>
+			#{startTime}
+		</if>
+		<if test="endTime != null">
+			AND wbor.operation_time <![CDATA[<=]]>
+			#{endTime}
+		</if>
+		<if test="accountId != null">
+			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
+		</if>
+		GROUP BY
+		ws.state
+	</select>
 
 
 </mapper>
