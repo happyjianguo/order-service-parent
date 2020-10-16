@@ -1796,11 +1796,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException(buyerFeeOutput.getMessage());
 		}
 		BigDecimal buyerTotalFee = new BigDecimal(0L);
-		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
-			buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-		}
-		if (!buyerFeeOutput.isSuccess()) {
-			throw new AppException("计算买家手续费失败");
+		if (CollectionUtils.isNotEmpty(buyerFeeOutput.getData())) {
+			for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
+				if (qfo.getTotalFee() != null) {
+					buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
+				}
+			}
 		}
 		if (!isFreeze(weighingBill)) {
 			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
@@ -1821,11 +1822,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException(sellerFeeOutput.getMessage());
 		}
 		BigDecimal sellerTotalFee = new BigDecimal(0L);
-		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
-			sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-		}
-		if (!sellerFeeOutput.isSuccess()) {
-			throw new AppException("计算卖家手续费失败");
+		if (CollectionUtils.isNotEmpty(sellerFeeOutput.getData())) {
+			for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
+				if (qfo.getTotalFee() != null) {
+					sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
+				}
+			}
 		}
 		if (!isFreeze(weighingBill)) {
 			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
