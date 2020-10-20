@@ -37,7 +37,7 @@ public class TransitionDepartureSettlement extends BaseDomain {
     /**
      * 客户余额，打印使用
      */
-    @Column(name = "`customer_balance`")
+    @Transient
     private String customerBalance;
 
     /**
@@ -136,7 +136,7 @@ public class TransitionDepartureSettlement extends BaseDomain {
     /**
      * 交易类型名称（外省菜，省内菜等）（数据字典）
      */
-    @Column(name = "`trans_type_name`")
+    @Transient
     private String transTypeName;
 
     /**

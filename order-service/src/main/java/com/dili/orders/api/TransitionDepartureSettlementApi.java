@@ -102,14 +102,12 @@ public class TransitionDepartureSettlementApi {
         //获取余额返回，类型为元
         BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
         if (!oneAccountCard1.isSuccess()) {
-            transitionDepartureSettlement.setCustomerBalance("0");
-        } else {
-            //获取账户资金信息
-            BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
-            transitionDepartureSettlement.setCustomerBalance(String.format("%.2f", accountFund.getBalance().doubleValue() / 100));
-
+            return BaseOutput.failure(oneAccountCard1.getMessage());
         }
+        //获取账户资金信息
+        BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
         //设置余额，并且返回为元
+        transitionDepartureSettlement.setCustomerBalance(String.format("%.2f", accountFund.getBalance().doubleValue() / 100));
         BaseOutput<TradeTypeDto> tradeTypeDtoBaseOutput = this.tradeTypeRpc.get(Long.valueOf(transitionDepartureSettlement.getTransTypeId()));
         if (!tradeTypeDtoBaseOutput.isSuccess()) {
             return BaseOutput.failure(tradeTypeDtoBaseOutput.getMessage());
