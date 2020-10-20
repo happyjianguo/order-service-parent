@@ -8,9 +8,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +26,12 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
+import com.dili.bpmc.sdk.domain.TaskMapping;
+import com.dili.bpmc.sdk.dto.GroupUserDto;
+import com.dili.bpmc.sdk.dto.TaskDto;
+import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
+import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.Customer;
 import com.dili.customer.sdk.dto.RelatedDto;
@@ -87,13 +94,19 @@ import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
+import com.dili.uap.sdk.domain.dto.RoleUserDto;
 import com.dili.uap.sdk.rpc.FirmRpc;
+import com.dili.uap.sdk.rpc.RoleRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
+import com.dili.uap.sdk.session.SessionContext;
+import com.diligrp.message.sdk.domain.input.AppPushInput;
+import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
@@ -154,6 +167,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private WeighingStatementMapper weighingStatementMapper;
 	@Autowired
 	private WeighingBillAgentInfoMapper agentInfoMapper;
+	@Autowired
+	private AppPushRpc pushRpc;
+	@Autowired
+	private TaskRpc taskRpc;
+	@Autowired
+	private RoleRpc roleRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -821,6 +840,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setProcessDefinitionId(output.getData().getProcessDefinitionId());
 						approve.setProcessInstanceId(output.getData().getProcessInstanceId());
 						this.priceApproveMapper.updateByPrimaryKeySelective(approve);
+						this.notifyApprovers(approve);
 						return BaseOutput.failure("交易单价低于参考价，需人工审核");
 					}
 				}
@@ -928,6 +948,31 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
 		return BaseOutput.successData(weighingStatement);
+	}
+
+	private void notifyApprovers(PriceApproveRecord approve) {
+		BaseOutput<List<TaskIdentityDto>> output = this.taskRpc.listTaskIdentityByProcessInstanceIds(Arrays.asList(approve.getProcessInstanceId()));
+		if (output.isSuccess()) {
+			LOGGER.error(output.getMessage());
+			return;
+		}
+		if (CollectionUtils.isEmpty(output.getData())) {
+			return;
+		}
+		Set<Long> userIds = new HashSet<Long>();
+		output.getData().forEach(ti -> {
+			if (StringUtils.isNotBlank(ti.getAssignee())) {
+				userIds.add(Long.valueOf(ti.getAssignee()));
+			}
+			ti.getGroupUsers().forEach(gu -> {
+				userIds.add(Long.valueOf(gu.getUserId()));
+			});
+		});
+		AppPushInput appPushInput=new AppPushInput();
+		appPushInput.setMarketId(approve.getMarketId());
+		appPushInput.setUserIds(userIds);
+		
+		this.pushRpc.receiveMessage(appPushInput);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
