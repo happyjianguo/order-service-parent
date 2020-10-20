@@ -98,6 +98,12 @@ public class TransitionDepartureApply extends BaseDomain {
     private String transTypeId;
 
     /**
+     * 交易类型名称（外省菜，省内菜等）（数据字典）
+     */
+    @Column(name = "`trans_type_name`")
+    private String transTypeName;
+
+    /**
      * 商品id
      */
     @Column(name = "`category_id`")
@@ -1002,5 +1008,13 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public String getTransTypeName() {
+        return transTypeName;
+    }
+
+    public void setTransTypeName(String transTypeName) {
+        this.transTypeName = transTypeName;
     }
 }
