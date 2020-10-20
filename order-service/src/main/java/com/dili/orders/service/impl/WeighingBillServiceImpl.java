@@ -1091,18 +1091,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		// 设置代理人信息
-		WeighingBillAgentInfo agentInfoQuery = new WeighingBillAgentInfo();
-		agentInfoQuery.setWeighingStatementId(weighingStatement.getId());
-		WeighingBillAgentInfo agentInfo = this.agentInfoMapper.selectOne(agentInfoQuery);
-		if (agentInfo != null) {
-			agentInfo.setId(null);
-			agentInfo.setWeighingStatementId(newWs.getId());
-			agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
-			rows = this.agentInfoMapper.insertSelective(agentInfo);
-			if (rows <= 0) {
-				throw new AppException("保存代理人信息失败");
-			}
-		}
+//		WeighingBillAgentInfo agentInfoQuery = new WeighingBillAgentInfo();
+//		agentInfoQuery.setWeighingStatementId(weighingStatement.getId());
+//		WeighingBillAgentInfo agentInfo = this.agentInfoMapper.selectOne(agentInfoQuery);
+//		if (agentInfo != null) {
+//			agentInfo.setId(null);
+//			agentInfo.setWeighingStatementId(newWs.getId());
+//			agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
+//			rows = this.agentInfoMapper.insertSelective(agentInfo);
+//			if (rows <= 0) {
+//				throw new AppException("保存代理人信息失败");
+//			}
+//		}
 
 		// 恢复皮重单
 		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
