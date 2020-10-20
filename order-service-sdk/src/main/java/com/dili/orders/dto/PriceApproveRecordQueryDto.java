@@ -37,6 +37,9 @@ public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	@Column(name = "`weighing_time`")
 	private LocalDateTime weighingEndTime;
+	@Operator(Operator.IN)
+	@Column(name = "`process_instance_id`")
+	private List<String> processInstanceIds;
 
 	public String getGoodsSplitStr() {
 		return goodsSplitStr;
@@ -67,6 +70,14 @@ public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 
 	public void setWeighingEndTime(LocalDateTime weighingEndTime) {
 		this.weighingEndTime = weighingEndTime;
+	}
+
+	public List<String> getProcessInstanceIds() {
+		return processInstanceIds;
+	}
+
+	public void setProcessInstanceIds(List<String> processInstanceIds) {
+		this.processInstanceIds = processInstanceIds;
 	}
 
 }
