@@ -74,6 +74,8 @@
 	</resultMap>
 	<resultMap type="com.dili.orders.dto.WeighingStatementAppletStateCountDto" id="AppletStateCountRM">
 		<result column="state" property="state" />
+		<result column="total_frozen_amount" property="totalFrozenAmount" />
+		<result column="total_trade_amount" property="totalTradeAmount" />
 		<result column="state_count" property="stateCount" />
 	</resultMap>
 
@@ -116,17 +118,21 @@
 	<select id="selectStateCount" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletStateCountRM">
 		SELECT
 		ws.state,
+		SUM( ws.frozen_amount ) AS total_frozen_amount,
+		SUM( ws.trade_amount ) AS total_trade_amount,
 		count(*) AS state_count
 		FROM
 		weighing_statement ws
 		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
-		INNER JOIN weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
+		INNER JOIN
+		weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
 		AND ((
 		ws.state = 2
 		AND wbor.operation_type = 4
 		)
 		OR ( ws.state = 3 AND wbor.operation_type = 5 )
-		OR ( ws.state = 4 AND wbor.operation_type = 2 ))
+		OR ( ws.state = 4 AND wbor.operation_type
+		= 2 ))
 		WHERE
 		1 = 1
 		AND ws.state IN ( 2, 3, 4 )

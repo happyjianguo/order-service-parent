@@ -9,6 +9,14 @@ public class WeighingStatementAppletStateCountDto {
 	 */
 	private Integer state;
 	/**
+	 * 冻结总金额
+	 */
+	private Long totalFrozenAmount;
+	/**
+	 * 交易总金额
+	 */
+	private Long totalTradeAmount;
+	/**
 	 * 总数
 	 */
 	private Long stateCount;
@@ -19,6 +27,22 @@ public class WeighingStatementAppletStateCountDto {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public Long getTotalFrozenAmount() {
+		return totalFrozenAmount;
+	}
+
+	public void setTotalFrozenAmount(Long totalFrozenAmount) {
+		this.totalFrozenAmount = totalFrozenAmount;
+	}
+
+	public Long getTotalTradeAmount() {
+		return totalTradeAmount;
+	}
+
+	public void setTotalTradeAmount(Long totalTradeAmount) {
+		this.totalTradeAmount = totalTradeAmount;
 	}
 
 	public Long getStateCount() {

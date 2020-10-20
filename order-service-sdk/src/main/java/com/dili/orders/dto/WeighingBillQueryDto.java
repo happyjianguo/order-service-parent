@@ -3,13 +3,10 @@ package com.dili.orders.dto;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.WeighingBill;
@@ -48,11 +45,9 @@ public class WeighingBillQueryDto extends WeighingBill {
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	@Column(name = "`modified_time`")
 	private LocalDateTime modifiedEnd;
-	@Transient
-	private String goodsSplitStr;
 	@Operator(Operator.IN)
-	@Column(name = "'goods_name'")
-	private List<String> goodsNames;
+	@Column(name = "'goods_id'")
+	private List<String> goodsIds;
 	@Transient
 	private String wsSerialNo;
 	@Transient
@@ -120,20 +115,12 @@ public class WeighingBillQueryDto extends WeighingBill {
 		this.modifiedEnd = modifiedEnd;
 	}
 
-	public String getGoodsSplitStr() {
-		return goodsSplitStr;
+	public List<String> getGoodsIds() {
+		return goodsIds;
 	}
 
-	public void setGoodsSplitStr(String goodsSplitStr) {
-		this.goodsSplitStr = goodsSplitStr;
-		if (StringUtils.isNotBlank(goodsSplitStr)) {
-			this.goodsNames = Arrays.asList(goodsSplitStr.split("，"));
-		}
-	}
-
-	@JSONField(serialize = false)
-	public List<String> getGoodsNames() {
-		return goodsNames;
+	public void setGoodsIds(List<String> goodsIds) {
+		this.goodsIds = goodsIds;
 	}
 
 	public String getWsSerialNo() {
