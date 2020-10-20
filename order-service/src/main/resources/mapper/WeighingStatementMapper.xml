@@ -1,138 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dili.orders.mapper.WeighingStatementMapper">
-  <resultMap id="BaseResultMap" type="com.dili.orders.domain.WeighingStatement">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
-    <result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
-    <result column="weighing_serial_no" jdbcType="VARCHAR" property="weighingSerialNo" />
-    <result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
-    <result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
-    <result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
-    <result column="buyer_actual_amount" jdbcType="BIGINT" property="buyerActualAmount" />
-    <result column="buyer_poundage" jdbcType="BIGINT" property="buyerPoundage" />
-    <result column="seller_id" jdbcType="BIGINT" property="sellerId" />
-    <result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
-    <result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
-    <result column="seller_actual_amount" jdbcType="BIGINT" property="sellerActualAmount" />
-    <result column="seller_poundage" jdbcType="BIGINT" property="sellerPoundage" />
-    <result column="trade_amount" jdbcType="BIGINT" property="tradeAmount" />
-    <result column="frozen_amount" jdbcType="BIGINT" property="frozenAmount" />
-    <result column="state" jdbcType="TINYINT" property="state" />
-    <result column="pay_order_no" jdbcType="VARCHAR" property="payOrderNo" />
-    <result column="frozen_order_no" jdbcType="VARCHAR" property="frozenOrderNo" />
-    <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
-    <result column="creator_name" jdbcType="VARCHAR" property="creatorName" />
-    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
-    <result column="modifier_id" jdbcType="BIGINT" property="modifierId" />
-    <result column="modifier_name" jdbcType="VARCHAR" property="modifierName" />
-    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
-    <result column="version" jdbcType="INTEGER" property="version" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    id, serial_no, weighing_bill_id, weighing_serial_no, buyer_id, buyer_card_no, buyer_name, 
-    buyer_actual_amount, buyer_poundage, seller_id, seller_card_no, seller_name, seller_actual_amount, 
-    seller_poundage, trade_amount, frozen_amount, state, pay_order_no, frozen_order_no, 
-    creator_id, creator_name, created_time, modifier_id, modifier_name, modified_time, 
-    version
-  </sql>
-  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    select 
-    <include refid="Base_Column_List" />
-    from weighing_statement
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <update id="updateBy" parameterType="com.dili.orders.domain.WeighingStatement">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    update weighing_statement
-    <set>
-      <if test="serialNo != null">
-        serial_no = #{serialNo,jdbcType=VARCHAR},
-      </if>
-      <if test="weighingBillId != null">
-        weighing_bill_id = #{weighingBillId,jdbcType=BIGINT},
-      </if>
-      <if test="weighingSerialNo != null">
-        weighing_serial_no = #{weighingSerialNo,jdbcType=VARCHAR},
-      </if>
-      <if test="buyerId != null">
-        buyer_id = #{buyerId,jdbcType=BIGINT},
-      </if>
-      <if test="buyerCardNo != null">
-        buyer_card_no = #{buyerCardNo,jdbcType=VARCHAR},
-      </if>
-      <if test="buyerName != null">
-        buyer_name = #{buyerName,jdbcType=VARCHAR},
-      </if>
-      <if test="buyerActualAmount != null">
-        buyer_actual_amount = #{buyerActualAmount,jdbcType=BIGINT},
-      </if>
-      <if test="buyerPoundage != null">
-        buyer_poundage = #{buyerPoundage,jdbcType=BIGINT},
-      </if>
-      <if test="sellerId != null">
-        seller_id = #{sellerId,jdbcType=BIGINT},
-      </if>
-      <if test="sellerCardNo != null">
-        seller_card_no = #{sellerCardNo,jdbcType=VARCHAR},
-      </if>
-      <if test="sellerName != null">
-        seller_name = #{sellerName,jdbcType=VARCHAR},
-      </if>
-      <if test="sellerActualAmount != null">
-        seller_actual_amount = #{sellerActualAmount,jdbcType=BIGINT},
-      </if>
-      <if test="sellerPoundage != null">
-        seller_poundage = #{sellerPoundage,jdbcType=BIGINT},
-      </if>
-      <if test="tradeAmount != null">
-        trade_amount = #{tradeAmount,jdbcType=BIGINT},
-      </if>
-      <if test="frozenAmount != null">
-        frozen_amount = #{frozenAmount,jdbcType=BIGINT},
-      </if>
-      <if test="state != null">
-        state = #{state,jdbcType=TINYINT},
-      </if>
-      <if test="payOrderNo != null">
-        pay_order_no = #{payOrderNo,jdbcType=VARCHAR},
-      </if>
-      <if test="frozenOrderNo != null">
-        frozen_order_no = #{frozenOrderNo,jdbcType=VARCHAR},
-      </if>
-      <if test="creatorId != null">
-        creator_id = #{creatorId,jdbcType=BIGINT},
-      </if>
-      <if test="creatorName != null">
-        creator_name = #{creatorName,jdbcType=VARCHAR},
-      </if>
-      <if test="createdTime != null">
-        created_time = #{createdTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="modifierId != null">
-        modifier_id = #{modifierId,jdbcType=BIGINT},
-      </if>
-      <if test="modifierName != null">
-        modifier_name = #{modifierName,jdbcType=VARCHAR},
-      </if>
-      <if test="modifiedTime != null">
-        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="version != null">
-        version = #{version,jdbcType=INTEGER},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
+	<resultMap id="BaseResultMap" type="com.dili.orders.domain.WeighingStatement">
+		<!-- WARNING - @mbg.generated -->
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
+		<result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
+		<result column="weighing_serial_no" jdbcType="VARCHAR" property="weighingSerialNo" />
+		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
+		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
+		<result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
+		<result column="buyer_actual_amount" jdbcType="BIGINT" property="buyerActualAmount" />
+		<result column="buyer_poundage" jdbcType="BIGINT" property="buyerPoundage" />
+		<result column="seller_id" jdbcType="BIGINT" property="sellerId" />
+		<result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
+		<result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
+		<result column="seller_actual_amount" jdbcType="BIGINT" property="sellerActualAmount" />
+		<result column="seller_poundage" jdbcType="BIGINT" property="sellerPoundage" />
+		<result column="trade_amount" jdbcType="BIGINT" property="tradeAmount" />
+		<result column="frozen_amount" jdbcType="BIGINT" property="frozenAmount" />
+		<result column="state" jdbcType="TINYINT" property="state" />
+		<result column="pay_order_no" jdbcType="VARCHAR" property="payOrderNo" />
+		<result column="frozen_order_no" jdbcType="VARCHAR" property="frozenOrderNo" />
+		<result column="creator_id" jdbcType="BIGINT" property="creatorId" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="modifier_id" jdbcType="BIGINT" property="modifierId" />
+		<result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+		<result column="version" jdbcType="INTEGER" property="version" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		<!-- WARNING - @mbg.generated -->
+		id, serial_no, weighing_bill_id, weighing_serial_no, buyer_id, buyer_card_no, buyer_name,
+		buyer_actual_amount, buyer_poundage, seller_id, seller_card_no, seller_name, seller_actual_amount,
+		seller_poundage, trade_amount, frozen_amount, state, pay_order_no, frozen_order_no,
+		creator_id, created_time, modifier_id, modified_time, version
+	</sql>
+
+	<sql id="Join_Column_List">
+		<!-- WARNING - @mbg.generated -->
+		ws.id,
+		ws.serial_no,
+		ws.weighing_bill_id,
+		ws.weighing_serial_no,
+		ws.buyer_id,
+		ws.buyer_card_no,
+		ws.buyer_name,
+		ws.buyer_actual_amount,
+		ws.buyer_poundage,
+		ws.seller_id,
+		ws.seller_card_no,
+		ws.seller_name,
+		ws.seller_actual_amount,
+		ws.seller_poundage,
+		ws.trade_amount,
+		ws.frozen_amount,
+		ws.state,
+		ws.pay_order_no,
+		ws.frozen_order_no,
+		ws.creator_id,
+		ws.created_time,
+		ws.modifier_id,
+		ws.modified_time,
+		ws.version
+	</sql>
+
+	<resultMap extends="BaseResultMap" id="AppletListRM" type="com.dili.orders.dto.WeighingStatementAppletDto">
+		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
+		<result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+		<result column="unit_amount" jdbcType="INTEGER" property="unitAmount" />
+		<result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
+		<result column="unit_weight" jdbcType="INTEGER" property="unitWeight" />
+		<result column="net_weight" jdbcType="INTEGER" property="netWeight" />
+	</resultMap>
+	<resultMap type="com.dili.orders.dto.WeighingStatementAppletStateCountDto" id="AppletStateCountRM">
+		<result column="state" property="state" />
+		<result column="total_frozen_amount" property="totalFrozenAmount" />
+		<result column="total_trade_amount" property="totalTradeAmount" />
+		<result column="state_count" property="stateCount" />
+	</resultMap>
+
+	<select id="listApplet" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletListRM">
+		SELECT DISTINCT
+		<include refid="Join_Column_List" />
+		,wb.measure_type,
+		wb.goods_name,
+		wb.unit_amount,
+		wb.unit_price,
+		wb.unit_weight,
+		wb.net_weight
+		FROM
+		weighing_statement ws
+		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
+		INNER JOIN
+		weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
+		WHERE
+		1 =1
+		<if test="state != null">
+			<choose>
+				<when test="2">AND ws.state = #{state} AND wbor.operation_type = 4</when>
+				<when test="3">AND ws.state = #{state} AND wbor.operation_type = 5</when>
+				<when test="4">AND ws.state = #{state} AND wbor.operation_type = 2</when>
+			</choose>
+		</if>
+		<if test="startTime != null">
+			AND wbor.operation_time <![CDATA[>=]]>
+			#{startTime}
+		</if>
+		<if test="endTime != null">
+			AND wbor.operation_time <![CDATA[<=]]>
+			#{endTime}
+		</if>
+		<if test="accountId != null">
+			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
+		</if>
+	</select>
+
+	<select id="selectStateCount" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletStateCountRM">
+		SELECT
+		ws.state,
+		SUM( ws.frozen_amount ) AS total_frozen_amount,
+		SUM( ws.trade_amount ) AS total_trade_amount,
+		count(*) AS state_count
+		FROM
+		weighing_statement ws
+		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
+		INNER JOIN
+		weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
+		AND ((
+		ws.state = 2
+		AND wbor.operation_type = 4
+		)
+		OR ( ws.state = 3 AND wbor.operation_type = 5 )
+		OR ( ws.state = 4 AND wbor.operation_type
+		= 2 ))
+		WHERE
+		1 = 1
+		AND ws.state IN ( 2, 3, 4 )
+		<if test="startTime != null">
+			AND wbor.operation_time <![CDATA[>=]]>
+			#{startTime}
+		</if>
+		<if test="endTime != null">
+			AND wbor.operation_time <![CDATA[<=]]>
+			#{endTime}
+		</if>
+		<if test="accountId != null">
+			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
+		</if>
+		GROUP BY
+		ws.state
+	</select>
+
+
 </mapper>
