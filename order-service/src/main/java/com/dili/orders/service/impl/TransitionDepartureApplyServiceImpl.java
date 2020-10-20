@@ -64,7 +64,6 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         Integer page = transitionDepartureApply.getPage();
         page = (page == null) ? Integer.valueOf(1) : page;
         if (transitionDepartureApply.getRows() != null && transitionDepartureApply.getRows() >= 1) {
-//            PageHelper.startPage(page, transitionDepartureApply.getRows(),false,false,false);
             PageHelper.startPage(page, transitionDepartureApply.getRows());
         }
         List<TransitionDepartureApply> list = getActualDao().listByQueryParams(transitionDepartureApply);

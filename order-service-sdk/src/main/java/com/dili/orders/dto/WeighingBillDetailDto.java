@@ -64,6 +64,11 @@ public class WeighingBillDetailDto extends WeighingBill {
 		return MoneyUtils.centToYuan(this.getUnitPrice());
 	}
 
+	@Override
+	public Integer getUnitWeight() {
+		return super.getUnitWeight() == null ? null : new BigDecimal(super.getUnitWeight()).divide(new BigDecimal(2), 2, RoundingMode.HALF_UP).intValue();
+	}
+
 	public LocalDateTime getWeighingTime() {
 		return weighingTime;
 	}
