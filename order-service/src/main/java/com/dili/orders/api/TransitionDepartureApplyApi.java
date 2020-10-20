@@ -1,7 +1,10 @@
 package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
+import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.dto.TradeTypeDto;
 import com.dili.assets.sdk.rpc.AssetsRpc;
+import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.MyBusinessType;
@@ -35,6 +38,9 @@ public class TransitionDepartureApplyApi {
 
     @Autowired
     private UidRpc uidRpc;
+
+    @Autowired
+    private TradeTypeRpc tradeTypeRpc;
 
     /**
      * 分页查询TransitionDepartureApply，返回easyui分页信息
@@ -110,6 +116,19 @@ public class TransitionDepartureApplyApi {
             transitionDepartureApply.setCarTypeName(listBaseOutput.getData().get(0).getCarTypeName());
             //插入的时候把车牌号变成大写
             transitionDepartureApply.setPlate(transitionDepartureApply.getPlate().toUpperCase());
+            //设置交易类型名称
+            BaseOutput<TradeTypeDto> tradeTypeDtoBaseOutput = this.tradeTypeRpc.get(Long.valueOf(transitionDepartureApply.getTransTypeId()));
+            if (!tradeTypeDtoBaseOutput.isSuccess()) {
+                return BaseOutput.failure(tradeTypeDtoBaseOutput.getMessage());
+            }
+            transitionDepartureApply.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
+            //设置商品名称
+            BaseOutput<CategoryDTO> categoryDTOBaseOutput = assetsRpc.get(transitionDepartureApply.getCategoryId());
+            if (!categoryDTOBaseOutput.isSuccess()) {
+                return BaseOutput.failure(categoryDTOBaseOutput.getMessage());
+            }
+            transitionDepartureApply.setCategoryName(categoryDTOBaseOutput.getData().getName());
+            //插入数据
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {

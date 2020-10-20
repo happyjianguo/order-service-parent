@@ -2,7 +2,6 @@ package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TradeTypeDto;
-import com.dili.assets.sdk.dto.TradeTypeQuery;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
@@ -11,7 +10,6 @@ import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.AccountSimpleResponseDto;
 import com.dili.orders.dto.BalanceResponseDto;
 import com.dili.orders.dto.MyBusinessType;
-import com.dili.orders.dto.TradeType;
 import com.dili.orders.glossary.BizTypeEnum;
 import com.dili.orders.rpc.CardRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
@@ -101,13 +99,14 @@ public class TransitionDepartureSettlementApi {
         TransitionDepartureSettlement transitionDepartureSettlement = transitionDepartureSettlementService.get(id);
         //获取余额返回，类型为元
         BaseOutput<AccountSimpleResponseDto> oneAccountCard1 = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
-        if (!oneAccountCard1.isSuccess()) {
-            return BaseOutput.failure(oneAccountCard1.getMessage());
+        if (oneAccountCard1.isSuccess()) {
+            //获取账户资金信息
+            BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
+            //设置余额，并且返回为元
+            transitionDepartureSettlement.setCustomerBalance(String.format("%.2f", accountFund.getBalance().doubleValue() / 100));
+        } else {
+            transitionDepartureSettlement.setCustomerBalance("0");
         }
-        //获取账户资金信息
-        BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
-        //设置余额，并且返回为元
-        transitionDepartureSettlement.setCustomerBalance(String.format("%.2f", accountFund.getBalance().doubleValue() / 100));
         BaseOutput<TradeTypeDto> tradeTypeDtoBaseOutput = this.tradeTypeRpc.get(Long.valueOf(transitionDepartureSettlement.getTransTypeId()));
         if (!tradeTypeDtoBaseOutput.isSuccess()) {
             return BaseOutput.failure(tradeTypeDtoBaseOutput.getMessage());
