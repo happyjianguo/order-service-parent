@@ -1,6 +1,7 @@
 package com.dili.orders.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.domain.WeighingReferencePrice;
 import com.dili.orders.domain.WeighingSettlementBillDaily;
@@ -11,8 +12,10 @@ import com.dili.orders.mapper.ReferencePriceMapper;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.orders.service.referenceprice.ReferencePriceCalculator;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.dto.DTOUtils;
+import com.dili.ss.exception.BusinessException;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import org.apache.commons.collections.CollectionUtils;
@@ -147,7 +150,6 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         Long totalAvgPrice = referencePriceCalculator.getTotalAvgPrice(transData.getTotalTradeAmount(),
                 transData.getTotalTradeWeight());
 
-        // 查询该商品是否存在参考价信息 若不存在 则添加 若存在 则更新
         WeighingReferencePrice referencePrice = this.getActualDao().getReferencePriceByGoodsId(queryParam);
         if (referencePrice != null) {
             LOGGER.info("--------------更新参考价表数据-----------------");
@@ -200,6 +202,10 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         value.setDdCode(DOWNWARD_RANGE);
         value.setFirmId(marketId);
         BaseOutput<List<DataDictionaryValue>> transCountOutput = dataDictionaryRpc.listDataDictionaryValue(value);
+        if (!transCountOutput.getCode().equals(ResultCode.OK)){
+            LOGGER.error("获取下浮幅度配置失败:{}", JSON.toJSONString(transCountOutput));
+            throw new BusinessException(ResultCode.DATA_ERROR,"获取下浮幅度配置失败");
+        }
         List<DataDictionaryValue> valueList = transCountOutput.getData();
         if (CollectionUtils.isNotEmpty(valueList)) {
             for (DataDictionaryValue obj : valueList) {
@@ -239,6 +245,10 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         value.setDdCode(TRANS_COUNT);
         value.setFirmId(marketId);
         BaseOutput<List<DataDictionaryValue>> transCountOutput = dataDictionaryRpc.listDataDictionaryValue(value);
+        if (!transCountOutput.getCode().equals(ResultCode.OK)){
+            LOGGER.error("获取交易笔数配置失败:{}", JSON.toJSONString(transCountOutput));
+            throw new BusinessException(ResultCode.DATA_ERROR,"获取交易笔数配置失败");
+        }
         List<DataDictionaryValue> valueList = transCountOutput.getData();
         if (CollectionUtils.isNotEmpty(valueList)) {
             for (DataDictionaryValue obj : valueList) {
