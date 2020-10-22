@@ -129,6 +129,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG.put(WeighingStatementState.REFUNDED, WeighingOperationType.WITHDRAW);
 		WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG.put(WeighingStatementState.UNPAID, WeighingOperationType.WEIGH);
 	}
+
+	private static final String PUSH_MODULE_CODE = "order_price_approve";
+
 	@Autowired
 	private AccountRpc accountRpc;
 	@Autowired
@@ -226,6 +229,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		agentQuery.setMarketId(weighingBill.getMarketId());
 		BaseOutput<List<RelatedDto>> relatedOutput = this.relatedRpc.getParent(agentQuery);
 		if (!relatedOutput.isSuccess()) {
+			LOGGER.error(String.format("查询卖方代理人失败:code=%s,message=%s", relatedOutput.getMessage(), relatedOutput.getCode(), relatedOutput.getMessage()));
 			throw new AppException(relatedOutput.getMessage());
 		}
 		if (CollectionUtils.isEmpty(relatedOutput.getData())) {
@@ -233,6 +237,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		BaseOutput<Customer> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getParent(), weighingBill.getMarketId());
 		if (!agentOutput.isSuccess()) {
+			LOGGER.error(String.format("查询卖方代理人失败:code=%s,message=%s", relatedOutput.getMessage(), relatedOutput.getCode(), relatedOutput.getMessage()));
 			throw new AppException(agentOutput.getMessage());
 		}
 		if (agentOutput.getData() == null) {
@@ -313,6 +318,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
 		if (!balanceOutput.isSuccess()) {
+			LOGGER.error(String.format("调用支付系统查询买方账户余额失败:code=%s,message=%s", balanceOutput.getCode(), balanceOutput.getMessage()));
 			return BaseOutput.failure(balanceOutput.getMessage());
 		}
 		if (balanceOutput.getData().getAvailableAmount() < weighingStatement.getFrozenAmount()) {
@@ -330,6 +336,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setType(PaymentTradeType.PREAUTHORIZED.getValue());
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
 		if (!paymentOutput.isSuccess()) {
+			LOGGER.error(String.format("调用支付系统创建冻结支付订单失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 			return BaseOutput.failure(paymentOutput.getMessage());
 		}
 		weighingStatement.setPayOrderNo(paymentOutput.getData().getTradeId());
@@ -367,6 +374,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		BaseOutput<PaymentTradeCommitResponseDto> freezeOutput = this.payRpc.commitTrade(dto);
 
 		if (!freezeOutput.isSuccess()) {
+			LOGGER.error(String.format("调用支付系统提交支付冻结订单失败:code=%s,message=%s", freezeOutput.getCode(), freezeOutput.getMessage()));
 			throw new AppException(freezeOutput.getMessage());
 		}
 
@@ -478,7 +486,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		balanceQuery.setAccountId(wb.getBuyerAccount());
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
 		if (!balanceOutput.isSuccess()) {
-			LOGGER.error(balanceOutput.getMessage());
+			LOGGER.error(String.format("打印结算单调用支付系统查询买方余额失败:code=%s,message=%s", balanceOutput.getCode(), balanceOutput.getMessage()));
 			return null;
 		}
 		dto.setBuyerBalance(balanceOutput.getData().getAvailableAmount());
@@ -510,6 +518,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
 		if (!pwdOutput.isSuccess()) {
+			LOGGER.error(String.format("作废过磅单调用支付系统查询买方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				buyerError = PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION;
 			} else {
@@ -522,6 +531,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPwdDto.setPassword(sellerPassword);
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
 		if (!pwdOutput.isSuccess()) {
+			LOGGER.error(String.format("作废过磅单调用支付系统查询卖方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				sellerError = PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION;
 			} else {
@@ -659,6 +669,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 			BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
 			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(String.format("操作员作废过磅单调用支付系统解冻交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
 			}
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
@@ -736,6 +747,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> output = this.jsmfRpc.recoverById(Long.valueOf(weighingBill.getTareBillNumber()));
 			if (!output.isSuccess()) {
+				LOGGER.error(String.format("操作员撤销过磅单调用进门收费恢复皮重单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
 				return BaseOutput.failure(output.getMessage());
 			}
 		}
@@ -745,6 +757,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
 		if (!paymentOutput.isSuccess()) {
+			LOGGER.error(String.format("操作员撤销过磅单调用支付系统撤销交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 			throw new AppException(paymentOutput.getMessage());
 		}
 
@@ -781,6 +794,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
 		if (!balanceOutput.isSuccess()) {
+			LOGGER.error(String.format("交易过磅结算调用支付系统查询买方余额失败:code=%s,message=%s", balanceOutput.getCode(), balanceOutput.getMessage()));
 			return BaseOutput.failure(balanceOutput.getMessage());
 		}
 		Long banlance = balanceOutput.getData().getAvailableAmount();
@@ -839,7 +853,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						}
 						approve.setProcessDefinitionId(output.getData().getProcessDefinitionId());
 						approve.setProcessInstanceId(output.getData().getProcessInstanceId());
-						this.priceApproveMapper.updateByPrimaryKeySelective(approve);
+						rows = this.priceApproveMapper.updateByPrimaryKeySelective(approve);
+						if (rows <= 0) {
+							throw new AppException("更新价格确认审批流程信息失败");
+						}
 						this.notifyApprovers(approve);
 						return BaseOutput.failure("交易单价低于参考价，需人工审核");
 					}
@@ -850,6 +867,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
 			BaseOutput<?> output = this.prepareTrade(weighingBill, weighingStatement);
 			if (!output.isSuccess()) {
+				LOGGER.error(String.format("交易过磅结算调用支付系统创建支付订单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
 				throw new AppException(output.getMessage());
 			}
 		}
@@ -871,6 +889,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 					// 删除皮重单
 					BaseOutput<Object> jmsfOutput = this.jsmfRpc.removeTareNumber(Long.valueOf(weighingBill.getTareBillNumber()));
 					if (!jmsfOutput.isSuccess()) {
+						LOGGER.error(String.format("交易过磅结算调用进门收费系统删除皮重失败:code=%s,message=%s", jmsfOutput.getCode(), jmsfOutput.getMessage()));
 						throw new AppException("删除过磅单失败");
 					}
 				}
@@ -936,11 +955,16 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 判断单据状态，如果是冻结单走确认预授权扣款，否则走即时交易
 		if (originalState.equals(WeighingBillState.FROZEN.getValue())) {
 			paymentOutput = this.confirmTrade(weighingBill, weighingStatement, buyerPassword);
+			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(String.format("交易过磅结算调用支付系统确认冻结交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+				throw new AppException(paymentOutput.getMessage());
+			}
 		} else {
 			paymentOutput = this.commitTrade(weighingBill, weighingStatement, buyerPassword);
-		}
-		if (!paymentOutput.isSuccess()) {
-			throw new AppException(paymentOutput.getMessage());
+			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+				throw new AppException(paymentOutput.getMessage());
+			}
 		}
 
 		// 记录资金账户交易流水
@@ -952,8 +976,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	private void notifyApprovers(PriceApproveRecord approve) {
 		BaseOutput<List<TaskIdentityDto>> output = this.taskRpc.listTaskIdentityByProcessInstanceIds(Arrays.asList(approve.getProcessInstanceId()));
-		if (output.isSuccess()) {
-			LOGGER.error(output.getMessage());
+		if (!output.isSuccess()) {
+			LOGGER.error(String.format("价格确认审批流程查询失败:code=%s,message=%s", output.getCode(), output.getMessage()));
 			return;
 		}
 		if (CollectionUtils.isEmpty(output.getData())) {
@@ -968,11 +992,25 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				userIds.add(Long.valueOf(gu.getUserId()));
 			});
 		});
-		AppPushInput appPushInput=new AppPushInput();
+		AppPushInput appPushInput = new AppPushInput();
 		appPushInput.setMarketId(approve.getMarketId());
 		appPushInput.setUserIds(userIds);
-		
-		this.pushRpc.receiveMessage(appPushInput);
+		appPushInput.setTitle("价格确认审批流程待处理");
+		appPushInput.setAlert("您有新的价格确认审批流程待处理");
+		appPushInput.setExtraMap(new HashMap<String, String>() {
+			{
+				put("moduleCode", PUSH_MODULE_CODE);
+				put("id", approve.getId().toString());
+			}
+		});
+		BaseOutput<Boolean> pushOutput = this.pushRpc.receiveMessage(appPushInput);
+		if (!pushOutput.isSuccess()) {
+			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
+			return;
+		}
+		if (pushOutput.getData() == null || !pushOutput.getData()) {
+			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
+		}
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -1077,6 +1115,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
 		if (!pwdOutput.isSuccess()) {
+			LOGGER.error(String.format("交易过磅撤销调用支付系统验证买方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				buyerError = PaymentErrorCode.BUYER_PASSWORD_INCORRECT_EXCEPTION;
 			} else {
@@ -1089,6 +1128,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPwdDto.setPassword(sellerPassword);
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
 		if (!pwdOutput.isSuccess()) {
+			LOGGER.error(String.format("交易过磅撤销调用支付系统验证卖方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
 				sellerError = PaymentErrorCode.SELLER_PASSWORD_INCORRECT_EXCEPTION;
 			} else {
@@ -1135,26 +1175,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("创建结算单失败");
 		}
 
-		// 设置代理人信息
-//		WeighingBillAgentInfo agentInfoQuery = new WeighingBillAgentInfo();
-//		agentInfoQuery.setWeighingStatementId(weighingStatement.getId());
-//		WeighingBillAgentInfo agentInfo = this.agentInfoMapper.selectOne(agentInfoQuery);
-//		if (agentInfo != null) {
-//			agentInfo.setId(null);
-//			agentInfo.setWeighingStatementId(newWs.getId());
-//			agentInfo.setWeighingStatementSerialNo(newWs.getSerialNo());
-//			rows = this.agentInfoMapper.insertSelective(agentInfo);
-//			if (rows <= 0) {
-//				throw new AppException("保存代理人信息失败");
-//			}
-//		}
-
 		// 恢复皮重单
 		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
 			// 判断是否是d牌
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> output = this.jsmfRpc.recoverById(Long.valueOf(weighingBill.getTareBillNumber()));
 			if (!output.isSuccess()) {
+				LOGGER.error(String.format("交易过磅撤销调用进门收费系统恢复皮重单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
 				return BaseOutput.failure(output.getMessage());
 			}
 		}
@@ -1164,6 +1191,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
 		if (!paymentOutput.isSuccess()) {
+			LOGGER.error(String.format("交易过磅撤销调用支付系统撤销交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 			throw new AppException(paymentOutput.getMessage());
 		}
 
