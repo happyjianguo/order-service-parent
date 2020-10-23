@@ -97,7 +97,10 @@ import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
+import com.dili.uap.sdk.domain.dto.RoleUserDto;
+import com.dili.uap.sdk.domain.dto.UserRoleIdDto;
 import com.dili.uap.sdk.rpc.FirmRpc;
+import com.dili.uap.sdk.rpc.RoleRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.diligrp.message.sdk.domain.input.AppPushInput;
 import com.diligrp.message.sdk.rpc.AppPushRpc;
@@ -170,6 +173,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private TaskRpc taskRpc;
 	@Autowired
 	private BusinessLogRpc logRpc;
+	@Autowired
+	private RoleRpc roleRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -989,6 +994,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return;
 		}
 		Set<Long> userIds = new HashSet<Long>();
+		Set<Long> roleIds = new HashSet<Long>();
 		output.getData().forEach(ti -> {
 			if (StringUtils.isNotBlank(ti.getAssignee())) {
 				userIds.add(Long.valueOf(ti.getAssignee()));
@@ -997,8 +1003,28 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				if (gu.getUserId() != null) {
 					userIds.add(Long.valueOf(gu.getUserId()));
 				}
+				if (gu.getGroupId() != null) {
+					roleIds.add(Long.valueOf(gu.getGroupId()));
+				}
 			});
 		});
+		if (CollectionUtils.isNotEmpty(roleIds)) {
+			BaseOutput<List<RoleUserDto>> urOutput = this.roleRpc.listRoleUserByRoleIds(roleIds);
+			if (!urOutput.isSuccess()) {
+				LOGGER.error(String.format("参考价推送消息，调用UAP查询用户角色关联信息失败,code=%s,message=%s", urOutput.getCode(), urOutput.getMessage()));
+				return;
+			}
+			if (CollectionUtils.isNotEmpty(urOutput.getData())) {
+				urOutput.getData().forEach(ur -> {
+					if (CollectionUtils.isNotEmpty(ur.getUsers())) {
+						ur.getUsers().forEach(u -> userIds.add(u.getId()));
+					}
+				});
+			}
+		}
+		if (CollectionUtils.isEmpty(userIds)) {
+			return;
+		}
 		AppPushInput appPushInput = new AppPushInput();
 		appPushInput.setMarketId(approve.getMarketId());
 		appPushInput.setUserIds(userIds);
