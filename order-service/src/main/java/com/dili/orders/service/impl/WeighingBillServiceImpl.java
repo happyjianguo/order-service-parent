@@ -167,8 +167,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private WeighingStatementMapper weighingStatementMapper;
 	@Autowired
 	private WeighingBillAgentInfoMapper agentInfoMapper;
-	@Autowired
-	private AppPushRpc pushRpc;
+//	@Autowired
+//	private AppPushRpc pushRpc;
 	@Autowired
 	private TaskRpc taskRpc;
 	@Autowired
@@ -867,7 +867,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						if (rows <= 0) {
 							throw new AppException("更新价格确认审批流程信息失败");
 						}
-						this.notifyApprovers(approve);
+//						this.notifyApprovers(approve);
 						return BaseOutput.failure("交易单价低于参考价，需人工审核");
 					}
 				}
@@ -984,67 +984,67 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.successData(weighingStatement);
 	}
 
-	private void notifyApprovers(PriceApproveRecord approve) {
-		BaseOutput<List<TaskIdentityDto>> output = this.taskRpc.listTaskIdentityByProcessInstanceIds(Arrays.asList(approve.getProcessInstanceId()));
-		if (!output.isSuccess()) {
-			LOGGER.error(String.format("价格确认审批流程查询失败:code=%s,message=%s", output.getCode(), output.getMessage()));
-			return;
-		}
-		if (CollectionUtils.isEmpty(output.getData())) {
-			return;
-		}
-		Set<Long> userIds = new HashSet<Long>();
-		Set<Long> roleIds = new HashSet<Long>();
-		output.getData().forEach(ti -> {
-			if (StringUtils.isNotBlank(ti.getAssignee())) {
-				userIds.add(Long.valueOf(ti.getAssignee()));
-			}
-			ti.getGroupUsers().forEach(gu -> {
-				if (gu.getUserId() != null) {
-					userIds.add(Long.valueOf(gu.getUserId()));
-				}
-				if (gu.getGroupId() != null) {
-					roleIds.add(Long.valueOf(gu.getGroupId()));
-				}
-			});
-		});
-		if (CollectionUtils.isNotEmpty(roleIds)) {
-			BaseOutput<List<RoleUserDto>> urOutput = this.roleRpc.listRoleUserByRoleIds(roleIds);
-			if (!urOutput.isSuccess()) {
-				LOGGER.error(String.format("参考价推送消息，调用UAP查询用户角色关联信息失败,code=%s,message=%s", urOutput.getCode(), urOutput.getMessage()));
-				return;
-			}
-			if (CollectionUtils.isNotEmpty(urOutput.getData())) {
-				urOutput.getData().forEach(ur -> {
-					if (CollectionUtils.isNotEmpty(ur.getUsers())) {
-						ur.getUsers().forEach(u -> userIds.add(u.getId()));
-					}
-				});
-			}
-		}
-		if (CollectionUtils.isEmpty(userIds)) {
-			return;
-		}
-		AppPushInput appPushInput = new AppPushInput();
-		appPushInput.setMarketId(approve.getMarketId());
-		appPushInput.setUserIds(userIds);
-		appPushInput.setTitle("价格确认审批流程待处理");
-		appPushInput.setAlert("您有新的价格确认审批流程待处理");
-		appPushInput.setExtraMap(new HashMap<String, String>() {
-			{
-				put("moduleCode", PUSH_MODULE_CODE);
-				put("id", approve.getId().toString());
-			}
-		});
-		BaseOutput<Boolean> pushOutput = this.pushRpc.receiveMessage(appPushInput);
-		if (!pushOutput.isSuccess()) {
-			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
-			return;
-		}
-		if (pushOutput.getData() == null || !pushOutput.getData()) {
-			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
-		}
-	}
+//	private void notifyApprovers(PriceApproveRecord approve) {
+//		BaseOutput<List<TaskIdentityDto>> output = this.taskRpc.listTaskIdentityByProcessInstanceIds(Arrays.asList(approve.getProcessInstanceId()));
+//		if (!output.isSuccess()) {
+//			LOGGER.error(String.format("价格确认审批流程查询失败:code=%s,message=%s", output.getCode(), output.getMessage()));
+//			return;
+//		}
+//		if (CollectionUtils.isEmpty(output.getData())) {
+//			return;
+//		}
+//		Set<Long> userIds = new HashSet<Long>();
+//		Set<Long> roleIds = new HashSet<Long>();
+//		output.getData().forEach(ti -> {
+//			if (StringUtils.isNotBlank(ti.getAssignee())) {
+//				userIds.add(Long.valueOf(ti.getAssignee()));
+//			}
+//			ti.getGroupUsers().forEach(gu -> {
+//				if (gu.getUserId() != null) {
+//					userIds.add(Long.valueOf(gu.getUserId()));
+//				}
+//				if (gu.getGroupId() != null) {
+//					roleIds.add(Long.valueOf(gu.getGroupId()));
+//				}
+//			});
+//		});
+//		if (CollectionUtils.isNotEmpty(roleIds)) {
+//			BaseOutput<List<RoleUserDto>> urOutput = this.roleRpc.listRoleUserByRoleIds(roleIds);
+//			if (!urOutput.isSuccess()) {
+//				LOGGER.error(String.format("参考价推送消息，调用UAP查询用户角色关联信息失败,code=%s,message=%s", urOutput.getCode(), urOutput.getMessage()));
+//				return;
+//			}
+//			if (CollectionUtils.isNotEmpty(urOutput.getData())) {
+//				urOutput.getData().forEach(ur -> {
+//					if (CollectionUtils.isNotEmpty(ur.getUsers())) {
+//						ur.getUsers().forEach(u -> userIds.add(u.getId()));
+//					}
+//				});
+//			}
+//		}
+//		if (CollectionUtils.isEmpty(userIds)) {
+//			return;
+//		}
+//		AppPushInput appPushInput = new AppPushInput();
+//		appPushInput.setMarketId(approve.getMarketId());
+//		appPushInput.setUserIds(userIds);
+//		appPushInput.setTitle("价格确认审批流程待处理");
+//		appPushInput.setAlert("您有新的价格确认审批流程待处理");
+//		appPushInput.setExtraMap(new HashMap<String, String>() {
+//			{
+//				put("moduleCode", PUSH_MODULE_CODE);
+//				put("id", approve.getId().toString());
+//			}
+//		});
+//		BaseOutput<Boolean> pushOutput = this.pushRpc.receiveMessage(appPushInput);
+//		if (!pushOutput.isSuccess()) {
+//			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
+//			return;
+//		}
+//		if (pushOutput.getData() == null || !pushOutput.getData()) {
+//			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
+//		}
+//	}
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override

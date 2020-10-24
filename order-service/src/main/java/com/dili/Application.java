@@ -22,7 +22,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @RestfulScan({ "com.dili.orders.rpc", "com.dili.uap.sdk.rpc", "com.dili.bpmc.sdk.rpc" })
 @DTOScan(value = { "com.dili.ss", "com.dili.orders.domain" })
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = { "com.diligrp.message.sdk.rpc", "com.dili.orders.rpc", "com.dili.assets.sdk.rpc", "com.dili.rule.sdk.rpc", "com.dili.customer.sdk.rpc", "com.dili.logger.sdk.rpc" })
+@EnableFeignClients(basePackages = { /* "com.diligrp.message.sdk.rpc", */"com.dili.orders.rpc", "com.dili.assets.sdk.rpc", "com.dili.rule.sdk.rpc", "com.dili.customer.sdk.rpc", "com.dili.logger.sdk.rpc" })
 public class Application extends SpringBootServletInitializer {
 
 	@LoadBalanced
