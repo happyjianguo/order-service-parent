@@ -221,7 +221,8 @@
 		wb.id =
 		ws.weighing_bill_id
 		LEFT JOIN
-		( SELECT id,weighing_bill_id,statement_id, operator_id, operation_type, operation_type_name,operator_user_name,
+		( SELECT id,weighing_bill_id,statement_id, operator_id, operation_type,
+		operation_type_name,operator_user_name,
 		operator_name, operation_time
 		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON ws.id =
 		wbor.statement_id
@@ -422,7 +423,7 @@
 		LEFT JOIN (
 		SELECT
 		id,
-		weighing_bill_id,
+		statement_id,
 		operator_id,
 		operation_type,
 		operation_type_name,
@@ -430,9 +431,33 @@
 		operator_name,
 		MAX( operation_time ) AS operation_time
 		FROM weighing_bill_operation_record
-		GROUP BY weighing_bill_id,operation_type
-		) wbor ON wb.id = wbor.weighing_bill_id
+		GROUP BY
+		statement_id,operation_type
+		) wbor ON ws.id = wbor.statement_id
 		WHERE
 		ws.id = #{id}
 	</select>
+
+	<select id="selectLastWeighingOperationRecord" parameterType="Long" resultMap="com.dili.orders.mapper.WeighingBillOperationRecordMapper.BaseResultMap">
+		SELECT
+		id,
+		weighing_bill_id,
+		weighing_bill_serial_no statement_id,
+		statement_serial_no,
+		operator_id,
+		operation_type,
+		operation_type_name,
+		operator_user_name,
+		operator_name,
+		MAX( operation_time ) AS operation_time
+		FROM
+		weighing_bill_operation_record
+		WHERE
+		weighing_bill_id = #{id}
+		AND operation_type = 1
+		GROUP BY
+		weighing_bill_id,
+		operation_type
+	</select>
+
 </mapper>

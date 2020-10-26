@@ -26,9 +26,6 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
-import com.dili.bpmc.sdk.domain.TaskMapping;
-import com.dili.bpmc.sdk.dto.GroupUserDto;
-import com.dili.bpmc.sdk.dto.TaskDto;
 import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
@@ -39,6 +36,7 @@ import com.dili.customer.sdk.dto.RelatedQuery;
 import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.customer.sdk.rpc.RelatedRpc;
 import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.constants.OrdersConstant;
@@ -94,17 +92,16 @@ import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.dto.RoleUserDto;
+import com.dili.uap.sdk.domain.dto.UserRoleIdDto;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.rpc.RoleRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.dili.uap.sdk.session.SessionContext;
 import com.diligrp.message.sdk.domain.input.AppPushInput;
 import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
@@ -170,10 +167,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private WeighingStatementMapper weighingStatementMapper;
 	@Autowired
 	private WeighingBillAgentInfoMapper agentInfoMapper;
-	@Autowired
-	private AppPushRpc pushRpc;
+//	@Autowired
+//	private AppPushRpc pushRpc;
 	@Autowired
 	private TaskRpc taskRpc;
+	@Autowired
+	private BusinessLogRpc logRpc;
 	@Autowired
 	private RoleRpc roleRpc;
 
@@ -288,7 +287,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Override
 	public WeighingBillDetailDto detail(Long id) {
-		return this.getActualDao().selectDetailById(id);
+		WeighingBillDetailDto dto = this.getActualDao().selectDetailById(id);
+		if (dto == null) {
+			return null;
+		}
+		// 如果一条操作记录没有说明单据是上一次过磅结算撤销后生成的结算单，没有过磅记录，这个时候查询上一次过磅单的过磅时间作为当前这个单据的过磅时间
+		if (CollectionUtils.isEmpty(dto.getRecords())) {
+			WeighingBillOperationRecord record = this.getActualDao().selectLastWeighingOperationRecord(dto.getId());
+			if (record != null) {
+				dto.getRecords().add(record);
+			}
+		}
+		return dto;
 	}
 
 	@GlobalTransactional(rollbackFor = Exception.class)
@@ -857,7 +867,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						if (rows <= 0) {
 							throw new AppException("更新价格确认审批流程信息失败");
 						}
-						this.notifyApprovers(approve);
+//						this.notifyApprovers(approve);
 						return BaseOutput.failure("交易单价低于参考价，需人工审核");
 					}
 				}
@@ -974,44 +984,67 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.successData(weighingStatement);
 	}
 
-	private void notifyApprovers(PriceApproveRecord approve) {
-		BaseOutput<List<TaskIdentityDto>> output = this.taskRpc.listTaskIdentityByProcessInstanceIds(Arrays.asList(approve.getProcessInstanceId()));
-		if (!output.isSuccess()) {
-			LOGGER.error(String.format("价格确认审批流程查询失败:code=%s,message=%s", output.getCode(), output.getMessage()));
-			return;
-		}
-		if (CollectionUtils.isEmpty(output.getData())) {
-			return;
-		}
-		Set<Long> userIds = new HashSet<Long>();
-		output.getData().forEach(ti -> {
-			if (StringUtils.isNotBlank(ti.getAssignee())) {
-				userIds.add(Long.valueOf(ti.getAssignee()));
-			}
-			ti.getGroupUsers().forEach(gu -> {
-				userIds.add(Long.valueOf(gu.getUserId()));
-			});
-		});
-		AppPushInput appPushInput = new AppPushInput();
-		appPushInput.setMarketId(approve.getMarketId());
-		appPushInput.setUserIds(userIds);
-		appPushInput.setTitle("价格确认审批流程待处理");
-		appPushInput.setAlert("您有新的价格确认审批流程待处理");
-		appPushInput.setExtraMap(new HashMap<String, String>() {
-			{
-				put("moduleCode", PUSH_MODULE_CODE);
-				put("id", approve.getId().toString());
-			}
-		});
-		BaseOutput<Boolean> pushOutput = this.pushRpc.receiveMessage(appPushInput);
-		if (!pushOutput.isSuccess()) {
-			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
-			return;
-		}
-		if (pushOutput.getData() == null || !pushOutput.getData()) {
-			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
-		}
-	}
+//	private void notifyApprovers(PriceApproveRecord approve) {
+//		BaseOutput<List<TaskIdentityDto>> output = this.taskRpc.listTaskIdentityByProcessInstanceIds(Arrays.asList(approve.getProcessInstanceId()));
+//		if (!output.isSuccess()) {
+//			LOGGER.error(String.format("价格确认审批流程查询失败:code=%s,message=%s", output.getCode(), output.getMessage()));
+//			return;
+//		}
+//		if (CollectionUtils.isEmpty(output.getData())) {
+//			return;
+//		}
+//		Set<Long> userIds = new HashSet<Long>();
+//		Set<Long> roleIds = new HashSet<Long>();
+//		output.getData().forEach(ti -> {
+//			if (StringUtils.isNotBlank(ti.getAssignee())) {
+//				userIds.add(Long.valueOf(ti.getAssignee()));
+//			}
+//			ti.getGroupUsers().forEach(gu -> {
+//				if (gu.getUserId() != null) {
+//					userIds.add(Long.valueOf(gu.getUserId()));
+//				}
+//				if (gu.getGroupId() != null) {
+//					roleIds.add(Long.valueOf(gu.getGroupId()));
+//				}
+//			});
+//		});
+//		if (CollectionUtils.isNotEmpty(roleIds)) {
+//			BaseOutput<List<RoleUserDto>> urOutput = this.roleRpc.listRoleUserByRoleIds(roleIds);
+//			if (!urOutput.isSuccess()) {
+//				LOGGER.error(String.format("参考价推送消息，调用UAP查询用户角色关联信息失败,code=%s,message=%s", urOutput.getCode(), urOutput.getMessage()));
+//				return;
+//			}
+//			if (CollectionUtils.isNotEmpty(urOutput.getData())) {
+//				urOutput.getData().forEach(ur -> {
+//					if (CollectionUtils.isNotEmpty(ur.getUsers())) {
+//						ur.getUsers().forEach(u -> userIds.add(u.getId()));
+//					}
+//				});
+//			}
+//		}
+//		if (CollectionUtils.isEmpty(userIds)) {
+//			return;
+//		}
+//		AppPushInput appPushInput = new AppPushInput();
+//		appPushInput.setMarketId(approve.getMarketId());
+//		appPushInput.setUserIds(userIds);
+//		appPushInput.setTitle("价格确认审批流程待处理");
+//		appPushInput.setAlert("您有新的价格确认审批流程待处理");
+//		appPushInput.setExtraMap(new HashMap<String, String>() {
+//			{
+//				put("moduleCode", PUSH_MODULE_CODE);
+//				put("id", approve.getId().toString());
+//			}
+//		});
+//		BaseOutput<Boolean> pushOutput = this.pushRpc.receiveMessage(appPushInput);
+//		if (!pushOutput.isSuccess()) {
+//			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
+//			return;
+//		}
+//		if (pushOutput.getData() == null || !pushOutput.getData()) {
+//			LOGGER.error(String.format("价格确认消息推送失败:code=%s,message=%s", pushOutput.getCode(), pushOutput.getMessage()));
+//		}
+//	}
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
