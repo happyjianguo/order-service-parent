@@ -214,23 +214,37 @@
 		,
 		(
 		CASE
+
 		WHEN wbor.operator_id IS NULL THEN
-		( SELECT DISTINCT operator_name FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) ELSE
-		wbor.operator_name
+		(
+		SELECT
+		operator_name
+		FROM
+		( SELECT id, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) t2
+		WHERE
+		id = t2.id
+		)
 		END
 		) AS operator_name,
 		(
 		CASE
+
 		WHEN wbor.operator_id IS NULL THEN
-		( SELECT DISTINCT operator_user_name FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) ELSE wbor.operator_name
+		(
+		SELECT
+		operator_user_name
+		FROM
+		( SELECT id, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) t2
+		WHERE
+		id = t2.id
+		) ELSE wbor.operator_name
 		END
 		) AS operator_user_name,
 		(
 		CASE
+
 		WHEN wbor.operation_time IS NULL THEN
-		( SELECT MAX( operation_time ) FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND
-		operation_type = 1
-		) ELSE wbor.operation_time
+		( SELECT MAX( operation_time ) FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) ELSE wbor.operation_time
 		END
 		) AS operation_time
 		FROM
