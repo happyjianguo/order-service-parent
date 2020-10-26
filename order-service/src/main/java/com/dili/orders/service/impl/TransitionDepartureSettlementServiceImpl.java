@@ -282,7 +282,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         transitionDepartureSettlement.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
         //设置余额
-        transitionDepartureSettlement.setCustomerBalance(String.format("%.2f",Long.valueOf(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()).doubleValue() / 100));
+        transitionDepartureSettlement.setCustomerBalance(String.format("%.2f", Long.valueOf(accountFund.getBalance() - transitionDepartureSettlement.getChargeAmount()).doubleValue() / 100));
         //设置为已支付状态
 //        transitionDepartureSettlement.setPayStatus(2);
         transitionDepartureSettlement.setPayStatus(PayStatusEnum.SETTLED.getCode());
@@ -329,6 +329,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
         }
+        //设置客户电话号码
+        vehicleAccessDTO.setCustomerPhone(customerBaseOutput.getData().getContactsPhone());
         //获取到进门收费车型信息之后，因为是根据车类型id查询的，所以只有一条数据，所以调用如下
         vehicleAccessDTO.setVehicleTypeId(listBaseOutput.getData().get(0).getId());
         //新增车类型名

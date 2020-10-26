@@ -2,6 +2,7 @@ package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.CarTypeForBusinessDTO;
 import com.dili.assets.sdk.dto.CategoryDTO;
+import com.dili.assets.sdk.dto.CusCategoryDTO;
 import com.dili.assets.sdk.dto.TradeTypeDto;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
@@ -123,11 +124,11 @@ public class TransitionDepartureApplyApi {
             }
             transitionDepartureApply.setTransTypeName(tradeTypeDtoBaseOutput.getData().getName());
             //设置商品名称
-            BaseOutput<CategoryDTO> categoryDTOBaseOutput = assetsRpc.get(transitionDepartureApply.getCategoryId());
-            if (!categoryDTOBaseOutput.isSuccess()) {
-                return BaseOutput.failure(categoryDTOBaseOutput.getMessage());
+            BaseOutput<CusCategoryDTO> cusCategory = assetsRpc.getCusCategory(transitionDepartureApply.getCategoryId());
+            if (!cusCategory.isSuccess()) {
+                return BaseOutput.failure(cusCategory.getMessage());
             }
-            transitionDepartureApply.setCategoryName(categoryDTOBaseOutput.getData().getName());
+            transitionDepartureApply.setCategoryName(cusCategory.getData().getName());
             //插入数据
             transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             return BaseOutput.successData(transitionDepartureApply);
