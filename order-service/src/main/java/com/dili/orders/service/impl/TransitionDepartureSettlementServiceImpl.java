@@ -340,6 +340,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //新增车类型code
         vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
         vehicleAccessDTO.setBarrierType(BarrierType.ZLC.getCode());
+        //注释掉金额
 //        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
 //        vehicleAccessDTO.setPayType(3);
         vehicleAccessDTO.setPayType(PayType.CARD.getCode());
@@ -373,7 +374,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //先创建预支付，再调用支付接口
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             //请求与支付，两边的账户id对应关系如下
-            paymentTradePrepareDto.setSerialNo(transitionDepartureSettlement.getCode());
+            paymentTradePrepareDto.setSerialNo("ZC_"+transitionDepartureSettlement.getCode());
             paymentTradePrepareDto.setAccountId(accountInfo.getFundAccountId());
             paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
@@ -385,6 +386,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             } else {
                 paymentTradePrepareDto.setDescription("车辆离场");
             }
+
             //创建预支付信息
             BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
