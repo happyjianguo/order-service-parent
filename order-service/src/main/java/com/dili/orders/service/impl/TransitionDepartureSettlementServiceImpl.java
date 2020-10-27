@@ -109,7 +109,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         int totalPage = list instanceof Page ? ((Page) list).getPages() : 1;
         int pageNum = list instanceof Page ? ((Page) list).getPageNum() : 1;
         PageOutput<List<TransitionDepartureSettlement>> output = PageOutput.success();
-        output.setData(list).setPageNum(pageNum).setTotal(total.intValue()).setPageSize(transitionDepartureSettlement.getPage()).setPages(totalPage);
+        output.setData(list).setPageNum(pageNum).setTotal(total).setPageSize(transitionDepartureSettlement.getPage()).setPages(totalPage);
         return output;
     }
 
@@ -340,7 +340,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //新增车类型code
         vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
         vehicleAccessDTO.setBarrierType(BarrierType.ZLC.getCode());
-        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
+//        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
 //        vehicleAccessDTO.setPayType(3);
         vehicleAccessDTO.setPayType(PayType.CARD.getCode());
         vehicleAccessDTO.setCasherId(operatorId);

@@ -602,7 +602,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		List<WeighingBillListPageDto> list = this.getActualDao().listPage(query);
 		Page<WeighingBillListPageDto> pageList = (Page<WeighingBillListPageDto>) list;
 		long total = pageList.getTotal();
-		return PageOutput.success().setData(list).setTotal((int) total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
+		return PageOutput.success().setData(list).setTotal(total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
 	}
 
 	@Transactional(rollbackFor = Exception.class)
