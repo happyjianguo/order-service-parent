@@ -8,11 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +24,6 @@ import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
-import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
@@ -97,13 +94,9 @@ import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
-import com.dili.uap.sdk.domain.dto.RoleUserDto;
-import com.dili.uap.sdk.domain.dto.UserRoleIdDto;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.rpc.RoleRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
-import com.diligrp.message.sdk.domain.input.AppPushInput;
-import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
@@ -729,9 +722,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+		weighingBill.setSettlementTime(null);
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
-		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		rows = this.getActualDao().updateByPrimaryKey(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
@@ -1187,9 +1181,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+		weighingBill.setSettlementTime(null);
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
-		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		rows = this.getActualDao().updateByPrimaryKey(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
