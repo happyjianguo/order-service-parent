@@ -374,7 +374,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             //先创建预支付，再调用支付接口
             PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
             //请求与支付，两边的账户id对应关系如下
-            paymentTradePrepareDto.setSerialNo("ZC_"+transitionDepartureSettlement.getCode());
+            paymentTradePrepareDto.setSerialNo("ZC_" + transitionDepartureSettlement.getCode());
             paymentTradePrepareDto.setAccountId(accountInfo.getFundAccountId());
             paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(accountInfo.getAccountId());
@@ -682,6 +682,11 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
                 throw new RuntimeException("申请单更新失败");
             }
         }
+    }
+
+    @Override
+    public BaseOutput<TransitionDepartureSettlement> getOneByCode(String code) {
+        return BaseOutput.successData(getActualDao().getOneByCode(code));
     }
 
 

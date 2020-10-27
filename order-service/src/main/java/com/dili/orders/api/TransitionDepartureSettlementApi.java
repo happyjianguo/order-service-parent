@@ -235,6 +235,21 @@ public class TransitionDepartureSettlementApi {
         }
     }
 
+    /**
+     * 根据code获取一条缴费记录
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getOneByCode", method = {RequestMethod.POST})
+    public BaseOutput<TransitionDepartureSettlement> getOneByCode(@RequestParam String code) {
+        try {
+            return transitionDepartureSettlementService.getOneByCode(code);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return BaseOutput.failure(e.getMessage());
+        }
+    }
+
 
     /**
      * 获取计费规则所得到的的金额
