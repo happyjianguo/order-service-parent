@@ -729,9 +729,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+		weighingBill.setSettlementTime(null);
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
-		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		rows = this.getActualDao().updateByPrimaryKey(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
@@ -1187,9 +1188,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+		weighingBill.setSettlementTime(null);
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
-		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		rows = this.getActualDao().updateByPrimaryKey(weighingBill);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}

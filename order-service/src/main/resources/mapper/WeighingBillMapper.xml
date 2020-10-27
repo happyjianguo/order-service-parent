@@ -212,21 +212,56 @@
 		,
 		<include refid="Ws_Join_Column_List" />
 		,
-		<include refid="Wbor_Join_Column_List" />
+		(
+		CASE
+
+		WHEN wbor.operator_id IS NULL THEN
+		(
+		SELECT
+		operator_name
 		FROM
-		weighing_bill wb
-		INNER JOIN
+		( SELECT id, operator_name, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE
+		weighing_bill_id =
+		ws.weighing_bill_id AND operation_type = 1 ) t2
+		WHERE
+		id = t2.id
+		) ELSE wbor.operator_name
+		END
+		) AS operator_name,
+		(
+		CASE
+
+		WHEN wbor.operator_id IS NULL THEN
+		(
+		SELECT
+		operator_user_name
+		FROM
+		(
+		SELECT id,
+		operator_user_name, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) t2
+		WHERE
+		id = t2.id
+		) ELSE
+		wbor.operator_user_name
+		END
+		) AS operator_user_name,
+		(
+		CASE
+
+		WHEN wbor.operation_time IS NULL THEN
+		( SELECT MAX( operation_time ) FROM weighing_bill_operation_record WHERE weighing_bill_id =
+		ws.weighing_bill_id AND operation_type = 1 ) ELSE wbor.operation_time
+		END
+		) AS operation_time
+		FROM
 		weighing_statement ws
-		ON
-		wb.id =
-		ws.weighing_bill_id
-		LEFT JOIN
-		( SELECT id,weighing_bill_id,statement_id, operator_id, operation_type,
-		operation_type_name,operator_user_name,
-		operator_name, operation_time
-		FROM weighing_bill_operation_record WHERE operation_type = 4 ) wbor ON ws.id =
-		wbor.statement_id
-		WHERE 1 = 1
+		INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id
+		LEFT JOIN ( SELECT *
+		FROM weighing_bill_operation_record WHERE operation_time IN ( SELECT MAX( operation_time ) AS operation_time FROM weighing_bill_operation_record GROUP BY statement_id ) GROUP BY
+		statement_id ) wbor
+		ON ws.id = wbor.statement_id
+		WHERE
+		1 = 1
 		<if test="statementStates != null">
 			AND ws.state IN
 			<foreach close=")" collection="statementStates" item="item" open="(" separator=",">
