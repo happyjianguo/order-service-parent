@@ -25,6 +25,8 @@ public class WeighingBillListPageDto extends WeighingBill {
 	private WeighingStatement statement;
 	private WeighingBillOperationRecord operationRecord;
 	private String tradeTypeName;
+	private Long unitWeightPrice;
+	private Long unitPiecePrice;
 
 	public WeighingStatement getStatement() {
 		return statement;
@@ -42,18 +44,20 @@ public class WeighingBillListPageDto extends WeighingBill {
 		this.operationRecord = operationRecord;
 	}
 
-	public String getUnitWeightPrice() {
-		if (this.getMeasureType().equals(MeasureType.PIECE.getValue())) {
-			return null;
-		}
-		return MoneyUtils.centToYuan(this.getUnitPrice());
+	public Long getUnitWeightPrice() {
+		return unitWeightPrice;
 	}
 
-	public String getUnitPiecePrice() {
-		if (this.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-			return null;
-		}
-		return MoneyUtils.centToYuan(this.getUnitPrice());
+	public void setUnitWeightPrice(Long unitWeightPrice) {
+		this.unitWeightPrice = unitWeightPrice;
+	}
+
+	public Long getUnitPiecePrice() {
+		return unitPiecePrice;
+	}
+
+	public void setUnitPiecePrice(Long unitPiecePrice) {
+		this.unitPiecePrice = unitPiecePrice;
 	}
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

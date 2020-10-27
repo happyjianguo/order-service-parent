@@ -101,6 +101,8 @@
 		<result column="operator_user_name" property="operationRecord.operatorUserName" />
 		<result column="operator_name" property="operationRecord.operatorName" />
 		<result column="operation_time" property="operationRecord.operationTime" />
+		<result column="unit_weight_price" property="unitWeightPrice" />
+		<result column="unit_piece_price" property="unitPiecePrice" />
 	</resultMap>
 
 	<resultMap extends="BaseResultMap" id="ClientListResultMap" type="com.dili.orders.dto.WeighingBillClientListDto">
@@ -208,10 +210,60 @@
 
 	<select id="listPage" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
 		SELECT
-		<include refid="Base_Join_Column_List" />
-		,
-		<include refid="Ws_Join_Column_List" />
-		,
+		*
+		FROM
+		(
+		SELECT
+		wb.id,
+		wb.measure_type,
+		wb.serial_no,
+		wb.buyer_id,
+		wb.buyer_code,
+		wb.buyer_card_no,
+		wb.buyer_name,
+		wb.buyer_contact,
+		wb.buyer_account,
+		wb.seller_id,
+		wb.seller_code,
+		wb.seller_card_no,
+		wb.seller_name,
+		wb.seller_contact,
+		wb.seller_account,
+		wb.price_state,
+		wb.goods_id,
+		wb.goods_key_code,
+		wb.goods_name,
+		wb.rough_weight,
+		wb.tare_weight,
+		wb.net_weight,
+		wb.subtraction_rate,
+		wb.subtraction_weight,
+		wb.unit_price,
+		wb.unit_amount,
+		wb.unit_weight,
+		wb.trade_type,
+		wb.trade_type_id,
+		wb.frozen_amount,
+		wb.state,
+		wb.created_time,
+		wb.plate_number,
+		wb.goods_origin_city_name,
+		wb.goods_origin_city_id,
+		wb.modified_time,
+		wb.settlement_time,
+		wb.estimated_net_weight,
+		ws.id AS ws_id,
+		ws.serial_no AS ws_serial_no,
+		ws.trade_amount,
+		ws.frozen_amount AS ws_frozen_amount,
+		ws.buyer_poundage,
+		ws.buyer_actual_amount,
+		ws.seller_poundage,
+		ws.seller_actual_amount,
+		ws.state AS ws_state,
+		( CASE WHEN measure_type = 1 THEN wb.unit_price ELSE NULL END ) AS unit_weight_price,
+		( CASE WHEN measure_type =
+		2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price,
 		(
 		CASE
 
@@ -220,9 +272,8 @@
 		SELECT
 		operator_name
 		FROM
-		( SELECT id, operator_name, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE
-		weighing_bill_id =
-		ws.weighing_bill_id AND operation_type = 1 ) t2
+		( SELECT id, operator_name, MAX( operation_time ) AS max_time FROM
+		weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) t2
 		WHERE
 		id = t2.id
 		) ELSE wbor.operator_name
@@ -231,35 +282,34 @@
 		(
 		CASE
 
-		WHEN wbor.operator_id IS NULL THEN
+		WHEN wbor.operator_id IS
+		NULL THEN
 		(
 		SELECT
 		operator_user_name
 		FROM
-		(
-		SELECT id,
-		operator_user_name, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) t2
+		( SELECT id, operator_user_name, MAX( operation_time ) AS max_time FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND
+		operation_type = 1 ) t2
 		WHERE
 		id = t2.id
-		) ELSE
-		wbor.operator_user_name
+		) ELSE wbor.operator_user_name
 		END
 		) AS operator_user_name,
 		(
 		CASE
 
 		WHEN wbor.operation_time IS NULL THEN
-		( SELECT MAX( operation_time ) FROM weighing_bill_operation_record WHERE weighing_bill_id =
-		ws.weighing_bill_id AND operation_type = 1 ) ELSE wbor.operation_time
+		( SELECT MAX( operation_time ) FROM
+		weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) ELSE wbor.operation_time
 		END
 		) AS operation_time
 		FROM
 		weighing_statement ws
-		INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id
-		LEFT JOIN ( SELECT *
-		FROM weighing_bill_operation_record WHERE operation_time IN ( SELECT MAX( operation_time ) AS operation_time FROM weighing_bill_operation_record GROUP BY statement_id ) GROUP BY
-		statement_id ) wbor
-		ON ws.id = wbor.statement_id
+		INNER JOIN weighing_bill
+		wb ON wb.id = ws.weighing_bill_id
+		LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE operation_time IN ( SELECT MAX( operation_time ) AS operation_time FROM weighing_bill_operation_record
+		GROUP BY statement_id ) GROUP BY
+		statement_id ) wbor ON ws.id = wbor.statement_id
 		WHERE
 		1 = 1
 		<if test="statementStates != null">
@@ -323,11 +373,12 @@
 		<if test="operatorId != null">
 			AND ((ws.modifier_id IS NULL AND ws.creator_id = #{operatorId}) OR ws.modifier_id = #{operatorId})
 		</if>
+		) t1
 		<if test="sort !=null and sort!='' and order !=null and order !=''">
 			ORDER BY ${sort} ${order}
 		</if>
 		<if test="sort ==null or sort==''">
-			ORDER BY ws.created_time DESC
+			ORDER BY t1.created_time DESC
 		</if>
 	</select>
 
