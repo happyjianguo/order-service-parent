@@ -295,9 +295,6 @@
 		<if test="serialNo != null">
 			AND wb.serial_no = #{serialNo}
 		</if>
-		<if test="operatorId != null">
-			AND wb.creator_id = #{operatorId}
-		</if>
 		<if test="createdStart != null">
 			AND wb.created_time <![CDATA[>=]]>
 			#{createdStart}
@@ -324,7 +321,7 @@
 			AND wb.market_id = #{marketId}
 		</if>
 		<if test="operatorId != null">
-			AND (wb.creator_id = #{operatorId} OR wb.modifier_id = #{operatorId})
+			AND ((ws.modifier_id IS NULL AND ws.creator_id = #{operatorId}) OR ws.modifier_id = #{operatorId})
 		</if>
 		<if test="sort !=null and sort!='' and order !=null and order !=''">
 			ORDER BY ${sort} ${order}
