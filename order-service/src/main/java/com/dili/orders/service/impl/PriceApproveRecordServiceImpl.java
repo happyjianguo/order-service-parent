@@ -1,6 +1,7 @@
 package com.dili.orders.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.domain.PriceState;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingBillState;
+import com.dili.orders.dto.PriceApproveRecordQueryDto;
 import com.dili.orders.mapper.PriceApproveRecordMapper;
 import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.service.PriceApproveRecordService;
@@ -20,6 +22,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.rpc.UserRpc;
+import com.github.pagehelper.PageHelper;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-08-30 14:29:35.
@@ -130,5 +133,17 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			throw new AppException("流程实例执行失败");
 		}
 		return BaseOutput.success();
+	}
+
+	@Override
+	public List<PriceApproveRecord> listPageApp(PriceApproveRecordQueryDto query) {
+		// 设置分页信息
+		Integer page = query.getPage();
+		page = (page == null) ? Integer.valueOf(1) : page;
+		if (query.getRows() != null && query.getRows() >= 1) {
+			// 为了线程安全,请勿改动下面两行代码的顺序
+			PageHelper.startPage(page, query.getRows());
+		}
+		return this.getActualDao().listPageApp(query);
 	}
 }
