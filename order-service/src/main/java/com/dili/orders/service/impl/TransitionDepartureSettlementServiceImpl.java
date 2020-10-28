@@ -340,7 +340,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //新增车类型code
         vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
         vehicleAccessDTO.setBarrierType(BarrierType.ZLC.getCode());
-        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
+//        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
 //        vehicleAccessDTO.setPayType(3);
         vehicleAccessDTO.setPayType(PayType.CARD.getCode());
         vehicleAccessDTO.setCasherId(operatorId);
