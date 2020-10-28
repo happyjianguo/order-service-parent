@@ -32,6 +32,10 @@ public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 	@Operator(Operator.IN)
 	@Column(name = "`process_instance_id`")
 	private List<String> processInstanceIds;
+	/**
+	 * 过滤已关闭的过磅单的审批数据
+	 */
+	private Boolean filterClosedWeighingBill = true;
 
 	public List<Long> getGoodsIds() {
 		return goodsIds;
@@ -63,6 +67,14 @@ public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 
 	public void setProcessInstanceIds(List<String> processInstanceIds) {
 		this.processInstanceIds = processInstanceIds;
+	}
+
+	public Boolean getFilterClosedWeighingBill() {
+		return filterClosedWeighingBill;
+	}
+
+	public void setFilterClosedWeighingBill(Boolean filterClosedWeighingBill) {
+		this.filterClosedWeighingBill = filterClosedWeighingBill;
 	}
 
 }

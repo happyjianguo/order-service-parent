@@ -36,6 +36,19 @@ public class PriceApproveRecordApi {
 		Page<PriceApproveRecord> page = (Page<PriceApproveRecord>) list;
 		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal((int) page.getTotal());
 	}
+	
+	/**
+	 * app分页查询
+	 * 
+	 * @param query 查询条件
+	 * @return
+	 */
+	@RequestMapping("/listPageApp")
+	public PageOutput<Object> listPageApp(@RequestBody PriceApproveRecordQueryDto query) {
+		List<PriceApproveRecord> list = this.priceApproveRecordService.listPageApp(query);
+		Page<PriceApproveRecord> page = (Page<PriceApproveRecord>) list;
+		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal((int) page.getTotal());
+	}
 
 	/**
 	 * 根据id查询
