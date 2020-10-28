@@ -75,27 +75,27 @@
 		price_approve_record p
 		INNER JOIN weighing_bill wb ON p.weighing_bill_id = wb.id WHERE 1 = 1
 		<if test="marketId != null">
-			AND market_id = #{marketId}
+			AND p.market_id = #{marketId}
 		</if>
 		<if test="state != null">
-			AND state = #{state}
+			AND p.state = #{state}
 		</if>
 		<if test="goodsIds != null and goodsIds.size() > 0">
-			AND wb.goods_id IN
+			AND p.goods_id IN
 			<foreach close=")" collection="goodsIds" item="goods" open="(" separator=",">
 				#{goods}
 			</foreach>
 		</if>
 		<if test="weighingStartTime != null">
-			AND weighing_time <![CDATA[>=]]>
+			AND p.weighing_time <![CDATA[>=]]>
 			#{weighingStartTime}
 		</if>
 		<if test="weighingEndTime != null">
-			AND weighing_time <![CDATA[<=]]>
+			AND p.weighing_time <![CDATA[<=]]>
 			#{weighingEndTime}
 		</if>
 		<if test="processInstanceIds != null and processInstanceIds.size() > 0">
-			AND wb.process_instance_id IN
+			AND p.process_instance_id IN
 			<foreach close=")" collection="processInstanceIds" item="processInstanceId" open="(" separator=",">
 				#{processInstanceId}
 			</foreach>
