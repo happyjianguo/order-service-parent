@@ -2,6 +2,8 @@ package com.dili.orders.constants;
 
 public class OrdersConstant {
 
+	public static final String SYSTEM_CODE = "ORDERS";
+
 	/**
 	 * 支付系统appid
 	 */

@@ -1,5 +1,7 @@
 package com.dili.orders.api;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.orders.domain.WeighingStatementState;
 import com.dili.orders.dto.PrintTemplateDataDto;
@@ -69,6 +75,7 @@ public class WeighingBillApi {
 	 * @param weighingBill
 	 * @return BaseOutput
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "新增过磅,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "add", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/insert", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill) {
 		try {
@@ -84,6 +91,7 @@ public class WeighingBillApi {
 	 * @param weighingBill
 	 * @return BaseOutput
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "修改过磅,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill) {
 		try {
@@ -99,6 +107,7 @@ public class WeighingBillApi {
 	 * @param
 	 * @return BaseOutput
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "交易过磅结算,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput settle(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId) {
 		try {
@@ -114,6 +123,7 @@ public class WeighingBillApi {
 	 * @param sellerPassword
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅撤销,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/withdraw", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> withdraw(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId) {
 		try {
@@ -132,6 +142,7 @@ public class WeighingBillApi {
 	 * @param operatorId
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅作废,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "invalidate", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/invalidate", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> invalidate(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, Long operatorId) {
 		try {
@@ -147,6 +158,7 @@ public class WeighingBillApi {
 	 * @param serialNo
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "执行交易过磅定时任务，关闭未结算过磅单，执行时间:${operationTime}", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/autoClose", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> autoClose() {
 		try {
@@ -176,6 +188,7 @@ public class WeighingBillApi {
 	 * @param operatorPassword
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "后台操作员操作交易过磅作废,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "invalidate", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/operatorInvalidate")
 	public BaseOutput<Object> operatorInvalidate(@RequestParam Long id, @RequestParam Long operatorId) {
 		try {
@@ -193,6 +206,7 @@ public class WeighingBillApi {
 	 * @param operatorPassword
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "后台操作员操作交易过磅作废,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/operatorWithdraw")
 	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId) {
 		try {
