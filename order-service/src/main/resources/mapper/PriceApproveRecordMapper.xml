@@ -103,5 +103,11 @@
 		<if test="filterClosedWeighingBill">
 			AND wb.state != 6
 		</if>
+		<if test="sort !=null and sort!='' and order !=null and order !=''">
+			ORDER BY ${sort} ${order}
+		</if>
+		<if test="sort ==null or sort==''">
+			ORDER BY weighing_time DESC
+		</if>
 	</select>
 </mapper>
