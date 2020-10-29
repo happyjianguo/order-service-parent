@@ -36,6 +36,8 @@ import com.dili.customer.sdk.dto.RelatedQuery;
 import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.customer.sdk.rpc.RelatedRpc;
 import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.constants.OrdersConstant;
@@ -206,7 +208,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
-		return rows > 0 ? BaseOutput.success().setData(statement) : BaseOutput.failure("保存过磅单失败");
+		BaseOutput<WeighingStatement> resultOutput = rows > 0 ? BaseOutput.success().setData(statement) : BaseOutput.failure("保存过磅单失败");
+		if (resultOutput.isSuccess()) {
+			// 记录日志系统
+			LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, bill.getSerialNo());
+			LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, bill.getId());
+			LoggerContext.put("statementId", statement.getId());
+			LoggerContext.put("statementSerialNo", statement.getSerialNo());
+			LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, bill.getCreatorId());
+			LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, bill.getMarketId());
+		}
+		return resultOutput;
 	}
 
 	// 设置买家代理人信息
@@ -277,6 +289,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				}
 			}
 		});
+		LoggerContext.put("operationTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		return BaseOutput.success();
 
 	}
@@ -409,6 +422,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setOperatorNo(operator.getUserName());
 		srDto.setNotes(String.format("冻结，过磅单号%s", weighingBill.getSerialNo()));
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(Arrays.asList(srDto)));
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", weighingStatement.getId());
+		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "freeze");
 
 		return BaseOutput.successData(weighingStatement);
 	}
@@ -599,6 +621,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", ws.getId());
+		LoggerContext.put("statementSerialNo", ws.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
+
 		return BaseOutput.success();
 	}
 
@@ -770,6 +800,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		// 记录交易流水
 		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", weighingStatement.getId());
+		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
 	}
@@ -978,6 +1016,16 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", weighingStatement.getId());
+		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "settle");
+
 		return BaseOutput.successData(weighingStatement);
 	}
 
@@ -1108,6 +1156,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 		}
 
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", ws.getId());
+		LoggerContext.put("statementSerialNo", ws.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
+
 		return BaseOutput.successData(ws);
 	}
 
@@ -1228,6 +1284,14 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		// 记录撤销交易流水
 		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", weighingStatement.getId());
+		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
 	}
