@@ -127,6 +127,10 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         String typeName = "检测收费单号";
         int fundItemCode = FundItem.TEST_FEE.getCode();
         String fundItemName = FundItem.TEST_FEE.getName();
+        //缴费原因备注
+        String dec=ComprehensiveFeeType.TESTING_CHARGE.getName();
+        //卡务操作流水前缀
+        String serialNoPrefix="JC_";
         if (ComprehensiveFeeType.QUERY_CHARGE.getValue().equals(orderType)) {
             updateError = "查询收费保存-->修改查询收费单失败";
             updateAgainError = "查询收费保存-->修改查询收费单失败";
@@ -134,6 +138,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             typeName = "查询收费单号";
             fundItemCode = FundItem.QUERY_FEE.getCode();
             fundItemName = FundItem.QUERY_FEE.getName();
+            dec=ComprehensiveFeeType.QUERY_CHARGE.getName();
+            serialNoPrefix="CX_";
         }
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
         if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.NO_SETTLEMEN.getValue())) {
@@ -184,7 +190,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             paymentTradePrepareDto.setType(TradeType.FEE.getCode());
             paymentTradePrepareDto.setBusinessId(oneAccountCard.getData().getAccountId());
             paymentTradePrepareDto.setAmount(comprehensiveFee.getChargeAmount());
-            paymentTradePrepareDto.setSerialNo(comprehensiveFee.getCode());
+            paymentTradePrepareDto.setSerialNo(serialNoPrefix+comprehensiveFee.getCode());
+            paymentTradePrepareDto.setDescription(dec);
             prepare = payRpc.prepareTrade(paymentTradePrepareDto);
             if (!prepare.isSuccess()) {
                 BaseOutput.failure(prepare.getMessage());
