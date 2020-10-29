@@ -84,4 +84,9 @@ public class OrdersConstant {
 	 */
 	public static final String WEIGHING_STATEMENT_SERIAL_NO_GENERATE_RULE_CODE = "sg_weighing_statement";
 
+	/**
+	 * 交易过磅模块前缀
+	 */
+	public static final String WEIGHING_MODULE_PREFIX = "GB_";
+
 }
