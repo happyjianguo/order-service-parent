@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -35,6 +36,7 @@ public class PriceApproveRecordQueryDto extends PriceApproveRecord {
 	/**
 	 * 过滤已关闭的过磅单的审批数据
 	 */
+	@Transient
 	private Boolean filterClosedWeighingBill = true;
 
 	public List<Long> getGoodsIds() {
