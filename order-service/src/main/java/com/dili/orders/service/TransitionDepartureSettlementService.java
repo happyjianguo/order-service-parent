@@ -47,4 +47,12 @@ public interface TransitionDepartureSettlementService extends BaseService<Transi
      * @param transitionDepartureSettlement
      */
     void updateSettlementAndApply(TransitionDepartureSettlement transitionDepartureSettlement, Long marketId);
+
+    /**
+     * 根据code获取相关缴费单
+     *
+     * @param code
+     * @return
+     */
+    BaseOutput<TransitionDepartureSettlement> getOneByCode(String code);
 }

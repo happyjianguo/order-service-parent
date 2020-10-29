@@ -13,4 +13,6 @@ public interface TransitionDepartureSettlementMapper extends MyMapper<Transition
     List<TransitionDepartureSettlement> scheduleUpdateSelect(TransitionDepartureSettlement transitionDepartureSettlement);
 
     void scheduleUpdate(@Param("set") HashSet<Long> settlementIds);
+
+    TransitionDepartureSettlement getOneByCode(String code);
 }
