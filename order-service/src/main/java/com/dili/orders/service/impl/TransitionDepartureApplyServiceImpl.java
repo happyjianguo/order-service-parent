@@ -71,7 +71,7 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         int totalPage = list instanceof Page ? ((Page) list).getPages() : 1;
         int pageNum = list instanceof Page ? ((Page) list).getPageNum() : 1;
         PageOutput<List<TransitionDepartureApply>> output = PageOutput.success();
-        output.setData(list).setPageNum(pageNum).setTotal(total.intValue()).setPageSize(transitionDepartureApply.getPage()).setPages(totalPage);
+        output.setData(list).setPageNum(pageNum).setTotal(total).setPageSize(transitionDepartureApply.getPage()).setPages(totalPage);
         return output;
     }
 

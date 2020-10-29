@@ -154,6 +154,14 @@
         where id = #{id,jdbcType=BIGINT}
     </update>
 
+    <select id="getOneByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+         *
+        FROM transition_departure_settlement s
+        WHERE 1 = 1
+          AND s.`code`=#{code}
+    </select>
+
     <select id="listByQueryParams" resultType="com.dili.orders.domain.TransitionDepartureSettlement">
         SELECT
           *

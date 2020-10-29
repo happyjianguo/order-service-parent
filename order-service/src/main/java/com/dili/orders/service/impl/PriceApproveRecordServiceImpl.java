@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dili.bpmc.sdk.rpc.TaskRpc;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.domain.PriceState;
 import com.dili.orders.domain.WeighingBill;
@@ -84,6 +86,14 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			LOGGER.error(output.getMessage());
 			throw new AppException("流程实例执行失败");
 		}
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approve.getWeighingBillSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, approve.getWeighingBillId());
+		LoggerContext.put("approveId", approve.getId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, approverId);
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, approve.getMarketId());
+
 		return BaseOutput.success();
 	}
 
@@ -132,6 +142,14 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 			LOGGER.error(output.getMessage());
 			throw new AppException("流程实例执行失败");
 		}
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, approve.getWeighingBillSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, approve.getWeighingBillId());
+		LoggerContext.put("approveId", approve.getId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, approverId);
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, approve.getMarketId());
+
 		return BaseOutput.success();
 	}
 

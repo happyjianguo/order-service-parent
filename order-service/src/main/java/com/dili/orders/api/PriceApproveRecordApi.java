@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.dto.PriceApproveRecordQueryDto;
 import com.dili.orders.service.PriceApproveRecordService;
@@ -34,9 +36,9 @@ public class PriceApproveRecordApi {
 	public PageOutput<Object> listPageByExample(@RequestBody PriceApproveRecordQueryDto query) {
 		List<PriceApproveRecord> list = this.priceApproveRecordService.listByExample(query);
 		Page<PriceApproveRecord> page = (Page<PriceApproveRecord>) list;
-		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal((int) page.getTotal());
+		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal(page.getTotal());
 	}
-	
+
 	/**
 	 * app分页查询
 	 * 
@@ -47,7 +49,7 @@ public class PriceApproveRecordApi {
 	public PageOutput<Object> listPageApp(@RequestBody PriceApproveRecordQueryDto query) {
 		List<PriceApproveRecord> list = this.priceApproveRecordService.listPageApp(query);
 		Page<PriceApproveRecord> page = (Page<PriceApproveRecord>) list;
-		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal((int) page.getTotal());
+		return PageOutput.success().setData(page).setPageNum(page.getPageNum()).setTotal(page.getTotal());
 	}
 
 	/**
@@ -70,6 +72,7 @@ public class PriceApproveRecordApi {
 	 * @param taskId     流程实例id
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "交易过磅价格审批通过,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "price_approve", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping("/approveAccept")
 	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId) {
 		return this.priceApproveRecordService.accept(id, approverId, notes, taskId);
@@ -84,6 +87,7 @@ public class PriceApproveRecordApi {
 	 * @param taskId     流程实例id
 	 * @return
 	 */
+	@BusinessLogger(businessType = "trading_orders", content = "交易过磅价格审批拒绝,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "price_approve", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping("/approveReject")
 	public BaseOutput<Object> approveReject(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId) {
 		return this.priceApproveRecordService.reject(id, approverId, notes, taskId);

@@ -83,7 +83,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         int totalPage = list instanceof Page ? ((Page) list).getPages() : 1;
         int pageNum = list instanceof Page ? ((Page) list).getPageNum() : 1;
         PageOutput<List<ComprehensiveFee>> output = PageOutput.success();
-        output.setData(list).setPageNum(pageNum).setTotal(total.intValue()).setPageSize(comprehensiveFee.getPage()).setPages(totalPage);
+        output.setData(list).setPageNum(pageNum).setTotal(total).setPageSize(comprehensiveFee.getPage()).setPages(totalPage);
         return output;
     }
 
