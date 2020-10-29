@@ -351,8 +351,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setAccountId(weighingBill.getSellerAccount());
 		prepareDto.setAmount(buyerAmount);
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
-		prepareDto.setSerialNo(weighingBill.getSerialNo());
+		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + weighingStatement.getSerialNo());
 		prepareDto.setType(PaymentTradeType.PREAUTHORIZED.getValue());
+		prepareDto.setDescription("交易过磅");
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
 		if (!paymentOutput.isSuccess()) {
 			LOGGER.error(String.format("调用支付系统创建冻结支付订单失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
@@ -1565,8 +1566,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setAccountId(weighingBill.getSellerAccount());
 		prepareDto.setAmount(ws.getTradeAmount());
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
-		prepareDto.setSerialNo(ws.getSerialNo());
+		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
 		prepareDto.setType(PaymentTradeType.TRADE.getValue());
+		prepareDto.setDescription("交易过磅");
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
 		if (!paymentOutput.isSuccess()) {
 			return paymentOutput;
