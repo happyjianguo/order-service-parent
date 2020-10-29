@@ -268,6 +268,13 @@
         WHERE 1 = 1
           AND a.id=#{id}
     </select>
+    <select id="getOneByIdForApp" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+          a.*
+        FROM transition_departure_apply a
+        WHERE 1 = 1
+          AND a.id=#{id}
+    </select>
 
     <select id="listByQueryParams" parameterType="com.dili.orders.domain.TransitionDepartureApply"
             resultType="com.dili.orders.domain.TransitionDepartureApply">

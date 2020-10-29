@@ -89,6 +89,11 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
         return oneById;
     }
 
+    @Override
+    public TransitionDepartureApply getOneByIdForApp(Long id) {
+        return getActualDao().getOneByIdForApp(id);
+    }
+
     /**
      * 获取一天的开始时间
      */

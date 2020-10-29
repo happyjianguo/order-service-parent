@@ -252,5 +252,17 @@ public class TransitionDepartureApplyApi {
         }
     }
 
+    /**
+     * 根据客户id查询客户最新审批通过该的审批单，如果是未结算的，那带出结算单的相关信息，如果是已撤销，那就不带出
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/getOneByIdForApp", method = {RequestMethod.POST})
+    public BaseOutput<TransitionDepartureApply> getOneByIdForApp(@RequestParam Long id) {
+        return BaseOutput.successData(transitionDepartureApplyService.getOneByIdForApp(id));
+    }
+
 
 }
