@@ -17,4 +17,6 @@ public interface TransitionDepartureApplyMapper extends MyMapper<TransitionDepar
     List<TransitionDepartureApply> getListByCustomerId(TransitionDepartureApply transitionDepartureApply);
 
     TransitionDepartureApply getOneById(Long id);
+
+    TransitionDepartureApply getOneByIdForApp(Long id);
 }
