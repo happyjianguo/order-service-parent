@@ -5,6 +5,8 @@ import com.dili.assets.sdk.dto.TradeTypeDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
 import com.dili.orders.dto.AccountSimpleResponseDto;
@@ -195,6 +197,7 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/insertTransitionDepartureSettlement", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = "trading_orders", content = "转离场缴费新增,转离场申请单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
     public BaseOutput<TransitionDepartureSettlement> insertTransitionDepartureSettlement(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, Long marketId) {
         try {
             return transitionDepartureSettlementService.insertTransitionDepartureSettlement(transitionDepartureSettlement, marketId);
@@ -210,6 +213,7 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = "trading_orders", content = "转离场缴费,转离场申请单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
     public BaseOutput<TransitionDepartureSettlement> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "departmentId") Long departmentId, @RequestParam(value = "operatorCode") String operatorCode, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) {
         try {
             return transitionDepartureSettlementService.pay(id, password, marketId, departmentId, operatorCode, operatorId, operatorName, operatorUserName);
@@ -225,6 +229,7 @@ public class TransitionDepartureSettlementApi {
      * @return
      */
     @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = "trading_orders", content = "转离场撤销缴费,转离场申请单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
     public BaseOutput<TransitionDepartureSettlement> revocator(@RequestBody TransitionDepartureSettlement transitionDepartureSettlement, @RequestParam(value = "revocatorId") Long revocatorId, @RequestParam(value = "revocatorPassword") String revocatorPassword) {
         try {
             return transitionDepartureSettlementService.revocator(transitionDepartureSettlement, revocatorId, revocatorPassword);
