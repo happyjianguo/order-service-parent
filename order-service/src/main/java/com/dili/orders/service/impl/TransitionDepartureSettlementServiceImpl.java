@@ -217,7 +217,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
         LoggerContext.put("statementId", transitionDepartureSettlement.getId());
         LoggerContext.put("statementSerialNo", transitionDepartureSettlement.getCode());
-        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getOperator());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getOperatorId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, transitionDepartureSettlement.getOperatorName());
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureSettlement.getMarketId());
         return BaseOutput.successData(transitionDepartureSettlement);
     }
@@ -486,7 +487,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
         LoggerContext.put("statementId", transitionDepartureSettlement.getId());
         LoggerContext.put("statementSerialNo", transitionDepartureSettlement.getCode());
-        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getOperator());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getOperatorId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, transitionDepartureSettlement.getOperatorName());
         LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureSettlement.getMarketId());
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
