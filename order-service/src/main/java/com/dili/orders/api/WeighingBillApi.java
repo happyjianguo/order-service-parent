@@ -114,7 +114,7 @@ public class WeighingBillApi {
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody BaseOutput settle(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId, HttpServletRequest request) {
 		try {
-			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.settle(serialNo, buyerPassword, operatorId, marketId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -133,7 +133,7 @@ public class WeighingBillApi {
 	public BaseOutput<Object> withdraw(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId,
 			HttpServletRequest request) {
 		try {
-			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return this.weighingBillService.withdraw(serialNo, buyerPassword, sellerPassword, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -154,7 +154,7 @@ public class WeighingBillApi {
 	@RequestMapping(value = "/invalidate", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> invalidate(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, Long operatorId, HttpServletRequest request) {
 		try {
-			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return this.weighingBillService.invalidate(serialNo, buyerPassword, sellerPassword, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -202,7 +202,7 @@ public class WeighingBillApi {
 	@RequestMapping(value = "/operatorInvalidate")
 	public BaseOutput<Object> operatorInvalidate(@RequestParam Long id, @RequestParam Long operatorId, HttpServletRequest request) {
 		try {
-			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return this.weighingBillService.operatorInvalidate(id, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -221,7 +221,7 @@ public class WeighingBillApi {
 	@RequestMapping(value = "/operatorWithdraw")
 	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId, HttpServletRequest request) {
 		try {
-			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return this.weighingBillService.operatorWithdraw(id, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
