@@ -140,6 +140,7 @@ public class TransitionDepartureApplyApi {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureApply.getOriginatorId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, transitionDepartureApply.getOriginatorName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureApply.getMarketId());
             }
             return BaseOutput.successData(transitionDepartureApply);
@@ -183,6 +184,7 @@ public class TransitionDepartureApplyApi {
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureApply.getApprovalId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, transitionDepartureApply.getApprovalName());
                 LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureApply.getMarketId());
             }
         } catch (Exception e) {
