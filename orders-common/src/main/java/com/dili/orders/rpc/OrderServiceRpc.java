@@ -1,5 +1,6 @@
 package com.dili.orders.rpc;
 
+import com.dili.orders.config.FeignHeaderConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.ss.domain.BaseOutput;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "order-service", contextId = "orders", url = "${orderService.url:}")
+@FeignClient(name = "order-service", contextId = "orders", url = "${orderService.url:}", configuration = FeignHeaderConfig.class)
 public interface OrderServiceRpc {
 	/**
 	 * 根据客户id查询客户最新审批通过该的审批单，如果是未结算的，那带出结算单的相关信息，如果是已撤销，那就不带出

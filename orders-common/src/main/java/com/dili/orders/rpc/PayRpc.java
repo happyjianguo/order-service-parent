@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.dili.orders.config.PayServiceFeignConfig;
+import com.dili.orders.config.FeignHeaderConfig;
 import com.dili.orders.dto.AccountBalanceDto;
 import com.dili.orders.dto.AccountPasswordValidateDto;
 import com.dili.orders.dto.AccountRequestDto;
@@ -17,7 +17,7 @@ import com.dili.orders.dto.PaymentTradeConfirmDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.ss.domain.BaseOutput;
 
-@FeignClient(name = "pay-service", contextId = "pay", configuration = PayServiceFeignConfig.class)
+@FeignClient(name = "pay-service", contextId = "pay", configuration = FeignHeaderConfig.class)
 public interface PayRpc {
 
 	/**

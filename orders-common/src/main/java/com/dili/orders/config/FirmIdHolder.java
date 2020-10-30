@@ -1,7 +1,5 @@
 package com.dili.orders.config;
 
-import org.springframework.stereotype.Component;
-
 public class FirmIdHolder {
 
 	private static final ThreadLocal<String> FIRM_THREAD_LOCAL = new ThreadLocal<String>();

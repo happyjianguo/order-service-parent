@@ -1,9 +1,9 @@
 package com.dili.orders.api;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +27,7 @@ import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.orders.service.WeighingBillService;
+import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
 
@@ -103,14 +104,17 @@ public class WeighingBillApi {
 
 	/**
 	 * 结算
+	 * 
+	 * @param request
 	 *
 	 * @param
 	 * @return BaseOutput
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "交易过磅结算,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput settle(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId) {
+	public @ResponseBody BaseOutput settle(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId, HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
 			return weighingBillService.settle(serialNo, buyerPassword, operatorId, marketId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -121,12 +125,15 @@ public class WeighingBillApi {
 	 * @param serialNo
 	 * @param buyerPassword
 	 * @param sellerPassword
+	 * @param request
 	 * @return
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅撤销,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "weighing_withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/withdraw", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseOutput<Object> withdraw(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId) {
+	public BaseOutput<Object> withdraw(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId,
+			HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
 			return this.weighingBillService.withdraw(serialNo, buyerPassword, sellerPassword, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -140,12 +147,14 @@ public class WeighingBillApi {
 	 * @param buyerPassword
 	 * @param sellerPassword
 	 * @param operatorId
+	 * @param request
 	 * @return
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅作废,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "invalidate", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/invalidate", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseOutput<Object> invalidate(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, Long operatorId) {
+	public BaseOutput<Object> invalidate(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, Long operatorId, HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
 			return this.weighingBillService.invalidate(serialNo, buyerPassword, sellerPassword, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -185,13 +194,15 @@ public class WeighingBillApi {
 	 *
 	 * @param id
 	 * @param operatorId
+	 * @param request
 	 * @param operatorPassword
 	 * @return
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "后台操作员操作交易过磅作废，过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "invalidate", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/operatorInvalidate")
-	public BaseOutput<Object> operatorInvalidate(@RequestParam Long id, @RequestParam Long operatorId) {
+	public BaseOutput<Object> operatorInvalidate(@RequestParam Long id, @RequestParam Long operatorId, HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
 			return this.weighingBillService.operatorInvalidate(id, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -208,8 +219,9 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "后台操作员操作交易过磅撤销，过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "weighing_withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/operatorWithdraw")
-	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId) {
+	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId, HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getRemoteIP(request));
 			return this.weighingBillService.operatorWithdraw(id, operatorId);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());

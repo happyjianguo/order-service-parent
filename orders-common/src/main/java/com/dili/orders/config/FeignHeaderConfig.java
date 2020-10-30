@@ -20,18 +20,25 @@ import feign.RequestInterceptor;
  * 支付服务的Feign配置 ps：不要在该类上面加诸如 @Configuration，否则会变成全局配置
  */
 @Configuration
-public class PayServiceFeignConfig {
+public class FeignHeaderConfig {
 
 	@Bean
 	public RequestInterceptor requestInterceptor() {
 		return template -> {
-			String mchid = getHeaders(getHttpServletRequest()).get("mchid");
+			Map<String, String> headerMap = getHeaders(getHttpServletRequest());
+			String mchid = headerMap.get("mchid");
+			String ip = headerMap.get("clientIp");
 			if (StringUtils.isBlank(mchid)) {
 				mchid = FirmIdHolder.getFirmId();
+			}
+			if (StringUtils.isBlank(ip)) {
+				ip = ClientIpHolder.getIp();
 			}
 			template.header("appid", OrdersConstant.PAYMENT_APP_ID);
 			template.header("token", OrdersConstant.PAYMENT_TOKEN);
 			template.header("mchid", mchid);
+			template.header("clientIp", ip);
+
 		};
 	}
 
