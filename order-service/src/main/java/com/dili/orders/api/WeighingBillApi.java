@@ -123,7 +123,7 @@ public class WeighingBillApi {
 	 * @param sellerPassword
 	 * @return
 	 */
-	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅撤销,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
+	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅撤销,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "weighing_withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/withdraw", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseOutput<Object> withdraw(@RequestParam String serialNo, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId) {
 		try {
@@ -206,7 +206,7 @@ public class WeighingBillApi {
 	 * @param operatorPassword
 	 * @return
 	 */
-	@BusinessLogger(businessType = "trading_orders", content = "后台操作员操作交易过磅作废,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
+	@BusinessLogger(businessType = "trading_orders", content = "后台操作员操作交易过磅作废,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "weighing_withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/operatorWithdraw")
 	public BaseOutput<Object> operatorWithdraw(@RequestParam Long id, @RequestParam Long operatorId) {
 		try {
