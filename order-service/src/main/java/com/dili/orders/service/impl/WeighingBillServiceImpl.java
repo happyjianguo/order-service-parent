@@ -203,7 +203,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存结算单失败");
 		}
 
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(bill, statement, this.getUserById(bill.getCreatorId()), WeighingOperationType.WEIGH);
+		User operator = this.getUserById(bill.getCreatorId());
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(bill, statement, operator, WeighingOperationType.WEIGH);
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -216,6 +217,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			LoggerContext.put("statementId", statement.getId());
 			LoggerContext.put("statementSerialNo", statement.getSerialNo());
 			LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, bill.getCreatorId());
+			LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 			LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, bill.getMarketId());
 		}
 		return resultOutput;
@@ -430,6 +432,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 		LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "freeze");
 
@@ -628,6 +631,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put("statementId", ws.getId());
 		LoggerContext.put("statementSerialNo", ws.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
@@ -711,6 +715,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", ws.getId());
+		LoggerContext.put("statementSerialNo", ws.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 		return BaseOutput.success();
 	}
 
@@ -808,6 +821,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
@@ -1024,6 +1038,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 		LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "settle");
 
@@ -1147,10 +1162,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("更新过磅单失败");
 		}
 
+		User operator = this.getUserById(weighingBill.getModifierId());
 		// 判断是否是未结算单，否则记录过磅时间
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
 			// 插入一条过磅信息
-			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, this.getUserById(weighingBill.getModifierId()), WeighingOperationType.WEIGH);
+			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.WEIGH);
 			rows = this.wbrMapper.insertSelective(wbor);
 			if (rows <= 0) {
 				throw new AppException("保存操作记录失败");
@@ -1163,6 +1179,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put("statementId", ws.getId());
 		LoggerContext.put("statementSerialNo", ws.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getModifierId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.successData(ws);
@@ -1292,6 +1309,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
