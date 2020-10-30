@@ -9,6 +9,8 @@ import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.Customer;
 import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.jmsf.microservice.sdk.dto.VehicleAccessDTO;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.TransitionDepartureSettlement;
@@ -211,6 +213,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (insert <= 0) {
             throw new RuntimeException("转离场结算单新增创建转离场结算单失败");
         }
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
+        LoggerContext.put("statementId", transitionDepartureSettlement.getId());
+        LoggerContext.put("statementSerialNo", transitionDepartureSettlement.getCode());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getOperator());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureSettlement.getMarketId());
         return BaseOutput.successData(transitionDepartureSettlement);
     }
 
@@ -474,6 +482,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
+        LoggerContext.put("statementId", transitionDepartureSettlement.getId());
+        LoggerContext.put("statementSerialNo", transitionDepartureSettlement.getCode());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getOperator());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureSettlement.getMarketId());
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
     }
@@ -623,6 +637,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
+        LoggerContext.put("statementId", transitionDepartureSettlement.getId());
+        LoggerContext.put("statementSerialNo", transitionDepartureSettlement.getCode());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureSettlement.getRevocatorId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, transitionDepartureSettlement.getRevocatorName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureSettlement.getMarketId());
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
         return BaseOutput.successData(transitionDepartureSettlement);
     }

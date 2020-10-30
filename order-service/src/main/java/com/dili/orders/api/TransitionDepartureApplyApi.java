@@ -6,6 +6,10 @@ import com.dili.assets.sdk.dto.CusCategoryDTO;
 import com.dili.assets.sdk.dto.TradeTypeDto;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.UidStatic;
 import com.dili.orders.dto.MyBusinessType;
@@ -95,6 +99,7 @@ public class TransitionDepartureApplyApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = "trading_orders", content = "插入转离场申请,转离场申请单号：${businessCode},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
     public BaseOutput<TransitionDepartureApply> insert(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             if (transitionDepartureApply.getOriginatorTime() == null) {
@@ -130,7 +135,13 @@ public class TransitionDepartureApplyApi {
             }
             transitionDepartureApply.setCategoryName(cusCategory.getData().getName());
             //插入数据
-            transitionDepartureApplyService.insertSelective(transitionDepartureApply);
+            int i = transitionDepartureApplyService.insertSelective(transitionDepartureApply);
+            if (i > 0) {
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureApply.getOriginatorId());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureApply.getMarketId());
+            }
             return BaseOutput.successData(transitionDepartureApply);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -145,6 +156,7 @@ public class TransitionDepartureApplyApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
+    @BusinessLogger(businessType = "trading_orders", content = "转离场申请审批,转离场申请单号：${businessId},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
     public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply) {
         try {
             if (Objects.isNull(transitionDepartureApply.getId())) {
@@ -166,7 +178,13 @@ public class TransitionDepartureApplyApi {
             }
             //乐观锁实现，需要先查询一次数据库，然后设置version
             transitionDepartureApply.setVersion(transitionDepartureApply1.getVersion());
-            transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+            int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
+            if (i > 0) {
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
+                LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
+                LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureApply.getApprovalId());
+                LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, transitionDepartureApply.getMarketId());
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return BaseOutput.failure("修改失败");
