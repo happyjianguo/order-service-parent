@@ -429,7 +429,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
-		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 		LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "freeze");
 
@@ -627,7 +627,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
 		LoggerContext.put("statementId", ws.getId());
 		LoggerContext.put("statementSerialNo", ws.getSerialNo());
-		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
@@ -807,7 +807,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
-		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
@@ -1023,7 +1023,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
-		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 		LoggerContext.put(LoggerConstant.LOG_OPERATION_TYPE_KEY, "settle");
 
@@ -1162,7 +1162,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
 		LoggerContext.put("statementId", ws.getId());
 		LoggerContext.put("statementSerialNo", ws.getSerialNo());
-		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getModifierId());
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.successData(ws);
@@ -1291,7 +1291,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
 		LoggerContext.put("statementId", weighingStatement.getId());
 		LoggerContext.put("statementSerialNo", weighingStatement.getSerialNo());
-		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getCreatorId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
