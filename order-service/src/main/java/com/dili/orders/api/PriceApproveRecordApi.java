@@ -2,6 +2,8 @@ package com.dili.orders.api;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,10 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.PriceApproveRecord;
 import com.dili.orders.dto.PriceApproveRecordQueryDto;
 import com.dili.orders.service.PriceApproveRecordService;
+import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.github.pagehelper.Page;
@@ -70,11 +75,13 @@ public class PriceApproveRecordApi {
 	 * @param approverId 审批人id
 	 * @param notes      说明
 	 * @param taskId     流程实例id
+	 * @param request
 	 * @return
 	 */
-	@BusinessLogger(businessType = "trading_orders", content = "交易过磅价格审批通过,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "price_approve", systemCode = OrdersConstant.SYSTEM_CODE)
+	@BusinessLogger(businessType = "trading_orders", content = "交易过磅价格审批通过，过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "price_approve", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping("/approveAccept")
-	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId) {
+	public BaseOutput<Object> approveAccept(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId, HttpServletRequest request) {
+		LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 		return this.priceApproveRecordService.accept(id, approverId, notes, taskId);
 	}
 
@@ -85,11 +92,13 @@ public class PriceApproveRecordApi {
 	 * @param approverId 审批人id
 	 * @param notes      说明
 	 * @param taskId     流程实例id
+	 * @param request
 	 * @return
 	 */
-	@BusinessLogger(businessType = "trading_orders", content = "交易过磅价格审批拒绝,过磅单号：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "price_approve", systemCode = OrdersConstant.SYSTEM_CODE)
+	@BusinessLogger(businessType = "trading_orders", content = "交易过磅价格审批拒绝，过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "price_approve", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping("/approveReject")
-	public BaseOutput<Object> approveReject(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId) {
+	public BaseOutput<Object> approveReject(@RequestParam Long id, @RequestParam String notes, @RequestParam Long approverId, @RequestParam String taskId, HttpServletRequest request) {
+		LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 		return this.priceApproveRecordService.reject(id, approverId, notes, taskId);
 	}
 
