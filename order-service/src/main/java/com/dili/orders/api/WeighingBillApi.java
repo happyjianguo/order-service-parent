@@ -78,8 +78,9 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "新增过磅，过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "add", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/insert", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill) {
+	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill,HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.addWeighingBill(weighingBill);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
@@ -94,8 +95,9 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "修改过磅,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill) {
+	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill,HttpServletRequest request) {
 		try {
+			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.updateWeighingBill(weighingBill);
 		} catch (AppException e) {
 			return BaseOutput.failure(e.getMessage());
