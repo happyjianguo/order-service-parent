@@ -101,7 +101,7 @@
 			</foreach>
 		</if>
 		<if test="filterClosedWeighingBill">
-			AND wb.state != 6
+			AND wb.state = 1
 		</if>
 		<if test="sort !=null and sort!='' and order !=null and order !=''">
 			ORDER BY ${sort} ${order}
