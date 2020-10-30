@@ -1375,12 +1375,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				tradeTime = LocalDateTime.now();
 			}
 			map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-			// 单价转换为元/公斤
-			map.put("unitPrice", new BigDecimal(MoneyUtils.centToYuan(new BigDecimal(weighingBill.getUnitPrice() * 2).longValue())));
 			if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
+				// 单价转换为元/公斤
+				map.put("unitPrice", new BigDecimal(MoneyUtils.centToYuan(new BigDecimal(weighingBill.getUnitPrice() * 2).longValue())));
 				map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
 			} else {
 				// 斤转换为公斤
+				map.put("unitPrice", new BigDecimal(getConvertUnitPrice(weighingBill)).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP));
 				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(200)).setScale(2, RoundingMode.HALF_UP));
 			}
 			map.put("tradeTypeId", weighingBill.getTradeTypeId());
