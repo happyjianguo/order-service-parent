@@ -86,6 +86,12 @@ public class WebUtil {
 		return new Timestamp(time);
 	}
 
+	/**
+	 * 获取ip
+	 * 
+	 * @param request
+	 * @return
+	 */
 	public static String getRemoteIP(HttpServletRequest request) {
 		String ip = null;
 		if ((request.getHeader("x-forwarded-for") != null) && (!"unknown".equalsIgnoreCase(request.getHeader("x-forwarded-for")))) {
@@ -96,6 +102,12 @@ public class WebUtil {
 		return ip;
 	}
 
+	/**
+	 * 获取应用层ip
+	 * 
+	 * @param request
+	 * @return
+	 */
 	public static String getClientIP(HttpServletRequest request) {
 		return request.getHeader("clientIp");
 	}
