@@ -16,12 +16,15 @@ import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.glossary.ApplyEnum;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
+import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.http.HttpClient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -100,7 +103,7 @@ public class TransitionDepartureApplyApi {
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.POST})
     @BusinessLogger(businessType = "trading_orders", content = "插入转离场申请,转离场申请单号：${businessCode},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
-    public BaseOutput<TransitionDepartureApply> insert(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    public BaseOutput<TransitionDepartureApply> insert(@RequestBody TransitionDepartureApply transitionDepartureApply, HttpServletRequest request) {
         try {
             if (transitionDepartureApply.getOriginatorTime() == null) {
                 transitionDepartureApply.setOriginatorTime(LocalDateTime.now());
@@ -137,6 +140,7 @@ public class TransitionDepartureApplyApi {
             //插入数据
             int i = transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             if (i > 0) {
+                LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureApply.getOriginatorId());
@@ -158,7 +162,7 @@ public class TransitionDepartureApplyApi {
      */
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
     @BusinessLogger(businessType = "trading_orders", content = "转离场申请审批,转离场申请单号：${businessId},所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
-    public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply) {
+    public BaseOutput update(@RequestBody TransitionDepartureApply transitionDepartureApply, HttpServletRequest request) {
         try {
             if (Objects.isNull(transitionDepartureApply.getId())) {
                 return BaseOutput.failure("申请单id不能为空");
@@ -181,6 +185,7 @@ public class TransitionDepartureApplyApi {
             transitionDepartureApply.setVersion(transitionDepartureApply1.getVersion());
             int i = transitionDepartureApplyService.updateSelective(transitionDepartureApply);
             if (i > 0) {
+                LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, transitionDepartureApply.getCode());
                 LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, transitionDepartureApply.getId());
                 LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, transitionDepartureApply.getApprovalId());
