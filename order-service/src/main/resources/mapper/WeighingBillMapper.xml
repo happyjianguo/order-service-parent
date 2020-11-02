@@ -7,7 +7,6 @@
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
 		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
-		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
@@ -306,8 +305,8 @@
 		<if test="state != null">
 			AND wb.state=#{state}
 		</if>
-		<if test="tradeTypeId != null">
-			AND wb.trade_type_id=#{tradeTypeId}
+		<if test="tradeType != null">
+			AND wb.trade_type=#{tradeType}
 		</if>
 		<if test="goodsIds != null">
 			AND wb.goods_id IN

@@ -95,9 +95,9 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private String plateNumber;
 	/**
-	 * 交易类型id
+	 * 交易类型编码
 	 */
-	private Long tradeTypeId;
+	private String tradeType;
 
 	/**
 	 * 除杂比例
@@ -258,12 +258,12 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 		this.plateNumber = plateNumber;
 	}
 
-	public Long getTradeTypeId() {
-		return tradeTypeId;
+	public String getTradeType() {
+		return tradeType;
 	}
 
-	public void setTradeTypeId(Long tradeTypeId) {
-		this.tradeTypeId = tradeTypeId;
+	public void setTradeType(String tradeType) {
+		this.tradeType = tradeType;
 	}
 
 	public Integer getSubtractionRate() {
