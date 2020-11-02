@@ -173,7 +173,6 @@
 		wb.unit_amount,
 		wb.unit_weight,
 		wb.trade_type,
-		wb.trade_type_id,
 		wb.frozen_amount,
 		wb.state,
 		wb.created_time,
