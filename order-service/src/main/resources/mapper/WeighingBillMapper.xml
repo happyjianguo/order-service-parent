@@ -7,7 +7,6 @@
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
 		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
-		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
@@ -174,7 +173,6 @@
 		wb.unit_amount,
 		wb.unit_weight,
 		wb.trade_type,
-		wb.trade_type_id,
 		wb.frozen_amount,
 		wb.state,
 		wb.created_time,
@@ -306,8 +304,8 @@
 		<if test="state != null">
 			AND wb.state=#{state}
 		</if>
-		<if test="tradeTypeId != null">
-			AND wb.trade_type_id=#{tradeTypeId}
+		<if test="tradeType != null">
+			AND wb.trade_type=#{tradeType}
 		</if>
 		<if test="goodsIds != null">
 			AND wb.goods_id IN
@@ -350,6 +348,14 @@
 			AND wb.market_id = #{marketId}
 		</if>
 		) t1 WHERE 1 = 1
+		<if test="operationStartTime != null">
+			AND t1.operation_time <![CDATA[>=]]>
+			#{operationStartTime}
+		</if>
+		<if test="operationEndTime != null">
+			AND t1.operation_time <![CDATA[<=]]>
+			#{operationEndTime}
+		</if>
 		<if test="operatorId != null">
 			AND operator_id = #{operatorId}
 		</if>

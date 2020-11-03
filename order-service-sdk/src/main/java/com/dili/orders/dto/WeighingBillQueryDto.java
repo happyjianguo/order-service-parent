@@ -8,9 +8,12 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Transient;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.orders.domain.WeighingBill;
 import com.dili.ss.domain.annotation.Operator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class WeighingBillQueryDto extends WeighingBill {
 
@@ -62,6 +65,16 @@ public class WeighingBillQueryDto extends WeighingBill {
 	private Long unitPriceEndValue;
 	@Transient
 	private List<Integer> statementStates;
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Transient
+	private LocalDateTime operationStartTime;
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Transient
+	private LocalDateTime operationEndTime;
 	/**
 	 * 是否过滤掉价格异常数据
 	 */
@@ -185,6 +198,22 @@ public class WeighingBillQueryDto extends WeighingBill {
 
 	public void setFilterByPriceState(Boolean filterByPriceState) {
 		this.filterByPriceState = filterByPriceState;
+	}
+
+	public LocalDateTime getOperationStartTime() {
+		return operationStartTime;
+	}
+
+	public void setOperationStartTime(LocalDateTime operationStartTime) {
+		this.operationStartTime = operationStartTime;
+	}
+
+	public LocalDateTime getOperationEndTime() {
+		return operationEndTime;
+	}
+
+	public void setOperationEndTime(LocalDateTime operationEndTime) {
+		this.operationEndTime = operationEndTime;
 	}
 
 }
