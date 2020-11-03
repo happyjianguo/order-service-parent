@@ -348,6 +348,14 @@
 			AND wb.market_id = #{marketId}
 		</if>
 		) t1 WHERE 1 = 1
+		<if test="operationStartTime != null">
+			AND t1.operation_time <![CDATA[>=]]>
+			#{operationStartTime}
+		</if>
+		<if test="operationEndTime != null">
+			AND t1.operation_time <![CDATA[<=]]>
+			#{operationEndTime}
+		</if>
 		<if test="operatorId != null">
 			AND operator_id = #{operatorId}
 		</if>
