@@ -307,7 +307,14 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.isNull(transitionDepartureApply)) {
             return BaseOutput.failure("申请单不存在");
         }
-
+        //判断申请单状态是否是已审批状态，并且判断支付状态是否为未支付
+        if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.SETTLED.getCode())) {
+            return BaseOutput.failure("该申请单已被结算，请重新选择");
+        }
+        //判断申请单状态是否是已审批状态，并且判断支付状态是否为未支付
+        if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.CLOSED.getCode())) {
+            return BaseOutput.failure("该申请单已被关闭，请重新选择");
+        }
         //获取到申请单
         //设置申请单支付状态为已支付
 //        transitionDepartureApply.setPayStatus(2);
