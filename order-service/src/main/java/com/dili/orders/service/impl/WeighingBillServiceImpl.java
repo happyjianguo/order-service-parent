@@ -23,8 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.dto.TradeTypeDto;
+import com.dili.assets.sdk.dto.TradeTypeQuery;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
@@ -173,6 +176,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private TaskRpc taskRpc;
 	@Autowired
 	private RoleRpc roleRpc;
+	@Autowired
+	private TradeTypeRpc tradeTypeRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -485,7 +490,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setSellerCode(wb.getSellerCode());
 		dto.setGoodsName(wb.getGoodsName());
 		dto.setPlateNumber(wb.getPlateNumber());
-		dto.setTradeTypeId(wb.getTradeTypeId());
+		dto.setTradeType(wb.getTradeType());
 		dto.setSubtractionRate(wb.getSubtractionRate());
 		dto.setSubtractionWeight(wb.getSubtractionWeight());
 
@@ -1381,16 +1386,34 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
 			} else {
 				// 斤转换为公斤
-				map.put("unitPrice", new BigDecimal(getConvertUnitPrice(weighingBill) * 2).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP));
+				map.put("unitPrice", new BigDecimal(getConvertDoubleUnitPrice(weighingBill)).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP));
 				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(200)).setScale(2, RoundingMode.HALF_UP));
 			}
-			map.put("tradeTypeId", weighingBill.getTradeTypeId());
+			map.put("tradeTypeId", this.getTradeIdByCode(weighingBill.getTradeType()));
 			map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
 			queryFeeInput.setCalcParams(map);
 			queryFeeInput.setConditionParams(map);
 			queryFeeInputList.add(queryFeeInput);
 		});
 		return chargeRuleRpc.batchQueryFee(queryFeeInputList);
+	}
+
+	private Long getTradeIdByCode(String tradeType) {
+		BaseOutput<TradeTypeDto> output = null;
+		try {
+			output = this.tradeTypeRpc.getByCode(tradeType);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			throw new AppException("请求基础数据查询交易类型失败");
+		}
+		if (!output.isSuccess()) {
+			LOGGER.error(String.format("根据交易类型编码查询交易类型事变失败,编码值：%s，:code=%s,message=%s", tradeType, output.getCode(), output.getMessage()));
+			throw new AppException("请求基础数据查询交易类型失败");
+		}
+		if (output.getData() == null) {
+			throw new AppException(String.format("未查询到编码为%s的交易类型", tradeType));
+		}
+		return output.getData().getId();
 	}
 
 	private BaseOutput<PaymentTradeCommitResponseDto> commitTrade(WeighingBill weighingBill, WeighingStatement weighingStatement, String password) {
@@ -1486,6 +1509,18 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		} else {
 			// 转换为斤的价格，保留到分，四舍五入
 			actualPrice = new BigDecimal(weighingBill.getUnitPrice()).divide(new BigDecimal(weighingBill.getUnitWeight()), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
+		}
+		return actualPrice;
+	}
+
+	// 获取单价，如果按件计价需要转换为按公斤斤计价
+	private Long getConvertDoubleUnitPrice(WeighingBill weighingBill) {
+		Long actualPrice = null;
+		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
+			actualPrice = weighingBill.getUnitPrice() * 2;
+		} else {
+			// 转换为斤的价格，保留到分，四舍五入
+			actualPrice = new BigDecimal(weighingBill.getUnitPrice() * 2).divide(new BigDecimal(weighingBill.getUnitWeight()), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
 		}
 		return actualPrice;
 	}
