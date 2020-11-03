@@ -50,10 +50,10 @@ public class ReferencePriceApi {
         }
         try {
             Long referencePrice = referencePriceService.getReferencePriceByGoodsId(goodsId, marketId, tradeType);
-            if (referencePrice == null || referencePrice == 0) {
-                return BaseOutput.successData(0);
+            if (referencePrice != null){
+                return BaseOutput.successData(MoneyUtils.centToYuan(referencePrice));
             }
-            return BaseOutput.successData(MoneyUtils.centToYuan(referencePrice));
+            return BaseOutput.successData(null);
         } catch (Exception e) {
             LOGGER.error("获取商品参考价异常："+e.getMessage());
             return BaseOutput.failure("500", "获取失败");
