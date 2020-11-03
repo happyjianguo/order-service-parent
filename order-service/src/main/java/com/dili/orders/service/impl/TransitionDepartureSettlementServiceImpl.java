@@ -157,7 +157,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("转离场支付未找到相关申请单");
         }
         //如果是已经结算的单子，则不能在创建结算单
-        if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.UNSETTLED.getCode())) {
+        if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.SETTLED.getCode())) {
             throw new RuntimeException("该申请单已被结算，请重新选择");
         }
         if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.CLOSED.getCode())) {
