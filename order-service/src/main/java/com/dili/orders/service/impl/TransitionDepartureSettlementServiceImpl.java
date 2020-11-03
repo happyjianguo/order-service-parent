@@ -156,6 +156,13 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.isNull(transitionDepartureApply)) {
             throw new RuntimeException("转离场支付未找到相关申请单");
         }
+        //如果是已经结算的单子，则不能在创建结算单
+        if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.UNSETTLED.getCode())) {
+            throw new RuntimeException("该申请单已被结算，请重新选择");
+        }
+        if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.CLOSED.getCode())) {
+            throw new RuntimeException("该申请单已被关闭，请重新选择");
+        }
         transitionDepartureSettlement.setPlate(transitionDepartureSettlement.getPlate().toUpperCase());
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
