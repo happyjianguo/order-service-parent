@@ -3,6 +3,8 @@ package com.dili.orders.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.domain.*;
@@ -110,6 +112,18 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (insert <= 0) {
             throw new AppException("检测收费新增-->创建检测收费单失败");
         }
+        // 记录日志系统
+        String businessName=ComprehensiveFeeType.TESTING_CHARGE.getName();;
+        String businessNameKey="businessName";
+        if(comprehensiveFee.getOrderType().equals(ComprehensiveFeeType.QUERY_CHARGE.getValue())){
+            businessName=ComprehensiveFeeType.QUERY_CHARGE.getName();;
+        }
+        LoggerContext.put(businessNameKey, businessName);
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, comprehensiveFee.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, comprehensiveFee.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, comprehensiveFee.getOperatorId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, comprehensiveFee.getOperatorName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, comprehensiveFee.getMarketId());
         return BaseOutput.successData(comprehensiveFee);
     }
 
@@ -131,6 +145,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         String dec=ComprehensiveFeeType.TESTING_CHARGE.getName();
         //卡务操作流水前缀
         String serialNoPrefix="JC_";
+        //操作类型名称，用于记录业务日志
+        String businessName=ComprehensiveFeeType.TESTING_CHARGE.getName();
         if (ComprehensiveFeeType.QUERY_CHARGE.getValue().equals(orderType)) {
             updateError = "查询收费保存-->修改查询收费单失败";
             updateAgainError = "查询收费保存-->修改查询收费单失败";
@@ -140,6 +156,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             fundItemName = FundItem.QUERY_FEE.getName();
             dec=ComprehensiveFeeType.QUERY_CHARGE.getName();
             serialNoPrefix="CX_";
+            businessName=ComprehensiveFeeType.QUERY_CHARGE.getName();;
         }
         //判断结算单的支付状态是否为1（未结算）,不是则直接返回
         if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.NO_SETTLEMEN.getValue())) {
@@ -257,6 +274,15 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         setSerialRecordDoValue(marketId, operatorId, operatorName, operatorUserName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCardForPay, serialRecordDo);
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
+        // 记录日志系统
+        //操作名称
+        String businessNameKey="businessName";
+        LoggerContext.put(businessNameKey, businessName);
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, comprehensiveFee.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, comprehensiveFee.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, comprehensiveFee.getOperatorId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, comprehensiveFee.getOperatorName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, comprehensiveFee.getMarketId());
         return BaseOutput.successData(comprehensiveFee);
     }
 
@@ -381,6 +407,12 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         }
         serialRecordList.add(serialRecordDo);
         rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
+        // 记录日志系统
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, comprehensiveFee.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, comprehensiveFee.getId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, operatorId);
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, realName);
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, comprehensiveFee.getMarketId());
         return BaseOutput.successData(comprehensiveFee);
     }
 

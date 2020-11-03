@@ -2,8 +2,13 @@ package com.dili.orders.api;
 
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.logger.sdk.annotation.BusinessLogger;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.service.ComprehensiveFeeService;
+import com.dili.orders.utils.WebUtil;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
@@ -11,6 +16,8 @@ import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -79,8 +86,10 @@ public class ComprehensiveFeeApi {
      * @return BaseOutput
      */
     @RequestMapping(value = "/insert", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> insert(@RequestBody ComprehensiveFee comprehensiveFee) throws Exception{
+    @BusinessLogger(businessType = "trading_orders", content = "${businessName}单新增，${businessName}单号：${businessCode}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "add", systemCode = OrdersConstant.SYSTEM_CODE)
+    public BaseOutput<ComprehensiveFee> insert(@RequestBody ComprehensiveFee comprehensiveFee, HttpServletRequest request) throws Exception{
         try {
+            LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
             comprehensiveFeeService.insertComprehensiveFee(comprehensiveFee);
             return BaseOutput.successData(comprehensiveFee);
         } catch (AppException e) {
@@ -98,8 +107,10 @@ public class ComprehensiveFeeApi {
      *
      */
     @RequestMapping(value = "/revocator", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> revocator(@RequestBody ComprehensiveFee comprehensiveFee, Long operatorId, String realName, String operatorPassword, String userName) throws Exception{
+    @BusinessLogger(businessType = "trading_orders", content = "检测收费结算单撤销，检查收费单号：${businessCode}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "weighing_withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
+    public BaseOutput<ComprehensiveFee> revocator(@RequestBody ComprehensiveFee comprehensiveFee, Long operatorId, String realName, String operatorPassword, String userName, HttpServletRequest request) throws Exception{
         try{
+            LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
             return this.comprehensiveFeeService.revocator(comprehensiveFee, operatorId, realName, operatorPassword, userName);
         }catch (AppException e) {
             return BaseOutput.failure(e.getMessage());
@@ -130,8 +141,10 @@ public class ComprehensiveFeeApi {
      * @return
      */
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
-    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName) throws Exception{
+    @BusinessLogger(businessType = "trading_orders", content = "${businessName}单支付，${businessName}单号：${businessCode}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "pay", systemCode = OrdersConstant.SYSTEM_CODE)
+    public BaseOutput<ComprehensiveFee> pay(@RequestParam(value = "id") Long id, @RequestParam(value = "password") String password, @RequestParam(value = "marketId") Long marketId, @RequestParam(value = "operatorId") Long operatorId, @RequestParam(value = "operatorName") String operatorName, @RequestParam(value = "operatorUserName") String operatorUserName, HttpServletRequest request) throws Exception{
         try {
+            LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
             return comprehensiveFeeService.pay(id, password, marketId, operatorId, operatorName, operatorUserName);
         } catch (AppException e) {
             return BaseOutput.failure(e.getMessage());
