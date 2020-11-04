@@ -51,6 +51,12 @@ public class WeighingBill extends BaseDomain {
 	private String tradeType;
 
 	/**
+	 * 交易类型
+	 */
+	@Column(name = "`trade_type_id`")
+	private Long tradeTypeId;
+
+	/**
 	 * 买方id
 	 */
 	@Column(name = "`buyer_id`")
@@ -110,7 +116,7 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`buyer_agent_name`")
 	private String buyerAgentName;
 
-	/**买家身份号*/
+	/** 买家身份号 */
 	@Column(name = "buyer_certificate_number")
 	private String buyerCertificateNumber;
 
@@ -174,7 +180,7 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`seller_agent_name`")
 	private String sellerAgentName;
 
-	/**买家身份号*/
+	/** 买家身份号 */
 	@Column(name = "seller_certificate_number")
 	private String sellerCertificateNumber;
 
@@ -445,6 +451,14 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setTradeType(String tradeType) {
 		this.tradeType = tradeType;
+	}
+
+	public Long getTradeTypeId() {
+		return tradeTypeId;
+	}
+
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
 	}
 
 	/**

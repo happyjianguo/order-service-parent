@@ -186,6 +186,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		bill.setSerialNo(output.getData());
 		bill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
 
+		// 设置交易类型id
+		bill.setTradeTypeId(this.getTradeIdByCode(bill.getTradeType()));
 		// 根据卡号查询账户信息
 		// 查询买家账户信息
 		this.setWeighingBillBuyerInfo(bill);
@@ -1141,6 +1143,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		if (ws.getState().equals(WeighingStatementState.UNPAID.getValue())) {
 			// 修改状态是“未结算”单据时，卖方信息不可修改，其它均可修改；->买方信息可以修改
+			this.setWeighingBillBuyerInfo(weighingBill);
 		} else {
 			// 修改状态是“已冻结”单据时，“买方、卖方、毛重”不能修改；其它可以修改；->判断下毛重是否被修改
 			if (this.isWeighingBillRoughWeightUpdated(weighingBill, dto)) {
@@ -1165,7 +1168,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		ws.setModifierId(dto.getModifierId());
 		ws.setModifiedTime(LocalDateTime.now());
-		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
+		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
 		if (rows <= 0) {
 			throw new AppException("更新过磅单失败");
 		}
@@ -2043,6 +2046,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private void setWeighingStatementFrozenAmount(WeighingBill weighingBill, WeighingStatement ws) {
+		ws.setBuyerActualAmount(null);
+		ws.setBuyerPoundage(null);
+		ws.setSellerActualAmount(null);
+		ws.setSellerPoundage(null);
+		ws.setTradeAmount(null);
 		ws.setFrozenAmount(new BigDecimal(weighingBill.getEstimatedNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP).longValue());
 	}
 
@@ -2097,6 +2105,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setTareBillNumber(dto.getTareBillNumber());
 		weighingBill.setTareWeight(dto.getTareWeight());
 		weighingBill.setTradeType(dto.getTradeType());
+		weighingBill.setTradeTypeId(this.getTradeIdByCode(dto.getTradeType()));
 		weighingBill.setNetWeight(dto.getNetWeight());
 		weighingBill.setUnitAmount(dto.getUnitAmount());
 		weighingBill.setUnitPrice(dto.getUnitPrice());
