@@ -1,30 +1,8 @@
 package com.dili.orders.service.impl;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TradeTypeDto;
-import com.dili.assets.sdk.dto.TradeTypeQuery;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
@@ -109,9 +87,28 @@ import com.diligrp.message.sdk.domain.input.AppPushInput;
 import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -644,6 +641,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Override
 	public List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill) {
+		PageHelper.startPage(1, weighingBill.getRows(), false);
 		return this.getActualDao().selectByExampleModified(weighingBill);
 	}
 
@@ -736,7 +734,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * json 修改，再调用方法buildWeighingStatement的时候，重新创建了一个结算单，并且设置了PayOrderNo
 	 * 在调用recordWithdrawAccountFlow的时候，卖家信息，在第一个streams中获取，买家信息在relation.streams中获取，按照刚哥的说法。
 	 * 不知道是否存在问题，目前是可以撤销成功
-	 * 
+	 *
 	 * @param id         过磅id
 	 * @param operatorId 操作员id
 	 * @return
