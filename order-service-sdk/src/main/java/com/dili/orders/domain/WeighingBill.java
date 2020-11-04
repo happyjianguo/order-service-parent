@@ -22,7 +22,7 @@ import tk.mybatis.mapper.annotation.Version;
 
 /**
  * 由MyBatis Generator工具自动生成
- * 
+ *
  * This file was generated on 2020-09-18 08:48:36.
  */
 @Table(name = "`weighing_bill`")
@@ -47,14 +47,14 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 交易类型
 	 */
-	@Column(name = "`trade_type_id`")
-	private Long tradeTypeId;
+	@Column(name = "`trade_type`")
+	private String tradeType;
 
 	/**
 	 * 交易类型
 	 */
-	@Column(name = "`trade_type`")
-	private String tradeType;
+	@Column(name = "`trade_type_id`")
+	private Long tradeTypeId;
 
 	/**
 	 * 买方id
@@ -116,6 +116,10 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`buyer_agent_name`")
 	private String buyerAgentName;
 
+	/** 买家身份号 */
+	@Column(name = "buyer_certificate_number")
+	private String buyerCertificateNumber;
+
 	/**
 	 * 卖方id
 	 */
@@ -175,6 +179,10 @@ public class WeighingBill extends BaseDomain {
 	 */
 	@Column(name = "`seller_agent_name`")
 	private String sellerAgentName;
+
+	/** 买家身份号 */
+	@Column(name = "seller_certificate_number")
+	private String sellerCertificateNumber;
 
 	/**
 	 * 商品id
@@ -425,14 +433,6 @@ public class WeighingBill extends BaseDomain {
 		this.measureType = measureType;
 	}
 
-	public Long getTradeTypeId() {
-		return tradeTypeId;
-	}
-
-	public void setTradeTypeId(Long tradeTypeId) {
-		this.tradeTypeId = tradeTypeId;
-	}
-
 	/**
 	 * 获取交易类型
 	 *
@@ -451,6 +451,14 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setTradeType(String tradeType) {
 		this.tradeType = tradeType;
+	}
+
+	public Long getTradeTypeId() {
+		return tradeTypeId;
+	}
+
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
 	}
 
 	/**
@@ -1455,5 +1463,21 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public String getBuyerCertificateNumber() {
+		return buyerCertificateNumber;
+	}
+
+	public void setBuyerCertificateNumber(String buyerCertificateNumber) {
+		this.buyerCertificateNumber = buyerCertificateNumber;
+	}
+
+	public String getSellerCertificateNumber() {
+		return sellerCertificateNumber;
+	}
+
+	public void setSellerCertificateNumber(String sellerCertificateNumber) {
+		this.sellerCertificateNumber = sellerCertificateNumber;
 	}
 }

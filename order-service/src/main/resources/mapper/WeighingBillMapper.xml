@@ -154,12 +154,14 @@
 		wb.buyer_name,
 		wb.buyer_contact,
 		wb.buyer_account,
+		wb.buyer_certificate_number,
 		wb.seller_id,
 		wb.seller_code,
 		wb.seller_card_no,
 		wb.seller_name,
 		wb.seller_contact,
 		wb.seller_account,
+		wb.seller_certificate_number,
 		wb.price_state,
 		wb.goods_id,
 		wb.goods_key_code,
@@ -228,7 +230,8 @@
 		FROM
 		weighing_statement ws
 		INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id
-		LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE id IN ( SELECT MAX( id ) AS id FROM
+		LEFT JOIN ( SELECT * FROM
+		weighing_bill_operation_record WHERE id IN ( SELECT MAX( id ) AS id FROM
 		weighing_bill_operation_record GROUP BY statement_id ) GROUP BY statement_id ) wbor ON ws.id = wbor.statement_id
 		LEFT JOIN (
 		SELECT
@@ -240,7 +243,8 @@
 		AND operation_type = 1
 		GROUP BY
 		weighing_bill_id
-		) wbor1 ON wb.id = wbor1.weighing_bill_id
+		) wbor1 ON
+		wb.id = wbor1.weighing_bill_id
 		WHERE
 		1 = 1
 		<if test="statementStates != null">
@@ -490,3 +494,4 @@
 	</select>
 
 </mapper>
+>>>>>>> branch 'dev' of http://git3.nong12.com/microservice/order-service-parent.git
