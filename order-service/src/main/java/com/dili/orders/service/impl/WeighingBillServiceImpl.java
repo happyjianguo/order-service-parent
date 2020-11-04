@@ -1,30 +1,8 @@
 package com.dili.orders.service.impl;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TradeTypeDto;
-import com.dili.assets.sdk.dto.TradeTypeQuery;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
@@ -109,9 +87,28 @@ import com.diligrp.message.sdk.domain.input.AppPushInput;
 import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -189,6 +186,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		bill.setSerialNo(output.getData());
 		bill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
 
+		// 设置交易类型id
+		bill.setTradeTypeId(this.getTradeIdByCode(bill.getTradeType()));
 		// 根据卡号查询账户信息
 		// 查询买家账户信息
 		this.setWeighingBillBuyerInfo(bill);
@@ -648,6 +647,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	@Override
+	public List<WeighingBillClientListDto> listByExampleModifiedPage(WeighingBillQueryDto weighingBill) {
+		PageHelper.startPage(1, weighingBill.getRows(), false);
+		return this.getActualDao().selectByExampleModified(weighingBill);
+	}
+
+	@Override
 	public PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query) {
 		Integer page = query.getPage();
 		page = (page == null) ? Integer.valueOf(1) : page;
@@ -736,7 +741,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * json 修改，再调用方法buildWeighingStatement的时候，重新创建了一个结算单，并且设置了PayOrderNo
 	 * 在调用recordWithdrawAccountFlow的时候，卖家信息，在第一个streams中获取，买家信息在relation.streams中获取，按照刚哥的说法。
 	 * 不知道是否存在问题，目前是可以撤销成功
-	 * 
+	 *
 	 * @param id         过磅id
 	 * @param operatorId 操作员id
 	 * @return
@@ -1138,6 +1143,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		if (ws.getState().equals(WeighingStatementState.UNPAID.getValue())) {
 			// 修改状态是“未结算”单据时，卖方信息不可修改，其它均可修改；->买方信息可以修改
+			this.setWeighingBillBuyerInfo(weighingBill);
 		} else {
 			// 修改状态是“已冻结”单据时，“买方、卖方、毛重”不能修改；其它可以修改；->判断下毛重是否被修改
 			if (this.isWeighingBillRoughWeightUpdated(weighingBill, dto)) {
@@ -1162,7 +1168,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 		ws.setModifierId(dto.getModifierId());
 		ws.setModifiedTime(LocalDateTime.now());
-		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
+		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
 		if (rows <= 0) {
 			throw new AppException("更新过磅单失败");
 		}
@@ -1976,7 +1982,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerContact(buyerInfo.getCustomerContactsPhone());
 		weighingBill.setBuyerCardAccount(buyerInfo.getAccountId());
 		weighingBill.setBuyerType(buyerInfo.getCustomerMarketType());
-
+		weighingBill.setBuyerCertificateNumber(buyerInfo.getCustomerCertificateNumber());
 	}
 
 	private UserAccountCardResponseDto getBuyerInfo(WeighingBill weighingBill) {
@@ -2002,6 +2008,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setSellerContact(sellerInfo.getCustomerContactsPhone());
 		weighingBill.setSellerCardAccount(sellerInfo.getAccountId());
 		weighingBill.setSellerType(sellerInfo.getCustomerMarketType());
+		weighingBill.setSellerCertificateNumber(sellerInfo.getCustomerCertificateNumber());
 	}
 
 	private UserAccountCardResponseDto getSellerInfo(WeighingBill weighingBill) {
@@ -2039,6 +2046,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	private void setWeighingStatementFrozenAmount(WeighingBill weighingBill, WeighingStatement ws) {
+		ws.setBuyerActualAmount(null);
+		ws.setBuyerPoundage(null);
+		ws.setSellerActualAmount(null);
+		ws.setSellerPoundage(null);
+		ws.setTradeAmount(null);
 		ws.setFrozenAmount(new BigDecimal(weighingBill.getEstimatedNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP).longValue());
 	}
 
@@ -2093,6 +2105,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setTareBillNumber(dto.getTareBillNumber());
 		weighingBill.setTareWeight(dto.getTareWeight());
 		weighingBill.setTradeType(dto.getTradeType());
+		weighingBill.setTradeTypeId(this.getTradeIdByCode(dto.getTradeType()));
 		weighingBill.setNetWeight(dto.getNetWeight());
 		weighingBill.setUnitAmount(dto.getUnitAmount());
 		weighingBill.setUnitPrice(dto.getUnitPrice());

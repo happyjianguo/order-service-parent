@@ -1,18 +1,5 @@
 package com.dili.orders.api;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
@@ -30,6 +17,17 @@ import com.dili.orders.service.WeighingBillService;
 import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -106,7 +104,7 @@ public class WeighingBillApi {
 
 	/**
 	 * 结算
-	 * 
+	 *
 	 * @param request
 	 *
 	 * @param
@@ -232,7 +230,7 @@ public class WeighingBillApi {
 
 	/**
 	 * 获取过磅单打印数据
-	 * 
+	 *
 	 * @param serialNo 过磅单编号
 	 * @return
 	 */
@@ -244,7 +242,7 @@ public class WeighingBillApi {
 
 	/**
 	 * 获取结算单打印数据
-	 * 
+	 *
 	 * @param serialNo 结算单号
 	 * @return
 	 */
@@ -256,16 +254,18 @@ public class WeighingBillApi {
 
 	/**
 	 * 朔源系统同步接口
-	 * 
+	 *
 	 * @param id 从大于id（不包含）的数据开始同步
+	 * @param rows 条数
 	 * @return
 	 */
 	@RequestMapping("/sourceSync")
-	public BaseOutput<Object> sourceSync(@RequestParam Long id) {
+	public BaseOutput<List<WeighingBillClientListDto>> sourceSync(@RequestParam Long id, @RequestParam Integer rows) {
 		WeighingBillQueryDto wbQuery = new WeighingBillQueryDto();
 		wbQuery.setIdStart(id);
+		wbQuery.setRows(rows);
 		wbQuery.setStatementStates(Arrays.asList(WeighingStatementState.PAID.getValue()));
-		List<WeighingBillClientListDto> list = this.weighingBillService.listByExampleModified(wbQuery);
+		List<WeighingBillClientListDto> list = this.weighingBillService.listByExampleModifiedPage(wbQuery);
 		return BaseOutput.successData(list);
 	}
 }
