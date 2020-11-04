@@ -284,8 +284,8 @@
 		FROM
 		weighing_statement ws
 		INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id
-		LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE operation_time IN ( SELECT MAX( operation_time ) AS
-		operation_time FROM weighing_bill_operation_record GROUP BY statement_id ) GROUP BY
+		LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE id IN ( SELECT MAX( id ) AS
+		id FROM weighing_bill_operation_record GROUP BY statement_id ) GROUP BY
 		statement_id ) wbor ON ws.id = wbor.statement_id
 		WHERE
 		1 = 1
