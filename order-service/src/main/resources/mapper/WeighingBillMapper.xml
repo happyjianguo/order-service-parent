@@ -217,76 +217,30 @@
 		<include refid="Ws_Join_Column_List" />
 		,
 		( CASE WHEN measure_type = 1 THEN wb.unit_price * 2 ELSE NULL END ) AS unit_weight_price,
+		( CASE WHEN measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price,
 		( CASE WHEN
-		measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price,
-		(
-		CASE
-
-		WHEN
-		wbor.operator_id
-		IS NULL THEN
-		(
-		SELECT
-		operator_id
-		FROM
-		weighing_bill_operation_record
-		WHERE
-		weighing_bill_id = ws.weighing_bill_id
-		AND operation_type = 1
-		AND operation_time = ( SELECT MAX( operation_time )
-		FROM
-		weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 )
-		) ELSE wbor.operator_id
-		END
-		) AS operator_id,
-		(
-		CASE
-
-		WHEN wbor.operator_id IS NULL THEN
-		(
-		SELECT
-		operator_name
-		FROM
-		weighing_bill_operation_record
-		WHERE
-		weighing_bill_id = ws.weighing_bill_id
-		AND operation_type = 1
-		AND operation_time = ( SELECT MAX( operation_time ) FROM
-		weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 )
-		) ELSE wbor.operator_name
-		END
-		) AS operator_name,
-		(
-		CASE
-
-		WHEN wbor.operator_id IS NULL THEN
-		(
-		SELECT
-		operator_user_name
-		FROM
-		weighing_bill_operation_record
-		WHERE
-		weighing_bill_id = ws.weighing_bill_id
-		AND operation_type = 1
-		AND operation_time = ( SELECT MAX( operation_time ) FROM
-		weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 )
-		) ELSE wbor.operator_user_name
-		END
-		) AS operator_user_name,
-		(
-		CASE
-
-		WHEN wbor.operation_time IS NULL
-		THEN
-		( SELECT MAX( operation_time ) FROM weighing_bill_operation_record WHERE weighing_bill_id = ws.weighing_bill_id AND operation_type = 1 ) ELSE wbor.operation_time
-		END
-		) AS operation_time
+		wbor.operator_id IS NULL THEN wbor1.operator_id ELSE wbor.operator_id END ) AS operator_id,
+		( CASE WHEN wbor.operator_id IS NULL THEN wbor1.operator_name ELSE wbor.operator_name END ) AS
+		operator_name,
+		( CASE WHEN wbor.operator_id IS NULL THEN wbor1.operator_user_name ELSE wbor.operator_user_name END ) AS operator_user_name,
+		( CASE WHEN wbor.operation_time IS NULL THEN
+		wbor1.operation_time ELSE wbor.operation_time END ) AS operation_time
 		FROM
 		weighing_statement ws
 		INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id
-		LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE id IN ( SELECT MAX( id ) AS
-		id FROM weighing_bill_operation_record GROUP BY statement_id ) GROUP BY
-		statement_id ) wbor ON ws.id = wbor.statement_id
+		LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE id IN ( SELECT MAX( id ) AS id FROM
+		weighing_bill_operation_record GROUP BY statement_id ) GROUP BY statement_id ) wbor ON ws.id = wbor.statement_id
+		LEFT JOIN (
+		SELECT
+		*
+		FROM
+		weighing_bill_operation_record
+		WHERE
+		id IN ( SELECT MAX( id ) AS id FROM weighing_bill_operation_record GROUP BY weighing_bill_id )
+		AND operation_type = 1
+		GROUP BY
+		weighing_bill_id
+		) wbor1 ON wb.id = wbor1.weighing_bill_id
 		WHERE
 		1 = 1
 		<if test="statementStates != null">

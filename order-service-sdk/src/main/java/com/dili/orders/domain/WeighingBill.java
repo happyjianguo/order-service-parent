@@ -47,6 +47,12 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 交易类型
 	 */
+	@Column(name = "`trade_type_id`")
+	private Long tradeTypeId;
+
+	/**
+	 * 交易类型
+	 */
 	@Column(name = "`trade_type`")
 	private String tradeType;
 
@@ -417,6 +423,14 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setMeasureType(String measureType) {
 		this.measureType = measureType;
+	}
+
+	public Long getTradeTypeId() {
+		return tradeTypeId;
+	}
+
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
 	}
 
 	/**
