@@ -1974,7 +1974,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerContact(buyerInfo.getCustomerContactsPhone());
 		weighingBill.setBuyerCardAccount(buyerInfo.getAccountId());
 		weighingBill.setBuyerType(buyerInfo.getCustomerMarketType());
-
+		weighingBill.setBuyerCertificateNumber(buyerInfo.getCustomerCertificateNumber());
 	}
 
 	private UserAccountCardResponseDto getBuyerInfo(WeighingBill weighingBill) {
@@ -2000,6 +2000,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setSellerContact(sellerInfo.getCustomerContactsPhone());
 		weighingBill.setSellerCardAccount(sellerInfo.getAccountId());
 		weighingBill.setSellerType(sellerInfo.getCustomerMarketType());
+		weighingBill.setSellerCertificateNumber(sellerInfo.getCustomerCertificateNumber());
 	}
 
 	private UserAccountCardResponseDto getSellerInfo(WeighingBill weighingBill) {
