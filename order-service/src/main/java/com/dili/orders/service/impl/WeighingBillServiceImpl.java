@@ -643,7 +643,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Override
 	public List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill) {
-		PageHelper.startPage(1, weighingBill.getRows(), false);
+//		PageHelper.startPage(1, weighingBill.getRows(), false);
 		return this.getActualDao().selectByExampleModified(weighingBill);
 	}
 
