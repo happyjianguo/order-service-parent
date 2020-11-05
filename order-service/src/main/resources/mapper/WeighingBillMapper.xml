@@ -218,7 +218,7 @@
 		,
 		<include refid="Ws_Join_Column_List" />
 		,
-		( CASE WHEN measure_type = 1 THEN wb.unit_price * 2 ELSE NULL END ) AS unit_weight_price,
+		( CASE WHEN measure_type = 1 THEN wb.unit_price * 2 ELSE TRUNCATE(wb.unit_price*200/wb.unit_weight,0) END ) AS unit_weight_price,
 		( CASE WHEN measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price,
 		( CASE WHEN
 		wbor.operator_id IS NULL THEN wbor1.operator_id ELSE wbor.operator_id END ) AS operator_id,

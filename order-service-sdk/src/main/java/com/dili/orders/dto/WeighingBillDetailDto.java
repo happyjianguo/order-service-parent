@@ -49,6 +49,18 @@ public class WeighingBillDetailDto extends WeighingBill {
 	public void setRecords(List<WeighingBillOperationRecord> records) {
 		this.records = records;
 	}
+	
+	@Override
+	public Long getUnitPrice() {
+		Long actualPrice = null;
+		if (this.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
+			actualPrice = super.getUnitPrice() * 2;
+		} else {
+			// 转换为斤的价格，保留到分，四舍五入
+			actualPrice = new BigDecimal(super.getUnitPrice() * 2).divide(new BigDecimal(super.getUnitWeight()), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
+		}
+		return actualPrice;
+	}
 
 	public String getUnitWeightPrice() {
 		if (this.getMeasureType().equals(MeasureType.PIECE.getValue())) {
