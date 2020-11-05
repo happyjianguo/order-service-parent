@@ -130,8 +130,16 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill);
 
 	/**
+	 * 自定义条件查询过磅单(分页)
+	 *
+	 * @param weighingBill
+	 * @return
+	 */
+	List<WeighingBillClientListDto> listByExampleModifiedPage(WeighingBillQueryDto weighingBill);
+
+	/**
 	 * 获取过磅单打印数据
-	 * 
+	 *
 	 * @param serialNo 过磅单号
 	 * @return
 	 */
@@ -139,7 +147,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 
 	/**
 	 * 获取结算单打印数据
-	 * 
+	 *
 	 * @param serialNo 结算单号
 	 * @return
 	 */

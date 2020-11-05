@@ -169,6 +169,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        carTypeForJmsfDTO.setStatus(1);
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
@@ -348,6 +349,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
         carTypeForJmsfDTO.setMarketId(marketId);
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        carTypeForJmsfDTO.setStatus(1);
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("进门收费车型查询失败");
@@ -684,6 +686,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         carTypeForJmsfDTO.setMarketId(marketId);
         //设置id
         carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        carTypeForJmsfDTO.setStatus(1);
         BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
         if (!listBaseOutput.isSuccess()) {
             throw new RuntimeException("查询车辆类型失败");

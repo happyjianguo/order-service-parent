@@ -112,6 +112,7 @@ public class TransitionDepartureApplyApi {
             carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
             carTypeForJmsfDTO.setMarketId(transitionDepartureApply.getMarketId());
             carTypeForJmsfDTO.setId(transitionDepartureApply.getCarTypeId());
+            carTypeForJmsfDTO.setStatus(1);
             BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
             if (!listBaseOutput.isSuccess()) {
                 throw new RuntimeException("进门收费车型查询失败");

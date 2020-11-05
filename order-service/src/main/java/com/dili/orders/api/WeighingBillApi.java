@@ -265,7 +265,7 @@ public class WeighingBillApi {
 		wbQuery.setIdStart(id);
 		wbQuery.setRows(rows);
 		wbQuery.setStatementStates(Arrays.asList(WeighingStatementState.PAID.getValue()));
-		List<WeighingBillClientListDto> list = this.weighingBillService.listByExampleModified(wbQuery);
+		List<WeighingBillClientListDto> list = this.weighingBillService.listByExampleModifiedPage(wbQuery);
 		return BaseOutput.successData(list);
 	}
 }
