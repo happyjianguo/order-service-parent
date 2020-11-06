@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class WeighingBillListPageDto extends WeighingBill {
 
 	/**
-	 * 
+	 *
 	 */
 	@Transient
 	private static final long serialVersionUID = -4231427191843086522L;
@@ -27,6 +27,36 @@ public class WeighingBillListPageDto extends WeighingBill {
 	private String tradeTypeName;
 	private Long unitWeightPrice;
 	private Long unitPiecePrice;
+	/**检测记录时间*/
+	private LocalDateTime latestDetectTime;
+	/**检测人员*/
+	private String latestDetectOperator;
+	/**检测结果*/
+	private String latestPdResult;
+
+	public LocalDateTime getLatestDetectTime() {
+		return latestDetectTime;
+	}
+
+	public void setLatestDetectTime(LocalDateTime latestDetectTime) {
+		this.latestDetectTime = latestDetectTime;
+	}
+
+	public String getLatestDetectOperator() {
+		return latestDetectOperator;
+	}
+
+	public void setLatestDetectOperator(String latestDetectOperator) {
+		this.latestDetectOperator = latestDetectOperator;
+	}
+
+	public String getLatestPdResult() {
+		return latestPdResult;
+	}
+
+	public void setLatestPdResult(String latestPdResult) {
+		this.latestPdResult = latestPdResult;
+	}
 
 	public WeighingStatement getStatement() {
 		return statement;
