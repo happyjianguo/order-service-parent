@@ -27,27 +27,17 @@ public class WeighingBillListPageDto extends WeighingBill {
 	private String tradeTypeName;
 	private Long unitWeightPrice;
 	private Long unitPiecePrice;
-	/**检测记录时间*/
-	private LocalDateTime latestDetectTime;
-	/**检测人员*/
-	private String latestDetectOperator;
-	/**检测结果*/
+	/**检测数值*/
 	private String latestPdResult;
+	/**检测结果描述*/
+	private String detectStateDesc;
 
-	public LocalDateTime getLatestDetectTime() {
-		return latestDetectTime;
+	public String getDetectStateDesc() {
+		return detectStateDesc;
 	}
 
-	public void setLatestDetectTime(LocalDateTime latestDetectTime) {
-		this.latestDetectTime = latestDetectTime;
-	}
-
-	public String getLatestDetectOperator() {
-		return latestDetectOperator;
-	}
-
-	public void setLatestDetectOperator(String latestDetectOperator) {
-		this.latestDetectOperator = latestDetectOperator;
+	public void setDetectStateDesc(String detectStateDesc) {
+		this.detectStateDesc = detectStateDesc;
 	}
 
 	public String getLatestPdResult() {
