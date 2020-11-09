@@ -291,14 +291,6 @@
 		<if test="plateNumber != null">
 			AND wb.plate_number LIKE CONCAT('%',#{plateNumber},'%')
 		</if>
-		<if test="unitPriceStartValue != null">
-			AND wb.unit_price <![CDATA[>=]]>
-			#{unitPriceStartValue}
-		</if>
-		<if test="unitPriceEndValue != null">
-			AND wb.unit_price <![CDATA[<=]]>
-			#{unitPriceEndValue}
-		</if>
 		<if test="wsSerialNo != null and wsSerialNo!=''">
 			AND ws.serial_no = #{wsSerialNo}
 		</if>
@@ -306,6 +298,14 @@
 			AND wb.market_id = #{marketId}
 		</if>
 		) t1 WHERE 1 = 1
+		<if test="unitPriceStartValue != null">
+			AND t1.unit_weight_price <![CDATA[>=]]>
+			#{unitPriceStartValue}
+		</if>
+		<if test="unitPriceEndValue != null">
+			AND t1.unit_weight_price <![CDATA[<=]]>
+			#{unitPriceEndValue}
+		</if>
 		<if test="operationStartTime != null">
 			AND t1.operation_time <![CDATA[>=]]>
 			#{operationStartTime}
