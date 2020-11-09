@@ -1796,7 +1796,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		frozenRecord.setTradeType(PaymentTradeType.PREAUTHORIZED.getValue());
 		frozenRecord.setSerialNo(ws.getSerialNo());
 		frozenRecord.setCustomerType(weighingBill.getBuyerType());
-		frozenRecord.setAccountId(weighingBill.getBuyerAccount());
+		frozenRecord.setAccountId(weighingBill.getBuyerCardAccount());
 		frozenRecord.setAction(ActionType.INCOME.getCode());
 		frozenRecord.setAmount(Math.abs(tradeResponse.getFrozenAmount()));
 		frozenRecord.setCardNo(weighingBill.getBuyerCardNo());
