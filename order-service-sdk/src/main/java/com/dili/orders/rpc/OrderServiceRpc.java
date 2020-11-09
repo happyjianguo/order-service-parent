@@ -31,7 +31,7 @@ public interface OrderServiceRpc {
 	 * @param rows 条数
 	 * @return
 	 */
-	@RequestMapping("/sourceSync")
+	@RequestMapping("/api/weighingBill/sourceSync")
 	BaseOutput<List<WeighingBillClientListDto>> sourceSync(@RequestParam Long id, @RequestParam Integer rows);
 
 }
