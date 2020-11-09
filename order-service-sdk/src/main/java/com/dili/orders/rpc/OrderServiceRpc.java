@@ -1,16 +1,16 @@
 package com.dili.orders.rpc;
 
-import com.dili.orders.config.FeignHeaderConfig;
-import com.dili.orders.domain.TransitionDepartureApply;
-import com.dili.orders.dto.WeighingBillClientListDto;
-import com.dili.ss.domain.BaseOutput;
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import com.dili.orders.domain.TransitionDepartureApply;
+import com.dili.orders.dto.WeighingBillClientListDto;
+import com.dili.ss.domain.BaseOutput;
 
 @FeignClient(name = "order-service", contextId = "orders", url = "${orderService.url:}")
 public interface OrderServiceRpc {
