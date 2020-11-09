@@ -1642,7 +1642,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	private void recordSettlementAccountFlow(WeighingBill weighingBill, WeighingStatement ws, PaymentTradeCommitResponseDto paymentResult, Long operatorId) {
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
-		LocalDateTime now = LocalDateTime.now();
 		User operator = this.getUserById(operatorId);
 		Long firmId = this.getMarketIdByOperatorId(operatorId);
 
@@ -1668,7 +1667,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			frozenRecord.setFirmId(firmId);
 			frozenRecord.setFundItem(FundItem.TRADE_UNFREEZE.getCode());
 			frozenRecord.setFundItemName(FundItem.TRADE_UNFREEZE.getName());
-			frozenRecord.setOperateTime(now);
+			frozenRecord.setOperateTime(paymentResult.getWhen());
 			frozenRecord.setOperatorId(operatorId);
 			frozenRecord.setOperatorName(operator.getRealName());
 			frozenRecord.setOperatorNo(operator.getUserName());
@@ -1695,7 +1694,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerExpense.setFirmId(firmId);
 		buyerExpense.setFundItem(FundItem.TRADE_PAYMENT.getCode());
 		buyerExpense.setFundItemName(FundItem.TRADE_PAYMENT.getName());
-		buyerExpense.setOperateTime(now);
+		buyerExpense.setOperateTime(paymentResult.getWhen());
 		buyerExpense.setOperatorId(operatorId);
 		buyerExpense.setOperatorName(operator.getRealName());
 		buyerExpense.setOperatorNo(operator.getUserName());
@@ -1723,7 +1722,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setFirmId(firmId);
 		buyerPoundage.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
 		buyerPoundage.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
-		buyerPoundage.setOperateTime(now);
+		buyerPoundage.setOperateTime(paymentResult.getWhen());
 		buyerPoundage.setOperatorId(operatorId);
 		buyerPoundage.setOperatorName(operator.getRealName());
 		buyerPoundage.setOperatorNo(operator.getUserName());
@@ -1749,7 +1748,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerIncome.setFirmId(firmId);
 		sellerIncome.setFundItem(FundItem.TRADE_PAYMENT.getCode());
 		sellerIncome.setFundItemName(FundItem.TRADE_PAYMENT.getName());
-		sellerIncome.setOperateTime(now);
+		sellerIncome.setOperateTime(paymentResult.getWhen());
 		sellerIncome.setOperatorId(operatorId);
 		sellerIncome.setOperatorName(operator.getRealName());
 		sellerIncome.setOperatorNo(operator.getUserName());
@@ -1777,7 +1776,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPoundage.setFirmId(firmId);
 		sellerPoundage.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
 		sellerPoundage.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
-		sellerPoundage.setOperateTime(now);
+		sellerPoundage.setOperateTime(paymentResult.getWhen());
 		sellerPoundage.setOperatorId(operatorId);
 		sellerPoundage.setOperatorName(operator.getRealName());
 		sellerPoundage.setOperatorNo(operator.getUserName());
@@ -1789,7 +1788,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private void recordUnfreezeAccountFlow(Long operatorId, WeighingBill weighingBill, WeighingStatement ws, PaymentTradeCommitResponseDto tradeResponse) {
 		// 解冻
 		User operator = this.getUserById(operatorId);
-		LocalDateTime now = LocalDateTime.now();
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
 		SerialRecordDo frozenRecord = new SerialRecordDo();
 		frozenRecord.setTradeNo(ws.getPayOrderNo());
@@ -1808,7 +1806,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		frozenRecord.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		frozenRecord.setFundItem(FundItem.TRADE_UNFREEZE.getCode());
 		frozenRecord.setFundItemName(FundItem.TRADE_UNFREEZE.getName());
-		frozenRecord.setOperateTime(now);
+		frozenRecord.setOperateTime(tradeResponse.getWhen());
 		frozenRecord.setOperatorId(operatorId);
 		frozenRecord.setOperatorName(operator.getRealName());
 		frozenRecord.setOperatorNo(operator.getUserName());
@@ -1821,7 +1819,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
 		Long firmId = this.getMarketIdByOperatorId(operatorId);
 		User operator = this.getUserById(operatorId);
-		LocalDateTime now = LocalDateTime.now();
 		Integer tradeType = PaymentTradeType.TRADE.getValue();
 		if (ws.getFrozenAmount() != null && ws.getFrozenAmount() > 0) {
 			tradeType = PaymentTradeType.TRADE.getValue();
@@ -1847,7 +1844,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerExpense.setFirmId(firmId);
 		sellerExpense.setFundItem(FundItem.TRADE_PAYMENT.getCode());
 		sellerExpense.setFundItemName(FundItem.TRADE_PAYMENT.getName());
-		sellerExpense.setOperateTime(now);
+		sellerExpense.setOperateTime(tradeResponse.getWhen());
 		sellerExpense.setOperatorId(operatorId);
 		sellerExpense.setOperatorName(operator.getRealName());
 		sellerExpense.setOperatorNo(operator.getUserName());
@@ -1876,7 +1873,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerRefound.setFirmId(firmId);
 		sellerRefound.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
 		sellerRefound.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
-		sellerRefound.setOperateTime(now);
+		sellerRefound.setOperateTime(tradeResponse.getWhen());
 		sellerRefound.setOperatorId(operatorId);
 		sellerRefound.setOperatorNo(operator.getUserName());
 		sellerRefound.setOperatorName(operator.getRealName());
@@ -1903,7 +1900,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerRefund.setFirmId(firmId);
 		buyerRefund.setFundItem(FundItem.TRADE_PAYMENT.getCode());
 		buyerRefund.setFundItemName(FundItem.TRADE_PAYMENT.getName());
-		buyerRefund.setOperateTime(now);
+		buyerRefund.setOperateTime(tradeResponse.getWhen());
 		buyerRefund.setOperatorId(operatorId);
 		buyerRefund.setOperatorName(operator.getRealName());
 		buyerRefund.setOperatorNo(operator.getUserName());
@@ -1932,7 +1929,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setFirmId(firmId);
 		buyerPoundage.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
 		buyerPoundage.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
-		buyerPoundage.setOperateTime(now);
+		buyerPoundage.setOperateTime(tradeResponse.getWhen());
 		buyerPoundage.setOperatorId(operatorId);
 		buyerPoundage.setOperatorName(operator.getRealName());
 		buyerPoundage.setOperatorNo(operator.getUserName());
