@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "order-service", contextId = "orders", url = "${orderService.url:}", configuration = FeignHeaderConfig.class)
+@FeignClient(name = "order-service", contextId = "orders", url = "${orderService.url:}")
 public interface OrderServiceRpc {
 	/**
 	 * 根据客户id查询客户最新审批通过该的审批单，如果是未结算的，那带出结算单的相关信息，如果是已撤销，那就不带出
