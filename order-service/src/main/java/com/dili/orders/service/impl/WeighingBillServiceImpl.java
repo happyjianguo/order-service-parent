@@ -180,6 +180,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill bill) {
 		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_BILL_SERIAL_NO_GENERATE_RULE_CODE);
+		if (output == null) {
+			return BaseOutput.failure("调用过磅单号生成服务无响应");
+		}
 		if (!output.isSuccess()) {
 			return BaseOutput.failure(output.getMessage());
 		}
@@ -208,7 +211,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		User operator = this.getUserById(bill.getCreatorId());
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(bill, statement, operator, WeighingOperationType.WEIGH);
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(bill, statement, operator, WeighingOperationType.WEIGH, null);
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
@@ -342,6 +345,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		AccountRequestDto balanceQuery = new AccountRequestDto();
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
+		if (balanceOutput == null) {
+			return BaseOutput.failure("调用支付系统查询买方账户余额无响应");
+		}
 		if (!balanceOutput.isSuccess()) {
 			LOGGER.error(String.format("调用支付系统查询买方账户余额失败:code=%s,message=%s", balanceOutput.getCode(), balanceOutput.getMessage()));
 			return BaseOutput.failure(balanceOutput.getMessage());
@@ -361,6 +367,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setType(PaymentTradeType.PREAUTHORIZED.getValue());
 		prepareDto.setDescription("交易过磅");
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		if (paymentOutput == null) {
+			return BaseOutput.failure("调用支付系统创建冻结支付订单无响应");
+		}
 		if (!paymentOutput.isSuccess()) {
 			LOGGER.error(String.format("调用支付系统创建冻结支付订单失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 			return BaseOutput.failure(paymentOutput.getMessage());
@@ -384,13 +393,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
 
-		User operator = this.getUserById(operatorId);
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.FREEZE);
-		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
-		}
-
 		PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
 		dto.setAccountId(weighingBill.getBuyerAccount());
 		dto.setBusinessId(weighingBill.getBuyerCardAccount());
@@ -399,9 +401,20 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setPassword(buyerPassword);
 		BaseOutput<PaymentTradeCommitResponseDto> freezeOutput = this.payRpc.commitTrade(dto);
 
+		if (freezeOutput == null) {
+			throw new AppException("交易冻结调用支付系统无响应");
+		}
 		if (!freezeOutput.isSuccess()) {
 			LOGGER.error(String.format("调用支付系统提交支付冻结订单失败:code=%s,message=%s", freezeOutput.getCode(), freezeOutput.getMessage()));
 			throw new AppException(freezeOutput.getMessage());
+		}
+
+		// 记录操作流水
+		User operator = this.getUserById(operatorId);
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.FREEZE, freezeOutput.getData().getWhen());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
 		}
 
 		// 记账冻结流水
@@ -553,6 +566,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPwdDto.setAccountId(weighingBill.getBuyerAccount());
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
+		if (pwdOutput == null) {
+			return BaseOutput.failure("作废过磅单调用支付系统查询买方密码无响应");
+		}
 		if (!pwdOutput.isSuccess()) {
 			LOGGER.error(String.format("作废过磅单调用支付系统查询买方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
@@ -566,6 +582,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPwdDto.setAccountId(weighingBill.getSellerAccount());
 		sellerPwdDto.setPassword(sellerPassword);
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
+		if (pwdOutput == null) {
+			return BaseOutput.failure("作废过磅单调用支付系统查询卖方密码无响应");
+		}
 		if (!pwdOutput.isSuccess()) {
 			LOGGER.error(String.format("作废过磅单调用支付系统查询卖方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
@@ -604,13 +623,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 		}
 
-		User operator = this.getUserById(operatorId);
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.INVALIDATE);
-		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
-		}
-
+		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = null;
 		// 解冻
 		if (beforeUpdateState.equals(WeighingBillState.FROZEN.getValue())) {
 			// 退款
@@ -622,11 +635,26 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 			PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
 			cancelDto.setTradeId(weighingStatement.getPayOrderNo());
-			BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+			paymentOutput = this.payRpc.cancel(cancelDto);
+			if (paymentOutput == null) {
+				throw new AppException("交易解冻调用支付系统无响应");
+			}
 			if (!paymentOutput.isSuccess()) {
 				throw new AppException(paymentOutput.getMessage());
 			}
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
+		}
+
+		// 记录操作日志
+		User operator = this.getUserById(operatorId);
+		LocalDateTime operationTime = null;
+		if (paymentOutput != null) {
+			operationTime = paymentOutput.getData().getWhen();
+		}
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.INVALIDATE, operationTime);
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
 		}
 
 		// 记录日志系统
@@ -700,13 +728,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 		}
 
-		User operator = this.getUserById(operatorId);
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.INVALIDATE);
-		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
-		}
-
+		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = null;
 		// 解冻
 		if (beforeUpdateState.equals(WeighingBillState.FROZEN.getValue())) {
 			// 退款
@@ -718,12 +740,27 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 			PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
 			cancelDto.setTradeId(weighingStatement.getPayOrderNo());
-			BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+			paymentOutput = this.payRpc.cancel(cancelDto);
+			if (paymentOutput == null) {
+				throw new AppException("交易解冻调用支付系统无响应");
+			}
 			if (!paymentOutput.isSuccess()) {
 				LOGGER.error(String.format("操作员作废过磅单调用支付系统解冻交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
 			}
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
+		}
+
+		// 记录操作日志
+		User operator = this.getUserById(operatorId);
+		LocalDateTime operationTime = null;
+		if (paymentOutput != null) {
+			operationTime = paymentOutput.getData().getWhen();
+		}
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.INVALIDATE, operationTime);
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
 		}
 
 		// 记录日志系统
@@ -787,13 +824,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
 
-		User operator = this.getUserById(operatorId);
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW);
-		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
-		}
-
 		// 重新生成一条结算单
 		WeighingStatement newWs = this.buildWeighingStatement(weighingBill, this.getMarketIdByOperatorId(operatorId));
 		newWs.setCreatorId(operatorId);
@@ -807,9 +837,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 判断是否是d牌
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> output = this.jsmfRpc.recoverById(Long.valueOf(weighingBill.getTareBillNumber()));
+			if (output == null) {
+				throw new AppException("交易过磅撤销调用进门收费系统恢复皮重单无响应");
+			}
 			if (!output.isSuccess()) {
 				LOGGER.error(String.format("操作员撤销过磅单调用进门收费恢复皮重单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
-				return BaseOutput.failure(output.getMessage());
+				throw new AppException(output.getMessage());
 			}
 		}
 
@@ -817,9 +850,20 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+		if (paymentOutput == null) {
+			throw new AppException("操作员撤销过磅单调用支付系统撤销交易失败");
+		}
 		if (!paymentOutput.isSuccess()) {
 			LOGGER.error(String.format("操作员撤销过磅单调用支付系统撤销交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 			throw new AppException(paymentOutput.getMessage());
+		}
+
+		// 记录操作流水
+		User operator = this.getUserById(operatorId);
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW, paymentOutput.getData().getWhen());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
 		}
 
 		// 记录交易流水
@@ -949,6 +993,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> byId = this.jsmfRpc.getTruckById(Long.valueOf(weighingBill.getTareBillNumber()));
 			// 判断是否查询成功
+			if (byId == null) {
+				throw new AppException("交易结算调用进门系统查询信息无响应");
+			}
 			if (!byId.isSuccess()) {
 				throw new AppException("查询过磅单失败");
 			}
@@ -958,6 +1005,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				if (Objects.equals(weighingBill.getPlateNumber(), byId.getData().getPlate())) {
 					// 删除皮重单
 					BaseOutput<Object> jmsfOutput = this.jsmfRpc.removeTareNumber(Long.valueOf(weighingBill.getTareBillNumber()));
+					if (jmsfOutput == null) {
+						throw new AppException("交易结算调用进门系统无响应");
+					}
 					if (!jmsfOutput.isSuccess()) {
 						LOGGER.error(String.format("交易过磅结算调用进门收费系统删除皮重失败:code=%s,message=%s", jmsfOutput.getCode(), jmsfOutput.getMessage()));
 						throw new AppException("删除过磅单失败");
@@ -970,28 +1020,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		Integer originalState = weighingBill.getState();
 		LocalDateTime now = LocalDateTime.now();
 		weighingBill.setState(WeighingBillState.SETTLED.getValue());
-		weighingBill.setSettlementTime(now);
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
-		int rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
-		if (rows <= 0) {
-			throw new AppException("更新过磅单状态失败");
-
-		}
 
 		weighingStatement.setModifierId(operatorId);
 		weighingStatement.setModifiedTime(now);
 		weighingStatement.setState(WeighingStatementState.PAID.getValue());
-		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
+		int rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
 			throw new AppException("更新过磅单状态失败");
-		}
-
-		User operator = this.getUserById(operatorId);
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE);
-		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
 		}
 
 		// 设置代理人信息
@@ -1025,16 +1062,37 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 判断单据状态，如果是冻结单走确认预授权扣款，否则走即时交易
 		if (originalState.equals(WeighingBillState.FROZEN.getValue())) {
 			paymentOutput = this.confirmTrade(weighingBill, weighingStatement, buyerPassword);
+			if (paymentOutput == null) {
+				throw new AppException("调用支付系统无响应");
+			}
 			if (!paymentOutput.isSuccess()) {
 				LOGGER.error(String.format("交易过磅结算调用支付系统确认冻结交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
 			}
 		} else {
 			paymentOutput = this.commitTrade(weighingBill, weighingStatement, buyerPassword);
+			if (paymentOutput == null) {
+				throw new AppException("调用支付系统无响应");
+			}
 			if (!paymentOutput.isSuccess()) {
 				LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
 			}
+		}
+
+		weighingBill.setSettlementTime(paymentOutput.getData().getWhen());
+		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
+		if (rows <= 0) {
+			throw new AppException("更新过磅单状态失败");
+
+		}
+
+		// 记录操作流水
+		User operator = this.getUserById(operatorId);
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE, paymentOutput.getData().getWhen());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
 		}
 
 		// 记录资金账户交易流水
@@ -1178,7 +1236,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 判断是否是未结算单，否则记录过磅时间
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
 			// 插入一条过磅信息
-			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.WEIGH);
+			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.WEIGH, null);
 			rows = this.wbrMapper.insertSelective(wbor);
 			if (rows <= 0) {
 				throw new AppException("保存操作记录失败");
@@ -1230,6 +1288,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPwdDto.setAccountId(weighingBill.getBuyerAccount());
 		buyerPwdDto.setPassword(buyerPassword);
 		BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
+		if (pwdOutput == null) {
+			return BaseOutput.failure("交易过磅撤销调用支付系统验证买方密码无响应");
+		}
 		if (!pwdOutput.isSuccess()) {
 			LOGGER.error(String.format("交易过磅撤销调用支付系统验证买方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
@@ -1243,6 +1304,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPwdDto.setAccountId(weighingBill.getSellerAccount());
 		sellerPwdDto.setPassword(sellerPassword);
 		pwdOutput = this.payRpc.validateAccountPassword(sellerPwdDto);
+		if (pwdOutput == null) {
+			return BaseOutput.failure("交易过磅撤销调用支付系统验证卖方密码无响应");
+		}
 		if (!pwdOutput.isSuccess()) {
 			LOGGER.error(String.format("交易过磅撤销调用支付系统验证卖方密码失败:code=%s,message=%s", pwdOutput.getCode(), pwdOutput.getMessage()));
 			if (PaymentErrorCode.codeOf(pwdOutput.getCode()).equals(PaymentErrorCode.ACCOUNT_PASSWORD_INCORRECT_EXCEPTION)) {
@@ -1277,12 +1341,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
-		User operator = this.getUserById(operatorId);
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW);
-		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
-			throw new AppException("保存操作记录失败");
-		}
 
 		// 重新生成一条结算单
 		WeighingStatement newWs = this.buildWeighingStatement(weighingBill, this.getMarketIdByOperatorId(operatorId));
@@ -1297,9 +1355,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 判断是否是d牌
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
 			BaseOutput<TruckDTO> output = this.jsmfRpc.recoverById(Long.valueOf(weighingBill.getTareBillNumber()));
+			if (output == null) {
+				throw new AppException("交易过磅撤销调用进门收费系统恢复皮重单无响应");
+			}
 			if (!output.isSuccess()) {
 				LOGGER.error(String.format("交易过磅撤销调用进门收费系统恢复皮重单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
-				return BaseOutput.failure(output.getMessage());
+				throw new AppException(output.getMessage());
 			}
 		}
 
@@ -1307,9 +1368,20 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
 		cancelDto.setTradeId(weighingStatement.getPayOrderNo());
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.payRpc.cancel(cancelDto);
+		if (paymentOutput == null) {
+			throw new AppException("交易过磅撤销调用支付系统撤销交易无响应");
+		}
 		if (!paymentOutput.isSuccess()) {
 			LOGGER.error(String.format("交易过磅撤销调用支付系统撤销交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 			throw new AppException(paymentOutput.getMessage());
+		}
+
+		// 记录操作流水
+		User operator = this.getUserById(operatorId);
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW, paymentOutput.getData().getWhen());
+		rows = this.wbrMapper.insertSelective(wbor);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
 		}
 
 		// 记录撤销交易流水
@@ -1327,7 +1399,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
-	private WeighingBillOperationRecord buildOperationRecord(WeighingBill wb, WeighingStatement ws, User operator, WeighingOperationType type) {
+	private WeighingBillOperationRecord buildOperationRecord(WeighingBill wb, WeighingStatement ws, User operator, WeighingOperationType type, LocalDateTime operationTime) {
 		WeighingBillOperationRecord wbor = new WeighingBillOperationRecord();
 		wbor.setWeighingBillId(wb.getId());
 		wbor.setWeighingBillSerialNo(wb.getSerialNo());
@@ -1338,11 +1410,17 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		wbor.setOperatorId(operator.getId());
 		wbor.setOperatorUserName(operator.getUserName());
 		wbor.setOperatorName(operator.getRealName());
+		if (operationTime != null) {
+			wbor.setOperationTime(operationTime);
+		}
 		return wbor;
 	}
 
 	private WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
 		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_STATEMENT_SERIAL_NO_GENERATE_RULE_CODE);
+		if (output == null) {
+			throw new AppException("调用过磅单号生成服务无响应");
+		}
 		if (!output.isSuccess()) {
 			throw new AppException(output.getMessage());
 		}
