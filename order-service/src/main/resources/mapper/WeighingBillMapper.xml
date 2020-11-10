@@ -239,8 +239,7 @@
 		FROM
 		weighing_bill_operation_record
 		WHERE
-		id IN ( SELECT MAX( id ) AS id FROM weighing_bill_operation_record GROUP BY weighing_bill_id )
-		AND operation_type = 1
+		id IN ( SELECT MAX( id ) AS id FROM weighing_bill_operation_record WHERE operation_type = 1 GROUP BY weighing_bill_id )		
 		GROUP BY
 		weighing_bill_id
 		) wbor1 ON
