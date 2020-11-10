@@ -33,6 +33,10 @@ public class WeighingBillDetailDto extends WeighingBill {
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime weighingTime;
+	/** 检测数值 */
+	private String latestPdResult;
+	/** 检测结果描述 */
+	private String detectStateDesc;
 
 	public WeighingStatement getStatement() {
 		return statement;
@@ -49,7 +53,7 @@ public class WeighingBillDetailDto extends WeighingBill {
 	public void setRecords(List<WeighingBillOperationRecord> records) {
 		this.records = records;
 	}
-	
+
 	public String getConvertUnitPrice() {
 		Long actualPrice = null;
 		if (this.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
@@ -81,6 +85,22 @@ public class WeighingBillDetailDto extends WeighingBill {
 
 	public void setWeighingTime(LocalDateTime weighingTime) {
 		this.weighingTime = weighingTime;
+	}
+
+	public String getLatestPdResult() {
+		return latestPdResult;
+	}
+
+	public void setLatestPdResult(String latestPdResult) {
+		this.latestPdResult = latestPdResult;
+	}
+
+	public String getDetectStateDesc() {
+		return detectStateDesc;
+	}
+
+	public void setDetectStateDesc(String detectStateDesc) {
+		this.detectStateDesc = detectStateDesc;
 	}
 
 }
