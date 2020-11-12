@@ -246,8 +246,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
      * @return
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @GlobalTransactional
+    @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional(rollbackFor = Exception.class)
     public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName) {
         //设置时间
         LocalDateTime now = LocalDateTime.now();
@@ -514,7 +514,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @GlobalTransactional
+    @GlobalTransactional(rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
         LocalDateTime now = LocalDateTime.now();
 //        //只能撤销当天的结算单
