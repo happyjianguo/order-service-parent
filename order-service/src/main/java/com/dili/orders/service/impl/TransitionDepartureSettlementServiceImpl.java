@@ -25,6 +25,7 @@ import com.dili.orders.service.TransitionDepartureSettlementService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.exception.AppException;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -463,6 +464,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (i2 <= 0) {
             throw new RuntimeException("转离场结算单支付修改结算单失败");
         }
+        //测试使用
+        if (new Random(1L).nextInt() % 2 == 0) {
+            throw new AppException("测试异常抛出");
+        }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         SerialRecordDo serialRecordDo = new SerialRecordDo();
@@ -618,6 +623,10 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         //判断结算单修改是否成功，不成功则抛出异常
         if (i1 <= 0) {
             throw new RuntimeException("转离场结算单撤销结算单修改失败");
+        }
+        //测试使用
+        if (new Random(1L).nextInt() % 2 == 0) {
+            throw new AppException("测试异常抛出");
         }
 //        支付请求成功之后，再调用新增操作记录的接口
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
