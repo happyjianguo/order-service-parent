@@ -249,6 +249,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @GlobalTransactional
     public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName) {
+        //设置时间
+        LocalDateTime now = LocalDateTime.now();
         //根据id获取当前的结算单信息
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
 
@@ -332,64 +334,12 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             return BaseOutput.failure("修改申请单状态失败");
         }
         //设置支付时间
-        transitionDepartureSettlement.setPayTime(LocalDateTime.now());
+        transitionDepartureSettlement.setPayTime(now);
 
         //更新操作员（有可能不是同一个操作员，所以需要更新）
         transitionDepartureSettlement.setOperatorId(operatorId);
         transitionDepartureSettlement.setOperatorName(operatorName);
         transitionDepartureSettlement.setOperatorCode(operatorCode);
-
-        //设置进门收费相关信息，并调用新增
-        VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
-        vehicleAccessDTO.setMarketId(marketId);
-        vehicleAccessDTO.setPlateNumber(transitionDepartureSettlement.getPlate());
-
-        //进门收费新增需要保存车型明，车型code。车型id，因为结算单中没有冗余，所以需要到进门收费中去查询
-        CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
-        carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
-        carTypeForJmsfDTO.setMarketId(marketId);
-        carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
-        carTypeForJmsfDTO.setStatus(1);
-        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
-        if (!listBaseOutput.isSuccess()) {
-            throw new RuntimeException("进门收费车型查询失败");
-        }
-        //设置客户电话号码
-        vehicleAccessDTO.setCustomerPhone(customerBaseOutput.getData().getContactsPhone());
-        //设置地址
-        vehicleAccessDTO.setAddress(transitionDepartureApply.getAddr());
-        //获取到进门收费车型信息之后，因为是根据车类型id查询的，所以只有一条数据，所以调用如下
-        vehicleAccessDTO.setVehicleTypeId(listBaseOutput.getData().get(0).getId());
-        //新增车类型名
-        vehicleAccessDTO.setVehicleTypeName(listBaseOutput.getData().get(0).getCarTypeName());
-        //新增车类型code
-        vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
-        vehicleAccessDTO.setBarrierType(BarrierType.ZLC.getCode());
-        //注释掉金额
-//        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
-//        vehicleAccessDTO.setPayType(3);
-        vehicleAccessDTO.setPayType(PayType.CARD.getCode());
-        vehicleAccessDTO.setCasherId(operatorId);
-        vehicleAccessDTO.setCasherName(operatorName);
-        vehicleAccessDTO.setCasherDepartmentId(departmentId);
-        vehicleAccessDTO.setPayTime(LocalDateTime.now());
-        vehicleAccessDTO.setOperatorId(operatorId);
-        vehicleAccessDTO.setOperatorName(operatorName);
-        vehicleAccessDTO.setCreated(LocalDateTime.now());
-        vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
-        vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
-        vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
-        //进门收费也需要客户身份类型，进门暂未增加字段，后期补上
-        vehicleAccessDTO.setCustomerTypeName(transitionDepartureSettlement.getCustomerMarketTypeName());
-        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketTypeCode());
-        //判断进门收费新增是否成功
-        BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
-        if (!vehicleAccessDTOBaseOutput.isSuccess()) {
-            throw new RuntimeException(vehicleAccessDTOBaseOutput.getMessage());
-        }
-
-        //将进门收费返回的id设置到结算单中
-        transitionDepartureSettlement.setJmsfId(vehicleAccessDTOBaseOutput.getData().getId());
 
         //再调用支付
         //新建支付返回实体，后面操作记录会用到
@@ -453,8 +403,60 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
                 throw new RuntimeException(pay.getMessage());
             }
             data = pay.getData();
+            transitionDepartureSettlement.setPayTime(data.getWhen());
         }
 
+        //设置进门收费相关信息，并调用新增
+        VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
+        vehicleAccessDTO.setMarketId(marketId);
+        vehicleAccessDTO.setPlateNumber(transitionDepartureSettlement.getPlate());
+
+        //进门收费新增需要保存车型明，车型code。车型id，因为结算单中没有冗余，所以需要到进门收费中去查询
+        CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();
+        carTypeForJmsfDTO.setBusinessCode(MyBusinessType.KCJM.getCode());
+        carTypeForJmsfDTO.setMarketId(marketId);
+        carTypeForJmsfDTO.setId(transitionDepartureSettlement.getCarTypeId());
+        carTypeForJmsfDTO.setStatus(1);
+        BaseOutput<List<CarTypeForBusinessDTO>> listBaseOutput = assetsRpc.listCarTypePublicByBusiness(carTypeForJmsfDTO);
+        if (!listBaseOutput.isSuccess()) {
+            throw new RuntimeException("进门收费车型查询失败");
+        }
+        //设置客户电话号码
+        vehicleAccessDTO.setCustomerPhone(customerBaseOutput.getData().getContactsPhone());
+        //设置地址
+        vehicleAccessDTO.setAddress(transitionDepartureApply.getAddr());
+        //获取到进门收费车型信息之后，因为是根据车类型id查询的，所以只有一条数据，所以调用如下
+        vehicleAccessDTO.setVehicleTypeId(listBaseOutput.getData().get(0).getId());
+        //新增车类型名
+        vehicleAccessDTO.setVehicleTypeName(listBaseOutput.getData().get(0).getCarTypeName());
+        //新增车类型code
+        vehicleAccessDTO.setVehicleTypeCode(listBaseOutput.getData().get(0).getCode());
+        vehicleAccessDTO.setBarrierType(BarrierType.ZLC.getCode());
+        //注释掉金额
+//        vehicleAccessDTO.setAmount(transitionDepartureSettlement.getChargeAmount());
+//        vehicleAccessDTO.setPayType(3);
+        vehicleAccessDTO.setPayType(PayType.CARD.getCode());
+        vehicleAccessDTO.setCasherId(operatorId);
+        vehicleAccessDTO.setCasherName(operatorName);
+        vehicleAccessDTO.setCasherDepartmentId(departmentId);
+        vehicleAccessDTO.setPayTime(transitionDepartureSettlement.getPayTime());
+        vehicleAccessDTO.setOperatorId(operatorId);
+        vehicleAccessDTO.setOperatorName(operatorName);
+        vehicleAccessDTO.setCreated(transitionDepartureSettlement.getPayTime());
+        vehicleAccessDTO.setCardNo(transitionDepartureSettlement.getCustomerCardNo());
+        vehicleAccessDTO.setCustomerName(transitionDepartureSettlement.getCustomerName());
+        vehicleAccessDTO.setCustomerId(String.valueOf(transitionDepartureSettlement.getCustomerId()));
+        //进门收费也需要客户身份类型，进门暂未增加字段，后期补上
+        vehicleAccessDTO.setCustomerTypeName(transitionDepartureSettlement.getCustomerMarketTypeName());
+        vehicleAccessDTO.setCustomerTypeCode(transitionDepartureSettlement.getCustomerMarketTypeCode());
+        //判断进门收费新增是否成功
+        BaseOutput<VehicleAccessDTO> vehicleAccessDTOBaseOutput = jmsfRpc.add(vehicleAccessDTO);
+        if (!vehicleAccessDTOBaseOutput.isSuccess()) {
+            throw new RuntimeException(vehicleAccessDTOBaseOutput.getMessage());
+        }
+
+        //将进门收费返回的id设置到结算单中
+        transitionDepartureSettlement.setJmsfId(vehicleAccessDTOBaseOutput.getData().getId());
         //再更新结算单信息
         int i2 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
         //判断是否修改成功
@@ -474,7 +476,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperatorName(operatorName);
         serialRecordDo.setOperatorNo(operatorUserName);
         serialRecordDo.setFirmId(marketId);
-        serialRecordDo.setOperateTime(LocalDateTime.now());
+        serialRecordDo.setOperateTime(transitionDepartureSettlement.getPayTime());
         //判断是转场还是离场1.转场 2.离场
         if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
             serialRecordDo.setNotes("转离场单号" + transitionDepartureSettlement.getCode());
@@ -514,7 +516,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @GlobalTransactional
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
-
+        LocalDateTime now = LocalDateTime.now();
 //        //只能撤销当天的结算单
 //        if (!compareDate(transitionDepartureSettlement.getPayTime())) {
 //            return BaseOutput.failure("只能撤销当天的结算单");
@@ -571,13 +573,6 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (i <= 0) {
             return BaseOutput.failure("申请单修改失败");
         }
-        //修改结算单的支付状态
-        int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
-        //判断结算单修改是否成功，不成功则抛出异常
-        if (i1 <= 0) {
-            throw new RuntimeException("转离场结算单撤销结算单修改失败");
-        }
-
         //通知进门，将对应撤销的单子作废掉
         VehicleAccessDTO vehicleAccessDTO = new VehicleAccessDTO();
         //设置进门收费id
@@ -602,7 +597,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         }
         //新建支付返回实体，后面操作记录会用到
         PaymentTradeCommitResponseDto data = null;
-
+        //设置撤销时间
+        transitionDepartureSettlement.setRevocatorTime(now);
         //判断是否存在交易单号，0元则无交易单号，所有不走支付撤销
         if (StringUtils.isNotBlank(transitionDepartureSettlement.getPaymentNo())) {
             //再掉卡务撤销交易
@@ -614,6 +610,14 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
                 throw new RuntimeException(paymentTradeCommitResponseDtoBaseOutput.getMessage());
             }
             data = paymentTradeCommitResponseDtoBaseOutput.getData();
+            //如果走了支付，更新撤销时间
+            transitionDepartureSettlement.setRevocatorTime(data.getWhen());
+        }
+        //修改结算单的支付状态
+        int i1 = getActualDao().updateByPrimaryKeySelective(transitionDepartureSettlement);
+        //判断结算单修改是否成功，不成功则抛出异常
+        if (i1 <= 0) {
+            throw new RuntimeException("转离场结算单撤销结算单修改失败");
         }
 //        支付请求成功之后，再调用新增操作记录的接口
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
@@ -627,7 +631,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperatorName(transitionDepartureSettlement.getOperatorName());
         serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
         serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
-        serialRecordDo.setOperateTime(LocalDateTime.now());
+        serialRecordDo.setOperateTime(transitionDepartureSettlement.getRevocatorTime());
 
         //判断是转场还是离场1.转场 2.离场
 //        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
