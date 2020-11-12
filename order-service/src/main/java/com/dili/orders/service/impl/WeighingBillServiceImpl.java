@@ -108,6 +108,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -175,6 +176,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private RoleRpc roleRpc;
 	@Autowired
 	private TradeTypeRpc tradeTypeRpc;
+
+	private Random random = new Random(1L);
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -694,6 +697,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return PageOutput.success().setData(list).setTotal(total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId) {
@@ -783,6 +787,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * @param operatorId 操作员id
 	 * @return
 	 */
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId) {
@@ -881,6 +886,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
@@ -1093,6 +1099,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
+		}
+
+		if (random.nextInt() % 2 == 0) {
+			throw new AppException("测试异常抛出");
 		}
 
 		// 记录资金账户交易流水
