@@ -1143,6 +1143,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		if (ws.getState().equals(WeighingStatementState.UNPAID.getValue())) {
 			// 修改状态是“未结算”单据时，卖方信息不可修改，其它均可修改；->买方信息可以修改
+			weighingBill.setBuyerCardNo(dto.getBuyerCardNo());
 			this.setWeighingBillBuyerInfo(weighingBill);
 		} else {
 			// 修改状态是“已冻结”单据时，“买方、卖方、毛重”不能修改；其它可以修改；->判断下毛重是否被修改
@@ -1795,7 +1796,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		frozenRecord.setTradeType(PaymentTradeType.PREAUTHORIZED.getValue());
 		frozenRecord.setSerialNo(ws.getSerialNo());
 		frozenRecord.setCustomerType(weighingBill.getBuyerType());
-		frozenRecord.setAccountId(weighingBill.getBuyerAccount());
+		frozenRecord.setAccountId(weighingBill.getBuyerCardAccount());
 		frozenRecord.setAction(ActionType.INCOME.getCode());
 		frozenRecord.setAmount(Math.abs(tradeResponse.getFrozenAmount()));
 		frozenRecord.setCardNo(weighingBill.getBuyerCardNo());

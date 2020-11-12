@@ -18,8 +18,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication
 @MapperScan(basePackages = { "com.dili.orders.mapper", "com.dili.ss.dao" })
-@ComponentScan(basePackages = { "com.dili.ss", "com.dili.orders", "com.dili.commons","com.dili.logger.sdk" })
-@RestfulScan({ "com.dili.orders.rpc", "com.dili.uap.sdk.rpc", "com.dili.bpmc.sdk.rpc" })
+@ComponentScan(basePackages = { "com.dili.ss", "com.dili.orders", "com.dili.commons", "com.dili.logger.sdk" })
+@RestfulScan({ "com.dili.uap.sdk.rpc", "com.dili.bpmc.sdk.rpc" })
 @DTOScan(value = { "com.dili.ss", "com.dili.orders.domain" })
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = { "com.diligrp.message.sdk.rpc", "com.dili.orders.rpc", "com.dili.assets.sdk.rpc", "com.dili.rule.sdk.rpc", "com.dili.customer.sdk.rpc", "com.dili.logger.sdk.rpc" })
