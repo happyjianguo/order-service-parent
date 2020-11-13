@@ -419,7 +419,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
-		
+
 		if (random.nextInt() % 2 == 0) {
 			throw new AppException("测试异常抛出");
 		}
@@ -649,7 +649,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			if (!paymentOutput.isSuccess()) {
 				throw new AppException(paymentOutput.getMessage());
 			}
-			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 
 		// 记录操作日志
@@ -663,9 +662,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
-		
+
 		if (random.nextInt() % 2 == 0) {
 			throw new AppException("测试异常抛出");
+		}
+
+		if (paymentOutput != null) {
+			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 
 		// 记录日志系统
@@ -760,7 +763,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				LOGGER.error(String.format("操作员作废过磅单调用支付系统解冻交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
 			}
-			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 
 		// 记录操作日志
@@ -774,9 +776,13 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
-		
+
 		if (random.nextInt() % 2 == 0) {
 			throw new AppException("测试异常抛出");
+		}
+		
+		if (paymentOutput != null) {
+			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
 
 		// 记录日志系统
@@ -1405,7 +1411,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
-		
+
 		if (random.nextInt() % 2 == 0) {
 			throw new AppException("测试异常抛出");
 		}
