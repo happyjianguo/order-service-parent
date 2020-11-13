@@ -25,6 +25,4 @@ public interface ComprehensiveFeeMapper extends MyMapper<ComprehensiveFee> {
     Integer updateByIdAndVersion(ComprehensiveFee comprehensiveFee);
 
     ComprehensiveFee selectCountAndTotal(ComprehensiveFee comprehensiveFee);
-
-    Integer updateRevocatorTimeById(ComprehensiveFee comprehensiveFee);
 }
