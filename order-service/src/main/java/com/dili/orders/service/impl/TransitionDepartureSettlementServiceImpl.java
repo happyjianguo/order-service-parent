@@ -252,7 +252,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @GlobalTransactional(rollbackFor = Exception.class)
     public BaseOutput pay(Long id, String password, Long marketId, Long departmentId, String operatorCode, Long operatorId, String operatorName, String operatorUserName) {
         //设置时间
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().withNano(0);
         //根据id获取当前的结算单信息
         TransitionDepartureSettlement transitionDepartureSettlement = get(id);
 
@@ -522,7 +522,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @GlobalTransactional(rollbackFor = Exception.class)
     public BaseOutput<TransitionDepartureSettlement> revocator(TransitionDepartureSettlement transitionDepartureSettlement, Long revocatorId, String revocatorPassword) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().withNano(0);
 //        //只能撤销当天的结算单
 //        if (!compareDate(transitionDepartureSettlement.getPayTime())) {
 //            return BaseOutput.failure("只能撤销当天的结算单");
