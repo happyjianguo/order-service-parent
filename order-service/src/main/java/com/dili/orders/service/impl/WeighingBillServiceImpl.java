@@ -419,6 +419,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
+		
+		if (random.nextInt() % 2 == 0) {
+			throw new AppException("测试异常抛出");
+		}
 
 		// 记账冻结流水
 		PaymentTradeCommitResponseDto data = freezeOutput.getData();
@@ -659,6 +663,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
+		
+		if (random.nextInt() % 2 == 0) {
+			throw new AppException("测试异常抛出");
+		}
 
 		// 记录日志系统
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
@@ -765,6 +773,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
+		}
+		
+		if (random.nextInt() % 2 == 0) {
+			throw new AppException("测试异常抛出");
 		}
 
 		// 记录日志系统
@@ -1392,6 +1404,10 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
+		}
+		
+		if (random.nextInt() % 2 == 0) {
+			throw new AppException("测试异常抛出");
 		}
 
 		// 记录撤销交易流水
