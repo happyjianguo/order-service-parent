@@ -26,6 +26,8 @@ import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.rpc.UserRpc;
 import com.github.pagehelper.PageHelper;
 
+import io.seata.spring.annotation.GlobalTransactional;
+
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-08-30 14:29:35.
  */
@@ -97,6 +99,7 @@ public class PriceApproveRecordServiceImpl extends BaseServiceImpl<PriceApproveR
 		return BaseOutput.success();
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> reject(Long id, Long approverId, String notes, String taskId) {
