@@ -52,7 +52,7 @@ import java.util.*;
 @Service
 public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<TransitionDepartureSettlement, Long> implements TransitionDepartureSettlementService {
 
-    private Random random = new Random(1L);
+//    private Random random = new Random(1L);
 
     public TransitionDepartureSettlementMapper getActualDao() {
         return (TransitionDepartureSettlementMapper) getDao();
@@ -466,9 +466,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("转离场结算单支付修改结算单失败");
         }
         //测试使用
-        if (random.nextInt() % 2 == 0) {
-            throw new AppException("测试异常抛出");
-        }
+//        if (random.nextInt() % 2 == 0) {
+//            throw new AppException("测试异常抛出");
+//        }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         SerialRecordDo serialRecordDo = new SerialRecordDo();
@@ -626,9 +626,9 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             throw new RuntimeException("转离场结算单撤销结算单修改失败");
         }
         //测试使用
-        if (random.nextInt() % 2 == 0) {
-            throw new AppException("测试异常抛出");
-        }
+//        if (random.nextInt() % 2 == 0) {
+//            throw new AppException("测试异常抛出");
+//        }
 //        支付请求成功之后，再调用新增操作记录的接口
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         SerialRecordDo serialRecordDo = new SerialRecordDo();
