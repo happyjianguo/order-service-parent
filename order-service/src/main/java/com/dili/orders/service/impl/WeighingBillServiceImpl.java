@@ -1,5 +1,27 @@
 package com.dili.orders.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TradeTypeDto;
@@ -87,28 +109,9 @@ import com.diligrp.message.sdk.domain.input.AppPushInput;
 import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.seata.spring.annotation.GlobalTransactional;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import io.seata.spring.annotation.GlobalTransactional;
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
@@ -322,10 +325,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<WeighingStatement> freeze(String serialNo, String buyerPassword, Long operatorId) {
-		WeighingBill query = new WeighingBill();
-		query.setSerialNo(serialNo);
-		WeighingBill weighingBill = this.getActualDao().selectOne(query);
+	public BaseOutput<WeighingStatement> freeze(Long id, String buyerPassword, Long operatorId) {
+		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}
@@ -461,15 +462,15 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	@Override
-	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo) {
-		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
+	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(Long id) {
+		WeighingBill weighingBill = this.getWeighingBillById(id);
 		if (weighingBill == null) {
 			return null;
 		}
 		WeighingBillPrintDto dto = BeanConver.copyBean(weighingBill, WeighingBillPrintDto.class);
 		// 设置过磅员信息
 		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
-		wborQuery.setWeighingBillSerialNo(serialNo);
+		wborQuery.setWeighingBillId(id);
 		wborQuery.setOperationType(WeighingOperationType.WEIGH.getValue());
 		wborQuery.setSort("operation_time");
 		wborQuery.setOrder("desc");
@@ -694,6 +695,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return PageOutput.success().setData(list).setTotal(total).setPageNum(pageList.getPageNum()).setPageSize(pageList.getPageSize());
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorInvalidate(Long id, Long operatorId) {
@@ -783,6 +785,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	 * @param operatorId 操作员id
 	 * @return
 	 */
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId) {
@@ -815,8 +818,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新结算单状态失败");
 		}
 
-		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
-		weighingBill.setSettlementTime(null);
+		weighingBill.setState(WeighingBillState.REFUNDED.getValue());
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		rows = this.getActualDao().updateByPrimaryKey(weighingBill);
@@ -824,13 +826,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
 
-		// 重新生成一条结算单
-		WeighingStatement newWs = this.buildWeighingStatement(weighingBill, this.getMarketIdByOperatorId(operatorId));
-		newWs.setCreatorId(operatorId);
-		rows = this.weighingStatementMapper.insertSelective(newWs);
-		if (rows <= 0) {
-			throw new AppException("创建结算单失败");
-		}
+		// 重新生成一条过磅单
+		this.rebuildWeighingBill(weighingBill, operatorId);
 
 		// 恢复皮重单
 		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
@@ -881,10 +878,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
+	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<WeighingStatement> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId) {
-		WeighingBill weighingBill = this.getWeighingBillBySerialNo(serialNo);
+	public BaseOutput<WeighingStatement> settle(Long id, String buyerPassword, Long operatorId, Long marketId) {
+		WeighingBill weighingBill = this.getWeighingBillById(id);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}
@@ -894,7 +892,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 
 		if (this.isFreeze(weighingBill)) {
-			return this.freeze(serialNo, buyerPassword, operatorId);
+			return this.freeze(id, buyerPassword, operatorId);
 		}
 
 		// 查询未结算单
@@ -944,7 +942,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						approve.setTradeWeight(this.getWeighingBillTradeWeight(weighingBill));
 						approve.setUnitPrice(actualPrice);
 						approve.setWeighingBillId(weighingBill.getId());
-						approve.setWeighingBillSerialNo(serialNo);
+						approve.setWeighingBillSerialNo(weighingBill.getSerialNo());
 						approve.setStatementId(weighingStatement.getId());
 						approve.setStatementSerialNo(weighingStatement.getSerialNo());
 						approve.setWeighingTime(this.getWeighingBillWeighingTime(weighingBill));
@@ -1091,7 +1089,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		User operator = this.getUserById(operatorId);
 		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE, paymentOutput.getData().getWhen());
 		rows = this.wbrMapper.insertSelective(wbor);
-		if (rows <= 0) {
+		if (true) {
 			throw new AppException("保存操作记录失败");
 		}
 
@@ -1178,7 +1176,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill dto) {
-		WeighingBill weighingBill = this.getWeighingBillBySerialNo(dto.getSerialNo());
+		WeighingBill weighingBill = this.getWeighingBillById(dto.getId());
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}
@@ -1333,8 +1331,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新结算单状态失败");
 		}
 
-		weighingBill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
-		weighingBill.setSettlementTime(null);
+		weighingBill.setState(WeighingBillState.REFUNDED.getValue());
 		weighingBill.setModifierId(operatorId);
 		weighingBill.setModifiedTime(now);
 		rows = this.getActualDao().updateByPrimaryKey(weighingBill);
@@ -1342,13 +1339,9 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			return BaseOutput.failure("更新过磅单状态失败");
 		}
 
-		// 重新生成一条结算单
-		WeighingStatement newWs = this.buildWeighingStatement(weighingBill, this.getMarketIdByOperatorId(operatorId));
-		newWs.setCreatorId(operatorId);
-		rows = this.weighingStatementMapper.insertSelective(newWs);
-		if (rows <= 0) {
-			throw new AppException("创建结算单失败");
-		}
+
+		// 重新生成一条过磅单
+		this.rebuildWeighingBill(weighingBill, operatorId);
 
 		// 恢复皮重单
 		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
@@ -1397,6 +1390,38 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
+	}
+
+	private WeighingBill rebuildWeighingBill(WeighingBill weighingBill, Long operatorId) {
+		WeighingBill wb = new WeighingBill();
+		BeanUtils.copyProperties(weighingBill, wb, "id", "buyerAgentId", "buyerAgentName", "sellerAgentId", "sellerAgentName", "state", "createdTime", "creatorId", "modifiedTime", "modifierId",
+				"settlementTime", "version");
+		wb.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+
+		int rows = this.getActualDao().insertSelective(wb);
+		if (rows <= 0) {
+			throw new AppException("保存过磅单失败");
+		}
+
+		WeighingStatement statement = this.buildWeighingStatement(wb, weighingBill.getMarketId());
+		statement.setCreatorId(operatorId);
+		rows = this.weighingStatementMapper.insertSelective(statement);
+		if (rows <= 0) {
+			throw new AppException("保存结算单失败");
+		}
+
+		User operator = this.getUserById(wb.getCreatorId());
+		WeighingBillOperationRecord wbor = this.getActualDao().selectLastWeighingOperationRecord(weighingBill.getId());
+		if (wbor == null) {
+			throw new AppException("未查询到过磅记录");
+		}
+
+		WeighingBillOperationRecord newRecord = this.buildOperationRecord(wb, statement, operator, WeighingOperationType.WEIGH, wbor.getOperationTime());
+		rows = this.wbrMapper.insertSelective(newRecord);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
+		}
+		return wb;
 	}
 
 	private WeighingBillOperationRecord buildOperationRecord(WeighingBill wb, WeighingStatement ws, User operator, WeighingOperationType type, LocalDateTime operationTime) {
@@ -1638,10 +1663,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return output.getData();
 	}
 
-	private WeighingBill getWeighingBillBySerialNo(String serialNo) {
-		WeighingBill query = new WeighingBill();
-		query.setSerialNo(serialNo);
-		return this.getActualDao().selectOne(query);
+	private WeighingBill getWeighingBillById(Long id) {
+		return this.getActualDao().selectByPrimaryKey(id);
 	}
 
 	private Integer getWeighingBillTradeWeight(WeighingBill weighingBill) {
