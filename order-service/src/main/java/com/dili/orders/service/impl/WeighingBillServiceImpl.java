@@ -439,7 +439,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setFirmId(this.getMarketIdByOperatorId(operatorId));
 		srDto.setFundItem(FundItem.TRADE_FREEZE.getCode());
 		srDto.setFundItemName(FundItem.TRADE_FREEZE.getName());
-		srDto.setOperateTime(now);
+		srDto.setOperateTime(data.getWhen());
 		srDto.setOperatorId(operatorId);
 		srDto.setOperatorName(operator.getRealName());
 		srDto.setOperatorNo(operator.getUserName());
