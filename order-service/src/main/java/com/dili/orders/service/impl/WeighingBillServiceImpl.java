@@ -547,10 +547,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
-		WeighingBill query = new WeighingBill();
-		query.setSerialNo(serialNo);
-		WeighingBill weighingBill = this.getActualDao().selectOne(query);
+	public BaseOutput<Object> invalidate(Long id, String buyerPassword, String sellerPassword, Long operatorId) {
+		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}
@@ -1256,10 +1254,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@GlobalTransactional(rollbackFor = Exception.class)
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId) {
-		WeighingBill query = new WeighingBill();
-		query.setSerialNo(serialNo);
-		WeighingBill weighingBill = this.getActualDao().selectOne(query);
+	public BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId) {
+		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
 		}

@@ -2,7 +2,7 @@ package com.dili.orders.domain;
 
 public enum WeighingBillState {
 
-	NO_SETTLEMENT("未结算", 1), FROZEN("已冻结", 2), INVALIDATED("已作废", 3), SETTLED("已结算", 4), CLOSED("已关闭", 6), REFUNDED("已撤销", 7);
+	NO_SETTLEMENT("未结算", 1), FROZEN("已冻结", 2), INVALIDATED("已作废", 3), SETTLED("已结算", 4), REFUNDED("已撤销", 5), CLOSED("已关闭", 6);
 
 	private String name;
 	private Integer value;
