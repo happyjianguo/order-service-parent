@@ -175,6 +175,18 @@
     </set>
     where id = #{id,jdbcType=BIGINT} and version = #{version,jdbcType=INTEGER} and order_status = 2
   </update>
+  <update id="updateRevocatorTimeById" parameterType="com.dili.orders.domain.ComprehensiveFee">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update comprehensive_fee
+    <set>
+      <if test="revocatorTime != null">
+        revocator_time = #{revocatorTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
   <select id="listByQueryParams" resultType="com.dili.orders.domain.ComprehensiveFee">
     SELECT
     *

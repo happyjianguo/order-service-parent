@@ -177,8 +177,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	private TradeTypeRpc tradeTypeRpc;
 
-	private Random random = new Random(1L);
-
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill bill) {
@@ -420,10 +418,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存操作记录失败");
 		}
 
-		if (random.nextInt() % 2 == 0) {
-			throw new AppException("测试异常抛出");
-		}
-
 		// 记账冻结流水
 		PaymentTradeCommitResponseDto data = freezeOutput.getData();
 		SerialRecordDo srDto = new SerialRecordDo();
@@ -663,10 +657,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存操作记录失败");
 		}
 
-		if (random.nextInt() % 2 == 0) {
-			throw new AppException("测试异常抛出");
-		}
-
 		if (paymentOutput != null) {
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
@@ -777,10 +767,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存操作记录失败");
 		}
 
-		if (random.nextInt() % 2 == 0) {
-			throw new AppException("测试异常抛出");
-		}
-		
 		if (paymentOutput != null) {
 			this.recordUnfreezeAccountFlow(operatorId, weighingBill, ws, paymentOutput.getData());
 		}
@@ -1119,10 +1105,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存操作记录失败");
 		}
 
-		if (random.nextInt() % 2 == 0) {
-			throw new AppException("测试异常抛出");
-		}
-
 		// 记录资金账户交易流水
 		this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
 		// 发送mq通知中间价计算模块计算中间价
@@ -1410,10 +1392,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
-		}
-
-		if (random.nextInt() % 2 == 0) {
-			throw new AppException("测试异常抛出");
 		}
 
 		// 记录撤销交易流水
