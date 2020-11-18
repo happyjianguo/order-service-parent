@@ -48,23 +48,23 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 冻结过磅单
 	 *
-	 * @param serialNo
+	 * @param id
 	 * @param buyerPassword
 	 * @param operatorId
 	 * @return
 	 */
-	BaseOutput<WeighingStatement> freeze(String serialNo, String buyerPassword, Long operatorId);
+	BaseOutput<WeighingStatement> freeze(Long id, String buyerPassword, Long operatorId);
 
 	/**
 	 * 作废过磅单
 	 *
-	 * @param serialNo       过磅单号
+	 * @param id       过磅单号
 	 * @param buyerPassword  买家交易密码
 	 * @param sellerPassword 卖家交易密码
 	 * @param operatorId     操作员id
 	 * @return
 	 */
-	BaseOutput<Object> invalidate(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
+	BaseOutput<Object> invalidate(Long id, String buyerPassword, String sellerPassword, Long operatorId);
 
 	/**
 	 * 分页查询
@@ -95,12 +95,12 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 结算
 	 *
-	 * @param serialNo      过磅单号
+	 * @param id      过磅单号
 	 * @param buyerPassword 买家交易密码
 	 * @param operatorId    TODO
 	 * @return
 	 */
-	BaseOutput<WeighingStatement> settle(String serialNo, String buyerPassword, Long operatorId, Long marketId);
+	BaseOutput<WeighingStatement> settle(Long id, String buyerPassword, Long operatorId, Long marketId);
 
 	/**
 	 * 修改过磅单
@@ -113,13 +113,13 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 撤销过磅单
 	 *
-	 * @param serialNo       过磅单号
+	 * @param id       过磅单号
 	 * @param buyerPassword  买家交易密码
 	 * @param sellerPassword 卖家交易密码
 	 * @param operatorId     TODO
 	 * @return
 	 */
-	BaseOutput<Object> withdraw(String serialNo, String buyerPassword, String sellerPassword, Long operatorId);
+	BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId);
 
 	/**
 	 * 自定义条件查询过磅单
@@ -140,10 +140,10 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 获取过磅单打印数据
 	 *
-	 * @param serialNo 过磅单号
+	 * @param id 过磅单号
 	 * @return
 	 */
-	PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(String serialNo);
+	PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(Long id);
 
 	/**
 	 * 获取结算单打印数据
