@@ -162,6 +162,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         if (!comprehensiveFee.getOrderStatus().equals(ComprehensiveFeeState.NO_SETTLEMEN.getValue())) {
             return BaseOutput.failure("只有未结算的结算单可以结算");
         }
+        setComprehensiveFeeValue(operatorId, operatorName, comprehensiveFee);
         //查询余额
         BaseOutput<AccountSimpleResponseDto> oneAccountCardForBalance = cardRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
         if (!oneAccountCardForBalance.isSuccess()) {
@@ -170,6 +171,10 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         //获取账户资金信息
         BalanceResponseDto accountFund = oneAccountCardForBalance.getData().getAccountFund();
         comprehensiveFee.setBalance(accountFund.getBalance() - comprehensiveFee.getChargeAmount());
+        int i = updateSelective(comprehensiveFee);
+        if (i <= 0) {
+            return BaseOutput.failure(updateError);
+        }
         //更新完成之后，插入缴费单信息，必须在这之前发起请求，到支付系统，拿到支付单号。如果交费金额为0，则不走支付
         //首先根据卡号拿倒账户信息
         CardQueryDto dtoForpay = new CardQueryDto();
@@ -212,6 +217,11 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             }
             //设置交易单号
             comprehensiveFee.setPaymentNo(prepare.getData().getTradeId());
+            int j = updateSelective(comprehensiveFee);
+            if (j <= 0) {
+                return BaseOutput.failure(updateAgainError);
+            }
+
             //构建支付对象
             UserAccountCardResponseDto userAccountCardResponseDto = oneAccountCardForPay.getData();
             PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
@@ -224,8 +234,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                 throw new AppException(pay.getMessage());
             }
             data = pay.getData();
-            //设置主表结算时间与支付时间一致
-            comprehensiveFee.setOperatorTime(data.getWhen());
         } else {
             BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(comprehensiveFee.getCustomerCardNo());
             //获取账户信息
@@ -247,16 +255,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             serialRecordDo.setOperateTime(LocalDateTime.now());
             serialRecordDo.setAction(ActionType.EXPENSE.getCode());
             serialRecordDo.setTradeChannel(null);
-            //没走支付的设置主表与操作记录结算时间一致
-            comprehensiveFee.setOperatorTime(serialRecordDo.getOperateTime());
-        }
-        //更新主表数据
-        setComprehensiveFeeValue(operatorId, operatorName, comprehensiveFee);
-        int j = updateSelective(comprehensiveFee);
-        if (j <= 0) {
-            BaseOutput.failure(updateAgainError);
-            LOGGER.error(updateAgainError);
-            throw new AppException(updateAgainError);
         }
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
@@ -384,8 +382,6 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
                     throw new AppException(paymentOutput.getMessage());
                 }
                 data = paymentOutput.getData();
-                //设置主表操作时间与支付时间一致
-                comprehensiveFee.setRevocatorTime(data.getWhen());
             }
         } else {
             serialRecordDo.setStartBalance(accountFund.getAvailableAmount());
@@ -393,15 +389,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             serialRecordDo.setOperateTime(LocalDateTime.now());
             serialRecordDo.setAction(ActionType.INCOME.getCode());
             serialRecordDo.setTradeChannel(null);
-            //设置主表操作时间与支付时间一致
-            comprehensiveFee.setRevocatorTime(serialRecordDo.getOperateTime());
         }
-        int j = getActualDao().updateRevocatorTimeById(comprehensiveFee);
-        if (j <= 0) {
-            BaseOutput.failure("更新检查收费单失败,请联系管理员。");
-            LOGGER.error("更新检查收费单失败,请联系管理员。");
-            throw new AppException("更新检查收费单失败,请联系管理员。");
-        }
+
         //对接操作记录
         List<SerialRecordDo> serialRecordList = new ArrayList<>();
         setSerialRecordDoValue(comprehensiveFee.getMarketId(), operatorId, realName, userName, comprehensiveFee, typeName, fundItemCode, fundItemName, oneAccountCard, serialRecordDo);
@@ -465,6 +454,8 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
     private void setComprehensiveFeeValue(Long operatorId, String operatorName, ComprehensiveFee comprehensiveFee) {
         //设置为已支付状态
         comprehensiveFee.setOrderStatus(ComprehensiveFeeState.SETTLED.getValue());
+        //设置支付时间
+        comprehensiveFee.setOperatorTime(LocalDateTime.now());
         //更新操作员
         comprehensiveFee.setOperatorId(operatorId);
         comprehensiveFee.setOperatorName(operatorName);
