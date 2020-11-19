@@ -1393,7 +1393,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	private WeighingBill rebuildWeighingBill(WeighingBill weighingBill, Long operatorId) {
 		WeighingBill wb = new WeighingBill();
-		BeanUtils.copyProperties(weighingBill, wb, "id", "buyerAgentId", "buyerAgentName", "sellerAgentId", "sellerAgentName", "state", "createdTime", "creatorId", "modifiedTime", "modifierId",
+		BeanUtils.copyProperties(weighingBill, wb, "id", "buyerAgentId", "buyerAgentName", "sellerAgentId", "sellerAgentName", "state", "createdTime", "modifiedTime", "modifierId",
 				"settlementTime", "version");
 		wb.setState(WeighingBillState.NO_SETTLEMENT.getValue());
 
