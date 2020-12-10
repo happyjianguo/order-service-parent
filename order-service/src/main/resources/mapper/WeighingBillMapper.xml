@@ -96,10 +96,9 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
-		<result column="operator_id" property="operationRecord.operatorId" />
-		<result column="operator_user_name" property="operationRecord.operatorUserName" />
-		<result column="operator_name" property="operationRecord.operatorName" />
-		<result column="operation_time" property="operationRecord.operationTime" />
+		<result column="last_operator_id" property="statement.lastOperatorId" />
+		<result column="last_operator_name" property="statement.lastOperatorName" />
+		<result column="last_operation_time" property="statement.lastOperationTime" />
 		<result column="unit_weight_price" property="unitWeightPrice" />
 		<result column="unit_piece_price" property="unitPiecePrice" />
 	</resultMap>
@@ -195,7 +194,10 @@
 		ws.buyer_actual_amount,
 		ws.seller_poundage,
 		ws.seller_actual_amount,
-		ws.state AS ws_state
+		ws.state AS ws_state,
+		ws.last_operation_time,
+		ws.last_operator_id,
+		ws.last_operator_name
 	</sql>
 
 	<sql id="Wbor_Join_Column_List">
@@ -208,7 +210,7 @@
 		wbor.operation_time
 	</sql>
 
-	<select id="listPage" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
+	<!-- <select id="listPage" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
 		SELECT
 		*
 		FROM
@@ -322,7 +324,97 @@
 		<if test="sort ==null or sort==''">
 			ORDER BY t1.created_time DESC
 		</if>
-	</select>
+	</select> -->
+	
+	<select id="listPage" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
+        SELECT
+        <include refid="Base_Join_Column_List" />
+        ,
+        <include refid="Ws_Join_Column_List" />
+        ,
+        ( CASE WHEN measure_type = 1 THEN wb.unit_price * 2 ELSE ROUND(wb.unit_price*200/wb.unit_weight,0) END ) AS unit_weight_price,
+        ( CASE WHEN measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price       
+        FROM
+        weighing_statement ws
+        INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id
+        WHERE
+        1 = 1
+        <if test="statementStates != null">
+            AND ws.state IN
+            <foreach close=")" collection="statementStates" item="item" open="(" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="sellerCardNo != null and sellerCardNo!=''">
+            AND wb.seller_card_no = #{sellerCardNo}
+        </if>
+        <if test="buyerCardNo != null and buyerCardNo!=''">
+            AND wb.buyer_card_no = #{buyerCardNo}
+        </if>
+        <if test="state != null">
+            AND wb.state=#{state}
+        </if>
+        <if test="tradeType != null">
+            AND wb.trade_type=#{tradeType}
+        </if>
+        <if test="goodsIds != null">
+            AND wb.goods_id IN
+            <foreach close=")" collection="goodsIds" item="goods" open="(" separator=",">
+                #{goods}
+            </foreach>
+        </if>
+        <if test="buyerId != null">
+            AND wb.buyer_id = #{buyerId}
+        </if>
+        <if test="sellerId != null">
+            AND wb.seller_id = #{sellerId}
+        </if>
+        <if test="serialNo != null">
+            AND wb.serial_no = #{serialNo}
+        </if>
+        <if test="createdStart != null">
+            AND wb.created_time <![CDATA[>=]]>
+            #{createdStart}
+        </if>
+        <if test="createdEnd != null">
+            AND wb.created_time <![CDATA[<=]]>
+            #{createdEnd}
+        </if>
+        <if test="plateNumber != null">
+            AND wb.plate_number LIKE CONCAT('%',#{plateNumber},'%')
+        </if>
+        <if test="wsSerialNo != null and wsSerialNo!=''">
+            AND ws.serial_no = #{wsSerialNo}
+        </if>
+        <if test="marketId != null">
+            AND wb.market_id = #{marketId}
+        </if>
+        <if test="unitPriceStartValue != null">
+            AND unit_weight_price <![CDATA[>=]]>
+            #{unitPriceStartValue}
+        </if>
+        <if test="unitPriceEndValue != null">
+            AND unit_weight_price <![CDATA[<=]]>
+            #{unitPriceEndValue}
+        </if>
+        <if test="operationStartTime != null">
+            AND ws.last_operation_time <![CDATA[>=]]>
+            #{operationStartTime}
+        </if>
+        <if test="operationEndTime != null">
+            AND ws.last_operation_time <![CDATA[<=]]>
+            #{operationEndTime}
+        </if>
+        <if test="operatorId != null">
+            AND ws.operator_id = #{operatorId}
+        </if>
+        <if test="sort !=null and sort!='' and order !=null and order !=''">
+            ORDER BY ${sort} ${order}
+        </if>
+        <if test="sort ==null or sort==''">
+            ORDER BY wb.created_time DESC
+        </if>
+    </select>
 
 	<select id="selectByExampleModified" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="ClientListResultMap">
 		SELECT

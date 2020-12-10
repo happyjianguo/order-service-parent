@@ -7,6 +7,8 @@
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
 		<result column="weighing_serial_no" jdbcType="VARCHAR" property="weighingSerialNo" />
+		<result column="statement_id" jdbcType="BIGINT" property="statementId" />
+		<result column="statement_serial_no" jdbcType="VARCHAR" property="statementSerialNo" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
 		<result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
@@ -27,13 +29,17 @@
 		<result column="modifier_id" jdbcType="BIGINT" property="modifierId" />
 		<result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
 		<result column="version" jdbcType="INTEGER" property="version" />
+		<result column="last_operation_time" jdbcType="TIMESTAMP" property="lastOperationTime" />
+		<result column="last_operator_id" jdbcType="BIGINT" property="lastOperatorId" />
+		<result column="last_operator_name" jdbcType="VARCHAR" property="lastOperatorName" />
 	</resultMap>
 	<sql id="Base_Column_List">
 		<!-- WARNING - @mbg.generated -->
-		id, serial_no, weighing_bill_id, weighing_serial_no, buyer_id, buyer_card_no, buyer_name,
-		buyer_actual_amount, buyer_poundage, seller_id, seller_card_no, seller_name, seller_actual_amount,
-		seller_poundage, trade_amount, frozen_amount, state, pay_order_no, frozen_order_no,
-		creator_id, created_time, modifier_id, modified_time, version
+		id, serial_no, weighing_bill_id, weighing_serial_no, statement_id, statement_serial_no,
+		buyer_id, buyer_card_no, buyer_name, buyer_actual_amount, buyer_poundage, seller_id,
+		seller_card_no, seller_name, seller_actual_amount, seller_poundage, trade_amount,
+		frozen_amount, state, pay_order_no, frozen_order_no, creator_id, created_time, modifier_id,
+		modified_time, version, last_operation_time, last_operator_id, last_operator_name
 	</sql>
 
 	<sql id="Join_Column_List">
@@ -64,6 +70,7 @@
 		ws.version
 	</sql>
 
+
 	<resultMap extends="BaseResultMap" id="AppletListRM" type="com.dili.orders.dto.WeighingStatementAppletDto">
 		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
 		<result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
@@ -72,7 +79,7 @@
 		<result column="unit_weight" jdbcType="INTEGER" property="unitWeight" />
 		<result column="net_weight" jdbcType="INTEGER" property="netWeight" />
 	</resultMap>
-	<resultMap type="com.dili.orders.dto.WeighingStatementAppletStateCountDto" id="AppletStateCountRM">
+	<resultMap id="AppletStateCountRM" type="com.dili.orders.dto.WeighingStatementAppletStateCountDto">
 		<result column="state" property="state" />
 		<result column="total_frozen_amount" property="totalFrozenAmount" />
 		<result column="total_trade_amount" property="totalTradeAmount" />
@@ -123,7 +130,8 @@
 		count(*) AS state_count
 		FROM
 		weighing_statement ws
-		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
+		INNER JOIN weighing_bill wb ON
+		ws.weighing_bill_id = wb.id
 		INNER JOIN
 		weighing_bill_operation_record wbor ON wbor.statement_id = ws.id
 		AND ((
@@ -131,7 +139,8 @@
 		AND wbor.operation_type = 4
 		)
 		OR ( ws.state = 3 AND wbor.operation_type = 5 )
-		OR ( ws.state = 4 AND wbor.operation_type
+		OR (
+		ws.state = 4 AND wbor.operation_type
 		= 2 ))
 		WHERE
 		1 = 1

@@ -177,6 +177,24 @@ public class WeighingStatement extends BaseDomain {
 	private Integer version;
 
 	/**
+	 * 最后操作时间
+	 */
+	@Column(name = "`last_operation_time`")
+	private LocalDateTime lastOperationTime;
+
+	/**
+	 * 最后操作员id
+	 */
+	@Column(name = "`last_operator_id`")
+	private Long lastOperatorId;
+
+	/**
+	 * 最后操作员名称
+	 */
+	@Column(name = "`last_operator_name`")
+	private String lastOperatorName;
+
+	/**
 	 * @return id
 	 */
 	@FieldDef(label = "id")
@@ -650,5 +668,29 @@ public class WeighingStatement extends BaseDomain {
 	 */
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public LocalDateTime getLastOperationTime() {
+		return lastOperationTime;
+	}
+
+	public void setLastOperationTime(LocalDateTime lastOperationTime) {
+		this.lastOperationTime = lastOperationTime;
+	}
+
+	public Long getLastOperatorId() {
+		return lastOperatorId;
+	}
+
+	public void setLastOperatorId(Long lastOperatorId) {
+		this.lastOperatorId = lastOperatorId;
+	}
+
+	public String getLastOperatorName() {
+		return lastOperatorName;
+	}
+
+	public void setLastOperatorName(String lastOperatorName) {
+		this.lastOperatorName = lastOperatorName;
 	}
 }
