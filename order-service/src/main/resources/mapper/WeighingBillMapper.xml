@@ -99,6 +99,7 @@
 		<result column="last_operator_id" property="statement.lastOperatorId" />
 		<result column="last_operator_name" property="statement.lastOperatorName" />
 		<result column="last_operation_time" property="statement.lastOperationTime" />
+		<result column="last_operator_user_name" property="statement.lastOperatorUserName" />
 		<result column="unit_weight_price" property="unitWeightPrice" />
 		<result column="unit_piece_price" property="unitPiecePrice" />
 	</resultMap>
@@ -197,7 +198,8 @@
 		ws.state AS ws_state,
 		ws.last_operation_time,
 		ws.last_operator_id,
-		ws.last_operator_name
+		ws.last_operator_name,
+		ws.last_operator_user_name
 	</sql>
 
 	<sql id="Wbor_Join_Column_List">

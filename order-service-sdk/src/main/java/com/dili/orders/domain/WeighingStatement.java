@@ -195,6 +195,12 @@ public class WeighingStatement extends BaseDomain {
 	private String lastOperatorName;
 
 	/**
+	 * 最后操作员名称
+	 */
+	@Column(name = "`last_operator_user_name`")
+	private String lastOperatorUserName;
+
+	/**
 	 * @return id
 	 */
 	@FieldDef(label = "id")
@@ -692,5 +698,13 @@ public class WeighingStatement extends BaseDomain {
 
 	public void setLastOperatorName(String lastOperatorName) {
 		this.lastOperatorName = lastOperatorName;
+	}
+
+	public String getLastOperatorUserName() {
+		return lastOperatorUserName;
+	}
+
+	public void setLastOperatorUserName(String lastOperatorUserName) {
+		this.lastOperatorUserName = lastOperatorUserName;
 	}
 }

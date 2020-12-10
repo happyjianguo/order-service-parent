@@ -213,6 +213,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		statement.setLastOperationTime(now);
 		statement.setLastOperatorId(bill.getCreatorId());
 		statement.setLastOperatorName(operator.getRealName());
+		statement.setLastOperatorUserName(operator.getUserName());
 		rows = this.weighingStatementMapper.insertSelective(statement);
 		if (rows <= 0) {
 			throw new AppException("保存结算单失败");
@@ -414,6 +415,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingStatement.setLastOperationTime(freezeOutput.getData().getWhen());
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
+		weighingStatement.setLastOperatorUserName(operator.getUserName());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新过磅单状态失败");
@@ -656,6 +658,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			ws.setLastOperationTime(operationTime);
 			ws.setLastOperatorId(operatorId);
 			ws.setLastOperatorName(operator.getRealName());
+			ws.setLastOperatorUserName(operator.getUserName());
 			rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
 			if (rows <= 0) {
 				throw new AppException("作废结算单失败");
@@ -772,6 +775,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			ws.setLastOperationTime(operationTime);
 			ws.setLastOperatorId(operatorId);
 			ws.setLastOperatorName(operator.getRealName());
+			ws.setLastOperatorUserName(operator.getUserName());
 			rows = this.weighingStatementMapper.updateByPrimaryKeySelective(ws);
 			if (rows <= 0) {
 				throw new AppException("作废结算单失败");
@@ -878,6 +882,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingStatement.setLastOperationTime(paymentOutput.getData().getWhen());
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
+		weighingStatement.setLastOperatorUserName(operator.getUserName());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新结算单状态失败");
@@ -1105,6 +1110,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingStatement.setLastOperationTime(paymentOutput.getData().getWhen());
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
+		weighingStatement.setLastOperatorUserName(operator.getUserName());
 		int rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
 			throw new AppException("更新结算单状态失败");
@@ -1262,6 +1268,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setLastOperationTime(now);
 		ws.setLastOperatorId(dto.getModifierId());
 		ws.setLastOperatorName(operator.getRealName());
+		ws.setLastOperatorUserName(operator.getUserName());
 		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
 		if (rows <= 0) {
 			throw new AppException("更新过磅单失败");
@@ -1401,6 +1408,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingStatement.setLastOperationTime(paymentOutput.getData().getWhen());
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
+		weighingStatement.setLastOperatorUserName(operator.getUserName());
 		rows = this.weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
 		if (rows <= 0) {
 			return BaseOutput.failure("更新结算单状态失败");
@@ -1445,6 +1453,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		statement.setLastOperationTime(paymentOutput.getWhen());
 		statement.setLastOperatorId(operatorId);
 		statement.setLastOperatorName(operator.getRealName());
+		statement.setLastOperatorUserName(operator.getUserName());
 		rows = this.weighingStatementMapper.insertSelective(statement);
 		if (rows <= 0) {
 			throw new AppException("保存结算单失败");
