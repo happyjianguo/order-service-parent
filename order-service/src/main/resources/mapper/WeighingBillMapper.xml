@@ -319,7 +319,7 @@
 			ORDER BY ${sort} ${order}
 		</if>
 		<if test="sort ==null or sort==''">
-			ORDER BY wb.created_time DESC
+			ORDER BY t1.created_time DESC
 		</if>
 	</select>
 
