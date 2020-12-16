@@ -10,15 +10,21 @@ import com.dili.orders.domain.ComprehensiveFee;
 import com.dili.orders.service.ComprehensiveFeeService;
 import com.dili.orders.utils.WebUtil;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
+import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
+import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.*;
+
+import static tk.mybatis.spring.annotation.MapperScannerRegistrar.LOGGER;
 
 /**
  * 检测收费服务接口
@@ -209,6 +215,25 @@ public class ComprehensiveFeeApi {
                 queryFeeInputList.add(queryFeeInput);
             }
         }
-        return chargeRuleRpc.batchQueryFee(queryFeeInputList);
+        BaseOutput<List<QueryFeeOutput>> result=chargeRuleRpc.batchQueryFee(queryFeeInputList);
+        if(result.isSuccess()){
+            List<QueryFeeOutput> datas=result.getData();
+            StringBuffer infoSb=new StringBuffer("市场[ID:");
+            infoSb.append(marketId);
+            infoSb.append("]的操作员[ID:");
+            infoSb.append(listBaseOutput.getData().get(0).getOperatorId());
+            infoSb.append("],获取顾客[ID:");
+            infoSb.append(customerId);
+            infoSb.append("]的检查收费计费规则为：");
+            for(int i=0;i<datas.size();i++){
+                infoSb.append("规则[ID:");
+                infoSb.append(datas.get(i).getRuleId());
+                infoSb.append("]：");
+                infoSb.append(datas.get(i).getTotalFee());
+                infoSb.append("(元),");
+            }
+            LOGGER.info(infoSb.substring(0,infoSb.length()-1)+"。");
+        }
+        return result;
     }
 }
