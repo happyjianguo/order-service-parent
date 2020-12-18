@@ -165,6 +165,15 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         if (Objects.equals(transitionDepartureApply.getPayStatus(), PayStatusEnum.CLOSED.getCode())) {
             throw new RuntimeException("该申请单已被关闭，请重新选择");
         }
+        //根据卡号获取相关信息
+        BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(transitionDepartureSettlement.getCustomerCardNo());
+        if (!oneAccountCard.isSuccess()) {
+            return BaseOutput.failure(oneAccountCard.getMessage());
+        }
+        //设置持卡人姓名
+        if (Objects.nonNull(oneAccountCard.getData()) && Objects.nonNull(oneAccountCard.getData().getAccountInfo())) {
+            transitionDepartureSettlement.setHoldName(oneAccountCard.getData().getAccountInfo().getHoldName());
+        }
         transitionDepartureSettlement.setPlate(transitionDepartureSettlement.getPlate().toUpperCase());
         //进门收费新增需要保存车型明，车型code。车型id
         CarTypeForBusinessDTO carTypeForJmsfDTO = new CarTypeForBusinessDTO();

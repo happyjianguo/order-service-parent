@@ -12,8 +12,10 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.domain.UidStatic;
+import com.dili.orders.dto.AccountSimpleResponseDto;
 import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.glossary.ApplyEnum;
+import com.dili.orders.rpc.CardRpc;
 import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.TransitionDepartureApplyService;
 import com.dili.orders.utils.WebUtil;
@@ -49,6 +51,9 @@ public class TransitionDepartureApplyApi {
 
     @Autowired
     private TradeTypeRpc tradeTypeRpc;
+
+    @Autowired
+    private CardRpc cardRpc;
 
     /**
      * 分页查询TransitionDepartureApply，返回easyui分页信息
@@ -138,6 +143,16 @@ public class TransitionDepartureApplyApi {
                 return BaseOutput.failure(cusCategory.getMessage());
             }
             transitionDepartureApply.setCategoryName(cusCategory.getData().getName());
+
+            //根据卡号查询相关卡务信息
+            BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(transitionDepartureApply.getCustomerCardNo());
+            if (!oneAccountCard.isSuccess()) {
+                return BaseOutput.failure(oneAccountCard.getMessage());
+            }
+            //设置持卡人姓名
+            if (Objects.nonNull(oneAccountCard.getData()) && Objects.nonNull(oneAccountCard.getData().getAccountInfo())) {
+                transitionDepartureApply.setHoldName(oneAccountCard.getData().getAccountInfo().getHoldName());
+            }
             //插入数据
             int i = transitionDepartureApplyService.insertSelective(transitionDepartureApply);
             if (i > 0) {
