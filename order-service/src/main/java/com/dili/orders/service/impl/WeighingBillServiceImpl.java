@@ -1255,23 +1255,26 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LocalDateTime now = LocalDateTime.now();
 		ws.setModifierId(dto.getModifierId());
 		ws.setModifiedTime(now);
-		ws.setLastOperationTime(now);
-		ws.setLastOperatorId(dto.getModifierId());
-		ws.setLastOperatorName(operator.getRealName());
-		ws.setLastOperatorUserName(operator.getUserName());
-		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
-		if (rows <= 0) {
-			throw new AppException("更新过磅单失败");
-		}
 
 		// 判断是否是未结算单，否则记录过磅时间
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+
+			// 更新操作人信息
+			ws.setLastOperationTime(now);
+			ws.setLastOperatorId(dto.getModifierId());
+			ws.setLastOperatorName(operator.getRealName());
+			ws.setLastOperatorUserName(operator.getUserName());
+
 			// 插入一条过磅信息
 			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.WEIGH, now);
 			rows = this.wbrMapper.insertSelective(wbor);
 			if (rows <= 0) {
 				throw new AppException("保存操作记录失败");
 			}
+		}
+		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
+		if (rows <= 0) {
+			throw new AppException("更新过磅单失败");
 		}
 
 		// 记录日志系统
