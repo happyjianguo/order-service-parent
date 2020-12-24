@@ -3,6 +3,12 @@ package com.dili.orders.config;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+/**
+ * 数据源切换器
+ * 
+ * @author jiang
+ *
+ */
 @Component
 @Lazy(false)
 public class DataSourceContextHolder {
