@@ -33,15 +33,18 @@ import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
-import com.dili.customer.sdk.domain.Customer;
+import com.dili.customer.sdk.domain.CharacterType;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
 import com.dili.customer.sdk.dto.RelatedDto;
 import com.dili.customer.sdk.dto.RelatedQuery;
+import com.dili.customer.sdk.enums.CustomerEnum;
 import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.customer.sdk.rpc.RelatedRpc;
 import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
+import com.dili.orders.config.SelectDB;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.MeasureType;
@@ -96,12 +99,15 @@ import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.dto.RoleUserDto;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.rpc.RoleRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
@@ -109,6 +115,7 @@ import com.diligrp.message.sdk.domain.input.AppPushInput;
 import com.diligrp.message.sdk.rpc.AppPushRpc;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
 
 import io.seata.spring.annotation.GlobalTransactional;
 import tk.mybatis.mapper.entity.Example;
@@ -178,6 +185,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private RoleRpc roleRpc;
 	@Autowired
 	private TradeTypeRpc tradeTypeRpc;
+	@Autowired
+	private DataDictionaryRpc dataDictionaryRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -239,14 +248,52 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	// 设置买家代理人信息
-	private void setBuyerAgentInfo(WeighingBillAgentInfo agentInfo, Customer buyerAgent) {
+	private void setBuyerAgentInfo(WeighingBillAgentInfo agentInfo, CustomerExtendDto buyerAgent) {
 		agentInfo.setBuyerAgentCode(buyerAgent.getCode());
 		agentInfo.setBuyerAgentId(buyerAgent.getId());
 		agentInfo.setBuyerAgentName(buyerAgent.getName());
-		agentInfo.setBuyerAgentType(buyerAgent.getCustomerMarket().getType());
+		this.setBuyerAgentCustomerMarketType(agentInfo, buyerAgent);
 	}
 
-	private Customer getCustomerAgent(UserAccountCardResponseDto customerInfo, WeighingBill weighingBill) {
+	private void setBuyerAgentCustomerMarketType(WeighingBillAgentInfo agentInfo, CustomerExtendDto buyerAgent) {
+		// 买方代理人先取买方角色
+		CharacterType buyerType = buyerAgent.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.买家.getCode())).findFirst().orElse(null);
+		if (buyerType != null) {
+			agentInfo.setBuyerAgentType(buyerType.getSubType());
+		}
+		// 没查到再查卖方角色
+		CharacterType sellerType = buyerAgent.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.经营户.getCode())).findFirst().orElse(null);
+		if (sellerType != null) {
+			agentInfo.setBuyerAgentType(sellerType.getSubType());
+		}
+		// 没查到再查其他
+		CharacterType otherType = buyerAgent.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.其他类型.getCode())).findFirst().orElse(null);
+		if (otherType != null) {
+			agentInfo.setBuyerAgentType(otherType.getSubType());
+		}
+
+	}
+
+	private void setSellerAgentCustomerMarketType(WeighingBillAgentInfo agentInfo, CustomerExtendDto sellerAgent) {
+		// 没查到再查卖方角色
+		CharacterType sellerType = sellerAgent.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.经营户.getCode())).findFirst().orElse(null);
+		if (sellerType != null) {
+			agentInfo.setBuyerAgentType(sellerType.getSubType());
+		}
+		// 买方代理人先取买方角色
+		CharacterType buyerType = sellerAgent.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.买家.getCode())).findFirst().orElse(null);
+		if (buyerType != null) {
+			agentInfo.setBuyerAgentType(buyerType.getSubType());
+		}
+		// 没查到再查其他
+		CharacterType otherType = sellerAgent.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.其他类型.getCode())).findFirst().orElse(null);
+		if (otherType != null) {
+			agentInfo.setBuyerAgentType(otherType.getSubType());
+		}
+
+	}
+
+	private CustomerExtendDto getCustomerAgent(UserAccountCardResponseDto customerInfo, WeighingBill weighingBill) {
 		// 卖家代理人
 		RelatedQuery agentQuery = new RelatedQuery();
 		agentQuery.setCustomerId(customerInfo.getCustomerId());
@@ -259,7 +306,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (CollectionUtils.isEmpty(relatedOutput.getData())) {
 			return null;
 		}
-		BaseOutput<Customer> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getParent(), weighingBill.getMarketId());
+		BaseOutput<CustomerExtendDto> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getParent(), weighingBill.getMarketId());
 		if (!agentOutput.isSuccess()) {
 			LOGGER.error(String.format("查询卖方代理人失败:code=%s,message=%s", relatedOutput.getMessage(), relatedOutput.getCode(), relatedOutput.getMessage()));
 			throw new AppException(agentOutput.getMessage());
@@ -271,11 +318,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	// 设置卖家代理人信息
-	private void setSellerAgentInfo(WeighingBillAgentInfo agentInfo, Customer sellerAgent) {
+	private void setSellerAgentInfo(WeighingBillAgentInfo agentInfo, CustomerExtendDto sellerAgent) {
 		agentInfo.setSellerAgentCode(sellerAgent.getCode());
 		agentInfo.setSellerAgentId(sellerAgent.getId());
 		agentInfo.setSellerAgentName(sellerAgent.getName());
-		agentInfo.setSellerAgentType(sellerAgent.getCustomerMarket().getType());
+		this.setSellerAgentCustomerMarketType(agentInfo, sellerAgent);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -699,6 +746,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return this.getActualDao().selectByExampleModified(weighingBill);
 	}
 
+	@SelectDB("read")
 	@Override
 	public PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query) {
 		Integer page = query.getPage();
@@ -1062,8 +1110,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		UserAccountCardResponseDto buyerInfo = this.getBuyerInfo(weighingBill);
 		UserAccountCardResponseDto sellerInfo = this.getSellerInfo(weighingBill);
-		Customer buyerAgent = this.getCustomerAgent(buyerInfo, weighingBill);
-		Customer sellerAgent = this.getCustomerAgent(sellerInfo, weighingBill);
+		CustomerExtendDto buyerAgent = this.getCustomerAgent(buyerInfo, weighingBill);
+		CustomerExtendDto sellerAgent = this.getCustomerAgent(sellerInfo, weighingBill);
 		if (buyerAgent != null || sellerAgent != null) {
 			agentInfo = new WeighingBillAgentInfo();
 			agentInfo.setWeighingBillId(weighingBill.getId());
@@ -2117,6 +2165,44 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.mqService.send(WeighingBillMQConfig.EXCHANGE_REFERENCE_PRICE_CHANGE, WeighingBillMQConfig.ROUTING_REFERENCE_PRICE_CHANGE, JSON.toJSONString(map));
 	}
 
+	public List<String> getSubTypes(List<CharacterType> typeList) {
+		if (CollectionUtils.isEmpty(typeList)) {
+			return Lists.newArrayList();
+		}
+		List<String> typesList = new ArrayList<String>();
+		typeList.forEach(type -> {
+			typesList.add(type.getSubType());
+		});
+		return typesList;
+	}
+
+	public String getSubTypeName(List<CharacterType> typeList, Long firmId) {
+		if (CollectionUtils.isEmpty(typeList)) {
+			return "";
+		}
+		List<String> subTypeNameList = Lists.newArrayList();
+		typeList.forEach(characterType -> {
+			DataDictionaryValue ddv = DTOUtils.newInstance(DataDictionaryValue.class);
+			ddv.setDdCode(characterType.getCharacterType());
+			ddv.setCode(characterType.getSubType());
+			ddv.setFirmId(firmId);
+			BaseOutput<List<DataDictionaryValue>> ddOutput = dataDictionaryRpc.listDataDictionaryValue(ddv);
+			if (!ddOutput.isSuccess()) {
+				throw new AppException("查询客户身份类型数据字典失败");
+			}
+			List<DataDictionaryValue> ddList = ddOutput.getData();
+			if (ddList == null || ddList.size() == 0) {
+				LOGGER.warn("数据字典中没找到该客户身份类型CharacterType[{}]SubType[{}]", characterType.getCharacterType(), characterType.getSubType());
+			} else {
+				if (ddList.size() > 1) {
+					LOGGER.warn("数据字典中配置了多个身份类型CharacterType[{}]SubType[{}]，只取第一个", characterType.getCharacterType(), characterType.getSubType());
+				}
+				subTypeNameList.add(ddList.get(0).getName());
+			}
+		});
+		return String.join(",", subTypeNameList);
+	}
+
 	private void setWeighingBillBuyerInfo(WeighingBill weighingBill) {
 		// 根据卡号查询账户信息
 		// 查询买家账户信息
@@ -2128,8 +2214,47 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerName(buyerInfo.getCustomerName());
 		weighingBill.setBuyerContact(buyerInfo.getCustomerContactsPhone());
 		weighingBill.setBuyerCardAccount(buyerInfo.getAccountId());
-		weighingBill.setBuyerType(buyerInfo.getCustomerMarketType());
+//		weighingBill.setBuyerType(buyerInfo.getCustomerMarketType());
+		this.setBuyerCustomerMarketType(weighingBill, buyerInfo);
 		weighingBill.setBuyerCertificateNumber(buyerInfo.getCustomerCertificateNumber());
+	}
+
+	private void setBuyerCustomerMarketType(WeighingBill weighingBill, UserAccountCardResponseDto buyerAccountInfo) {
+		// 买方代理人先取买方角色
+		BaseOutput<CustomerExtendDto> output = this.customerRpc.get(buyerAccountInfo.getCustomerId(), weighingBill.getMarketId());
+		if (output == null) {
+			throw new AppException("查询买家信息服务无响应");
+		}
+		if (output.isSuccess()) {
+			LOGGER.error("查询买家信息失败:message：[{}]", output.getMessage());
+			throw new AppException("查询买方信息失败");
+		}
+
+		CustomerExtendDto buyerInfo = output.getData();
+		CharacterType buyerType = buyerInfo.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.买家.getCode())).findFirst().orElse(null);
+		if (buyerType == null) {
+			throw new AppException("该卡客户身份类型不符");
+		}
+		weighingBill.setBuyerType(buyerType.getSubType());
+	}
+
+	private void setSellerCustomerMarketType(WeighingBill weighingBill, UserAccountCardResponseDto sellerAccountInfo) {
+		// 买方代理人先取买方角色
+		BaseOutput<CustomerExtendDto> output = this.customerRpc.get(sellerAccountInfo.getCustomerId(), weighingBill.getMarketId());
+		if (output == null) {
+			throw new AppException("查询买家信息服务无响应");
+		}
+		if (output.isSuccess()) {
+			LOGGER.error("查询买家信息失败:message：[{}]", output.getMessage());
+			throw new AppException("查询卖方信息失败");
+		}
+
+		CustomerExtendDto buyerInfo = output.getData();
+		CharacterType buyerType = buyerInfo.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.经营户.getCode())).findFirst().orElse(null);
+		if (buyerType == null) {
+			throw new AppException("该卡客户身份类型不符");
+		}
+		weighingBill.setBuyerType(buyerType.getSubType());
 	}
 
 	private UserAccountCardResponseDto getBuyerInfo(WeighingBill weighingBill) {
@@ -2154,7 +2279,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setSellerName(sellerInfo.getCustomerName());
 		weighingBill.setSellerContact(sellerInfo.getCustomerContactsPhone());
 		weighingBill.setSellerCardAccount(sellerInfo.getAccountId());
-		weighingBill.setSellerType(sellerInfo.getCustomerMarketType());
+		this.setSellerCustomerMarketType(weighingBill, sellerInfo);
 		weighingBill.setSellerCertificateNumber(sellerInfo.getCustomerCertificateNumber());
 	}
 
