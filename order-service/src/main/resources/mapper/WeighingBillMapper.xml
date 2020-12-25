@@ -11,22 +11,26 @@
 		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
 		<result column="buyer_card_account" jdbcType="BIGINT" property="buyerCardAccount" />
+		<result column="buyer_card_holder_name" jdbcType="VARCHAR" property="buyerCardHolderName" />
 		<result column="buyer_account" jdbcType="BIGINT" property="buyerAccount" />
 		<result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
 		<result column="buyer_contact" jdbcType="VARCHAR" property="buyerContact" />
 		<result column="buyer_type" jdbcType="VARCHAR" property="buyerType" />
 		<result column="buyer_agent_id" jdbcType="BIGINT" property="buyerAgentId" />
 		<result column="buyer_agent_name" jdbcType="VARCHAR" property="buyerAgentName" />
+		<result column="buyer_certificate_number" jdbcType="VARCHAR" property="buyerCertificateNumber" />
 		<result column="seller_id" jdbcType="BIGINT" property="sellerId" />
 		<result column="seller_code" jdbcType="VARCHAR" property="sellerCode" />
 		<result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
 		<result column="seller_card_account" jdbcType="BIGINT" property="sellerCardAccount" />
+		<result column="seller_card_holder_name" jdbcType="VARCHAR" property="sellerCardHolderName" />
 		<result column="seller_account" jdbcType="BIGINT" property="sellerAccount" />
 		<result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
 		<result column="seller_contact" jdbcType="VARCHAR" property="sellerContact" />
 		<result column="seller_type" jdbcType="VARCHAR" property="sellerType" />
 		<result column="seller_agent_id" jdbcType="BIGINT" property="sellerAgentId" />
 		<result column="seller_agent_name" jdbcType="VARCHAR" property="sellerAgentName" />
+		<result column="seller_certificate_number" jdbcType="VARCHAR" property="sellerCertificateNumber" />
 		<result column="goods_id" jdbcType="BIGINT" property="goodsId" />
 		<result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
 		<result column="goods_code" jdbcType="VARCHAR" property="goodsCode" />
@@ -59,31 +63,22 @@
 		<result column="process_definition_id" jdbcType="VARCHAR" property="processDefinitionId" />
 		<result column="market_id" jdbcType="BIGINT" property="marketId" />
 		<result column="version" jdbcType="INTEGER" property="version" />
+		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 	</resultMap>
 	<sql id="Base_Column_List">
 		<!-- WARNING - @mbg.generated -->
 		id, serial_no, measure_type, trade_type, buyer_id, buyer_code, buyer_card_no, buyer_card_account,
-		buyer_account, buyer_name, buyer_contact, buyer_type, buyer_agent_id, buyer_agent_name,
-		seller_id,
-		seller_code, seller_card_no, seller_card_account, seller_account, seller_name,
-		seller_contact, seller_type, seller_agent_id, seller_agent_name, goods_id, goods_name,
-		goods_code, goods_key_code,
-		goods_origin_city_id, goods_origin_city_name, unit_amount,
-		unit_price, unit_weight, fetched_weight, fetch_weight_time, rough_weight, net_weight,
-		plate_number, tare_weight, subtraction_rate,
-		subtraction_weight, estimated_net_weight,
+		buyer_card_holder_name, buyer_account, buyer_name, buyer_contact, buyer_type, buyer_agent_id,
+		buyer_agent_name, buyer_certificate_number, seller_id, seller_code, seller_card_no,
+		seller_card_account, seller_card_holder_name, seller_account, seller_name, seller_contact,
+		seller_type, seller_agent_id, seller_agent_name, seller_certificate_number, goods_id,
+		goods_name, goods_code, goods_key_code, goods_origin_city_id, goods_origin_city_name,
+		unit_amount, unit_price, unit_weight, fetched_weight, fetch_weight_time, rough_weight,
+		net_weight, plate_number, tare_weight, subtraction_rate, subtraction_weight, estimated_net_weight,
 		frozen_amount, tare_bill_number, state, created_time, modified_time, settlement_time,
-		creator_id, modifier_id, check_price, price_state, process_instance_id,
-		process_definition_id,
-		market_id, version
+		creator_id, modifier_id, check_price, price_state, process_instance_id, process_definition_id,
+		market_id, version, trade_type_id
 	</sql>
-	<select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-		<!-- WARNING - @mbg.generated -->
-		select
-		<include refid="Base_Column_List" />
-		from weighing_bill
-		where id = #{id,jdbcType=BIGINT}
-	</select>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
 		<result column="ws_id" property="statement.id" />
@@ -212,23 +207,6 @@
 		wbor.operation_time
 	</sql>
 
-	<!-- <select id="listPage" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap"> SELECT * FROM ( SELECT <include refid="Base_Join_Column_List" /> , <include refid="Ws_Join_Column_List" 
-		/> , ( CASE WHEN measure_type = 1 THEN wb.unit_price * 2 ELSE ROUND(wb.unit_price*200/wb.unit_weight,0) END ) AS unit_weight_price, ( CASE WHEN measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price, 
-		( CASE WHEN wbor.operator_id IS NULL THEN wbor1.operator_id ELSE wbor.operator_id END ) AS operator_id, ( CASE WHEN wbor.operator_id IS NULL THEN wbor1.operator_name ELSE wbor.operator_name END ) AS operator_name, 
-		( CASE WHEN wbor.operator_id IS NULL THEN wbor1.operator_user_name ELSE wbor.operator_user_name END ) AS operator_user_name, ( CASE WHEN wbor.operation_time IS NULL THEN wbor1.operation_time ELSE wbor.operation_time 
-		END ) AS operation_time FROM weighing_statement ws INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE id IN ( SELECT MAX( id ) AS 
-		id FROM weighing_bill_operation_record GROUP BY statement_id ) GROUP BY statement_id ) wbor ON ws.id = wbor.statement_id LEFT JOIN ( SELECT * FROM weighing_bill_operation_record WHERE id IN ( SELECT MAX( 
-		id ) AS id FROM weighing_bill_operation_record WHERE operation_type = 1 GROUP BY weighing_bill_id ) GROUP BY weighing_bill_id ) wbor1 ON wb.id = wbor1.weighing_bill_id WHERE 1 = 1 <if test="statementStates 
-		!= null"> AND ws.state IN <foreach close=")" collection="statementStates" item="item" open="(" separator=","> #{item} </foreach> </if> <if test="sellerCardNo != null and sellerCardNo!=''"> AND wb.seller_card_no 
-		= #{sellerCardNo} </if> <if test="buyerCardNo != null and buyerCardNo!=''"> AND wb.buyer_card_no = #{buyerCardNo} </if> <if test="state != null"> AND wb.state=#{state} </if> <if test="tradeType != null"> 
-		AND wb.trade_type=#{tradeType} </if> <if test="goodsIds != null"> AND wb.goods_id IN <foreach close=")" collection="goodsIds" item="goods" open="(" separator=","> #{goods} </foreach> </if> <if test="buyerId 
-		!= null"> AND wb.buyer_id = #{buyerId} </if> <if test="sellerId != null"> AND wb.seller_id = #{sellerId} </if> <if test="serialNo != null"> AND wb.serial_no = #{serialNo} </if> <if test="createdStart != 
-		null"> AND wb.created_time <![CDATA[>=]]> #{createdStart} </if> <if test="createdEnd != null"> AND wb.created_time <![CDATA[<=]]> #{createdEnd} </if> <if test="plateNumber != null"> AND wb.plate_number 
-		LIKE CONCAT('%',#{plateNumber},'%') </if> <if test="wsSerialNo != null and wsSerialNo!=''"> AND ws.serial_no = #{wsSerialNo} </if> <if test="marketId != null"> AND wb.market_id = #{marketId} </if> ) t1 
-		WHERE 1 = 1 <if test="unitPriceStartValue != null"> AND t1.unit_weight_price <![CDATA[>=]]> #{unitPriceStartValue} </if> <if test="unitPriceEndValue != null"> AND t1.unit_weight_price <![CDATA[<=]]> #{unitPriceEndValue} 
-		</if> <if test="operationStartTime != null"> AND t1.operation_time <![CDATA[>=]]> #{operationStartTime} </if> <if test="operationEndTime != null"> AND t1.operation_time <![CDATA[<=]]> #{operationEndTime} 
-		</if> <if test="operatorId != null"> AND operator_id = #{operatorId} </if> <if test="sort !=null and sort!='' and order !=null and order !=''"> ORDER BY ${sort} ${order} </if> <if test="sort ==null or 
-		sort==''"> ORDER BY t1.created_time DESC </if> </select> -->
 
 	<select id="listPage" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="PageResultMap">
 		SELECT * FROM(
@@ -238,7 +216,8 @@
 		<include refid="Ws_Join_Column_List" />
 		,
 		( CASE WHEN measure_type = 1 THEN wb.unit_price * 2 ELSE ROUND(wb.unit_price*200/wb.unit_weight,0) END ) AS unit_weight_price,
-		( CASE WHEN measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS unit_piece_price
+		( CASE WHEN measure_type = 2 THEN wb.unit_price ELSE NULL END ) AS
+		unit_piece_price
 		FROM
 		weighing_statement ws
 		INNER JOIN weighing_bill wb ON wb.id = ws.weighing_bill_id

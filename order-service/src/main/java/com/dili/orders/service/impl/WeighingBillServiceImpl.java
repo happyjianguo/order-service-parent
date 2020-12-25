@@ -2214,7 +2214,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerName(buyerInfo.getCustomerName());
 		weighingBill.setBuyerContact(buyerInfo.getCustomerContactsPhone());
 		weighingBill.setBuyerCardAccount(buyerInfo.getAccountId());
-//		weighingBill.setBuyerType(buyerInfo.getCustomerMarketType());
+		weighingBill.setBuyerCardHolderName(buyerInfo.getHoldName());
 		this.setBuyerCustomerMarketType(weighingBill, buyerInfo);
 		weighingBill.setBuyerCertificateNumber(buyerInfo.getCustomerCertificateNumber());
 	}
@@ -2279,6 +2279,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setSellerName(sellerInfo.getCustomerName());
 		weighingBill.setSellerContact(sellerInfo.getCustomerContactsPhone());
 		weighingBill.setSellerCardAccount(sellerInfo.getAccountId());
+		weighingBill.setSellerCardHolderName(sellerInfo.getHoldName());
 		this.setSellerCustomerMarketType(weighingBill, sellerInfo);
 		weighingBill.setSellerCertificateNumber(sellerInfo.getCustomerCertificateNumber());
 	}

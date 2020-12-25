@@ -81,6 +81,12 @@ public class WeighingBill extends BaseDomain {
 	private Long buyerCardAccount;
 
 	/**
+	 * 买家持卡人姓名
+	 */
+	@Column(name = "`buyer_card_holder_name`")
+	private String buyerCardHolderName;
+
+	/**
 	 * 买方支付账号
 	 */
 	@Column(name = "`buyer_account`")
@@ -143,6 +149,12 @@ public class WeighingBill extends BaseDomain {
 	 */
 	@Column(name = "`seller_card_account`")
 	private Long sellerCardAccount;
+
+	/**
+	 * 卖方持卡人姓名
+	 */
+	@Column(name = "`seller_card_holder_name`")
+	private String sellerCardHolderName;
 
 	/**
 	 * 卖方支付账号
@@ -1479,5 +1491,45 @@ public class WeighingBill extends BaseDomain {
 
 	public void setSellerCertificateNumber(String sellerCertificateNumber) {
 		this.sellerCertificateNumber = sellerCertificateNumber;
+	}
+
+	/**
+	 * 获取买家持卡人姓名
+	 *
+	 * @return buyer_card_holder_name - 买家持卡人姓名
+	 */
+	@FieldDef(label = "买家持卡人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getBuyerCardHolderName() {
+		return buyerCardHolderName;
+	}
+
+	/**
+	 * 设置买家持卡人姓名
+	 *
+	 * @param buyerCardHolderName 买家持卡人姓名
+	 */
+	public void setBuyerCardHolderName(String buyerCardHolderName) {
+		this.buyerCardHolderName = buyerCardHolderName;
+	}
+
+	/**
+	 * 获取卖方持卡人姓名
+	 *
+	 * @return seller_card_holder_name - 卖方持卡人姓名
+	 */
+	@FieldDef(label = "卖方持卡人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getSellerCardHolderName() {
+		return sellerCardHolderName;
+	}
+
+	/**
+	 * 设置卖方持卡人姓名
+	 *
+	 * @param sellerCardHolderName 卖方持卡人姓名
+	 */
+	public void setSellerCardHolderName(String sellerCardHolderName) {
+		this.sellerCardHolderName = sellerCardHolderName;
 	}
 }
