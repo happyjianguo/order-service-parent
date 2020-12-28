@@ -75,6 +75,10 @@ public class WeighingBillQueryDto extends WeighingBill {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Transient
 	private LocalDateTime operationEndTime;
+	@Operator(Operator.IN)
+	@Column(name = "`department_id`")
+	private List<Long> departmentIds;
+
 	/**
 	 * 是否过滤掉价格异常数据
 	 */
@@ -214,6 +218,14 @@ public class WeighingBillQueryDto extends WeighingBill {
 
 	public void setOperationEndTime(LocalDateTime operationEndTime) {
 		this.operationEndTime = operationEndTime;
+	}
+
+	public List<Long> getDepartmentIds() {
+		return departmentIds;
+	}
+
+	public void setDepartmentIds(List<Long> departmentIds) {
+		this.departmentIds = departmentIds;
 	}
 
 }

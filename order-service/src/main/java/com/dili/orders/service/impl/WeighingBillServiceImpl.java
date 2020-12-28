@@ -104,10 +104,12 @@ import com.dili.ss.exception.AppException;
 import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.DataDictionaryValue;
+import com.dili.uap.sdk.domain.Department;
 import com.dili.uap.sdk.domain.Firm;
 import com.dili.uap.sdk.domain.User;
 import com.dili.uap.sdk.domain.dto.RoleUserDto;
 import com.dili.uap.sdk.rpc.DataDictionaryRpc;
+import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.rpc.FirmRpc;
 import com.dili.uap.sdk.rpc.RoleRpc;
 import com.dili.uap.sdk.rpc.UserRpc;
@@ -187,6 +189,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	private TradeTypeRpc tradeTypeRpc;
 	@Autowired
 	private DataDictionaryRpc dataDictionaryRpc;
+	@Autowired
+	private DepartmentRpc departmentRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -203,6 +207,22 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		// 设置交易类型id
 		bill.setTradeTypeId(this.getTradeIdByCode(bill.getTradeType()));
+
+		User operator = this.getUserById(bill.getCreatorId());
+		bill.setDepartmentId(operator.getDepartmentId());
+		BaseOutput<Department> deptOutput = this.departmentRpc.get(operator.getDepartmentId());
+		if (deptOutput == null) {
+			LOGGER.error("查询操作员所在部门信息失败，接口无响应");
+			return BaseOutput.failure("查询部门信息失败");
+		}
+		if (!deptOutput.isSuccess()) {
+			LOGGER.error("查询操作员所在部门信息失败，message:[{}]", deptOutput.getMessage());
+			return BaseOutput.failure("查询部门信息失败");
+		}
+		if (deptOutput.getData() == null) {
+			return BaseOutput.failure("未查询到操作员的部门信息");
+		}
+
 		// 根据卡号查询账户信息
 		// 查询买家账户信息
 		this.setWeighingBillBuyerInfo(bill);
@@ -214,7 +234,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("保存过磅单失败");
 		}
 
-		User operator = this.getUserById(bill.getCreatorId());
 		LocalDateTime now = LocalDateTime.now();
 		Long firmId = this.getMarketIdByOperatorId(bill.getCreatorId());
 		WeighingStatement statement = this.buildWeighingStatement(bill, firmId);

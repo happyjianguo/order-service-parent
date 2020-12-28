@@ -353,6 +353,18 @@ public class WeighingBill extends BaseDomain {
 	private LocalDateTime settlementTime;
 
 	/**
+	 * 过磅单所属部门，来自创建用户所属部门
+	 */
+	@Column(name = "`department_id`")
+	private Long departmentId;
+
+	/**
+	 * 部门名称
+	 */
+	@Column(name = "`department_name`")
+	private String departmentName;
+
+	/**
 	 * 创建人id
 	 */
 	@Column(name = "`creator_id`")
@@ -1355,6 +1367,46 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setSettlementTime(LocalDateTime settlementTime) {
 		this.settlementTime = settlementTime;
+	}
+
+	/**
+	 * 获取过磅单所属部门，来自创建用户所属部门
+	 *
+	 * @return department_id - 过磅单所属部门，来自创建用户所属部门
+	 */
+	@FieldDef(label = "过磅单所属部门，来自创建用户所属部门")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getDepartmentId() {
+		return departmentId;
+	}
+
+	/**
+	 * 设置过磅单所属部门，来自创建用户所属部门
+	 *
+	 * @param departmentId 过磅单所属部门，来自创建用户所属部门
+	 */
+	public void setDepartmentId(Long departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	/**
+	 * 获取部门名称
+	 *
+	 * @return department_name - 部门名称
+	 */
+	@FieldDef(label = "部门名称", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getDepartmentName() {
+		return departmentName;
+	}
+
+	/**
+	 * 设置部门名称
+	 *
+	 * @param departmentName 部门名称
+	 */
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
 	}
 
 	/**
