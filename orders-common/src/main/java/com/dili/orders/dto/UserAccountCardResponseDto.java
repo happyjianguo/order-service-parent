@@ -17,14 +17,18 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class UserAccountCardResponseDto implements Serializable {
 	/** */
 	private static final long serialVersionUID = 9154422843880027453L;
+	/** account主键id */
+	private Long accountPkId;
+	/** card主键id */
+	private Long cardPkId;
 	/** 市场id */
 	private Long firmId;
 	/** 账号id */
 	private Long accountId;
 	/** 父账号id */
 	private Long parentAccountId;
-	/** 卡交易类型: 1-买家 2-卖家 */
-	private Integer accountType;
+	/** 卡交易类型: 买/经营户/其它 */
+	private String accountTypes;
 	/** 资金账号ID */
 	private Long fundAccountId;
 	/** 客户id */
@@ -33,14 +37,20 @@ public class UserAccountCardResponseDto implements Serializable {
 	private String customerName;
 	/** 客户编号 */
 	private String customerCode;
-	/** 客户市场类型(冗余customer_market) */
-	private String customerMarketType;
+	/** 客户角色 */
+	private String customerCharacterType;
 	/** 客户证件类型 */
 	private String customerCertificateType;
 	/** 客户身份号 */
 	private String customerCertificateNumber;
 	/** 客户电话 */
 	private String customerContactsPhone;
+	/** 持卡人姓名 */
+	private String holdName;
+	/** 持卡人证件号 */
+	private String holdCertificateNumber;
+	/** 持卡人联系电话 */
+	private String holdContactsPhone;
 	/** 使用权限(充值、提现、交费等) {@link com.dili.account.type.UsePermissionType} */
 	private List<String> permissionList;
 	/** 卡ID */
@@ -66,6 +76,22 @@ public class UserAccountCardResponseDto implements Serializable {
 	private String creator;
 	/** 创建人id */
 	private Long creatorId;
+
+	public Long getAccountPkId() {
+		return accountPkId;
+	}
+
+	public void setAccountPkId(Long accountPkId) {
+		this.accountPkId = accountPkId;
+	}
+
+	public Long getCardPkId() {
+		return cardPkId;
+	}
+
+	public void setCardPkId(Long cardPkId) {
+		this.cardPkId = cardPkId;
+	}
 
 	public String getCreator() {
 		return creator;
@@ -123,12 +149,12 @@ public class UserAccountCardResponseDto implements Serializable {
 		this.parentAccountId = parentAccountId;
 	}
 
-	public Integer getAccountType() {
-		return accountType;
+	public String getAccountTypes() {
+		return accountTypes;
 	}
 
-	public void setAccountType(Integer accountType) {
-		this.accountType = accountType;
+	public void setAccountTypes(String accountTypes) {
+		this.accountTypes = accountTypes;
 	}
 
 	public Long getFundAccountId() {
@@ -243,12 +269,36 @@ public class UserAccountCardResponseDto implements Serializable {
 		this.disabledState = disabledState;
 	}
 
-	public String getCustomerMarketType() {
-		return customerMarketType;
+	public String getCustomerCharacterType() {
+		return customerCharacterType;
 	}
 
-	public void setCustomerMarketType(String customerMarketType) {
-		this.customerMarketType = customerMarketType;
+	public void setCustomerCharacterType(String customerCharacterType) {
+		this.customerCharacterType = customerCharacterType;
+	}
+
+	public String getHoldName() {
+		return holdName;
+	}
+
+	public void setHoldName(String holdName) {
+		this.holdName = holdName;
+	}
+
+	public String getHoldCertificateNumber() {
+		return holdCertificateNumber;
+	}
+
+	public void setHoldCertificateNumber(String holdCertificateNumber) {
+		this.holdCertificateNumber = holdCertificateNumber;
+	}
+
+	public String getHoldContactsPhone() {
+		return holdContactsPhone;
+	}
+
+	public void setHoldContactsPhone(String holdContactsPhone) {
+		this.holdContactsPhone = holdContactsPhone;
 	}
 
 }

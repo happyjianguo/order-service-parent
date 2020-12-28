@@ -81,6 +81,12 @@ public class WeighingBill extends BaseDomain {
 	private Long buyerCardAccount;
 
 	/**
+	 * 买家持卡人姓名
+	 */
+	@Column(name = "`buyer_card_holder_name`")
+	private String buyerCardHolderName;
+
+	/**
 	 * 买方支付账号
 	 */
 	@Column(name = "`buyer_account`")
@@ -143,6 +149,12 @@ public class WeighingBill extends BaseDomain {
 	 */
 	@Column(name = "`seller_card_account`")
 	private Long sellerCardAccount;
+
+	/**
+	 * 卖方持卡人姓名
+	 */
+	@Column(name = "`seller_card_holder_name`")
+	private String sellerCardHolderName;
 
 	/**
 	 * 卖方支付账号
@@ -339,6 +351,18 @@ public class WeighingBill extends BaseDomain {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`settlement_time`")
 	private LocalDateTime settlementTime;
+
+	/**
+	 * 过磅单所属部门，来自创建用户所属部门
+	 */
+	@Column(name = "`department_id`")
+	private Long departmentId;
+
+	/**
+	 * 部门名称
+	 */
+	@Column(name = "`department_name`")
+	private String departmentName;
 
 	/**
 	 * 创建人id
@@ -1346,6 +1370,46 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
+	 * 获取过磅单所属部门，来自创建用户所属部门
+	 *
+	 * @return department_id - 过磅单所属部门，来自创建用户所属部门
+	 */
+	@FieldDef(label = "过磅单所属部门，来自创建用户所属部门")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getDepartmentId() {
+		return departmentId;
+	}
+
+	/**
+	 * 设置过磅单所属部门，来自创建用户所属部门
+	 *
+	 * @param departmentId 过磅单所属部门，来自创建用户所属部门
+	 */
+	public void setDepartmentId(Long departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	/**
+	 * 获取部门名称
+	 *
+	 * @return department_name - 部门名称
+	 */
+	@FieldDef(label = "部门名称", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getDepartmentName() {
+		return departmentName;
+	}
+
+	/**
+	 * 设置部门名称
+	 *
+	 * @param departmentName 部门名称
+	 */
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+
+	/**
 	 * 获取创建人id
 	 *
 	 * @return creator_id - 创建人id
@@ -1479,5 +1543,45 @@ public class WeighingBill extends BaseDomain {
 
 	public void setSellerCertificateNumber(String sellerCertificateNumber) {
 		this.sellerCertificateNumber = sellerCertificateNumber;
+	}
+
+	/**
+	 * 获取买家持卡人姓名
+	 *
+	 * @return buyer_card_holder_name - 买家持卡人姓名
+	 */
+	@FieldDef(label = "买家持卡人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getBuyerCardHolderName() {
+		return buyerCardHolderName;
+	}
+
+	/**
+	 * 设置买家持卡人姓名
+	 *
+	 * @param buyerCardHolderName 买家持卡人姓名
+	 */
+	public void setBuyerCardHolderName(String buyerCardHolderName) {
+		this.buyerCardHolderName = buyerCardHolderName;
+	}
+
+	/**
+	 * 获取卖方持卡人姓名
+	 *
+	 * @return seller_card_holder_name - 卖方持卡人姓名
+	 */
+	@FieldDef(label = "卖方持卡人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getSellerCardHolderName() {
+		return sellerCardHolderName;
+	}
+
+	/**
+	 * 设置卖方持卡人姓名
+	 *
+	 * @param sellerCardHolderName 卖方持卡人姓名
+	 */
+	public void setSellerCardHolderName(String sellerCardHolderName) {
+		this.sellerCardHolderName = sellerCardHolderName;
 	}
 }

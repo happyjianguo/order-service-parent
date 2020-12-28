@@ -299,6 +299,12 @@ public class TransitionDepartureApply extends BaseDomain {
     @Transient
     private String operator;
 
+    /**
+     * 持卡人姓名
+     */
+    @Column(name = "`hold_name`")
+    private String holdName;
+
 
     /**
      * 获取单据id
@@ -1015,5 +1021,13 @@ public class TransitionDepartureApply extends BaseDomain {
 
     public void setTransTypeName(String transTypeName) {
         this.transTypeName = transTypeName;
+    }
+
+    public String getHoldName() {
+        return holdName;
+    }
+
+    public void setHoldName(String holdName) {
+        this.holdName = holdName;
     }
 }
