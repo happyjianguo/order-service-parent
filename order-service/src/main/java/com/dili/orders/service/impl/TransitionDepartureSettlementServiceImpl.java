@@ -365,7 +365,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         this.setSellerCustomerMarketType(transitionDepartureSettlement, customer);
 
         // 设置客户身份类型中文
-        transitionDepartureSettlement.setCustomerMarketTypeName(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketTypeCode()));
+//        transitionDepartureSettlement.setCustomerMarketTypeName(CustomerType.getTypeName(transitionDepartureSettlement.getCustomerMarketTypeCode()));
         // 根据结算单apply_id获取到对应申请单
         TransitionDepartureApply transitionDepartureApply = transitionDepartureApplyService.get(transitionDepartureSettlement.getApplyId());
 
