@@ -56,6 +56,12 @@ public class WeighingBillApi {
 
 	}
 
+	/**
+	 * 打印列表
+	 * 
+	 * @param query
+	 * @return
+	 */
 	@RequestMapping(value = "/printList", method = { RequestMethod.POST })
 	public BaseOutput<?> printList(@RequestBody WeighingBillQueryDto query) {
 		try {
