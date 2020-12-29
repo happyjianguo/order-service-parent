@@ -37,13 +37,13 @@
 		<result column="goods_key_code" jdbcType="VARCHAR" property="goodsKeyCode" />
 		<result column="goods_origin_city_id" jdbcType="BIGINT" property="goodsOriginCityId" />
 		<result column="goods_origin_city_name" jdbcType="VARCHAR" property="goodsOriginCityName" />
-		<result column="unit_amount" jdbcType="INTEGER" property="unitAmount" />
+		<result column="unit_amount" jdbcType="BIGINT" property="unitAmount" />
 		<result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
 		<result column="unit_weight" jdbcType="INTEGER" property="unitWeight" />
 		<result column="fetched_weight" jdbcType="INTEGER" property="fetchedWeight" />
 		<result column="fetch_weight_time" jdbcType="TIMESTAMP" property="fetchWeightTime" />
-		<result column="rough_weight" jdbcType="INTEGER" property="roughWeight" />
-		<result column="net_weight" jdbcType="INTEGER" property="netWeight" />
+		<result column="rough_weight" jdbcType="BIGINT" property="roughWeight" />
+		<result column="net_weight" jdbcType="BIGINT" property="netWeight" />
 		<result column="plate_number" jdbcType="VARCHAR" property="plateNumber" />
 		<result column="tare_weight" jdbcType="INTEGER" property="tareWeight" />
 		<result column="subtraction_rate" jdbcType="INTEGER" property="subtractionRate" />
@@ -65,6 +65,89 @@
 		<result column="version" jdbcType="INTEGER" property="version" />
 		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 	</resultMap>
+
+	<resultMap id="ExportStatisticsResultMap" type="com.dili.orders.dto.WeighingBillListStatisticsDto">
+		<!-- WARNING - @mbg.generated -->
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
+		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
+		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
+		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
+		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
+		<result column="buyer_card_account" jdbcType="BIGINT" property="buyerCardAccount" />
+		<result column="buyer_card_holder_name" jdbcType="VARCHAR" property="buyerCardHolderName" />
+		<result column="buyer_account" jdbcType="BIGINT" property="buyerAccount" />
+		<result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
+		<result column="buyer_contact" jdbcType="VARCHAR" property="buyerContact" />
+		<result column="buyer_type" jdbcType="VARCHAR" property="buyerType" />
+		<result column="buyer_agent_id" jdbcType="BIGINT" property="buyerAgentId" />
+		<result column="buyer_agent_name" jdbcType="VARCHAR" property="buyerAgentName" />
+		<result column="buyer_certificate_number" jdbcType="VARCHAR" property="buyerCertificateNumber" />
+		<result column="seller_id" jdbcType="BIGINT" property="sellerId" />
+		<result column="seller_code" jdbcType="VARCHAR" property="sellerCode" />
+		<result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
+		<result column="seller_card_account" jdbcType="BIGINT" property="sellerCardAccount" />
+		<result column="seller_card_holder_name" jdbcType="VARCHAR" property="sellerCardHolderName" />
+		<result column="seller_account" jdbcType="BIGINT" property="sellerAccount" />
+		<result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
+		<result column="seller_contact" jdbcType="VARCHAR" property="sellerContact" />
+		<result column="seller_type" jdbcType="VARCHAR" property="sellerType" />
+		<result column="seller_agent_id" jdbcType="BIGINT" property="sellerAgentId" />
+		<result column="seller_agent_name" jdbcType="VARCHAR" property="sellerAgentName" />
+		<result column="seller_certificate_number" jdbcType="VARCHAR" property="sellerCertificateNumber" />
+		<result column="goods_id" jdbcType="BIGINT" property="goodsId" />
+		<result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+		<result column="goods_code" jdbcType="VARCHAR" property="goodsCode" />
+		<result column="goods_key_code" jdbcType="VARCHAR" property="goodsKeyCode" />
+		<result column="goods_origin_city_id" jdbcType="BIGINT" property="goodsOriginCityId" />
+		<result column="goods_origin_city_name" jdbcType="VARCHAR" property="goodsOriginCityName" />
+		<result column="unit_amount" jdbcType="INTEGER" property="unitAmount" />
+		<result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
+		<result column="unit_weight" jdbcType="INTEGER" property="unitWeight" />
+		<result column="fetched_weight" jdbcType="INTEGER" property="fetchedWeight" />
+		<result column="fetch_weight_time" jdbcType="TIMESTAMP" property="fetchWeightTime" />
+		<result column="rough_weight" jdbcType="INTEGER" property="roughWeight" />
+		<result column="net_weight" jdbcType="INTEGER" property="netWeight" />
+		<result column="plate_number" jdbcType="VARCHAR" property="plateNumber" />
+		<result column="tare_weight" jdbcType="BIGINT" property="tareWeight" />
+		<result column="subtraction_rate" jdbcType="INTEGER" property="subtractionRate" />
+		<result column="subtraction_weight" jdbcType="INTEGER" property="subtractionWeight" />
+		<result column="estimated_net_weight" jdbcType="INTEGER" property="estimatedNetWeight" />
+		<result column="frozen_amount" jdbcType="BIGINT" property="frozenAmount" />
+		<result column="tare_bill_number" jdbcType="VARCHAR" property="tareBillNumber" />
+		<result column="state" jdbcType="INTEGER" property="state" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+		<result column="settlement_time" jdbcType="TIMESTAMP" property="settlementTime" />
+		<result column="department_id" jdbcType="BIGINT" property="departmentId" />
+		<result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+		<result column="creator_id" jdbcType="BIGINT" property="creatorId" />
+		<result column="modifier_id" jdbcType="BIGINT" property="modifierId" />
+		<result column="check_price" jdbcType="INTEGER" property="checkPrice" />
+		<result column="price_state" jdbcType="INTEGER" property="priceState" />
+		<result column="market_id" jdbcType="BIGINT" property="marketId" />
+		<result column="version" jdbcType="INTEGER" property="version" />
+		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
+		<result column="ws_id" property="statement.id" />
+		<result column="ws_serial_no" property="statement.serialNo" />
+		<result column="ws_state" property="statement.state" />
+		<result column="trade_amount" property="statement.tradeAmount" />
+		<result column="ws_frozen_amount" property="statement.frozenAmount" />
+		<result column="buyer_poundage" property="statement.buyerPoundage" />
+		<result column="buyer_actual_amount" property="statement.buyerActualAmount" />
+		<result column="seller_poundage" property="statement.sellerPoundage" />
+		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
+		<result column="ws_state" property="statement.state" />
+		<result column="last_operator_id" property="statement.lastOperatorId" />
+		<result column="last_operator_name" property="statement.lastOperatorName" />
+		<result column="last_operation_time" property="statement.lastOperationTime" />
+		<result column="last_operator_user_name" property="statement.lastOperatorUserName" />
+		<result column="unit_weight_price" property="unitWeightPrice" />
+		<result column="unit_piece_price" property="unitPiecePrice" />
+	</resultMap>
+
+
 	<sql id="Base_Column_List">
 		<!-- WARNING - @mbg.generated -->
 		id, serial_no, measure_type, trade_type, buyer_id, buyer_code, buyer_card_no, buyer_card_account,
@@ -83,13 +166,6 @@
 		process_instance_id, process_definition_id, market_id, version,
 		trade_type_id
 	</sql>
-	<select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
-		<!-- WARNING - @mbg.generated -->
-		select
-		<include refid="Base_Column_List" />
-		from weighing_bill
-		where id = #{id,jdbcType=BIGINT}
-	</select>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
 		<result column="ws_id" property="statement.id" />
@@ -318,6 +394,130 @@
 		</if>
 		<if test="sort ==null or sort==''">
 			ORDER BY t1.created_time DESC
+		</if>
+	</select>
+
+	<select id="selectExportStatistics" parameterType="com.dili.orders.dto.WeighingBillQueryDto" resultMap="ExportStatisticsResultMap">
+		SELECT
+		SUM( t1.rough_weight ) AS rough_weight,
+		SUM( t1.tare_weight ) AS tare_weight,
+		SUM(
+		t1.net_weight ) AS net_weight,
+		SUM( t1.unit_amount ) AS unit_amount,
+		SUM( t1.unit_weight ) AS unit_weight,
+		SUM(
+		t1.trade_amount ) AS trade_amount,
+		SUM( t1.buyer_poundage ) AS buyer_poundage,
+		SUM(
+		t1.buyer_actual_amount ) AS buyer_actual_amount,
+		SUM( t1.seller_poundage ) AS seller_poundage,
+		SUM(
+		t1.seller_actual_amount ) AS seller_actual_amount
+		FROM
+		(
+		SELECT
+		wb.rough_weight,
+		wb.tare_weight,
+		wb.net_weight,
+		wb.unit_amount,
+		wb.unit_weight,
+		ws.trade_amount,
+		ws.buyer_poundage,
+		ws.buyer_actual_amount,
+		ws.seller_poundage,
+		ws.seller_actual_amount,
+		(
+		CASE
+		WHEN measure_type = 1 THEN
+		wb.unit_price * 2 ELSE
+		ROUND( wb.unit_price * 200 / wb.unit_weight, 0 )
+		END
+		) AS unit_weight_price,
+		( CASE WHEN measure_type = 2
+		THEN wb.unit_price ELSE NULL END ) AS unit_piece_price
+		FROM
+		weighing_statement ws
+		INNER JOIN
+		weighing_bill wb ON wb.id = ws.weighing_bill_id
+		WHERE
+		1 = 1
+		<if test="statementStates != null">
+			AND ws.state IN
+			<foreach close=")" collection="statementStates" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="sellerCardNo != null and sellerCardNo!=''">
+			AND wb.seller_card_no = #{sellerCardNo}
+		</if>
+		<if test="buyerCardNo != null and buyerCardNo!=''">
+			AND wb.buyer_card_no = #{buyerCardNo}
+		</if>
+		<if test="state != null">
+			AND wb.state=#{state}
+		</if>
+		<if test="tradeType != null">
+			AND wb.trade_type=#{tradeType}
+		</if>
+		<if test="goodsIds != null">
+			AND wb.goods_id IN
+			<foreach close=")" collection="goodsIds" item="goods" open="(" separator=",">
+				#{goods}
+			</foreach>
+		</if>
+		<if test="buyerId != null">
+			AND wb.buyer_id = #{buyerId}
+		</if>
+		<if test="sellerId != null">
+			AND wb.seller_id = #{sellerId}
+		</if>
+		<if test="serialNo != null">
+			AND wb.serial_no = #{serialNo}
+		</if>
+		<if test="createdStart != null">
+			AND wb.created_time <![CDATA[>=]]>
+			#{createdStart}
+		</if>
+		<if test="createdEnd != null">
+			AND wb.created_time <![CDATA[<=]]>
+			#{createdEnd}
+		</if>
+		<if test="plateNumber != null">
+			AND wb.plate_number LIKE CONCAT('%',#{plateNumber},'%')
+		</if>
+		<if test="wsSerialNo != null and wsSerialNo!=''">
+			AND ws.serial_no = #{wsSerialNo}
+		</if>
+		<if test="marketId != null">
+			AND wb.market_id = #{marketId}
+		</if>
+		<if test="operationStartTime != null">
+			AND ws.last_operation_time <![CDATA[>=]]>
+			#{operationStartTime}
+		</if>
+		<if test="operationEndTime != null">
+			AND ws.last_operation_time <![CDATA[<=]]>
+			#{operationEndTime}
+		</if>
+		<if test="operatorId != null">
+			AND ws.last_operator_id = #{operatorId}
+		</if>
+		<if test="departmentIds != null and departmentIds.size() > 0">
+			AND department_id IN
+			<foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
+				#{deptId}
+			</foreach>
+		</if>
+		) t1
+		WHERE
+		1 = 1
+		<if test="unitPriceStartValue != null">
+			AND unit_weight_price <![CDATA[>=]]>
+			#{unitPriceStartValue}
+		</if>
+		<if test="unitPriceEndValue != null">
+			AND unit_weight_price <![CDATA[<=]]>
+			#{unitPriceEndValue}
 		</if>
 	</select>
 

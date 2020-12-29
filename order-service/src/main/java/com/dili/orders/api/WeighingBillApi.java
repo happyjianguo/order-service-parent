@@ -18,6 +18,7 @@ import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,6 +56,15 @@ public class WeighingBillApi {
 
 	}
 
+	@RequestMapping(value = "/printList", method = { RequestMethod.POST })
+	public BaseOutput<?> printList(@RequestBody WeighingBillQueryDto query) {
+		try {
+			return this.weighingBillService.printList(query);
+		} catch (Exception e) {
+			return BaseOutput.failure(e.getMessage());
+		}
+	}
+
 	/**
 	 * 根据条件查询过磅单
 	 *
@@ -76,7 +86,7 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "新增过磅，过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "add", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/insert", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill,HttpServletRequest request) {
+	public @ResponseBody BaseOutput insert(@RequestBody WeighingBill weighingBill, HttpServletRequest request) {
 		try {
 			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.addWeighingBill(weighingBill);
@@ -93,7 +103,7 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "修改过磅,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill,HttpServletRequest request) {
+	public @ResponseBody BaseOutput update(@RequestBody WeighingBill weighingBill, HttpServletRequest request) {
 		try {
 			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.updateWeighingBill(weighingBill);
@@ -130,8 +140,7 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "司磅员操作交易过磅撤销,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", operationType = "weighing_withdraw", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/withdraw", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseOutput<Object> withdraw(@RequestParam Long id, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId,
-			HttpServletRequest request) {
+	public BaseOutput<Object> withdraw(@RequestParam Long id, @RequestParam String buyerPassword, @RequestParam String sellerPassword, @RequestParam Long operatorId, HttpServletRequest request) {
 		try {
 			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return this.weighingBillService.withdraw(id, buyerPassword, sellerPassword, operatorId);
@@ -255,7 +264,7 @@ public class WeighingBillApi {
 	/**
 	 * 朔源系统同步接口
 	 *
-	 * @param id 从大于id（不包含）的数据开始同步
+	 * @param id   从大于id（不包含）的数据开始同步
 	 * @param rows 条数
 	 * @return
 	 */
