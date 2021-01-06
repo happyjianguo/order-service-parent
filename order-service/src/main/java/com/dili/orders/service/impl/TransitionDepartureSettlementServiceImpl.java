@@ -558,6 +558,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
             serialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
         }
         serialRecordDo.setSerialNo(transitionDepartureSettlement.getCode());
+        //设置持卡人姓名
+        serialRecordDo.setHoldName(transitionDepartureSettlement.getHoldName());
         // 操作记录，记录客户类型
         serialRecordDo.setCustomerType(transitionDepartureSettlement.getCustomerMarketTypeCode());
         serialRecordList.add(serialRecordDo);
