@@ -13,6 +13,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.stereotype.Component;
 
+/**
+ * 动态数据源配置
+ * @author jiang
+ *
+ */
 @Component
 @Primary
 public class DynamicDataSource extends AbstractRoutingDataSource {
