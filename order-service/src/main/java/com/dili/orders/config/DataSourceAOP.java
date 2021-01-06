@@ -1,8 +1,5 @@
 package com.dili.orders.config;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -13,6 +10,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * 数据源切换配置
+ * @author jiang
+ *
+ */
 @Aspect
 @Component
 @Lazy(false)
