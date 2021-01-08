@@ -18,6 +18,7 @@ import com.dili.orders.service.ComprehensiveFeeService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -81,6 +82,12 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
             PageHelper.startPage(page, comprehensiveFee.getRows());
         }
         List<ComprehensiveFee> list = getActualDao().listByQueryParams(comprehensiveFee);
+        //检测收费列表将身份类型json翻译成逗号相隔
+        if(comprehensiveFee!=null&&ComprehensiveFeeType.TESTING_CHARGE.getValue().equals(comprehensiveFee.getOrderType())){
+            for (ComprehensiveFee obj:list) {
+                obj.setCustomerType(getCustomerTypeAndName(obj.getCustomerType()).getSubTypeTranslate());
+            }
+        }
         Long total = list instanceof Page ? ((Page) list).getTotal() : list.size();
         int totalPage = list instanceof Page ? ((Page) list).getPages() : 1;
         int pageNum = list instanceof Page ? ((Page) list).getPageNum() : 1;
@@ -493,6 +500,36 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setFundItem(fundItemCode);
         serialRecordDo.setFundItemName(fundItemName);
         serialRecordDo.setSerialNo(comprehensiveFee.getCode());
-        serialRecordDo.setCustomerType(comprehensiveFee.getCustomerType());
+        serialRecordDo.setCustomerType(getCustomerTypeAndName(comprehensiveFee.getCustomerType()).getSubType());
+    }
+
+    /**
+     * 将json数据转换成以逗号相隔
+     * @param customerType
+     * @return
+     */
+    private CustomerView getCustomerTypeAndName(String customerType) {
+        CustomerView customerView= new CustomerView();
+        if(customerType!=null&&!"".equals(customerType)){
+            List<Map<String,String>> customerTypeJsonInfo= JSON.parseObject(customerType,List.class);
+            StringBuffer subType=new StringBuffer();
+            StringBuffer subTypeTranslate=new StringBuffer();
+            String sliptStr=",";
+            for (Map map:customerTypeJsonInfo) {
+                subType.append(map.get("subType"));
+                subType.append(sliptStr);
+                subTypeTranslate.append(map.get("subTypeTranslate"));
+                subTypeTranslate.append(sliptStr);
+            }
+            int length=subType.length();
+            if(length>0){
+                customerType=subType.substring(0,length-1);
+            }
+            if(subTypeTranslate.length()>0){
+                customerView.setSubTypeTranslate(subTypeTranslate.substring(0,subTypeTranslate.length()-1));
+            }
+            customerView.setSubType(customerType);
+        }
+        return customerView;
     }
 }
