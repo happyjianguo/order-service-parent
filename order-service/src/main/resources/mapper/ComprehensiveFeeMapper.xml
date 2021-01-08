@@ -35,6 +35,7 @@
     <result column="customer_type" jdbcType="VARCHAR" property="customerType" />
     <result column="balance" jdbcType="BIGINT" property="balance" />
     <result column="inspection_item_name" jdbcType="VARCHAR" property="inspectionItemName" />
+    <result column="hold_name" jdbcType="VARCHAR" property="holdName" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -44,7 +45,7 @@
     charge_amount, plate, order_type, order_status, inspection_item, remark, operator_id, 
     operator_name, operator_time, revocator_id, revocator_name, revocator_time, created_time, 
     creator_id, modified_time, modifier_id, version, payment_no, market_id, department_id,
-    customer_type,inspection_item_name,balance
+    customer_type,inspection_item_name,balance,hold_name
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -145,8 +146,11 @@
       <if test="balance != null">
         balance = #{balance,jdbcType=BIGINT},
       </if>
-      <if test="inspection_item_name != null">
+      <if test="inspectionItemName != null">
         inspection_item_name = #{inspectionItemName,jdbcType=VARCHAR},
+      </if>
+      <if test="holdName != null">
+        hold_name = #{holdName,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

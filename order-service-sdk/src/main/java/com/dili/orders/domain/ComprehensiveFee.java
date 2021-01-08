@@ -135,6 +135,10 @@ public class ComprehensiveFee extends BaseDomain {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime operatorTime;
 
+    /** 持卡人姓名 */
+    @Column(name = "`hold_name`")
+    private String holdName;
+
     /**
      * 撤销员id
      */
@@ -850,6 +854,21 @@ public class ComprehensiveFee extends BaseDomain {
 
     public void setBalance(Long balance) {
         this.balance = balance;
+    }
+
+    /**
+     * 持卡人
+     *
+     * @return hold_name - 持卡人
+     */
+    @FieldDef(label = "持卡人",maxLength = 50)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getHoldName() {
+        return holdName;
+    }
+
+    public void setHoldName(String holdName) {
+        this.holdName = holdName;
     }
 
     public List<Long> getDepartments() {
