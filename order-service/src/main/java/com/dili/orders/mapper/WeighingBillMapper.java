@@ -7,9 +7,8 @@ import com.dili.orders.domain.WeighingBillOperationRecord;
 import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
+import com.dili.orders.dto.WeighingBillListStatisticsDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
-import com.dili.orders.dto.WeighingStatementAppletDto;
-import com.dili.orders.dto.WeighingStatementAppletQuery;
 import com.dili.ss.base.MyMapper;
 
 public interface WeighingBillMapper extends MyMapper<WeighingBill> {
@@ -28,4 +27,11 @@ public interface WeighingBillMapper extends MyMapper<WeighingBill> {
 	 */
 	WeighingBillOperationRecord selectLastWeighingOperationRecord(Long id);
 
+	/**
+	 * 导出统计重量、金额合计
+	 * 
+	 * @param query
+	 * @return
+	 */
+	WeighingBillListStatisticsDto selectExportStatistics(WeighingBillQueryDto query);
 }

@@ -9,6 +9,7 @@ import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
+import com.dili.orders.dto.WeighingBillPrintListDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementAppletDto;
 import com.dili.orders.dto.WeighingStatementAppletQuery;
@@ -58,7 +59,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 作废过磅单
 	 *
-	 * @param id       过磅单号
+	 * @param id             过磅单号
 	 * @param buyerPassword  买家交易密码
 	 * @param sellerPassword 卖家交易密码
 	 * @param operatorId     操作员id
@@ -73,6 +74,14 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	 * @return
 	 */
 	PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query);
+
+	/**
+	 * 打印列表数据
+	 * 
+	 * @param query
+	 * @return
+	 */
+	BaseOutput<WeighingBillPrintListDto> printList(WeighingBillQueryDto query);
 
 	/**
 	 * 操作员作废过磅单
@@ -95,7 +104,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 结算
 	 *
-	 * @param id      过磅单号
+	 * @param id            过磅单号
 	 * @param buyerPassword 买家交易密码
 	 * @param operatorId    TODO
 	 * @return
@@ -113,7 +122,7 @@ public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 	/**
 	 * 撤销过磅单
 	 *
-	 * @param id       过磅单号
+	 * @param id             过磅单号
 	 * @param buyerPassword  买家交易密码
 	 * @param sellerPassword 卖家交易密码
 	 * @param operatorId     TODO
