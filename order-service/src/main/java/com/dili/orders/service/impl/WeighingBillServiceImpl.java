@@ -79,7 +79,9 @@ import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillDetailDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
+import com.dili.orders.dto.WeighingBillListStatisticsDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
+import com.dili.orders.dto.WeighingBillPrintListDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.orders.mapper.PriceApproveRecordMapper;
@@ -2401,6 +2403,24 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setUnitAmount(dto.getUnitAmount());
 		weighingBill.setUnitPrice(dto.getUnitPrice());
 		weighingBill.setUnitWeight(dto.getUnitWeight());
+	}
+
+	@SelectDB("read")
+	@Override
+	public BaseOutput<WeighingBillPrintListDto> printList(WeighingBillQueryDto query) {
+		Integer page = query.getPage();
+		page = (page == null) ? Integer.valueOf(1) : page;
+		if (query.getRows() != null && query.getRows() >= 1) {
+			// 为了线程安全,请勿改动下面两行代码的顺序
+			PageHelper.startPage(page, query.getRows());
+		}
+		List<WeighingBillListPageDto> list = this.getActualDao().listPage(query);
+		Page<WeighingBillListPageDto> pageList = (Page<WeighingBillListPageDto>) list;
+		WeighingBillListStatisticsDto statisticsDto = this.getActualDao().selectExportStatistics(query);
+		WeighingBillPrintListDto result = new WeighingBillPrintListDto();
+		result.setPageList(pageList);
+		result.setStatisticsDto(statisticsDto);
+		return BaseOutput.successData(result);
 	}
 
 }

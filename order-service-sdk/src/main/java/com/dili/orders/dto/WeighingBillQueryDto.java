@@ -78,6 +78,8 @@ public class WeighingBillQueryDto extends WeighingBill {
 	@Operator(Operator.IN)
 	@Column(name = "`department_id`")
 	private List<Long> departmentIds;
+	@Transient
+	private boolean exportData = false;
 
 	/**
 	 * 是否过滤掉价格异常数据
@@ -226,6 +228,14 @@ public class WeighingBillQueryDto extends WeighingBill {
 
 	public void setDepartmentIds(List<Long> departmentIds) {
 		this.departmentIds = departmentIds;
+	}
+
+	public boolean isExportData() {
+		return exportData;
+	}
+
+	public void setExportData(boolean exportData) {
+		this.exportData = exportData;
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.dili.orders.api;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
@@ -14,14 +16,11 @@ import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
-import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.AppException;
-import com.dili.uap.sdk.session.SessionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.util.*;
 
 import static tk.mybatis.spring.annotation.MapperScannerRegistrar.LOGGER;
@@ -48,6 +47,9 @@ public class ComprehensiveFeeApi {
 
     @Autowired
     private BusinessChargeItemRpc businessChargeItemRpc;
+
+    @Autowired
+    private CustomerRpc customerRpc;
 
 
     /**
@@ -181,6 +183,13 @@ public class ComprehensiveFeeApi {
      */
     @RequestMapping(value = "/fee", method = {RequestMethod.GET, RequestMethod.POST})
     public BaseOutput<?> getFee( Long marketId, Long customerId, String type) {
+        if (type == null || "".equals(type)) {
+            return BaseOutput.failure("顾客不存在身份类型,无法获取计费规则");
+        }
+        List<Map<String,String>> customerTypeJsonInfo= JSON.parseObject(type,List.class);
+        if(customerTypeJsonInfo==null ||  customerTypeJsonInfo.size()<1){
+            return BaseOutput.failure("顾客不存在身份类型,无法获取计费规则");
+        }
         //根据业务类型获取收费项
         BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
         //业务类型
@@ -192,31 +201,35 @@ public class ComprehensiveFeeApi {
         if (!listBaseOutput.isSuccess()) {
             return listBaseOutput;
         }
-        //设置收费项id
-        List<QueryFeeInput> queryFeeInputList = new ArrayList<QueryFeeInput>();
-        if (listBaseOutput.getData() != null && listBaseOutput.getData().size() > 0) {
-            for (BusinessChargeItemDto bcDto : listBaseOutput.getData()) {
-                QueryFeeInput queryFeeInput = new QueryFeeInput();
-                //设置市场id
-                queryFeeInput.setMarketId(marketId);
-                //设置业务类型
-                queryFeeInput.setBusinessType(TEST_FEE);
-                //设置收费项ID
-                queryFeeInput.setChargeItem(bcDto.getId());
-                //条件指标
-                Map<String, Object> map = new HashMap<>(4);
-                //设置部门信息
-                map.put("customerId", customerId);
-                //设置市场信息
-                map.put("customerType", type);
+        BaseOutput<List<QueryFeeOutput>> result=null;
+        for (Map jsonMap:customerTypeJsonInfo) {
+            //设置收费项id
+            List<QueryFeeInput> queryFeeInputList = new ArrayList<QueryFeeInput>();
+            if (listBaseOutput.getData() != null && listBaseOutput.getData().size() > 0) {
+                for (BusinessChargeItemDto bcDto : listBaseOutput.getData()) {
+                    QueryFeeInput queryFeeInput = new QueryFeeInput();
+                    //设置市场id
+                    queryFeeInput.setMarketId(marketId);
+                    //设置业务类型
+                    queryFeeInput.setBusinessType(TEST_FEE);
+                    //设置收费项ID
+                    queryFeeInput.setChargeItem(bcDto.getId());
+                    //条件指标
+                    Map<String, Object> map = new HashMap<>(4);
+                    //设置身份类型
+                    map.put("characterSubType", jsonMap.get("subType"));
 
-                queryFeeInput.setConditionParams(map);
+                    queryFeeInput.setConditionParams(map);
 
-                queryFeeInputList.add(queryFeeInput);
+                    queryFeeInputList.add(queryFeeInput);
+                }
+                result=chargeRuleRpc.batchQueryFee(queryFeeInputList);
+                if(result.isSuccess()){
+                    break;
+                }
             }
         }
-        BaseOutput<List<QueryFeeOutput>> result=chargeRuleRpc.batchQueryFee(queryFeeInputList);
-        if(result.isSuccess()){
+        if(result!=null&&result.isSuccess()){
             List<QueryFeeOutput> datas=result.getData();
             StringBuffer infoSb=new StringBuffer("市场[ID:");
             infoSb.append(marketId);
