@@ -24,6 +24,10 @@ public class DataSourceAOP {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceAOP.class);
 
+	/**
+	 * 横切点
+	 * @param joinPoint
+	 */
 	// 横切点
 	@Before("execution(* com.dili.orders.service.*.*(..))")
 	public void process(JoinPoint joinPoint) {
