@@ -197,6 +197,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill bill) {
+		LOGGER.info("新增交易过磅接收参数：{}", JSON.toJSONString(bill));
 		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_BILL_SERIAL_NO_GENERATE_RULE_CODE);
 		if (output == null) {
 			return BaseOutput.failure("调用过磅单号生成服务无响应");
@@ -1282,6 +1283,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill dto) {
+		LOGGER.info("修改交易过磅接收参数：{}", JSON.toJSONString(dto));
 		WeighingBill weighingBill = this.getWeighingBillById(dto.getId());
 		if (weighingBill == null) {
 			return BaseOutput.failure("过磅单不存在");
