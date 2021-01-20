@@ -5,6 +5,7 @@ import com.dili.assets.sdk.dto.TradeTypeDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
@@ -303,6 +304,8 @@ public class TransitionDepartureSettlementApi {
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             //市场id
             businessChargeItemDto.setMarketId(marketId);
+            //是否启用
+            businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
             BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
             //判断是否成功
             if (!listBaseOutput.isSuccess()) {
@@ -321,6 +324,8 @@ public class TransitionDepartureSettlementApi {
             businessChargeItemDto.setIsRequired(1);
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             businessChargeItemDto.setMarketId(marketId);
+            //是否启用
+            businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
             BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
             //判断是否成功
             if (!listBaseOutput.isSuccess()) {

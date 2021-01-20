@@ -3,6 +3,7 @@ package com.dili.orders.service.impl;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.orders.domain.TransitionDepartureApply;
 import com.dili.orders.dto.MyBusinessType;
 import com.dili.orders.glossary.BizTypeEnum;
@@ -134,6 +135,8 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
             businessChargeItemDto.setBusinessType(MyBusinessType.ZCPAY.getCode());
             //是否必须
             businessChargeItemDto.setIsRequired(1);
+            //是否可用
+            businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
             //收费
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             //市场id
@@ -148,6 +151,8 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
             BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
             businessChargeItemDto.setBusinessType(MyBusinessType.LCPAY.getCode());
             businessChargeItemDto.setIsRequired(1);
+            //是否可用
+            businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             businessChargeItemDto.setMarketId(marketId);
             BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
