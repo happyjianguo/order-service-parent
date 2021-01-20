@@ -501,6 +501,7 @@ public class ComprehensiveFeeServiceImpl extends BaseServiceImpl<ComprehensiveFe
         serialRecordDo.setFundItemName(fundItemName);
         serialRecordDo.setSerialNo(comprehensiveFee.getCode());
         serialRecordDo.setCustomerType(getCustomerTypeAndName(comprehensiveFee.getCustomerType()).getSubType());
+        serialRecordDo.setHoldName(comprehensiveFee.getHoldName());
     }
 
     /**

@@ -32,6 +32,7 @@ import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.CharacterType;
 import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
@@ -1705,7 +1706,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 业务类型
 		businessChargeItemDto.setBusinessType(businessType);
 		// 是否必须
-		businessChargeItemDto.setIsRequired(1);
+		businessChargeItemDto.setIsRequired(YesOrNoEnum.YES.getCode());
+		businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
 		// 收费
 		businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
 		// 市场id
