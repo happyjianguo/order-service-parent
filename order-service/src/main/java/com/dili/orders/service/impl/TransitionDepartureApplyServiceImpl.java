@@ -134,7 +134,7 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
             //业务类型
             businessChargeItemDto.setBusinessType(MyBusinessType.ZCPAY.getCode());
             //是否必须
-            businessChargeItemDto.setIsRequired(1);
+            businessChargeItemDto.setIsRequired(YesOrNoEnum.YES.getCode());
             //是否可用
             businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
             //收费
@@ -150,7 +150,7 @@ public class TransitionDepartureApplyServiceImpl extends BaseServiceImpl<Transit
             //根据业务类型获取收费项
             BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
             businessChargeItemDto.setBusinessType(MyBusinessType.LCPAY.getCode());
-            businessChargeItemDto.setIsRequired(1);
+            businessChargeItemDto.setIsRequired(YesOrNoEnum.YES.getCode());
             //是否可用
             businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());

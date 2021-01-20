@@ -299,7 +299,7 @@ public class TransitionDepartureSettlementApi {
 //            businessChargeItemDto.setBusinessType("ZC_PAY");
             businessChargeItemDto.setBusinessType(MyBusinessType.ZCPAY.getCode());
             //是否必须
-            businessChargeItemDto.setIsRequired(1);
+            businessChargeItemDto.setIsRequired(YesOrNoEnum.YES.getCode());
             //收费
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             //市场id
@@ -321,7 +321,7 @@ public class TransitionDepartureSettlementApi {
             BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
 //            businessChargeItemDto.setBusinessType("LC_PAY");
             businessChargeItemDto.setBusinessType(MyBusinessType.LCPAY.getCode());
-            businessChargeItemDto.setIsRequired(1);
+            businessChargeItemDto.setIsRequired(YesOrNoEnum.YES.getCode());
             businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
             businessChargeItemDto.setMarketId(marketId);
             //是否启用
