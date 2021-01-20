@@ -65,7 +65,6 @@ import com.dili.orders.dto.ActionType;
 import com.dili.orders.dto.CardQueryDto;
 import com.dili.orders.dto.CreateTradeResponseDto;
 import com.dili.orders.dto.FeeDto;
-import com.dili.orders.dto.FeeType;
 import com.dili.orders.dto.FeeUse;
 import com.dili.orders.dto.FundItem;
 import com.dili.orders.dto.PaymentErrorCode;
@@ -1658,8 +1657,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 买家手续费
 			FeeDto buyerFee = new FeeDto();
 			buyerFee.setAmount(weighingStatement.getBuyerPoundage());
-			buyerFee.setType(FeeType.BUYER_POUNDAGE.getValue());
-			buyerFee.setTypeName(FeeType.BUYER_POUNDAGE.getName());
+			buyerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
+			buyerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
 			buyerFee.setUseFor(FeeUse.BUYER.getValue());
 			fees.add(buyerFee);
 		}
@@ -1667,8 +1666,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 卖家手续费
 			FeeDto sellerFee = new FeeDto();
 			sellerFee.setAmount(weighingStatement.getSellerPoundage());
-			sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
-			sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
+			sellerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
+			sellerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
 			sellerFee.setUseFor(FeeUse.SELLER.getValue());
 			fees.add(sellerFee);
 		}
@@ -1689,8 +1688,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 买家手续费
 			FeeDto buyerFee = new FeeDto();
 			buyerFee.setAmount(weighingStatement.getBuyerPoundage());
-			buyerFee.setType(FeeType.BUYER_POUNDAGE.getValue());
-			buyerFee.setTypeName(FeeType.BUYER_POUNDAGE.getName());
+			buyerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
+			buyerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
 			buyerFee.setUseFor(FeeUse.BUYER.getValue());
 			fees.add(buyerFee);
 		}
@@ -1698,8 +1697,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 卖家手续费
 			FeeDto sellerFee = new FeeDto();
 			sellerFee.setAmount(weighingStatement.getSellerPoundage());
-			sellerFee.setType(FeeType.SELLER_POUNDAGE.getValue());
-			sellerFee.setTypeName(FeeType.SELLER_POUNDAGE.getName());
+			sellerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
+			sellerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
 			sellerFee.setUseFor(FeeUse.SELLER.getValue());
 			fees.add(sellerFee);
 		}
@@ -1923,7 +1922,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerExpense.setNotes(String.format("买方，结算单号%s", ws.getSerialNo()));
 		srList.add(buyerExpense);
 		// 买家手续费
-		PaymentStream buyerPoundageStream = paymentResult.getStreams().stream().filter(s -> s.getType().equals(FeeType.BUYER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
+		PaymentStream buyerPoundageStream = paymentResult.getStreams().stream().filter(s -> s.getType().equals((long) FundItem.TRADE_SERVICE_FEE.getCode())).findFirst().orElse(null);
 		if (buyerPoundageStream != null) {
 			buyerBalance = buyerPoundageStream.getBalance() - (paymentResult.getFrozenAmount() + paymentResult.getFrozenBalance());
 		}
@@ -1977,7 +1976,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerIncome.setNotes(String.format("卖方，结算单号%s", ws.getSerialNo()));
 		srList.add(sellerIncome);
 		// 卖家手续费
-		PaymentStream sellerPoundageStream = paymentResult.getRelation().getStreams().stream().filter(s -> s.getType().equals(FeeType.SELLER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
+		PaymentStream sellerPoundageStream = paymentResult.getRelation().getStreams().stream().filter(s -> s.getType().equals((long) FundItem.TRADE_SERVICE_FEE.getCode())).findFirst().orElse(null);
 		if (sellerPoundageStream != null) {
 			sellerBalance = sellerPoundageStream.getBalance() - (paymentResult.getRelation().getFrozenAmount() + paymentResult.getRelation().getFrozenBalance());
 		}
@@ -2074,7 +2073,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srList.add(sellerExpense);
 
 		// 卖家手续费
-		PaymentStream sellerPoundageStream = tradeResponse.getStreams().stream().filter(s -> s.getType().equals(FeeType.SELLER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
+		PaymentStream sellerPoundageStream = tradeResponse.getStreams().stream().filter(s -> s.getType().equals((long) FundItem.TRADE_SERVICE_FEE.getCode())).findFirst().orElse(null);
 		if (sellerPoundageStream != null) {
 			sellerBalance = sellerPoundageStream.getBalance() - (tradeResponse.getFrozenAmount() + tradeResponse.getFrozenBalance());
 		}
@@ -2130,7 +2129,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srList.add(buyerRefund);
 
 		// 买家手续费
-		PaymentStream buyerPoundageStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType().equals(FeeType.BUYER_POUNDAGE.getValue().longValue())).findFirst().orElse(null);
+		PaymentStream buyerPoundageStream = tradeResponse.getRelation().getStreams().stream().filter(s -> s.getType().equals((long) FundItem.TRADE_SERVICE_FEE.getCode())).findFirst().orElse(null);
 		if (buyerPoundageStream != null) {
 			buyerBalance = buyerPoundageStream.getBalance() - (tradeResponse.getRelation().getFrozenAmount() + tradeResponse.getRelation().getFrozenBalance());
 		}
