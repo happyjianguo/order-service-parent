@@ -225,6 +225,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (deptOutput.getData() == null) {
 			return BaseOutput.failure("未查询到操作员的部门信息");
 		}
+		bill.setDepartmentName(deptOutput.getData().getName());
 
 		// 根据卡号查询账户信息
 		// 查询买家账户信息
