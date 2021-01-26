@@ -57,7 +57,12 @@ public enum FundItem {
     /** 检测费 */
     TEST_FEE(25, "检测费"),
     /** 查询费 */
-    QUERY_FEE(26, "查询费");
+    QUERY_FEE(26, "查询费"),
+
+    /**
+     * 账户转账
+     */
+    TRANSFER(37, "账户转账");
     private int code;
     private String name;
 

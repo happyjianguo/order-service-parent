@@ -1,0 +1,340 @@
+package com.dili.orders.service.impl;
+
+import com.alibaba.fastjson.JSON;
+import com.dili.commons.rabbitmq.RabbitMQMessageService;
+import com.dili.logger.sdk.base.LoggerContext;
+import com.dili.logger.sdk.domain.BusinessLog;
+import com.dili.logger.sdk.glossary.LoggerConstant;
+import com.dili.logger.sdk.rpc.BusinessLogRpc;
+import com.dili.orders.config.RabbitMQConfig;
+import com.dili.orders.domain.CollectionRecord;
+import com.dili.orders.domain.WeighingBillOperationRecord;
+import com.dili.orders.domain.WeighingOperationType;
+import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.dto.*;
+import com.dili.orders.glossary.BizTypeEnum;
+import com.dili.orders.glossary.PaymentWays;
+import com.dili.orders.mapper.CollectionRecordMapper;
+import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
+import com.dili.orders.mapper.WeighingStatementMapper;
+import com.dili.orders.rpc.CardRpc;
+import com.dili.orders.rpc.PayRpc;
+import com.dili.orders.service.CollectionRecordService;
+import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.domain.PageOutput;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+/**
+ * 由MyBatis Generator工具自动生成
+ * This file was generated on 2020-06-17 08:51:33.
+ */
+@Service
+public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecord, Long> implements CollectionRecordService {
+
+
+    @Autowired
+    private CollectionRecordMapper mapper;
+
+    @Autowired
+    private WeighingStatementMapper weighingStatementMapper;
+
+    @Autowired
+    private WeighingBillOperationRecordMapper weighingBillOperationRecordMapper;
+
+    @Autowired
+    private PayRpc payRpc;
+
+    @Autowired
+    private CardRpc cardRpc;
+
+    @Autowired
+    private RabbitMQMessageService rabbitMQMessageService;
+
+
+    @Override
+    public PageOutput<List<CollectionRecord>> listByQueryParams(CollectionRecord collectionRecord) {
+        Integer page = collectionRecord.getPage();
+        page = (page == null) ? Integer.valueOf(1) : page;
+        if (collectionRecord.getRows() != null && collectionRecord.getRows() >= 1) {
+            PageHelper.startPage(page, collectionRecord.getRows());
+        }
+        List<CollectionRecord> list = mapper.listByQueryParams(collectionRecord);
+        Long total = list instanceof Page ? ((Page) list).getTotal() : list.size();
+        int totalPage = list instanceof Page ? ((Page) list).getPages() : 1;
+        int pageNum = list instanceof Page ? ((Page) list).getPageNum() : 1;
+        PageOutput<List<CollectionRecord>> output = PageOutput.success();
+        output.setData(list).setPageNum(pageNum).setTotal(total).setPageSize(collectionRecord.getPage()).setPages(totalPage);
+        return output;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @GlobalTransactional(rollbackFor = Exception.class)
+    public BaseOutput insertAndPay(CollectionRecord collectionRecord, String password) {
+        //获取当前时间
+        LocalDateTime now = LocalDateTime.now();
+
+        //不为空则查询数据库是否有相应回款的单据，交易过磅那里查询
+        List<WeighingCollectionStatementDto> list = weighingStatementMapper.listByDates(collectionRecord);
+        if (CollectionUtils.isEmpty(list)) {
+            return BaseOutput.failure("没有相关回款数据");
+        }
+        //获取应收总金额，判断是否和传过来的相同，如果不同，则不能操作
+        Long sum = list.stream().mapToLong(x -> x.getTradeAmount()).sum();
+        if (!Objects.equals(sum, collectionRecord.getAmountReceivables())) {
+            return BaseOutput.failure("数据失效，请刷新页面");
+        }
+        BaseOutput<AccountSimpleResponseDto> buyerAccountSimple = null;
+        //判断是自付还是代付，如果是代付，需要使用代付的卡号去查询
+
+        //获取买家卡账户相关信息
+        if (Objects.equals(collectionRecord.getPaymentWays(), PaymentWays.TOBEREVIEWED.getCode())) {
+            buyerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getBuyerCardNo());
+        } else {
+            buyerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getPaymentCardNumber());
+        }
+        //获取卖家卡账户相关信息
+        BaseOutput<AccountSimpleResponseDto> sellerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getSellerCardNo());
+
+        if (!buyerAccountSimple.isSuccess()) {
+            return BaseOutput.failure("根据卡查询买家失败");
+        }
+
+        if (!sellerAccountSimple.isSuccess()) {
+            return BaseOutput.failure("根据卡查询卖家失败");
+        }
+        // 获取账户信息
+        UserAccountCardResponseDto buyerAccountInfo = buyerAccountSimple.getData().getAccountInfo();
+        // 获取账户资金信息
+        BalanceResponseDto byerAccountFund = buyerAccountSimple.getData().getAccountFund();
+
+        // 余额不足
+        if (Math.abs(byerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
+            return BaseOutput.failure("余额不足，请充值");
+        }
+
+        // 先校验一次密码，如果密码不正确直接返回
+        AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
+        buyerPwdDto.setAccountId(buyerAccountInfo.getFundAccountId());
+        buyerPwdDto.setPassword(password);
+        BaseOutput<Object> pwdOutput = this.payRpc.validateAccountPassword(buyerPwdDto);
+        // 密码不正确豁其他问题直接返回
+        if (!pwdOutput.isSuccess()) {
+            return pwdOutput;
+        }
+
+        //交易过磅数据修改，交易过磅记录新增
+        for (int i = 0; i < list.size(); i++) {
+            //创建结算单
+            WeighingStatement weighingStatement = new WeighingStatement();
+            //设置结算单id
+            weighingStatement.setId(Long.valueOf(list.get(i).getWeighingStatementId()));
+            //设置结算单version
+            weighingStatement.setVersion(Integer.valueOf(list.get(i).getVersion()));
+            //设置回款状态，已回款
+            /**
+             * 还没有做的 设置回款状态，已回款
+             */
+            //设置最后操作时间
+            weighingStatement.setLastOperationTime(now);
+            //设置最后操作人id
+            weighingStatement.setLastOperatorId(collectionRecord.getOperationId());
+            //设置最后操作人姓名
+            weighingStatement.setLastOperatorName(collectionRecord.getOperationName());
+            //设置最后操作人工号
+            weighingStatement.setLastOperatorUserName(collectionRecord.getOperationUserName());
+            //更新交易过磅单数据
+            int iweighingStatement = weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
+            if (iweighingStatement <= 0) {
+                return BaseOutput.failure("过磅结算单修改失败");
+            }
+
+            //结算单更新之后，再新增一条过磅单的记录
+            WeighingBillOperationRecord weighingBillOperationRecord = new WeighingBillOperationRecord();
+            //设置操作时间
+            weighingBillOperationRecord.setOperationTime(now);
+            //设置操作员id
+            weighingBillOperationRecord.setOperatorId(collectionRecord.getOperationId());
+            //设置操作员姓名
+            weighingBillOperationRecord.setOperatorName(collectionRecord.getOperationName());
+            //设置操作员工号
+            weighingBillOperationRecord.setOperatorUserName(collectionRecord.getOperationUserName());
+            //设置过磅单id
+            weighingBillOperationRecord.setWeighingBillId(Long.valueOf(list.get(i).getWeighingBillId()));
+            //设置过磅单号
+            weighingBillOperationRecord.setWeighingBillId(Long.valueOf(list.get(i).getWeighingBillCode()));
+            //设置结算单id
+            weighingBillOperationRecord.setWeighingBillId(Long.valueOf(list.get(i).getWeighingStatementId()));
+            //设置操作类型id
+            weighingBillOperationRecord.setOperationType(WeighingOperationType.COLLECTION.getValue());
+            //设置操作类型名称
+            weighingBillOperationRecord.setOperationTypeName(WeighingOperationType.COLLECTION.getName());
+
+            weighingBillOperationRecordMapper.insert(weighingBillOperationRecord);
+            if (iweighingStatement <= 0) {
+                return BaseOutput.failure("新增过磅单交易记录失败");
+            }
+            //计算合计金额,不需要计算，因为有一个实际付款金额，以那个金额为准
+            //amount += Long.valueOf(list.get(i).get("tradeAmount"));
+        }
+
+        // 判断是否支付金额是否为0，不为零再走支付
+        PaymentTradeCommitResponseDto data = null;
+        if (!Objects.equals(collectionRecord.getAmountActually(), 0L)) {
+
+            // 先创建预支付，再调用支付接口
+            PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
+            // 请求与支付，两边的账户id对应关系如下
+            paymentTradePrepareDto.setSerialNo("HK_" + collectionRecord.getCode());
+            //设置收款方的账号相关信息
+            paymentTradePrepareDto.setAccountId(sellerAccountSimple.getData().getAccountInfo().getFundAccountId());
+            paymentTradePrepareDto.setType(TradeType.TRANSFER.getCode());
+            paymentTradePrepareDto.setBusinessId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
+            paymentTradePrepareDto.setAmount(collectionRecord.getAmountActually());
+            paymentTradePrepareDto.setDescription("赊销回款");
+            // 创建预支付信息
+            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
+            if (!prepare.isSuccess()) {
+                throw new RuntimeException("回款新增创建交易失败");
+            }
+            //预支付创建成功之后，需要保存交易流水号
+            collectionRecord.setPaymentNo(prepare.getData().getTradeId());
+
+            // 构建支付对象
+            PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
+            // 设置自己账户id
+            paymentTradeCommitDto.setAccountId(buyerAccountInfo.getFundAccountId());
+            // 设置账户id
+            paymentTradeCommitDto.setBusinessId(buyerAccountInfo.getAccountId());
+            // 设置密码
+            paymentTradeCommitDto.setPassword(password);
+            // 设置交易单号
+            paymentTradeCommitDto.setTradeId(collectionRecord.getPaymentNo());
+            // 设置费用
+            List<FeeDto> feeDtos = new ArrayList();
+            FeeDto feeDto = new FeeDto();
+            //设置金额，实际回款金额
+            feeDto.setAmount(collectionRecord.getAmountActually());
+            //设置资金项目类型id
+            feeDto.setType(FundItem.TRANSFER.getCode());
+            //设置资金项目类型名称
+            feeDto.setTypeName(FundItem.TRANSFER.getName());
+            feeDtos.add(feeDto);
+            paymentTradeCommitDto.setFees(feeDtos);
+            // 调用支付接口
+            BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.commit6(paymentTradeCommitDto);
+            if (!pay.isSuccess()) {
+                throw new RuntimeException(pay.getMessage());
+            }
+            data = pay.getData();
+            collectionRecord.setPayTime(data.getWhen());
+        }
+        //插入回款记录数据
+        int insert = mapper.insert(collectionRecord);
+        //判断是新增成功
+        if (insert <= 0) {
+            throw new RuntimeException("新增回款记录失败");
+        }
+        //记录交易流水
+        List<SerialRecordDo> serialRecordList = new ArrayList<>();
+        //获取买家交易流水记录
+        SerialRecordDo buyerSerialRecordDo = getSerialRecordDo(buyerAccountInfo, collectionRecord);
+        //获取卖家交易流水记录
+        SerialRecordDo sellerSerialRecordDo = getSerialRecordDo(sellerAccountSimple.getData().getAccountInfo(), collectionRecord);
+
+        // 判断是否走了支付
+        if (Objects.nonNull(data)) {
+            //买家设置交易流水code
+            buyerSerialRecordDo.setTradeNo(collectionRecord.getPaymentNo());
+            //买家设置期初余额
+            buyerSerialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
+            //买家设置期末余额
+            buyerSerialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
+            //买家设置操作时间
+            buyerSerialRecordDo.setOperateTime(data.getWhen());
+            //买家设置动作
+            buyerSerialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+
+            //卖家设置交易流水code
+            sellerSerialRecordDo.setTradeNo(collectionRecord.getPaymentNo());
+            //卖家设置期初金额
+            sellerSerialRecordDo.setStartBalance(data.getRelation().getBalance() - data.getRelation().getFrozenBalance());
+            //卖家设置期末余额
+            sellerSerialRecordDo.setEndBalance(data.getRelation().getBalance() + data.getRelation().getAmount() - data.getRelation().getFrozenBalance());
+            //卖家设置操作时间
+            sellerSerialRecordDo.setOperateTime(data.getWhen());
+            //卖家设置动作
+            sellerSerialRecordDo.setAction(data.getRelation().getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        }
+        //设置持卡人姓名
+
+        // 操作记录，记录客户类型
+        serialRecordList.add(buyerSerialRecordDo);
+        serialRecordList.add(sellerSerialRecordDo);
+
+        //记录日志
+        //将结算单id取出转换为String类型，并用 ‘，’分割
+        String wsids = String.join(",", list.stream().map(x -> String.valueOf(x.getWeighingStatementId())).collect(Collectors.toList()));
+        //将结算单code取出转换为String类型，并用 ‘，’分割
+        String wsCodes = String.join(",", list.stream().map(x -> x.getWeighingStatementCode()).collect(Collectors.toList()));
+
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, collectionRecord.getCode());
+        LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, collectionRecord.getId());
+        LoggerContext.put("statementId", wsids);
+        LoggerContext.put("statementSerialNo", wsCodes);
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, collectionRecord.getOperationId());
+        LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, collectionRecord.getOperationName());
+        LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, collectionRecord.getMarketId());
+        rabbitMQMessageService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(serialRecordList));
+        return BaseOutput.success();
+    }
+
+    @Override
+    public BaseOutput groupListForDetail(CollectionRecord collectionRecord) {
+        return BaseOutput.successData(weighingStatementMapper.groupListForDetail(collectionRecord));
+    }
+
+    @Override
+    public BaseOutput listForDetail(CollectionRecord collectionRecord) {
+        return BaseOutput.successData(weighingStatementMapper.listByDates(collectionRecord));
+    }
+
+    private SerialRecordDo getSerialRecordDo(UserAccountCardResponseDto accountInfo, CollectionRecord collectionRecord) {
+        // 对接操作记录
+        SerialRecordDo serialRecordDo = new SerialRecordDo();
+        serialRecordDo.setAccountId(accountInfo.getAccountId());
+        serialRecordDo.setCardNo(accountInfo.getCardNo());
+        serialRecordDo.setAmount(collectionRecord.getAmountActually());
+        serialRecordDo.setCustomerId(accountInfo.getCustomerId());
+        serialRecordDo.setCustomerName(accountInfo.getCustomerName());
+        serialRecordDo.setCustomerNo(accountInfo.getCustomerCode());
+        serialRecordDo.setOperatorId(collectionRecord.getOperationId());
+        serialRecordDo.setOperatorName(collectionRecord.getOperationName());
+        serialRecordDo.setOperatorNo(collectionRecord.getOperationUserName());
+        serialRecordDo.setFirmId(collectionRecord.getMarketId());
+        serialRecordDo.setOperateTime(collectionRecord.getPayTime());
+        serialRecordDo.setNotes("赊销回款" + collectionRecord.getCode());
+        serialRecordDo.setSerialNo(collectionRecord.getCode());
+        //设置资金项目类型code
+        serialRecordDo.setFundItem(FundItem.TRANSFER.getCode());
+        //设置资金项目类型名称
+        serialRecordDo.setFundItemName(FundItem.TRANSFER.getName());
+        //设置交易类型code
+        serialRecordDo.setTradeType(TradeType.TRANSFER.getCode());
+        return serialRecordDo;
+    }
+}

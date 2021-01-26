@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dili.orders.mapper.CollectionRecordMapper">
+  <resultMap id="BaseResultMap" type="com.dili.orders.domain.CollectionRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="operation_time" jdbcType="TIMESTAMP" property="operationTime" />
+    <result column="settlement_date" jdbcType="VARCHAR" property="settlementDate" />
+    <result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
+    <result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
+    <result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
+    <result column="seller_id" jdbcType="BIGINT" property="sellerId" />
+    <result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
+    <result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
+    <result column="amount_receivables" jdbcType="BIGINT" property="amountReceivables" />
+    <result column="amount_actually" jdbcType="BIGINT" property="amountActually" />
+    <result column="payment_ways" jdbcType="INTEGER" property="paymentWays" />
+    <result column="payment_card_number" jdbcType="VARCHAR" property="paymentCardNumber" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="operation_id" jdbcType="BIGINT" property="operationId" />
+    <result column="operation_name" jdbcType="VARCHAR" property="operationName" />
+    <result column="operation_department_id" jdbcType="BIGINT" property="operationDepartmentId" />
+    <result column="operation_department_name" jdbcType="VARCHAR" property="operationDepartmentName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, code, operation_time, settlement_date, buyer_id, buyer_name, buyer_card_no, seller_id, 
+    seller_name, seller_card_no, amount_receivables, amount_actually, payment_ways, payment_card_number, 
+    remark, operation_id, operation_name, operation_department_id, operation_department_name
+  </sql>
+  <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from collection_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="listByQueryParams" resultType="com.dili.orders.domain.CollectionRecord">
+    SELECT
+      *
+    FROM collection_record cr
+    WHERE 1 = 1
+  <if test="buyerId != null" >
+      AND cr.buyer_id = #{buyerId}
+  </if>
+  <if test="sellerId != null" >
+      AND cr.seller_id = #{seller_id}
+  </if>
+  <if test="buyerCardNo != null" >
+      AND cr.buyer_card_no = #{buyerCardNo}
+  </if>
+  <if test="sellerCardNo != null" >
+      AND cr.seller_card_no = #{sellerCardNo}
+  </if>
+  <if test="buyerAccountId != null" >
+      AND cr.buyer_account_id = #{buyerAccountId}
+  </if>
+  <if test="sellerAccountId != null" >
+      AND cr.seller_account_id = #{sellerAccountId}
+  </if>
+  <if test="beginDateTime != null" >
+      AND cr.operation_time <![CDATA[>=]]> #{beginDateTime}
+  </if>
+  <if test="endDateTime != null" >
+      AND cr.operation_time <![CDATA[<=]]> #{endDateTime}
+  </if>
+  <if test="operationDepartmentId != null" >
+      AND cr.operation_department_id = #{operationDepartmentId}
+  </if>
+
+
+  </select>
+  <update id="updateBy" parameterType="com.dili.orders.domain.CollectionRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    update collection_record
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="operationTime != null">
+        operation_time = #{operationTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settlementDate != null">
+        settlement_date = #{settlementDate,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerId != null">
+        buyer_id = #{buyerId,jdbcType=BIGINT},
+      </if>
+      <if test="buyerName != null">
+        buyer_name = #{buyerName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerCardNo != null">
+        buyer_card_no = #{buyerCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerId != null">
+        seller_id = #{sellerId,jdbcType=BIGINT},
+      </if>
+      <if test="sellerName != null">
+        seller_name = #{sellerName,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerCardNo != null">
+        seller_card_no = #{sellerCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="amountReceivables != null">
+        amount_receivables = #{amountReceivables,jdbcType=BIGINT},
+      </if>
+      <if test="amountActually != null">
+        amount_actually = #{amountActually,jdbcType=BIGINT},
+      </if>
+      <if test="paymentWays != null">
+        payment_ways = #{paymentWays,jdbcType=INTEGER},
+      </if>
+      <if test="paymentCardNumber != null">
+        payment_card_number = #{paymentCardNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="operationId != null">
+        operation_id = #{operationId,jdbcType=BIGINT},
+      </if>
+      <if test="operationName != null">
+        operation_name = #{operationName,jdbcType=VARCHAR},
+      </if>
+      <if test="operationDepartmentId != null">
+        operation_department_id = #{operationDepartmentId,jdbcType=BIGINT},
+      </if>
+      <if test="operationDepartmentName != null">
+        operation_department_name = #{operationDepartmentName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
