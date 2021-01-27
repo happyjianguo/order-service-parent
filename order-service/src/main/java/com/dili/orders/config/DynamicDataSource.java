@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
  * @author jiang
  *
  */
-@Component
-@Primary
+//@Component
+//@Primary
 public class DynamicDataSource extends AbstractRoutingDataSource {
 
 	private static final Logger logger = LoggerFactory.getLogger(DynamicDataSource.class);

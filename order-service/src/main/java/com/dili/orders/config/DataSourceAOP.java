@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
  * @author jiang
  *
  */
-@Aspect
-@Component
-@Lazy(false)
-// Order设定AOP执行顺序 使之在数据库事务上先执行
-@Order(0)
+//@Aspect
+//@Component
+//@Lazy(false)
+//// Order设定AOP执行顺序 使之在数据库事务上先执行
+//@Order(0)
 public class DataSourceAOP {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceAOP.class);
