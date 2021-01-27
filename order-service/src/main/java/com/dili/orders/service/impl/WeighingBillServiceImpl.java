@@ -1874,6 +1874,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			frozenRecord.setAction(ActionType.INCOME.getCode());
 			frozenRecord.setAmount(Math.abs(paymentResult.getFrozenAmount()));
 			frozenRecord.setCardNo(weighingBill.getBuyerCardNo());
+			frozenRecord.setHoldName(weighingBill.getBuyerCardHolderName());
 			frozenRecord.setCustomerId(weighingBill.getBuyerId());
 			frozenRecord.setCustomerName(weighingBill.getBuyerName());
 			frozenRecord.setCustomerNo(weighingBill.getBuyerCode());
@@ -1901,6 +1902,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerExpense.setAction(ActionType.EXPENSE.getCode());
 		buyerExpense.setAmount(Math.abs(buyerStream.getAmount()));
 		buyerExpense.setCardNo(weighingBill.getBuyerCardNo());
+		buyerExpense.setHoldName(weighingBill.getBuyerCardHolderName());
 		buyerExpense.setCustomerId(weighingBill.getBuyerId());
 		buyerExpense.setCustomerName(weighingBill.getBuyerName());
 		buyerExpense.setCustomerNo(weighingBill.getBuyerCode());
@@ -1929,6 +1931,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setAction(ActionType.EXPENSE.getCode());
 		buyerPoundage.setAmount(buyerPoundageStream != null ? Math.abs(buyerPoundageStream.getAmount()) : 0);
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
+		buyerPoundage.setHoldName(weighingBill.getBuyerCardHolderName());
 		buyerPoundage.setCustomerId(weighingBill.getBuyerId());
 		buyerPoundage.setCustomerName(weighingBill.getBuyerName());
 		buyerPoundage.setCustomerNo(weighingBill.getBuyerCode());
@@ -1955,6 +1958,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerIncome.setAction(ActionType.INCOME.getCode());
 		sellerIncome.setAmount(sellerStream.getAmount());
 		sellerIncome.setCardNo(weighingBill.getSellerCardNo());
+		sellerIncome.setHoldName(weighingBill.getSellerCardHolderName());
 		sellerIncome.setCustomerId(weighingBill.getSellerId());
 		sellerIncome.setCustomerName(weighingBill.getSellerName());
 		sellerIncome.setCustomerNo(weighingBill.getSellerCode());
@@ -1983,6 +1987,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerPoundage.setAction(ActionType.EXPENSE.getCode());
 		sellerPoundage.setAmount(sellerPoundageStream != null ? Math.abs(sellerPoundageStream.getAmount()) : 0);
 		sellerPoundage.setCardNo(weighingBill.getSellerCardNo());
+		sellerPoundage.setHoldName(weighingBill.getSellerCardHolderName());
 		sellerPoundage.setCustomerId(weighingBill.getSellerId());
 		sellerPoundage.setCustomerName(weighingBill.getSellerName());
 		sellerPoundage.setCustomerNo(weighingBill.getSellerCode());
@@ -2013,6 +2018,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		frozenRecord.setAction(ActionType.INCOME.getCode());
 		frozenRecord.setAmount(Math.abs(tradeResponse.getFrozenAmount()));
 		frozenRecord.setCardNo(weighingBill.getBuyerCardNo());
+		frozenRecord.setHoldName(weighingBill.getBuyerCardHolderName());
 		frozenRecord.setCustomerId(weighingBill.getBuyerId());
 		frozenRecord.setCustomerName(weighingBill.getBuyerName());
 		frozenRecord.setCustomerNo(weighingBill.getBuyerCode());
@@ -2051,6 +2057,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerExpense.setAction(ActionType.EXPENSE.getCode());
 		sellerExpense.setAmount(Math.abs(sellerExpenseStream.getAmount()));
 		sellerExpense.setCardNo(weighingBill.getSellerCardNo());
+		sellerExpense.setHoldName(weighingBill.getSellerCardHolderName());
 		sellerExpense.setCustomerId(weighingBill.getSellerId());
 		sellerExpense.setCustomerName(weighingBill.getSellerName());
 		sellerExpense.setCustomerNo(weighingBill.getSellerCode());
@@ -2080,6 +2087,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		sellerRefound.setAction(ActionType.INCOME.getCode());
 		sellerRefound.setAmount(sellerPoundageStream != null ? sellerPoundageStream.getAmount() : 0);
 		sellerRefound.setCardNo(weighingBill.getSellerCardNo());
+		sellerRefound.setHoldName(weighingBill.getSellerCardHolderName());
 		sellerRefound.setCustomerId(weighingBill.getSellerId());
 		sellerRefound.setCustomerName(weighingBill.getSellerName());
 		sellerRefound.setCustomerNo(weighingBill.getSellerCode());
@@ -2107,6 +2115,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerRefund.setAction(ActionType.INCOME.getCode());
 		buyerRefund.setAmount(buyerRefundStream.getAmount());
 		buyerRefund.setCardNo(weighingBill.getBuyerCardNo());
+		buyerRefund.setHoldName(weighingBill.getBuyerCardHolderName());
 		buyerRefund.setCustomerId(weighingBill.getBuyerId());
 		buyerRefund.setCustomerName(weighingBill.getBuyerName());
 		buyerRefund.setCustomerNo(weighingBill.getBuyerCode());
@@ -2136,6 +2145,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		buyerPoundage.setAction(ActionType.INCOME.getCode());
 		buyerPoundage.setAmount(buyerPoundageStream != null ? buyerPoundageStream.getAmount() : 0);
 		buyerPoundage.setCardNo(weighingBill.getBuyerCardNo());
+		buyerPoundage.setHoldName(weighingBill.getBuyerCardHolderName());
 		buyerPoundage.setCustomerId(weighingBill.getBuyerId());
 		buyerPoundage.setCustomerName(weighingBill.getBuyerName());
 		buyerPoundage.setCustomerNo(weighingBill.getBuyerCode());
@@ -2243,7 +2253,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (output == null) {
 			throw new AppException("查询买家信息服务无响应");
 		}
-		if (!output.isSuccess()) {
+		if (output.isSuccess()) {
 			LOGGER.error("查询买家信息失败:message：[{}]", output.getMessage());
 			throw new AppException("查询买方信息失败");
 		}
@@ -2262,7 +2272,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (output == null) {
 			throw new AppException("查询买家信息服务无响应");
 		}
-		if (!output.isSuccess()) {
+		if (output.isSuccess()) {
 			LOGGER.error("查询买家信息失败:message：[{}]", output.getMessage());
 			throw new AppException("查询卖方信息失败");
 		}
