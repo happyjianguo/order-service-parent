@@ -92,9 +92,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             return BaseOutput.failure("没有相关回款数据");
         }
 
-        //获取应收总金额，判断是否和传过来的相同，如果不同，则不能操作
-        Long sum = list.stream().mapToLong(x -> x.getTradeAmount()).sum();
-        if (!Objects.equals(sum, collectionRecord.getAmountReceivables())) {
+        //获取idlist的长度匹配查询出来的数据长度，如果不能匹配，则无法继续操作
+        if (!Objects.equals(collectionRecord.getCollectionRecordIds().size(), list.size())) {
             return BaseOutput.failure("数据失效，请刷新页面");
         }
 
@@ -149,9 +148,9 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             //创建结算单
             WeighingStatement weighingStatement = new WeighingStatement();
             //设置结算单id
-            weighingStatement.setId(Long.valueOf(list.get(i).getWeighingStatementId()));
+            weighingStatement.setId(list.get(i).getWeighingStatementId());
             //设置结算单version
-            weighingStatement.setVersion(Integer.valueOf(list.get(i).getVersion()));
+            weighingStatement.setVersion(list.get(i).getVersion());
             //设置回款状态，已回款
             /**
              * 还没有做的 设置回款状态，已回款
