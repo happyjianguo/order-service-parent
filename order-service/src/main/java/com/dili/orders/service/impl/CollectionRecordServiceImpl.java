@@ -28,13 +28,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.time.format.DateTimeFormatter.*;
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -319,7 +319,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
     }
 
     @Override
-    public BaseOutput groupListForDetail(CollectionRecord collectionRecord) {
+    public BaseOutput<List<Map<String, String>>> groupListForDetail(CollectionRecord collectionRecord) {
         return BaseOutput.successData(weighingStatementMapper.groupListForDetail(collectionRecord));
     }
 

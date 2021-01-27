@@ -210,7 +210,8 @@
 		SELECT
 		DATE_FORMAT(last_operation_time,'%Y-%m-%d') AS 'time',
 		SUM(ws.trade_amount) AS 'amount',
-		COUNT(ws.id) AS 'cnt'
+		COUNT(ws.id) AS 'cnt',
+		GROUP_CONCAT(ws.id) AS 'ids'
 		FROM weighing_statement ws
 		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
 		WHERE 1 = 1
@@ -238,7 +239,7 @@
 		</if>
 		<if test="departmentIds !=null and departmentIds.size()>0">
 			AND wb.department_id IN
-			<foreach collection="departmentIds" index="(" close=")" separator="," item="departmentId">
+			<foreach collection="departmentIds" open="(" close=")" separator="," item="departmentId">
 				#{departmentId}
 			</foreach>
 		</if>

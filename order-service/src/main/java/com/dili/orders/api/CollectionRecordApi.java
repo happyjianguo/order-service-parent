@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -145,11 +146,7 @@ public class CollectionRecordApi {
      * @return
      */
     @PostMapping("/groupListForDetail")
-    public BaseOutput groupListForDetail(CollectionRecord collectionRecord) {
-        //判断需要回款的日期是否为空
-        if (CollectionUtils.isEmpty(collectionRecord.getBatchCollectionDate())) {
-            return BaseOutput.failure("回款日期为空");
-        }
+    public BaseOutput<List<Map<String, String>>> groupListForDetail(@RequestBody CollectionRecord collectionRecord) {
         //判断市场id是否为空
         if (Objects.isNull(collectionRecord.getMarketId())) {
             return BaseOutput.failure("市场id不能为空");
