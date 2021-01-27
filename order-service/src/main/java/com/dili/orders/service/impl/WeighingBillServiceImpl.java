@@ -2260,7 +2260,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (output == null) {
 			throw new AppException("查询买家信息服务无响应");
 		}
-		if (output.isSuccess()) {
+		if (!output.isSuccess()) {
 			LOGGER.error("查询买家信息失败:message：[{}]", output.getMessage());
 			throw new AppException("查询买方信息失败");
 		}
@@ -2279,7 +2279,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (output == null) {
 			throw new AppException("查询买家信息服务无响应");
 		}
-		if (output.isSuccess()) {
+		if (!output.isSuccess()) {
 			LOGGER.error("查询买家信息失败:message：[{}]", output.getMessage());
 			throw new AppException("查询卖方信息失败");
 		}
