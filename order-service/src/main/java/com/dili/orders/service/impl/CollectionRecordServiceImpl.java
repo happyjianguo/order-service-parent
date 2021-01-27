@@ -28,10 +28,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.time.format.DateTimeFormatter.*;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -249,6 +252,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             data = pay.getData();
             collectionRecord.setPayTime(data.getWhen());
         }
+        //设置交易结算日期，多个以逗号隔开
+        collectionRecord.setSettlementDate(String.join(",", collectionRecord.getBatchCollectionDate().stream().map(x -> ofPattern("yyyy-MM-dd").format(x)).collect(Collectors.toList())));
         //设置买家卡账户id
         collectionRecord.setAccountBuyerId(buyerAccountInfo.getAccountId());
         //设置卖家卡账户id
