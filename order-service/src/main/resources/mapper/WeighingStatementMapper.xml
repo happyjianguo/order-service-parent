@@ -160,7 +160,7 @@
 		ws.state
 	</select>
 
-	<select id="listByDates" resultType="com.dili.orders.dto.WeighingCollectionStatementDto" parameterType="com.dili.orders.domain.CollectionRecord">
+	<select id="listByIds" resultType="com.dili.orders.dto.WeighingCollectionStatementDto" parameterType="com.dili.orders.domain.CollectionRecord">
 		SELECT
 		ws.id AS 'weighingStatementId',
 		wb.id AS 'WeighingBillId',
@@ -172,44 +172,30 @@
 		wb.unit_amount AS 'unitAmount',
 		wb.unit_price AS 'unitPrice',
 		ws.trade_amount AS 'tradeAmount',
+		wb.staff_charges AS 'staffCharges',
+		wb.packing_charges AS 'packingCharges',
+		wb.collection_charges AS 'collectionCharges',
+		ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges AS 'totalAmount',
 		ws.version AS 'version'
 		FROM weighing_statement ws
 		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
 		WHERE 1 = 1
-		<if test="buyerId !=null">
-			AND ws.buyer_id = #{buyerId}
-		</if>
-		<if test="sellerId !=null">
-			AND ws.seller_id = #{sellerId}
-		</if>
-		<if test="accountBuyerId">
-			AND wb.buyer_account = #{accountBuyerId}
-		</if>
-        <if test="accountSellerId !=null">
-            AND wb.seller_account = #{accountSellerId}
-        </if>
 		AND ws.state = 2
-		AND market_id = #{marketId}
 		<if test="collectionRecordIds !=null and collectionRecordIds.size()>0">
 			AND ws.id IN
 			(
-			<foreach collection="collectionRecordIds" index="" close="" item="collectionRecordId">
+			<foreach collection="collectionRecordIds" item="collectionRecordId">
 				#{collectionRecordId}
 			</foreach>
 			)
 		</if>
-		<if test="departmentIds !=null and departmentIds.size()>0">
-			AND wb.department_id IN
-			<foreach collection="departmentIds" index="(" close=")" separator="," item="departmentId">
-				#{departmentId}
-			</foreach>
-		</if>
+		ORDER BY lastOperationTime DESC
 	</select>
 
 	<select id="groupListForDetail" resultType="java.util.Map" parameterType="com.dili.orders.domain.CollectionRecord">
 		SELECT
 		DATE_FORMAT(last_operation_time,'%Y-%m-%d') AS 'time',
-		SUM(ws.trade_amount) AS 'amount',
+		SUM(ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges) AS 'amount',
 		COUNT(ws.id) AS 'cnt',
 		GROUP_CONCAT(ws.id) AS 'ids'
 		FROM weighing_statement ws

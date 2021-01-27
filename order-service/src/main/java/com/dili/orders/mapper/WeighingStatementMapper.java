@@ -17,7 +17,7 @@ public interface WeighingStatementMapper extends MyMapper<WeighingStatement> {
 
     List<WeighingStatementAppletStateCountDto> selectStateCount(WeighingStatementAppletQuery query);
 
-    List<WeighingCollectionStatementDto> listByDates(CollectionRecord collectionRecord);
+    List<WeighingCollectionStatementDto> listByIds(CollectionRecord collectionRecord);
 
     List<Map<String, String>> groupListForDetail(CollectionRecord collectionRecord);
 }

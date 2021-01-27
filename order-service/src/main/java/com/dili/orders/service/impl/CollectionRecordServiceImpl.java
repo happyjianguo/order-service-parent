@@ -90,7 +90,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         LocalDateTime now = LocalDateTime.now();
 
         //不为空则查询数据库是否有相应回款的单据，交易过磅那里查询
-        List<WeighingCollectionStatementDto> list = weighingStatementMapper.listByDates(collectionRecord);
+        List<WeighingCollectionStatementDto> list = weighingStatementMapper.listByIds(collectionRecord);
         if (CollectionUtils.isEmpty(list)) {
             return BaseOutput.failure("没有相关回款数据");
         }
@@ -325,7 +325,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
 
     @Override
     public BaseOutput listForDetail(CollectionRecord collectionRecord) {
-        return BaseOutput.successData(weighingStatementMapper.listByDates(collectionRecord));
+        return BaseOutput.successData(weighingStatementMapper.listByIds(collectionRecord));
     }
 
     private SerialRecordDo getSerialRecordDo(UserAccountCardResponseDto accountInfo, CollectionRecord collectionRecord) {
