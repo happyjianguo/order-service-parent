@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
  *
  * @author jiang
  */
-@Component
-@Lazy(false)
+//@Component
+//@Lazy(false)
 public class DataSourceContextHolder {
 
     private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
