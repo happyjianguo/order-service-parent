@@ -3,22 +3,17 @@ package com.dili.orders.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.logger.sdk.base.LoggerContext;
-import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.logger.sdk.glossary.LoggerConstant;
-import com.dili.logger.sdk.rpc.BusinessLogRpc;
 import com.dili.orders.config.RabbitMQConfig;
-import com.dili.orders.domain.CollectionRecord;
-import com.dili.orders.domain.WeighingBillOperationRecord;
-import com.dili.orders.domain.WeighingOperationType;
-import com.dili.orders.domain.WeighingStatement;
+import com.dili.orders.domain.*;
 import com.dili.orders.dto.*;
-import com.dili.orders.glossary.BizTypeEnum;
 import com.dili.orders.glossary.PaymentWays;
 import com.dili.orders.mapper.CollectionRecordMapper;
 import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
 import com.dili.orders.mapper.WeighingStatementMapper;
 import com.dili.orders.rpc.CardRpc;
 import com.dili.orders.rpc.PayRpc;
+import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.CollectionRecordService;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.domain.BaseOutput;
@@ -64,6 +59,9 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
     @Autowired
     private RabbitMQMessageService rabbitMQMessageService;
 
+    @Autowired
+    private UidRpc uidRpc;
+
 
     @Override
     public PageOutput<List<CollectionRecord>> listByQueryParams(CollectionRecord collectionRecord) {
@@ -93,11 +91,13 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         if (CollectionUtils.isEmpty(list)) {
             return BaseOutput.failure("没有相关回款数据");
         }
+
         //获取应收总金额，判断是否和传过来的相同，如果不同，则不能操作
         Long sum = list.stream().mapToLong(x -> x.getTradeAmount()).sum();
         if (!Objects.equals(sum, collectionRecord.getAmountReceivables())) {
             return BaseOutput.failure("数据失效，请刷新页面");
         }
+
         BaseOutput<AccountSimpleResponseDto> buyerAccountSimple = null;
         //判断是自付还是代付，如果是代付，需要使用代付的卡号去查询
 
@@ -136,6 +136,13 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         if (!pwdOutput.isSuccess()) {
             return pwdOutput;
         }
+        //根据业务类型生成code
+        BaseOutput<String> sg_collection_record_fee = uidRpc.bizNumber(UidStatic.SG_COLLECTION_RECORD_CODE);
+        if (!sg_collection_record_fee.isSuccess()) {
+            throw new RuntimeException(sg_collection_record_fee.getMessage());
+        }
+        //设置code
+        collectionRecord.setCode(sg_collection_record_fee.getData());
 
         //交易过磅数据修改，交易过磅记录新增
         for (int i = 0; i < list.size(); i++) {

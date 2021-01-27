@@ -22,4 +22,8 @@ public class UidStatic {
      * 过磅单结算单code
      */
     public static final String SG_COMPREHENSIVE_STATEMENT_CODE = "sg_comprehensive_fee";
+    /**
+     * 回款单code
+     */
+    public static final String SG_COLLECTION_RECORD_CODE = "sg_collection_record_fee";
 }
