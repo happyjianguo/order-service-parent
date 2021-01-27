@@ -119,10 +119,10 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         // 获取账户信息
         UserAccountCardResponseDto buyerAccountInfo = buyerAccountSimple.getData().getAccountInfo();
         // 获取账户资金信息
-        BalanceResponseDto byerAccountFund = buyerAccountSimple.getData().getAccountFund();
+        BalanceResponseDto buyerAccountFund = buyerAccountSimple.getData().getAccountFund();
 
         // 余额不足
-        if (Math.abs(byerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
+        if (Math.abs(buyerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
             return BaseOutput.failure("余额不足，请充值");
         }
 
@@ -249,6 +249,10 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             data = pay.getData();
             collectionRecord.setPayTime(data.getWhen());
         }
+        //设置买家卡账户id
+        collectionRecord.setAccountBuyerId(buyerAccountInfo.getAccountId());
+        //设置卖家卡账户id
+        collectionRecord.setAccountSellerId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
         //插入回款记录数据
         int insert = mapper.insert(collectionRecord);
         //判断是新增成功

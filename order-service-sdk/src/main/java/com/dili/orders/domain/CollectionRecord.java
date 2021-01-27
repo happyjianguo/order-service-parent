@@ -87,13 +87,13 @@ public class CollectionRecord extends BaseDomain {
     /**
      * 查询使用，当做客户的id使用
      */
-    @Transient
+    @Column(name = "`account_seller_id`")
     private Long accountSellerId;
 
     /**
      * 查询使用，当做客户的id使用
      */
-    @Transient
+    @Column(name = "`account_buyer_id`")
     private Long accountBuyerId;
 
     /**

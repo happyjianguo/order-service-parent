@@ -53,17 +53,11 @@
   <if test="sellerId != null" >
       AND cr.seller_id = #{seller_id}
   </if>
-  <if test="buyerCardNo != null" >
-      AND cr.buyer_card_no = #{buyerCardNo}
-  </if>
-  <if test="sellerCardNo != null" >
-      AND cr.seller_card_no = #{sellerCardNo}
-  </if>
   <if test="buyerAccountId != null" >
-      AND cr.buyer_account_id = #{buyerAccountId}
+      AND cr.account_buyer_id = #{buyerAccountId}
   </if>
   <if test="sellerAccountId != null" >
-      AND cr.seller_account_id = #{sellerAccountId}
+      AND cr.account_seller_id = #{sellerAccountId}
   </if>
   <if test="beginDateTime != null" >
       AND cr.operation_time <![CDATA[>=]]> #{beginDateTime}
@@ -71,8 +65,11 @@
   <if test="endDateTime != null" >
       AND cr.operation_time <![CDATA[<=]]> #{endDateTime}
   </if>
-  <if test="operationDepartmentId != null" >
-      AND cr.operation_department_id = #{operationDepartmentId}
+  <if test="departmentIds != null and departmentIds.size()>0" >
+      AND cr.operation_department_id IN
+    <foreach collection="departmentIds" open="(" close=")" separator="," item="department">
+      #{department}
+    </foreach>
   </if>
 
 
