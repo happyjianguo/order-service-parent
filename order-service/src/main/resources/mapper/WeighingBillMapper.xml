@@ -617,6 +617,12 @@
 				#{item}
 			</foreach>
 		</if>
+		<if test="departmentIds != null and departmentIds.size() > 0">
+            AND department_id IN
+            <foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
+                #{deptId}
+            </foreach>
+        </if>
 		<if test="creatorId != null">
 			AND wb.creator_id = #{creatorId}
 		</if>
