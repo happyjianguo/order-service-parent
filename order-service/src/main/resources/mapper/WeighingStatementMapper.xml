@@ -173,8 +173,8 @@
 	<select id="listByIds" resultType="com.dili.orders.dto.WeighingCollectionStatementDto" parameterType="com.dili.orders.domain.CollectionRecord">
 		SELECT
 		ws.id AS 'weighingStatementId',
-		wb.id AS 'WeighingBillId',
-		wb.serial_no AS 'WeighingBillCode',
+		wb.id AS 'weighingBillId',
+		wb.serial_no AS 'weighingBillCode',
 		ws.last_operation_time AS 'lastOperationTime',
 		ws.serial_no AS 'weighingStatementCode',
 		wb.goods_name AS 'goodsName',
@@ -193,11 +193,9 @@
 		AND ws.state = 2
 		<if test="collectionRecordIds !=null and collectionRecordIds.size()>0">
 			AND ws.id IN
-			(
-			<foreach collection="collectionRecordIds" item="collectionRecordId">
+			<foreach collection="collectionRecordIds" open="(" close=")" separator="," item="collectionRecordId">
 				#{collectionRecordId}
 			</foreach>
-			)
 		</if>
 		ORDER BY lastOperationTime DESC
 	</select>
