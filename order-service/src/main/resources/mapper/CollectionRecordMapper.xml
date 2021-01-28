@@ -51,13 +51,13 @@
       AND cr.buyer_id = #{buyerId}
   </if>
   <if test="sellerId != null" >
-      AND cr.seller_id = #{seller_id}
+      AND cr.seller_id = #{sellerId}
   </if>
-  <if test="buyerAccountId != null" >
-      AND cr.account_buyer_id = #{buyerAccountId}
+  <if test="accountBuyerId != null" >
+      AND cr.account_buyer_id = #{accountBuyerId}
   </if>
-  <if test="sellerAccountId != null" >
-      AND cr.account_seller_id = #{sellerAccountId}
+  <if test="accountSellerId != null" >
+      AND cr.account_seller_id = #{accountSellerId}
   </if>
   <if test="beginDateTime != null" >
       AND cr.operation_time <![CDATA[>=]]> #{beginDateTime}

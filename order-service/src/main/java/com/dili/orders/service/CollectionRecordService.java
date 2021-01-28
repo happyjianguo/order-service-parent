@@ -7,6 +7,7 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -34,7 +35,7 @@ public interface CollectionRecordService extends BaseService<CollectionRecord, L
      *
      * @param collectionRecord
      */
-    BaseOutput groupListForDetail(CollectionRecord collectionRecord);
+    BaseOutput<List<Map<String, String>>> groupListForDetail(CollectionRecord collectionRecord);
 
     /**
      * 下钻查询数据

@@ -29,6 +29,18 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
     //单价
     private BigDecimal unitPrice;
 
+    //人工费
+    private BigDecimal staffCharges;
+
+    //包装费
+    private BigDecimal packingCharges;
+
+    //代收费
+    private BigDecimal collectionCharges;
+
+    //合计
+    private BigDecimal totalAmount;
+
     public Long getWeighingStatementId() {
         return weighingStatementId;
     }
@@ -95,4 +107,35 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
         this.unitPrice = unitPrice;
     }
 
+    public BigDecimal getStaffCharges() {
+        return staffCharges;
+    }
+
+    public void setStaffCharges(BigDecimal staffCharges) {
+        this.staffCharges = staffCharges;
+    }
+
+    public BigDecimal getPackingCharges() {
+        return packingCharges;
+    }
+
+    public void setPackingCharges(BigDecimal packingCharges) {
+        this.packingCharges = packingCharges;
+    }
+
+    public BigDecimal getCollectionCharges() {
+        return collectionCharges;
+    }
+
+    public void setCollectionCharges(BigDecimal collectionCharges) {
+        this.collectionCharges = collectionCharges;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 }

@@ -30,8 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -87,7 +90,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         LocalDateTime now = LocalDateTime.now();
 
         //不为空则查询数据库是否有相应回款的单据，交易过磅那里查询
-        List<WeighingCollectionStatementDto> list = weighingStatementMapper.listByDates(collectionRecord);
+        List<WeighingCollectionStatementDto> list = weighingStatementMapper.listByIds(collectionRecord);
         if (CollectionUtils.isEmpty(list)) {
             return BaseOutput.failure("没有相关回款数据");
         }
@@ -249,6 +252,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             data = pay.getData();
             collectionRecord.setPayTime(data.getWhen());
         }
+        //设置交易结算日期，多个以逗号隔开
+        collectionRecord.setSettlementDate(String.join(",", collectionRecord.getBatchCollectionDate().stream().map(x -> ofPattern("yyyy-MM-dd").format(x)).collect(Collectors.toList())));
         //设置买家卡账户id
         collectionRecord.setAccountBuyerId(buyerAccountInfo.getAccountId());
         //设置卖家卡账户id
@@ -314,13 +319,13 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
     }
 
     @Override
-    public BaseOutput groupListForDetail(CollectionRecord collectionRecord) {
+    public BaseOutput<List<Map<String, String>>> groupListForDetail(CollectionRecord collectionRecord) {
         return BaseOutput.successData(weighingStatementMapper.groupListForDetail(collectionRecord));
     }
 
     @Override
     public BaseOutput listForDetail(CollectionRecord collectionRecord) {
-        return BaseOutput.successData(weighingStatementMapper.listByDates(collectionRecord));
+        return BaseOutput.successData(weighingStatementMapper.listByIds(collectionRecord));
     }
 
     private SerialRecordDo getSerialRecordDo(UserAccountCardResponseDto accountInfo, CollectionRecord collectionRecord) {
