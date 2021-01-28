@@ -106,9 +106,9 @@
 		1 =1
 		<if test="state != null">
 			<choose>
-				<when test="2">AND ws.state = #{state} AND wbor.operation_type = 4</when>
-				<when test="3">AND ws.state = #{state} AND wbor.operation_type = 5</when>
-				<when test="4">AND ws.state = #{state} AND wbor.operation_type = 2</when>
+				<when test="state == 2">AND ws.state = #{state} AND wbor.operation_type = 4</when>
+				<when test="state == 3">AND ws.state = #{state} AND wbor.operation_type = 5</when>
+				<when test="state == 4">AND ws.state = #{state} AND wbor.operation_type = 2</when>
 			</choose>
 		</if>
 		<if test="startTime != null">
