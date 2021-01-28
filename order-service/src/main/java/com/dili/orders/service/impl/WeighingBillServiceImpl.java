@@ -510,6 +510,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		srDto.setAction(ActionType.EXPENSE.getCode());
 		srDto.setAmount(data.getFrozenAmount());
 		srDto.setCardNo(weighingBill.getBuyerCardNo());
+		srDto.setHoldName(weighingBill.getBuyerCardHolderName());
 		srDto.setCustomerId(weighingBill.getBuyerId());
 		srDto.setCustomerName(weighingBill.getBuyerName());
 		srDto.setCustomerNo(weighingBill.getBuyerCode());
