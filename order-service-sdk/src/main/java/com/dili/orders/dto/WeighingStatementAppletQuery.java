@@ -1,6 +1,7 @@
 package com.dili.orders.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -18,7 +19,9 @@ public class WeighingStatementAppletQuery extends WeighingStatement {
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime endTime;
+	private Long firmId;
 	private Long accountId;
+	private List<Long> accountIds;
 
 	public LocalDateTime getStartTime() {
 		return startTime;
@@ -36,12 +39,28 @@ public class WeighingStatementAppletQuery extends WeighingStatement {
 		this.endTime = endTime;
 	}
 
+	public Long getFirmId() {
+		return firmId;
+	}
+
+	public void setFirmId(Long firmId) {
+		this.firmId = firmId;
+	}
+
 	public Long getAccountId() {
 		return accountId;
 	}
 
 	public void setAccountId(Long accountId) {
 		this.accountId = accountId;
+	}
+
+	public List<Long> getAccountIds() {
+		return accountIds;
+	}
+
+	public void setAccountIds(List<Long> accountIds) {
+		this.accountIds = accountIds;
 	}
 
 }

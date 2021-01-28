@@ -87,6 +87,15 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.dili</groupId>
+			<artifactId>ss-multi-datasource</artifactId>
+			<version>${sharp-sword.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.dili</groupId>
 			<artifactId>logger-sdk</artifactId>
 			<version>1.0.1-SNAPSHOT</version>

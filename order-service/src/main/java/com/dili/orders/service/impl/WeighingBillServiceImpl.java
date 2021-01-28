@@ -45,7 +45,6 @@ import com.dili.jmsf.microservice.sdk.dto.TruckDTO;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
-import com.dili.orders.config.SelectDB;
 import com.dili.orders.config.WeighingBillMQConfig;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.MeasureType;
@@ -99,6 +98,8 @@ import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
 import com.dili.ss.base.BaseServiceImpl;
+import com.dili.ss.datasource.DataSourceType;
+import com.dili.ss.datasource.SwitchDataSource;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.dto.DTOUtils;
@@ -769,7 +770,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return this.getActualDao().selectByExampleModified(weighingBill);
 	}
 
-	@SelectDB("read")
+	@SwitchDataSource(type = DataSourceType.SLAVE)
 	@Override
 	public PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query) {
 		Integer page = query.getPage();
@@ -2420,7 +2421,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setUnitWeight(dto.getUnitWeight());
 	}
 
-	@SelectDB("read")
+	@SwitchDataSource(type = DataSourceType.SLAVE)
 	@Override
 	public BaseOutput<WeighingBillPrintListDto> printList(WeighingBillQueryDto query) {
 		Integer page = query.getPage();
