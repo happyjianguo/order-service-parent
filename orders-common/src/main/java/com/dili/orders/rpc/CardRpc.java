@@ -1,12 +1,14 @@
 package com.dili.orders.rpc;
 
 
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import com.alibaba.fastjson.JSONObject;
 import com.dili.orders.dto.AccountSimpleResponseDto;
 import com.dili.ss.domain.BaseOutput;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 根据卡号获取账户信息
@@ -21,4 +23,13 @@ public interface CardRpc {
      */
     @GetMapping("/api/account/simpleInfo")
     BaseOutput<AccountSimpleResponseDto> getOneAccountCard(@RequestParam(value = "cardNo") String cardNo);
+
+    /**
+     * 根据客户id查询卡号
+     *
+     * @param jsonObject
+     * @return
+     */
+    @PostMapping("/api/account/getList")
+    BaseOutput<AccountSimpleResponseDto> getList(@RequestBody JSONObject jsonObject);
 }
