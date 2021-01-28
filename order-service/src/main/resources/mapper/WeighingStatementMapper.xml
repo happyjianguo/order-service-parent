@@ -69,6 +69,7 @@
 		ws.created_time,
 		ws.modifier_id,
 		ws.modified_time,
+		ws.last_operation_time,
 		ws.version
 	</sql>
 
@@ -130,6 +131,12 @@
 			</foreach>
 			)
 		</if>
+		<if test="sort !=null and sort!='' and order !=null and order !=''">
+            ORDER BY ${sort} ${order}
+        </if>
+        <if test="sort ==null or sort==''">
+            ORDER BY wbor.operation_time DESC
+        </if>
 	</select>
 
 	<select id="selectStateCount" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletStateCountRM">
@@ -163,8 +170,16 @@
 			AND wbor.operation_time <![CDATA[<=]]>
 			#{endTime}
 		</if>
-		<if test="accountId != null">
-			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
+		<if test="accountIds != null and accountIds.size() > 0">
+			AND (wb.buyer_account IN
+			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
+				#{accountId}
+			</foreach>
+			OR wb.seller_account IN
+			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
+				#{accountId}
+			</foreach>
+			)
 		</if>
 		GROUP BY
 		ws.state
