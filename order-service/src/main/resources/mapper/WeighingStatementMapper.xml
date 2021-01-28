@@ -37,9 +37,11 @@
 		<!-- WARNING - @mbg.generated -->
 		id, serial_no, weighing_bill_id, weighing_serial_no, statement_id, statement_serial_no,
 		buyer_id, buyer_card_no, buyer_name, buyer_actual_amount, buyer_poundage, seller_id,
-		seller_card_no, seller_name, seller_actual_amount, seller_poundage, trade_amount,
+		seller_card_no,
+		seller_name, seller_actual_amount, seller_poundage, trade_amount,
 		frozen_amount, state, pay_order_no, frozen_order_no, creator_id, created_time, modifier_id,
-		modified_time, version, last_operation_time, last_operator_id, last_operator_name
+		modified_time, version,
+		last_operation_time, last_operator_id, last_operator_name
 	</sql>
 
 	<sql id="Join_Column_List">
@@ -117,8 +119,16 @@
 			AND wbor.operation_time <![CDATA[<=]]>
 			#{endTime}
 		</if>
-		<if test="accountId != null">
-			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
+		<if test="accountIds != null and accountIds.size() > 0">
+			AND (wb.buyer_account IN
+			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
+				#{accountId}
+			</foreach>
+			OR wb.seller_account IN
+			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
+				#{accountId}
+			</foreach>
+			)
 		</if>
 	</select>
 
