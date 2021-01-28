@@ -179,6 +179,9 @@ public class WeighingStatement extends BaseDomain {
 	/**
 	 * 最后操作时间
 	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`last_operation_time`")
 	private LocalDateTime lastOperationTime;
 
