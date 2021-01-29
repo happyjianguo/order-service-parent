@@ -12,10 +12,10 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
     private String weighingStatementCode;
 
     //过磅单id
-    private Long WeighingBillId;
+    private Long weighingBillId;
 
     //过磅单code
-    private String WeighingBillCode;
+    private String weighingBillCode;
 
     //商品名称
     private String goodsName;
@@ -59,20 +59,20 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
 
     @Override
     public Long getWeighingBillId() {
-        return WeighingBillId;
+        return weighingBillId;
     }
 
     @Override
     public void setWeighingBillId(Long weighingBillId) {
-        WeighingBillId = weighingBillId;
+        this.weighingBillId = weighingBillId;
     }
 
     public String getWeighingBillCode() {
-        return WeighingBillCode;
+        return weighingBillCode;
     }
 
     public void setWeighingBillCode(String weighingBillCode) {
-        WeighingBillCode = weighingBillCode;
+        this.weighingBillCode = weighingBillCode;
     }
 
     public String getGoodsName() {
