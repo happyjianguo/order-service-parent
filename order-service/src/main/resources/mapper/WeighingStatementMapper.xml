@@ -69,6 +69,7 @@
 		ws.created_time,
 		ws.modifier_id,
 		ws.modified_time,
+		ws.last_operation_time,
 		ws.version
 	</sql>
 
@@ -106,9 +107,9 @@
 		1 =1
 		<if test="state != null">
 			<choose>
-				<when test="2">AND ws.state = #{state} AND wbor.operation_type = 4</when>
-				<when test="3">AND ws.state = #{state} AND wbor.operation_type = 5</when>
-				<when test="4">AND ws.state = #{state} AND wbor.operation_type = 2</when>
+				<when test="state == 2">AND ws.state = #{state} AND wbor.operation_type = 4</when>
+				<when test="state == 3">AND ws.state = #{state} AND wbor.operation_type = 5</when>
+				<when test="state == 4">AND ws.state = #{state} AND wbor.operation_type = 2</when>
 			</choose>
 		</if>
 		<if test="startTime != null">
@@ -130,6 +131,12 @@
 			</foreach>
 			)
 		</if>
+		<if test="sort !=null and sort!='' and order !=null and order !=''">
+            ORDER BY ${sort} ${order}
+        </if>
+        <if test="sort ==null or sort==''">
+            ORDER BY wbor.operation_time DESC
+        </if>
 	</select>
 
 	<select id="selectStateCount" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletStateCountRM">
@@ -163,8 +170,16 @@
 			AND wbor.operation_time <![CDATA[<=]]>
 			#{endTime}
 		</if>
-		<if test="accountId != null">
-			AND (wb.buyer_account = #{accountId} OR wb.seller_account = #{accountId})
+		<if test="accountIds != null and accountIds.size() > 0">
+			AND (wb.buyer_account IN
+			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
+				#{accountId}
+			</foreach>
+			OR wb.seller_account IN
+			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
+				#{accountId}
+			</foreach>
+			)
 		</if>
 		GROUP BY
 		ws.state

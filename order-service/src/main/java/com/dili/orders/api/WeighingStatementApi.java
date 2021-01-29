@@ -77,6 +77,20 @@ public class WeighingStatementApi {
 	 */
 	@RequestMapping(value = "/stateCountStatistics")
 	public BaseOutput<?> stateCountStatistics(@RequestBody WeighingStatementAppletQuery query) {
+		AccountQueryDto dto = new AccountQueryDto();
+		dto.setParentAccountId(query.getAccountId());
+		dto.setFirmId(query.getFirmId());
+		BaseOutput<List<AccountQueryResponseDto>> output = this.accountRpc.getList(dto);
+		if (output == null) {
+			return BaseOutput.failure("查询账户信息失败");
+		}
+		if (!output.isSuccess()) {
+			return BaseOutput.failure(output.getMessage());
+		}
+		List<Long> accountIds = new ArrayList<Long>(output.getData().size() + 1);
+		accountIds.add(query.getAccountId());
+		output.getData().forEach(a -> accountIds.add(a.getAccountId().longValue()));
+		query.setAccountIds(accountIds);
 		return BaseOutput.successData(this.weighingStatementService.stateCountStatistics(query));
 	}
 }
