@@ -2286,12 +2286,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			throw new AppException("查询卖方信息失败");
 		}
 
-		CustomerExtendDto buyerInfo = output.getData();
-		CharacterType buyerType = buyerInfo.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.经营户.getCode())).findFirst().orElse(null);
-		if (buyerType == null) {
+		CustomerExtendDto sellerInfo = output.getData();
+		CharacterType sellerType = sellerInfo.getCharacterTypeList().stream().filter(c -> c.getCharacterType().equals(CustomerEnum.CharacterType.经营户.getCode())).findFirst().orElse(null);
+		if (sellerType == null) {
 			throw new AppException("该卡客户身份类型不符");
 		}
-		weighingBill.setBuyerType(buyerType.getSubType());
+		weighingBill.setSellerType(sellerType.getSubType());
 	}
 
 	private UserAccountCardResponseDto getBuyerInfo(WeighingBill weighingBill) {
