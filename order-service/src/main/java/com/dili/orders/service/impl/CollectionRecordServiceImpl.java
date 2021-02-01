@@ -7,7 +7,7 @@ import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.domain.*;
 import com.dili.orders.dto.*;
-import com.dili.orders.glossary.PaymentWays;
+import com.dili.orders.domain.PaymentWays;
 import com.dili.orders.mapper.CollectionRecordMapper;
 import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
 import com.dili.orders.mapper.WeighingStatementMapper;

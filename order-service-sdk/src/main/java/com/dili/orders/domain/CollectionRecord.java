@@ -25,6 +25,11 @@ import javax.persistence.*;
  */
 @Table(name = "`collection_record`")
 public class CollectionRecord extends BaseDomain {
+    /**
+     * 元形式的实回款金额
+     */
+    @Transient
+    private BigDecimal amountActuallyYuan;
 
     /**
      * id集合字符串形式
@@ -440,7 +445,7 @@ public class CollectionRecord extends BaseDomain {
     @FieldDef(label = "应回款金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getAmountReceivables() {
-        return amountReceivables;
+        return this.amountReceivables;
     }
 
     /**
@@ -468,12 +473,8 @@ public class CollectionRecord extends BaseDomain {
      *
      * @param amountActually 实回款金额
      */
-    public void setAmountActually(BigDecimal amountActually) {
-        if (Objects.nonNull(amountActually)) {
-            //前端回传是元，后端需要转成long类型，先保留两位小数之后，再转回成long型
-            BigDecimal multiply = amountActually.setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-            this.amountActually = multiply.longValue();
-        }
+    public void setAmountActually(Long amountActually) {
+        this.amountActually = amountActually;
     }
 
     /**
@@ -720,6 +721,17 @@ public class CollectionRecord extends BaseDomain {
         this.ids = ids;
         if (StringUtils.isNotBlank(ids)) {
             this.collectionRecordIds = Arrays.asList(ids.split(",")).stream().map(Long::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public BigDecimal getAmountActuallyYuan() {
+        return amountActuallyYuan;
+    }
+
+    public void setAmountActuallyYuan(BigDecimal amountActuallyYuan) {
+        this.amountActuallyYuan = amountActuallyYuan;
+        if (Objects.nonNull(amountActuallyYuan)) {
+            this.amountActually = amountActuallyYuan.multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).longValue();
         }
     }
 }
