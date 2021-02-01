@@ -6,14 +6,17 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.*;
 
 /**
@@ -23,6 +26,11 @@ import javax.persistence.*;
  */
 @Table(name = "`collection_record`")
 public class CollectionRecord extends BaseDomain {
+
+    /**
+     * id集合字符串形式
+     */
+    private String ids;
 
     /**
      * 根据ids判断操作是否可行
@@ -699,5 +707,16 @@ public class CollectionRecord extends BaseDomain {
 
     public void setCollectionRecordIds(List<Long> collectionRecordIds) {
         this.collectionRecordIds = collectionRecordIds;
+    }
+
+    public String getIds() {
+        return ids;
+    }
+
+    public void setIds(String ids) {
+        this.ids = ids;
+        if (StringUtils.isNotBlank(ids)) {
+            this.collectionRecordIds = Arrays.asList(ids.split(",")).stream().map(Long::valueOf).collect(Collectors.toList());
+        }
     }
 }
