@@ -98,6 +98,6 @@ public interface PayRpc {
      * @param dto
      * @return
      */
-    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit6", method = RequestMethod.POST)
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> commit6(@RequestBody PaymentTradeCommitDto dto);
 }

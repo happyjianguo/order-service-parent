@@ -74,28 +74,32 @@ public class CollectionRecordApi {
      */
     @PostMapping("/insertAndPay")
     @BusinessLogger(businessType = "trading_orders", content = "回款单回款：${businessCode},结算单号：${statementSerialNo},所属市场id：${marketId}，操作员id:${operationId}", operationType = "edit", systemCode = OrdersConstant.SYSTEM_CODE)
-    public BaseOutput insertAndPay(CollectionRecord collectionRecord, HttpServletRequest request, String password) {
+    public BaseOutput insertAndPay(@RequestBody CollectionRecord collectionRecord, HttpServletRequest request, @RequestParam(value = "password") String password) {
         //日志记录
         LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
-        //判断需要回款的日期是否为空
-        if (CollectionUtils.isEmpty(collectionRecord.getBatchCollectionDate())) {
-            return BaseOutput.failure("回款日期为空");
-        }
+//        //判断需要回款的日期是否为空
+//        if (CollectionUtils.isEmpty(collectionRecord.getBatchCollectionDate())) {
+//            return BaseOutput.failure("回款日期为空");
+//        }
         //判断市场id是否为空
         if (Objects.isNull(collectionRecord.getMarketId())) {
             return BaseOutput.failure("市场id不能为空");
         }
         //判断买家id或买家卡账户是否为空，必须存在一个
-        if (Objects.isNull(collectionRecord.getBuyerId()) && Objects.isNull(collectionRecord.getAccountBuyerId())) {
+        if (Objects.isNull(collectionRecord.getBuyerId()) || Objects.isNull(collectionRecord.getAccountBuyerId())) {
             return BaseOutput.failure("买家id或买家卡账户不能为空");
         }
         //判断卖家id和卖家卡账户是否为空，必须存在一个
-        if (Objects.isNull(collectionRecord.getSellerId()) && Objects.isNull(collectionRecord.getAccountSellerId())) {
+        if (Objects.isNull(collectionRecord.getSellerId()) || Objects.isNull(collectionRecord.getAccountSellerId())) {
             return BaseOutput.failure("卖家id或卖家卡账户不能为空");
         }
         //判断数据权限是否为空，必须存在一个
-        if (CollectionUtils.isEmpty(collectionRecord.getDepartmentIds())) {
-            return BaseOutput.failure("数据权限部门不能为空");
+        if (Objects.isNull(collectionRecord.getOperationDepartmentId())) {
+            return BaseOutput.failure("操作员所属部门不能为空");
+        }
+        //判断数据权限是否为空，必须存在一个
+        if (Objects.isNull(collectionRecord.getOperationDepartmentName())) {
+            return BaseOutput.failure("操作员所属部门名称不能为空");
         }
         if (StringUtils.isBlank(password)) {
             return BaseOutput.failure("密码不能为空");

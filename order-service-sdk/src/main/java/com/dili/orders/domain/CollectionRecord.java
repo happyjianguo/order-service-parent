@@ -10,12 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.persistence.*;
 
@@ -50,7 +49,6 @@ public class CollectionRecord extends BaseDomain {
      */
     @Transient
     private List<LocalDate> batchCollectionDate = new ArrayList<>();
-
 
     /**
      * 查询开始时间
@@ -470,8 +468,12 @@ public class CollectionRecord extends BaseDomain {
      *
      * @param amountActually 实回款金额
      */
-    public void setAmountActually(Long amountActually) {
-        this.amountActually = amountActually;
+    public void setAmountActually(BigDecimal amountActually) {
+        if (Objects.nonNull(amountActually)) {
+            //前端回传是元，后端需要转成long类型，先保留两位小数之后，再转回成long型
+            BigDecimal multiply = amountActually.setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+            this.amountActually = multiply.longValue();
+        }
     }
 
     /**

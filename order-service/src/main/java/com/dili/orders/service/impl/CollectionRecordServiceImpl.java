@@ -145,7 +145,65 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         }
         //设置code
         collectionRecord.setCode(sg_collection_record_fee.getData());
+        //设置操作时间
+        collectionRecord.setOperationTime(now);
 
+        // 判断是否支付金额是否为0，不为零再走支付
+        PaymentTradeCommitResponseDto data = null;
+        if (!Objects.equals(collectionRecord.getAmountActually(), 0L)) {
+
+            // 先创建预支付，再调用支付接口
+            PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
+            // 请求与支付，两边的账户id对应关系如下
+            paymentTradePrepareDto.setSerialNo("HK_" + collectionRecord.getCode());
+            //设置收款方的账号相关信息
+            paymentTradePrepareDto.setAccountId(sellerAccountSimple.getData().getAccountInfo().getFundAccountId());
+            paymentTradePrepareDto.setType(TradeType.TRANSFER.getCode());
+            paymentTradePrepareDto.setBusinessId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
+            paymentTradePrepareDto.setAmount(collectionRecord.getAmountActually());
+            paymentTradePrepareDto.setDescription("赊销回款");
+            // 创建预支付信息
+            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
+            if (!prepare.isSuccess()) {
+                throw new RuntimeException("回款新增创建交易失败");
+            }
+            //预支付创建成功之后，需要保存交易流水号
+            collectionRecord.setPaymentNo(prepare.getData().getTradeId());
+
+            // 构建支付对象
+            PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
+            // 设置自己账户id
+            paymentTradeCommitDto.setAccountId(buyerAccountInfo.getFundAccountId());
+//            // 设置账户id
+//            paymentTradeCommitDto.setBusinessId(buyerAccountInfo.getAccountId());
+            // 设置密码
+            paymentTradeCommitDto.setPassword(password);
+            // 设置交易单号
+            paymentTradeCommitDto.setTradeId(collectionRecord.getPaymentNo());
+
+            // 设置费用
+//            List<FeeDto> feeDtos = new ArrayList();
+//            FeeDto feeDto = new FeeDto();
+//            //设置金额，实际回款金额
+//            feeDto.setAmount(collectionRecord.getAmountActually());
+//            //设置资金项目类型id
+//            feeDto.setType(FundItem.TRANSFER.getCode());
+//            //设置资金项目类型名称
+//            feeDto.setTypeName(FundItem.TRANSFER.getName());
+//            feeDtos.add(feeDto);
+//            paymentTradeCommitDto.setFees(feeDtos);
+            // 调用支付接口
+            BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.commit6(paymentTradeCommitDto);
+            if (!pay.isSuccess()) {
+                throw new RuntimeException(pay.getMessage());
+            }
+            data = pay.getData();
+            collectionRecord.setPayTime(data.getWhen());
+            collectionRecord.setOperationTime(data.getWhen());
+            now = data.getWhen();
+        }
+        //创建批量数据
+        List<WeighingBillOperationRecord> weighingBillOperationRecordList = new ArrayList<>();
         //交易过磅数据修改，交易过磅记录新增
         for (int i = 0; i < list.size(); i++) {
             //创建结算单
@@ -156,8 +214,9 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             weighingStatement.setVersion(list.get(i).getVersion());
             //设置回款状态，已回款
             /**
-             * 还没有做的 设置回款状态，已回款
+             * 注释掉已回款，重构数据库还没有该字段
              */
+//            weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
             //设置最后操作时间
             weighingStatement.setLastOperationTime(now);
             //设置最后操作人id
@@ -192,68 +251,19 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             weighingBillOperationRecord.setOperationType(WeighingOperationType.COLLECTION.getValue());
             //设置操作类型名称
             weighingBillOperationRecord.setOperationTypeName(WeighingOperationType.COLLECTION.getName());
-
-            weighingBillOperationRecordMapper.insert(weighingBillOperationRecord);
-            if (iweighingStatement <= 0) {
-                return BaseOutput.failure("新增过磅单交易记录失败");
-            }
+            //加入list中
+            weighingBillOperationRecordList.add(weighingBillOperationRecord);
             //计算合计金额,不需要计算，因为有一个实际付款金额，以那个金额为准
             //amount += Long.valueOf(list.get(i).get("tradeAmount"));
         }
-
-        // 判断是否支付金额是否为0，不为零再走支付
-        PaymentTradeCommitResponseDto data = null;
-        if (!Objects.equals(collectionRecord.getAmountActually(), 0L)) {
-
-            // 先创建预支付，再调用支付接口
-            PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
-            // 请求与支付，两边的账户id对应关系如下
-            paymentTradePrepareDto.setSerialNo("HK_" + collectionRecord.getCode());
-            //设置收款方的账号相关信息
-            paymentTradePrepareDto.setAccountId(sellerAccountSimple.getData().getAccountInfo().getFundAccountId());
-            paymentTradePrepareDto.setType(TradeType.TRANSFER.getCode());
-            paymentTradePrepareDto.setBusinessId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
-            paymentTradePrepareDto.setAmount(collectionRecord.getAmountActually());
-            paymentTradePrepareDto.setDescription("赊销回款");
-            // 创建预支付信息
-            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
-            if (!prepare.isSuccess()) {
-                throw new RuntimeException("回款新增创建交易失败");
-            }
-            //预支付创建成功之后，需要保存交易流水号
-            collectionRecord.setPaymentNo(prepare.getData().getTradeId());
-
-            // 构建支付对象
-            PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
-            // 设置自己账户id
-            paymentTradeCommitDto.setAccountId(buyerAccountInfo.getFundAccountId());
-            // 设置账户id
-            paymentTradeCommitDto.setBusinessId(buyerAccountInfo.getAccountId());
-            // 设置密码
-            paymentTradeCommitDto.setPassword(password);
-            // 设置交易单号
-            paymentTradeCommitDto.setTradeId(collectionRecord.getPaymentNo());
-            // 设置费用
-            List<FeeDto> feeDtos = new ArrayList();
-            FeeDto feeDto = new FeeDto();
-            //设置金额，实际回款金额
-            feeDto.setAmount(collectionRecord.getAmountActually());
-            //设置资金项目类型id
-            feeDto.setType(FundItem.TRANSFER.getCode());
-            //设置资金项目类型名称
-            feeDto.setTypeName(FundItem.TRANSFER.getName());
-            feeDtos.add(feeDto);
-            paymentTradeCommitDto.setFees(feeDtos);
-            // 调用支付接口
-            BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.commit6(paymentTradeCommitDto);
-            if (!pay.isSuccess()) {
-                throw new RuntimeException(pay.getMessage());
-            }
-            data = pay.getData();
-            collectionRecord.setPayTime(data.getWhen());
+        //批量插入数据
+        int w = weighingBillOperationRecordMapper.insertList(weighingBillOperationRecordList);
+        if (w <= 0) {
+            return BaseOutput.failure("新增过磅单交易记录失败");
         }
+
         //设置交易结算日期，多个以逗号隔开
-        collectionRecord.setSettlementDate(String.join(",", collectionRecord.getBatchCollectionDate().stream().map(x -> ofPattern("yyyy-MM-dd").format(x)).collect(Collectors.toList())));
+//        collectionRecord.setSettlementDate(String.join(",", collectionRecord.getBatchCollectionDate().stream().map(x -> ofPattern("yyyy-MM-dd").format(x)).collect(Collectors.toList())));
         //设置买家卡账户id
         collectionRecord.setAccountBuyerId(buyerAccountInfo.getAccountId());
         //设置卖家卡账户id
