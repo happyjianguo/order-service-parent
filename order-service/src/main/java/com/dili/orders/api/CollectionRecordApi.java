@@ -87,11 +87,11 @@ public class CollectionRecordApi {
         }
         //判断买家id或买家卡账户是否为空，必须存在一个
         if (Objects.isNull(collectionRecord.getBuyerId()) && Objects.isNull(collectionRecord.getAccountBuyerId())) {
-            return BaseOutput.failure("买家id和买家卡账户不能为空");
+            return BaseOutput.failure("买家id或买家卡账户不能为空");
         }
         //判断卖家id和卖家卡账户是否为空，必须存在一个
         if (Objects.isNull(collectionRecord.getSellerId()) && Objects.isNull(collectionRecord.getAccountSellerId())) {
-            return BaseOutput.failure("卖家id和卖家卡账户不能为空");
+            return BaseOutput.failure("卖家id或卖家卡账户不能为空");
         }
         //判断数据权限是否为空，必须存在一个
         if (Objects.isNull(collectionRecord.getOperationDepartmentId())) {
