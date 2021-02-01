@@ -30,6 +30,7 @@ public class CollectionRecord extends BaseDomain {
     /**
      * id集合字符串形式
      */
+    @Transient
     private String ids;
 
     /**
