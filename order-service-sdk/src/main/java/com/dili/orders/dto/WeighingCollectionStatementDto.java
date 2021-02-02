@@ -21,22 +21,22 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
     private String goodsName;
 
     //净重
-    private BigDecimal netWeight;
+    private BigDecimal netWeightY;
 
     //件数 unit_amount
-    private BigDecimal unitAmount;
+    private BigDecimal unitAmountY;
 
     //单价
-    private BigDecimal unitPrice;
+    private BigDecimal unitPriceY;
 
     //人工费
-    private BigDecimal staffCharges;
+    private BigDecimal staffChargesY;
 
     //包装费
-    private BigDecimal packingCharges;
+    private BigDecimal packingChargesY;
 
     //代收费
-    private BigDecimal collectionCharges;
+    private BigDecimal collectionChargesY;
 
     //合计
     private BigDecimal totalAmount;
@@ -83,52 +83,52 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
         this.goodsName = goodsName;
     }
 
-    public BigDecimal getNetWeight() {
-        return netWeight;
+    public BigDecimal getNetWeightY() {
+        return netWeightY;
     }
 
-    public void setNetWeight(BigDecimal netWeight) {
-        this.netWeight = netWeight;
+    public void setNetWeightY(BigDecimal netWeightY) {
+        this.netWeightY = netWeightY;
     }
 
-    public BigDecimal getUnitAmount() {
-        return unitAmount;
+    public BigDecimal getUnitAmountY() {
+        return unitAmountY;
     }
 
-    public void setUnitAmount(BigDecimal unitAmount) {
-        this.unitAmount = unitAmount;
+    public void setUnitAmountY(BigDecimal unitAmountY) {
+        this.unitAmountY = unitAmountY;
     }
 
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
+    public BigDecimal getUnitPriceY() {
+        return unitPriceY;
     }
 
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setUnitPriceY(BigDecimal unitPriceY) {
+        this.unitPriceY = unitPriceY;
     }
 
-    public BigDecimal getStaffCharges() {
-        return staffCharges;
+    public BigDecimal getStaffChargesY() {
+        return staffChargesY;
     }
 
-    public void setStaffCharges(BigDecimal staffCharges) {
-        this.staffCharges = staffCharges;
+    public void setStaffChargesY(BigDecimal staffChargesY) {
+        this.staffChargesY = staffChargesY;
     }
 
-    public BigDecimal getPackingCharges() {
-        return packingCharges;
+    public BigDecimal getPackingChargesY() {
+        return packingChargesY;
     }
 
-    public void setPackingCharges(BigDecimal packingCharges) {
-        this.packingCharges = packingCharges;
+    public void setPackingChargesY(BigDecimal packingChargesY) {
+        this.packingChargesY = packingChargesY;
     }
 
-    public BigDecimal getCollectionCharges() {
-        return collectionCharges;
+    public BigDecimal getCollectionChargesY() {
+        return collectionChargesY;
     }
 
-    public void setCollectionCharges(BigDecimal collectionCharges) {
-        this.collectionCharges = collectionCharges;
+    public void setCollectionChargesY(BigDecimal collectionChargesY) {
+        this.collectionChargesY = collectionChargesY;
     }
 
     public BigDecimal getTotalAmount() {
