@@ -106,8 +106,21 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         //获取买家卡账户相关信息
         if (Objects.equals(collectionRecord.getPaymentWays(), PaymentWays.TOBEREVIEWED.getCode())) {
             buyerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getBuyerCardNo());
+            if (!buyerAccountSimple.isSuccess()) {
+                return buyerAccountSimple;
+            }
+            //设置买家账户id
+            collectionRecord.setAccountBuyerId(buyerAccountSimple.getData().getAccountInfo().getAccountId());
         } else {
+            //如果是代付的话，买家卡账户还是填写卖家的，不填写代付人的卡账户
             buyerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getPaymentCardNumber());
+            BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(collectionRecord.getBuyerCardNo());
+            //判断是否成功
+            if (!oneAccountCard.isSuccess()) {
+                return oneAccountCard;
+            }
+            //设置买家账户id
+            collectionRecord.setAccountBuyerId(oneAccountCard.getData().getAccountInfo().getAccountId());
         }
         //获取卖家卡账户相关信息
         BaseOutput<AccountSimpleResponseDto> sellerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getSellerCardNo());
@@ -128,7 +141,6 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         if (Math.abs(buyerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
             return BaseOutput.failure("余额不足，请充值");
         }
-
         // 先校验一次密码，如果密码不正确直接返回
         AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
         buyerPwdDto.setAccountId(buyerAccountInfo.getFundAccountId());
@@ -208,7 +220,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         //设置交易结算日期，多个以逗号隔开
 //        collectionRecord.setSettlementDate(String.join(",", collectionRecord.getBatchCollectionDate().stream().map(x -> ofPattern("yyyy-MM-dd").format(x)).collect(Collectors.toList())));
         //设置买家卡账户id
-        collectionRecord.setAccountBuyerId(buyerAccountInfo.getAccountId());
+//        collectionRecord.setAccountBuyerId(buyerAccountInfo.getAccountId());
         //设置卖家卡账户id
         collectionRecord.setAccountSellerId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
         //插入回款记录数据
