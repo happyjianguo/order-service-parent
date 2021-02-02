@@ -5,6 +5,7 @@ import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.CollectionRecord;
+import com.dili.orders.domain.PaymentWays;
 import com.dili.orders.dto.WeighingCollectionStatementDto;
 import com.dili.orders.service.CollectionRecordService;
 import com.dili.orders.utils.WebUtil;
@@ -103,6 +104,15 @@ public class CollectionRecordApi {
         }
         if (StringUtils.isBlank(password)) {
             return BaseOutput.failure("密码不能为空");
+        }
+        //判断如果是代付的话，代付卡号是否是买家或者卖家卡，如果是则返回错误信息
+        if (Objects.equals(collectionRecord.getPaymentWays(), PaymentWays.REFUSED.getCode())) {
+            if (Objects.isNull(collectionRecord.getPaymentCardNumber())) {
+                return BaseOutput.failure("代付的情况下，代付卡号不能为空");
+            }
+            if (Objects.equals(collectionRecord.getPaymentCardNumber(), collectionRecord.getBuyerCardNo()) || Objects.equals(collectionRecord.getPaymentCardNumber(), collectionRecord.getSellerCardNo())) {
+                return BaseOutput.failure("代付卡号不能为卖家卡或买家卡");
+            }
         }
         try {
             return service.insertAndPay(collectionRecord, password);
