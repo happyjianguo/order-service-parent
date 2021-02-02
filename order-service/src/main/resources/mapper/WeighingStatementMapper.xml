@@ -272,14 +272,15 @@
 		ws.last_operation_time AS 'lastOperationTime',
 		ws.serial_no AS 'weighingStatementCode',
 		wb.goods_name AS 'goodsName',
-		wb.net_weight AS 'netWeight',
-		wb.unit_amount AS 'unitAmount',
-		wb.unit_price AS 'unitPrice',
-		ws.trade_amount AS 'tradeAmount',
-		wb.staff_charges AS 'staffCharges',
-		wb.packing_charges AS 'packingCharges',
-		wb.collection_charges AS 'collectionCharges',
-		ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges AS 'totalAmount',
+		wb.net_weight AS 'netWeightY',
+		wb.unit_amount AS 'unitAmountY',
+		wb.unit_price AS 'unitPriceY',
+		ws.trade_amount AS 'tradeAmountY',
+		wb.staff_charges AS 'staffChargesY',
+		wb.packing_charges AS 'packingChargesY',
+		wb.collection_charges AS 'collectionChargesY',
+		wb.packingTypeName AS 'packingTypeName',
+		ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges AS 'totalAmountY',
 		ws.version AS 'version'
 		FROM weighing_statement ws
 		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
