@@ -310,10 +310,10 @@
 			AND ws.seller_id = #{sellerId}
 		</if>
 		<if test="accountBuyerId">
-			AND wb.buyer_account = #{accountBuyerId}
+			AND wb.buyer_card_account = #{accountBuyerId}
 		</if>
         <if test="accountSellerId !=null">
-            AND wb.seller_account = #{accountSellerId}
+            AND wb.seller_card_account = #{accountSellerId}
         </if>
 		AND ws.state = 2
 		AND market_id = #{marketId}
