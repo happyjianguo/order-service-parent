@@ -149,39 +149,39 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         collectionRecord.setOperationTime(now);
 
         // 判断是否支付金额是否为0，不为零再走支付
-        PaymentTradeCommitResponseDto data = null;
-        if (!Objects.equals(collectionRecord.getAmountActually(), 0L)) {
+//        PaymentTradeCommitResponseDto data = null;
+//        if (!Objects.equals(collectionRecord.getAmountActually(), 0L)) {
 
-            // 先创建预支付，再调用支付接口
-            PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
-            // 请求与支付，两边的账户id对应关系如下
-            paymentTradePrepareDto.setSerialNo("HK_" + collectionRecord.getCode());
-            //设置收款方的账号相关信息
-            paymentTradePrepareDto.setAccountId(sellerAccountSimple.getData().getAccountInfo().getFundAccountId());
-            paymentTradePrepareDto.setType(TradeType.TRANSFER.getCode());
-            paymentTradePrepareDto.setBusinessId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
-            paymentTradePrepareDto.setAmount(collectionRecord.getAmountActually());
-            paymentTradePrepareDto.setDescription("赊销回款");
-            // 创建预支付信息
-            BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
-            if (!prepare.isSuccess()) {
-                throw new RuntimeException("回款新增创建交易失败");
-            }
-            //预支付创建成功之后，需要保存交易流水号
-            collectionRecord.setPaymentNo(prepare.getData().getTradeId());
+        // 先创建预支付，再调用支付接口
+        PaymentTradePrepareDto paymentTradePrepareDto = new PaymentTradePrepareDto();
+        // 请求与支付，两边的账户id对应关系如下
+        paymentTradePrepareDto.setSerialNo("HK_" + collectionRecord.getCode());
+        //设置收款方的账号相关信息
+        paymentTradePrepareDto.setAccountId(sellerAccountSimple.getData().getAccountInfo().getFundAccountId());
+        paymentTradePrepareDto.setType(TradeType.TRANSFER.getCode());
+        paymentTradePrepareDto.setBusinessId(sellerAccountSimple.getData().getAccountInfo().getAccountId());
+        paymentTradePrepareDto.setAmount(collectionRecord.getAmountActually());
+        paymentTradePrepareDto.setDescription("赊销回款");
+        // 创建预支付信息
+        BaseOutput<CreateTradeResponseDto> prepare = payRpc.prepareTrade(paymentTradePrepareDto);
+        if (!prepare.isSuccess()) {
+            throw new RuntimeException("回款新增创建交易失败");
+        }
+        //预支付创建成功之后，需要保存交易流水号
+        collectionRecord.setPaymentNo(prepare.getData().getTradeId());
 
-            // 构建支付对象
-            PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
-            // 设置自己账户id
-            paymentTradeCommitDto.setAccountId(buyerAccountInfo.getFundAccountId());
+        // 构建支付对象
+        PaymentTradeCommitDto paymentTradeCommitDto = new PaymentTradeCommitDto();
+        // 设置自己账户id
+        paymentTradeCommitDto.setAccountId(buyerAccountInfo.getFundAccountId());
 //            // 设置账户id
 //            paymentTradeCommitDto.setBusinessId(buyerAccountInfo.getAccountId());
-            // 设置密码
-            paymentTradeCommitDto.setPassword(password);
-            // 设置交易单号
-            paymentTradeCommitDto.setTradeId(collectionRecord.getPaymentNo());
+        // 设置密码
+        paymentTradeCommitDto.setPassword(password);
+        // 设置交易单号
+        paymentTradeCommitDto.setTradeId(collectionRecord.getPaymentNo());
 
-            // 设置费用
+        // 设置费用
 //            List<FeeDto> feeDtos = new ArrayList();
 //            FeeDto feeDto = new FeeDto();
 //            //设置金额，实际回款金额
@@ -192,16 +192,16 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
 //            feeDto.setTypeName(FundItem.TRANSFER.getName());
 //            feeDtos.add(feeDto);
 //            paymentTradeCommitDto.setFees(feeDtos);
-            // 调用支付接口
-            BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.commit6(paymentTradeCommitDto);
-            if (!pay.isSuccess()) {
-                throw new RuntimeException(pay.getMessage());
-            }
-            data = pay.getData();
-            collectionRecord.setPayTime(data.getWhen());
-            collectionRecord.setOperationTime(data.getWhen());
-            now = data.getWhen();
+        // 调用支付接口
+        BaseOutput<PaymentTradeCommitResponseDto> pay = payRpc.commit6(paymentTradeCommitDto);
+        if (!pay.isSuccess()) {
+            throw new RuntimeException(pay.getMessage());
         }
+        PaymentTradeCommitResponseDto data = pay.getData();
+        collectionRecord.setPayTime(data.getWhen());
+        collectionRecord.setOperationTime(data.getWhen());
+        now = data.getWhen();
+//        }
         /**
          * 先创建回款记录单，因为交易过磅的需要汇款记录的的id
          */
@@ -291,33 +291,34 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         SerialRecordDo sellerSerialRecordDo = getSerialRecordDo(sellerAccountSimple.getData().getAccountInfo(), collectionRecord);
 
         // 判断是否走了支付
-        if (Objects.nonNull(data)) {
-            //买家设置交易流水code
-            buyerSerialRecordDo.setTradeNo(collectionRecord.getPaymentNo());
-            //买家设置期初余额
-            buyerSerialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
-            //买家设置期末余额
-            buyerSerialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
-            //买家设置操作时间
-            buyerSerialRecordDo.setOperateTime(data.getWhen());
-            //买家设置动作
-            buyerSerialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
-            //设置买家卡，持卡人姓名
-            buyerSerialRecordDo.setHoldName(buyerAccountInfo.getHoldName());
+//        if (Objects.nonNull(data)) {
+        //买家设置交易流水code
+        buyerSerialRecordDo.setTradeNo(collectionRecord.getPaymentNo());
+        //买家设置期初余额
+        buyerSerialRecordDo.setStartBalance(data.getBalance() - data.getFrozenBalance());
+        //买家设置期末余额
+        buyerSerialRecordDo.setEndBalance(data.getBalance() + data.getAmount() - data.getFrozenBalance());
+        //买家设置操作时间
+        buyerSerialRecordDo.setOperateTime(data.getWhen());
+        //买家设置动作
+        buyerSerialRecordDo.setAction(data.getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        //设置买家卡，持卡人姓名
+        buyerSerialRecordDo.setHoldName(buyerAccountInfo.getHoldName());
 
-            //卖家设置交易流水code
-            sellerSerialRecordDo.setTradeNo(collectionRecord.getPaymentNo());
-            //卖家设置期初金额
-            sellerSerialRecordDo.setStartBalance(data.getRelation().getBalance() - data.getRelation().getFrozenBalance());
-            //卖家设置期末余额
-            sellerSerialRecordDo.setEndBalance(data.getRelation().getBalance() + data.getRelation().getAmount() - data.getRelation().getFrozenBalance());
-            //卖家设置操作时间
-            sellerSerialRecordDo.setOperateTime(data.getWhen());
-            //卖家设置动作
-            sellerSerialRecordDo.setAction(data.getRelation().getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
-            //设置卖家卡，持卡人
-            sellerSerialRecordDo.setHoldName(sellerAccountSimple.getData().getAccountInfo().getHoldName());
-        }
+        //卖家设置交易流水code
+        sellerSerialRecordDo.setTradeNo(collectionRecord.getPaymentNo());
+        //卖家设置期初金额
+        sellerSerialRecordDo.setStartBalance(data.getRelation().getBalance() - data.getRelation().getFrozenBalance());
+        //卖家设置期末余额
+        sellerSerialRecordDo.setEndBalance(data.getRelation().getBalance() + data.getRelation().getAmount() - data.getRelation().getFrozenBalance());
+        //卖家设置操作时间
+        sellerSerialRecordDo.setOperateTime(data.getWhen());
+        //卖家设置动作
+        sellerSerialRecordDo.setAction(data.getRelation().getAmount() > 0 ? ActionType.INCOME.getCode() : ActionType.EXPENSE.getCode());
+        //设置卖家卡，持卡人
+        sellerSerialRecordDo.setHoldName(sellerAccountSimple.getData().getAccountInfo().getHoldName());
+
+//        }
         //设置持卡人姓名
 
         // 操作记录，记录客户类型
