@@ -114,6 +114,14 @@ public class CollectionRecordApi {
                 return BaseOutput.failure("代付卡号不能为卖家卡或买家卡");
             }
         }
+        //判断实回金额是否大于应回金额，并且实回金额大于0
+        if (collectionRecord.getAmountActually().longValue() < 0L) {
+            return BaseOutput.failure("实回款金额不能小于0");
+        }
+        //实回金额不能大于应回金额
+        if (collectionRecord.getAmountActually().longValue() > collectionRecord.getAmountReceivables().longValue()) {
+            return BaseOutput.failure("实回金额不能大于应回金额");
+        }
         try {
             return service.insertAndPay(collectionRecord, password);
         } catch (Exception e) {
