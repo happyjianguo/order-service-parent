@@ -6,14 +6,16 @@ import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import tk.mybatis.mapper.annotation.Version;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.persistence.*;
 
 /**
@@ -23,6 +25,17 @@ import javax.persistence.*;
  */
 @Table(name = "`collection_record`")
 public class CollectionRecord extends BaseDomain {
+    /**
+     * 元形式的实回款金额
+     */
+    @Transient
+    private BigDecimal amountActuallyYuan;
+
+    /**
+     * id集合字符串形式
+     */
+    @Transient
+    private String ids;
 
     /**
      * 根据ids判断操作是否可行
@@ -41,7 +54,6 @@ public class CollectionRecord extends BaseDomain {
      */
     @Transient
     private List<LocalDate> batchCollectionDate = new ArrayList<>();
-
 
     /**
      * 查询开始时间
@@ -433,7 +445,7 @@ public class CollectionRecord extends BaseDomain {
     @FieldDef(label = "应回款金额")
     @EditMode(editor = FieldEditor.Number, required = false)
     public Long getAmountReceivables() {
-        return amountReceivables;
+        return this.amountReceivables;
     }
 
     /**
@@ -699,5 +711,27 @@ public class CollectionRecord extends BaseDomain {
 
     public void setCollectionRecordIds(List<Long> collectionRecordIds) {
         this.collectionRecordIds = collectionRecordIds;
+    }
+
+    public String getIds() {
+        return ids;
+    }
+
+    public void setIds(String ids) {
+        this.ids = ids;
+        if (StringUtils.isNotBlank(ids)) {
+            this.collectionRecordIds = Arrays.asList(ids.split(",")).stream().map(Long::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public BigDecimal getAmountActuallyYuan() {
+        return amountActuallyYuan;
+    }
+
+    public void setAmountActuallyYuan(BigDecimal amountActuallyYuan) {
+        this.amountActuallyYuan = amountActuallyYuan;
+        if (Objects.nonNull(amountActuallyYuan)) {
+            this.amountActually = amountActuallyYuan.multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).longValue();
+        }
     }
 }

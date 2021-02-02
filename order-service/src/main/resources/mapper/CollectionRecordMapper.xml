@@ -71,8 +71,15 @@
       #{department}
     </foreach>
   </if>
-
-
+  <if test="sort==null or sort==''">
+    ORDER BY cr.operation_time DESC
+  </if>
+  <if test='sort!=null and sort!="" and order!=null and order!="" and sort=="operation_time"'>
+    ORDER BY ${sort} ${order}
+  </if>
+  <if test='sort!=null and sort!="" and order!=null and order!="" and sort!="operation_time"'>
+    ORDER BY ${sort} ${order}, cr.operation_time DESC
+  </if>
   </select>
   <update id="updateBy" parameterType="com.dili.orders.domain.CollectionRecord">
     <!--

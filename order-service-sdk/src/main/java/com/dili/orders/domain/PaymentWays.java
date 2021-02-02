@@ -1,4 +1,4 @@
-package com.dili.orders.glossary;
+package com.dili.orders.domain;
 
 public enum PaymentWays {
     TOBEREVIEWED(1, "自付"),

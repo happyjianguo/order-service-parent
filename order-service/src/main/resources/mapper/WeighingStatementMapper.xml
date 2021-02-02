@@ -319,7 +319,7 @@
 	<select id="groupListForDetail" parameterType="com.dili.orders.domain.CollectionRecord" resultType="java.util.Map">
 		SELECT
 		DATE_FORMAT(last_operation_time,'%Y-%m-%d') AS 'time',
-		SUM(ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges) AS 'amount',
+		ROUND(SUM(ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges)/100,2) AS 'amount',
 		COUNT(ws.id) AS 'cnt',
 		GROUP_CONCAT(ws.id) AS 'ids'
 		FROM weighing_statement ws
@@ -332,10 +332,10 @@
 			AND ws.seller_id = #{sellerId}
 		</if>
 		<if test="accountBuyerId">
-			AND wb.buyer_account = #{accountBuyerId}
+			AND wb.buyer_card_account = #{accountBuyerId}
 		</if>
         <if test="accountSellerId !=null">
-            AND wb.seller_account = #{accountSellerId}
+            AND wb.seller_card_account = #{accountSellerId}
         </if>
 		AND ws.state = 2
 		AND market_id = #{marketId}
