@@ -75,7 +75,7 @@
     ORDER BY cr.operation_time DESC
   </if>
   <if test="sort!=null and sort!='' and order!=null and order!=''">
-    ORDER BY ${sort} ${order}
+    ORDER BY ${sort} ${order} ,sr.operation_time DESC
   </if>
   </select>
   <update id="updateBy" parameterType="com.dili.orders.domain.CollectionRecord">
