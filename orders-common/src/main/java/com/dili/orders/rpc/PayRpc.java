@@ -100,4 +100,13 @@ public interface PayRpc {
      */
     @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
     BaseOutput<PaymentTradeCommitResponseDto> commit6(@RequestBody PaymentTradeCommitDto dto);
+    
+    /**
+     * 缴费
+     *
+     * @param dto
+     * @return 交易号
+     */
+    @RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit4", method = RequestMethod.POST)
+    BaseOutput<PaymentTradeCommitResponseDto> commit4(@RequestBody PaymentTradeCommitDto dto);
 }

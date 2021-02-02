@@ -14,13 +14,18 @@
     <result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
     <result column="buyer_actual_amount" jdbcType="BIGINT" property="buyerActualAmount" />
     <result column="buyer_poundage" jdbcType="BIGINT" property="buyerPoundage" />
+    <result column="buyer_poundage_pay_order_no" jdbcType="VARCHAR" property="buyerPoundagePayOrderNo" />
     <result column="seller_id" jdbcType="BIGINT" property="sellerId" />
     <result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
     <result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
     <result column="seller_actual_amount" jdbcType="BIGINT" property="sellerActualAmount" />
     <result column="seller_poundage" jdbcType="BIGINT" property="sellerPoundage" />
+    <result column="seller_poundage_pay_order_no" jdbcType="VARCHAR" property="sellerPoundagePayOrderNo" />
     <result column="trade_amount" jdbcType="BIGINT" property="tradeAmount" />
     <result column="frozen_amount" jdbcType="BIGINT" property="frozenAmount" />
+    <result column="staff_charges" jdbcType="BIGINT" property="staffCharges" />
+    <result column="packing_charges" jdbcType="BIGINT" property="packingCharges" />
+    <result column="collection_charges" jdbcType="BIGINT" property="collectionCharges" />
     <result column="payment_state" jdbcType="INTEGER" property="paymentState" />
     <result column="payment_type" jdbcType="INTEGER" property="paymentType" />
     <result column="state" jdbcType="TINYINT" property="state" />
@@ -41,10 +46,12 @@
       WARNING - @mbg.generated
     -->
     id, serial_no, weighing_bill_id, weighing_serial_no, buyer_id, buyer_card_no, buyer_name, 
-    buyer_actual_amount, buyer_poundage, seller_id, seller_card_no, seller_name, seller_actual_amount, 
-    seller_poundage, trade_amount, frozen_amount, payment_state, payment_type, state, 
-    pay_order_no, frozen_order_no, creator_id, created_time, modifier_id, modified_time, 
-    version, last_operation_time, last_operator_id, last_operator_name, last_operator_user_name
+    buyer_actual_amount, buyer_poundage, buyer_poundage_pay_order_no, seller_id, seller_card_no, 
+    seller_name, seller_actual_amount, seller_poundage, seller_poundage_pay_order_no, 
+    trade_amount, frozen_amount, staff_charges, packing_charges, collection_charges, 
+    payment_state, payment_type, state, pay_order_no, frozen_order_no, creator_id, created_time, 
+    modifier_id, modified_time, version, last_operation_time, last_operator_id, last_operator_name, 
+    last_operator_user_name
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
@@ -85,6 +92,9 @@
       <if test="buyerPoundage != null">
         buyer_poundage = #{buyerPoundage,jdbcType=BIGINT},
       </if>
+      <if test="buyerPoundagePayOrderNo != null">
+        buyer_poundage_pay_order_no = #{buyerPoundagePayOrderNo,jdbcType=VARCHAR},
+      </if>
       <if test="sellerId != null">
         seller_id = #{sellerId,jdbcType=BIGINT},
       </if>
@@ -100,11 +110,23 @@
       <if test="sellerPoundage != null">
         seller_poundage = #{sellerPoundage,jdbcType=BIGINT},
       </if>
+      <if test="sellerPoundagePayOrderNo != null">
+        seller_poundage_pay_order_no = #{sellerPoundagePayOrderNo,jdbcType=VARCHAR},
+      </if>
       <if test="tradeAmount != null">
         trade_amount = #{tradeAmount,jdbcType=BIGINT},
       </if>
       <if test="frozenAmount != null">
         frozen_amount = #{frozenAmount,jdbcType=BIGINT},
+      </if>
+      <if test="staffCharges != null">
+        staff_charges = #{staffCharges,jdbcType=BIGINT},
+      </if>
+      <if test="packingCharges != null">
+        packing_charges = #{packingCharges,jdbcType=BIGINT},
+      </if>
+      <if test="collectionCharges != null">
+        collection_charges = #{collectionCharges,jdbcType=BIGINT},
       </if>
       <if test="paymentState != null">
         payment_state = #{paymentState,jdbcType=INTEGER},
