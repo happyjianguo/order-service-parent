@@ -128,7 +128,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             //代付的情况下，只能是主卡，判断是否是主卡
             if (!Objects.equals(buyerAccountSimple.getData().getAccountInfo().getCardType().intValue(), 10)) {
                 //如果不是主卡的话，返回错误信息
-                return BaseOutput.failure("代付卡必须为主卡");
+                return BaseOutput.failure("代付卡只能是主卡");
             }
             BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(collectionRecord.getBuyerCardNo());
             //判断是否成功
@@ -155,7 +155,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
 
         // 余额不足
         if (Math.abs(buyerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
-            return BaseOutput.failure("余额不足，请充值");
+            return BaseOutput.failure("付款账户余额不足");
         }
         // 先校验一次密码，如果密码不正确直接返回
         AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
