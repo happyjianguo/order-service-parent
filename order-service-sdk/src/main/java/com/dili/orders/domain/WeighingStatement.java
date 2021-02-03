@@ -164,7 +164,7 @@ public class WeighingStatement extends BaseDomain {
 	 * 回款单id
 	 */
 	@Column(name = "`collection_record_id`")
-	private Integer collectionRecordId;
+	private Long collectionRecordId;
 
 	/**
 	 * 状态
@@ -554,11 +554,11 @@ public class WeighingStatement extends BaseDomain {
 		this.tradeAmount = tradeAmount;
 	}
 
-	public Integer getCollectionRecordId() {
+	public Long getCollectionRecordId() {
 		return collectionRecordId;
 	}
 
-	public void setCollectionRecordId(Integer collectionRecordId) {
+	public void setCollectionRecordId(Long collectionRecordId) {
 		this.collectionRecordId = collectionRecordId;
 	}
 
