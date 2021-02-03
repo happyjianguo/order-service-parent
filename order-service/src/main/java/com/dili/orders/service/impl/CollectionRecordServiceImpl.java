@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.ObjectView;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +117,19 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         } else {
             //如果是代付的话，买家卡账户还是填写卖家的，不填写代付人的卡账户
             buyerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getPaymentCardNumber());
+            //判断请求是否成功
+            if (!buyerAccountSimple.isSuccess()) {
+                return buyerAccountSimple;
+            }
+            //判断是否返回有数据
+            if (Objects.isNull(buyerAccountSimple.getData()) || Objects.isNull(buyerAccountSimple.getData().getAccountInfo())) {
+                return BaseOutput.failure("代付卡没有查询到相关信息");
+            }
+            //代付的情况下，只能是主卡，判断是否是主卡
+            if (!Objects.equals(buyerAccountSimple.getData().getAccountInfo().getCardType().intValue(), 10)) {
+                //如果不是主卡的话，返回错误信息
+                return BaseOutput.failure("代付卡必须为主卡");
+            }
             BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(collectionRecord.getBuyerCardNo());
             //判断是否成功
             if (!oneAccountCard.isSuccess()) {
