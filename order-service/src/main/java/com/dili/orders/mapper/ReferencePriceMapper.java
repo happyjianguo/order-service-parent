@@ -15,11 +15,9 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
 
     /**
      * 根据商品id获取商品规则
-     * @param goodsId
-     * @param marketId
      * @return
      */
-    GoodsReferencePriceSetting getGoodsRuleByGoodsId(@Param(value = "goodsId") Long goodsId, @Param(value = "marketId") Long marketId);
+    GoodsReferencePriceSetting getGoodsRuleByGoodsIdAndTradeType(@Param(value = "goodsId") Long goodsId, @Param(value = "marketId") Long marketId, @Param(value = "tradeType") Integer tradeType);
 
     /**
      * 根据商品信息查询参考价表中数据
@@ -45,12 +43,12 @@ public interface ReferencePriceMapper extends MyMapper<WeighingReferencePrice> {
     /**
      * 更新参考价中间表信息
      */
-    void updateDaily(WeighingSettlementBillDaily  daily);
+    void updateDaily(WeighingSettlementBillDaily daily);
 
     /**
      * 添加当日参考价数据(weighing_settlement_bill_daily)
      * @author miaoguoxin
      * @date 2020/9/25
      */
-    void insertDaily(WeighingSettlementBillDaily  daily);
+    void insertDaily(WeighingSettlementBillDaily daily);
 }

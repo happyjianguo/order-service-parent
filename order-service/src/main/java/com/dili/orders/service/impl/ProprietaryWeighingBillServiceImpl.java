@@ -407,7 +407,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
 				// 获取商品中间价
 				Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId),
-						weighingBill.getTradeType().toString());
+						weighingBill.getTradeType().toString(),weighingBill.getTradingBillType());
 				if (referencePrice != null && referencePrice > 0) {
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.ObjectView;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,11 +110,26 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             if (!buyerAccountSimple.isSuccess()) {
                 return buyerAccountSimple;
             }
+            //自付的时候将代付卡号置空
+            collectionRecord.setPaymentCardNumber(null);
             //设置买家账户id
             collectionRecord.setAccountBuyerId(buyerAccountSimple.getData().getAccountInfo().getAccountId());
         } else {
             //如果是代付的话，买家卡账户还是填写卖家的，不填写代付人的卡账户
             buyerAccountSimple = cardRpc.getOneAccountCard(collectionRecord.getPaymentCardNumber());
+            //判断请求是否成功
+            if (!buyerAccountSimple.isSuccess()) {
+                return buyerAccountSimple;
+            }
+            //判断是否返回有数据
+            if (Objects.isNull(buyerAccountSimple.getData()) || Objects.isNull(buyerAccountSimple.getData().getAccountInfo())) {
+                return BaseOutput.failure("代付卡没有查询到相关信息");
+            }
+            //代付的情况下，只能是主卡，判断是否是主卡
+            if (!Objects.equals(buyerAccountSimple.getData().getAccountInfo().getCardType().intValue(), 10)) {
+                //如果不是主卡的话，返回错误信息
+                return BaseOutput.failure("代付卡只能是主卡");
+            }
             BaseOutput<AccountSimpleResponseDto> oneAccountCard = cardRpc.getOneAccountCard(collectionRecord.getBuyerCardNo());
             //判断是否成功
             if (!oneAccountCard.isSuccess()) {
@@ -139,7 +155,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
 
         // 余额不足
         if (Math.abs(buyerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
-            return BaseOutput.failure("余额不足，请充值");
+            return BaseOutput.failure("付款账户余额不足");
         }
         // 先校验一次密码，如果密码不正确直接返回
         AccountPasswordValidateDto buyerPwdDto = new AccountPasswordValidateDto();
@@ -240,10 +256,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             //设置结算单version
             weighingStatement.setVersion(list.get(i).getVersion());
             //设置回款状态，已回款
-            /**
-             * 注释掉已回款，重构数据库还没有该字段
-             */
-//            weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
+            weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
             //设置最后操作时间
             weighingStatement.setLastOperationTime(now);
             //设置最后操作人id
@@ -252,10 +265,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             weighingStatement.setLastOperatorName(collectionRecord.getOperationName());
             //设置最后操作人工号
             weighingStatement.setLastOperatorUserName(collectionRecord.getOperationUserName());
-            /**
-             *
-             *设置回款单id 和回款单code，原型还没有
-             */
+            //设置回款单id
+            weighingStatement.setCollectionRecordId(collectionRecord.getId());
             //更新交易过磅单数据
             int iweighingStatement = weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
             if (iweighingStatement <= 0) {

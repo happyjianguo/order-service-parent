@@ -19,17 +19,14 @@
     <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    id, market_id, goods_id, goods_name, reference_rule, fixed_price, parent_goods_id, created_time,
+    id, market_id, goods_id, goods_name, reference_rule,trade_type, fixed_price, parent_goods_id, created_time,
     creator_id, modified_time, modifier_id, version
   </sql>
   <select id="selectBy" parameterType="java.lang.Long" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
     -->
-    select 
+    select
     <include refid="Base_Column_List" />
     from goods_reference_price_setting
     where id = #{id,jdbcType=BIGINT}
