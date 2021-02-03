@@ -109,6 +109,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             if (!buyerAccountSimple.isSuccess()) {
                 return buyerAccountSimple;
             }
+            //自付的时候将代付卡号置空
+            collectionRecord.setPaymentCardNumber(null);
             //设置买家账户id
             collectionRecord.setAccountBuyerId(buyerAccountSimple.getData().getAccountInfo().getAccountId());
         } else {
