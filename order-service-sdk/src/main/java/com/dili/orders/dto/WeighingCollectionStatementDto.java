@@ -25,6 +25,9 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
 
     //件数 unit_amount
     private BigDecimal unitAmountY;
+    //货款
+
+    private BigDecimal tradeAmountY;
 
     //单价
     private BigDecimal unitPriceY;
@@ -39,7 +42,7 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
     private BigDecimal collectionChargesY;
 
     //合计
-    private BigDecimal totalAmount;
+    private BigDecimal totalAmountY;
 
     public Long getWeighingStatementId() {
         return weighingStatementId;
@@ -131,11 +134,19 @@ public class WeighingCollectionStatementDto extends WeighingStatement {
         this.collectionChargesY = collectionChargesY;
     }
 
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
+    public BigDecimal getTotalAmountY() {
+        return totalAmountY;
     }
 
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+    public void setTotalAmountY(BigDecimal totalAmountY) {
+        this.totalAmountY = totalAmountY;
+    }
+
+    public BigDecimal getTradeAmountY() {
+        return tradeAmountY;
+    }
+
+    public void setTradeAmountY(BigDecimal tradeAmountY) {
+        this.tradeAmountY = tradeAmountY;
     }
 }
