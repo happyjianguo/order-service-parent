@@ -198,17 +198,16 @@
 		wb.serial_no AS 'weighingBillCode',
 		ws.last_operation_time AS 'lastOperationTime',
 		ws.serial_no AS 'weighingStatementCode',
-		wb.goods_name
-		AS 'goodsName',
-		wb.net_weight AS 'netWeight',
-		wb.unit_amount AS 'unitAmount',
-		wb.unit_price AS 'unitPrice',
-		ws.trade_amount AS 'tradeAmount',
-		wb.staff_charges AS 'staffCharges',
-		wb.packing_charges AS
-		'packingCharges',
-		wb.collection_charges AS 'collectionCharges',
-		ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges AS 'totalAmount',
+		wb.goods_name AS 'goodsName',
+        ROUND(wb.net_weight/200,2) AS 'netWeightY',
+		wb.unit_amount AS 'unitAmountY',
+        ROUND(wb.unit_price/50,2) AS 'unitPriceY',
+		ROUND(ws.trade_amount/100,2) AS 'tradeAmountY',
+        ROUND(wb.staff_charges/100,2) AS 'staffChargesY',
+        ROUND(wb.packing_charges/100,2) AS 'packingChargesY',
+        ROUND(wb.collection_charges/100,2) AS 'collectionChargesY',
+		wb.packingTypeName AS 'packingTypeName',
+        ROUND(ws.trade_amount+wb.staff_charges+wb.packing_charges+wb.collection_charges/100,2) AS 'totalAmountY',
 		ws.version AS 'version'
 		FROM
 		weighing_statement ws
