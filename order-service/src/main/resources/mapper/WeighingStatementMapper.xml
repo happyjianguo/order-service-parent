@@ -216,6 +216,8 @@
 		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
 		WHERE 1 = 1
 		AND ws.state = 2
+		AND ws.payment_type = 2
+		AND ws.payment_state = 1
 		<if test="collectionRecordIds !=null and collectionRecordIds.size()&gt;0">
 			AND ws.id IN
 			<foreach close=")" collection="collectionRecordIds" item="collectionRecordId" open="(" separator=",">
@@ -247,6 +249,8 @@
 			AND wb.seller_card_account = #{accountSellerId}
 		</if>
 		AND ws.state = 2
+		AND ws.payment_type = 2
+		AND ws.payment_state = 1
 		AND market_id = #{marketId}
 		<if test="collectionRecordIds !=null and collectionRecordIds.size()&gt;0">
 			AND ws.id IN

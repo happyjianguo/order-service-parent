@@ -240,10 +240,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             //设置结算单version
             weighingStatement.setVersion(list.get(i).getVersion());
             //设置回款状态，已回款
-            /**
-             * 注释掉已回款，重构数据库还没有该字段
-             */
-//            weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
+            weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
             //设置最后操作时间
             weighingStatement.setLastOperationTime(now);
             //设置最后操作人id
@@ -252,10 +249,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             weighingStatement.setLastOperatorName(collectionRecord.getOperationName());
             //设置最后操作人工号
             weighingStatement.setLastOperatorUserName(collectionRecord.getOperationUserName());
-            /**
-             *
-             *设置回款单id 和回款单code，原型还没有
-             */
+            //设置回款单id
+            weighingStatement.setCollectionRecordId(collectionRecord.getId());
             //更新交易过磅单数据
             int iweighingStatement = weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
             if (iweighingStatement <= 0) {
