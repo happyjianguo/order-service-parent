@@ -1,5 +1,19 @@
 package com.dili.orders.api;
 
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
@@ -17,27 +31,14 @@ import com.dili.orders.service.WeighingBillService;
 import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
  */
 @RestController
-@RequestMapping("/api/weighingBill")
-public class WeighingBillApi {
-	@Qualifier("weighingBillServiceImpl")
+@RequestMapping("/api/proprietaryWeighingBill")
+public class ProprietaryWeighingBillApi {
+	@Qualifier("proprietaryWeighingBillServiceImpl")
 	@Autowired
 	WeighingBillService weighingBillService;
 

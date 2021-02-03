@@ -159,7 +159,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	protected JmsfRpc jsmfRpc;
 	@Autowired
-	private RabbitMQMessageService mqService;
+	protected RabbitMQMessageService mqService;
 	@Autowired
 	protected PayRpc payRpc;
 	@Autowired
@@ -173,7 +173,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	protected RuntimeRpc runtimeRpc;
 	@Autowired
-	private UidRpc uidRpc;
+	protected UidRpc uidRpc;
 	@Autowired
 	private UserRpc userRpc;
 	@Autowired
@@ -1563,7 +1563,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return wbor;
 	}
 
-	private WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
+	protected WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
 		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_STATEMENT_SERIAL_NO_GENERATE_RULE_CODE);
 		if (output == null) {
 			throw new AppException("调用过磅单号生成服务无响应");
@@ -1630,7 +1630,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return chargeRuleRpc.batchQueryFee(queryFeeInputList);
 	}
 
-	private Long getTradeIdByCode(String tradeType) {
+	protected Long getTradeIdByCode(String tradeType) {
 		BaseOutput<TradeTypeDto> output = null;
 		try {
 			output = this.tradeTypeRpc.getByCode(tradeType);
@@ -2045,7 +2045,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
 	}
 
-	private void recordWithdrawAccountFlow(Long operatorId, PaymentTradeCommitResponseDto tradeResponse, WeighingBill weighingBill, WeighingStatement ws) {
+	protected void recordWithdrawAccountFlow(Long operatorId, PaymentTradeCommitResponseDto tradeResponse, WeighingBill weighingBill, WeighingStatement ws) {
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();
 		Long firmId = this.getMarketIdByOperatorId(operatorId);
 		User operator = this.getUserById(operatorId);
@@ -2332,7 +2332,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return sellerOutput.getData();
 	}
 
-	private void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
+	protected void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
 		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
 		if (!buyerFeeOutput.isSuccess()) {
 			throw new AppException(buyerFeeOutput.getMessage());
@@ -2364,7 +2364,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setFrozenAmount(new BigDecimal(weighingBill.getEstimatedNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP).longValue());
 	}
 
-	private void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
+	protected void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
 		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
 		if (!sellerFeeOutput.isSuccess()) {
 			throw new AppException(sellerFeeOutput.getMessage());
@@ -2387,7 +2387,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setSellerName(weighingBill.getSellerName());
 	}
 
-	private void setWeighingStatementTradeAmount(WeighingBill weighingBill, WeighingStatement ws) {
+	protected void setWeighingStatementTradeAmount(WeighingBill weighingBill, WeighingStatement ws) {
 		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
 			ws.setTradeAmount(new BigDecimal(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP).longValue());
 		} else {
@@ -2395,7 +2395,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		}
 	}
 
-	private void updateWeihingBillInfo(WeighingBill weighingBill, WeighingBill dto) {
+	protected void updateWeihingBillInfo(WeighingBill weighingBill, WeighingBill dto) {
 		weighingBill.setEstimatedNetWeight(dto.getEstimatedNetWeight());
 		weighingBill.setFetchedWeight(dto.getFetchedWeight());
 		weighingBill.setFetchWeightTime(dto.getFetchWeightTime());

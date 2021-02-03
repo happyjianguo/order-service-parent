@@ -13,12 +13,12 @@ import com.dili.orders.dto.WeighingBillListPageDto;
 import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementPrintDto;
+import com.dili.orders.service.FarmerWeghingBillService;
 import com.dili.orders.service.WeighingBillService;
 import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,11 +35,10 @@ import java.util.List;
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
  */
 @RestController
-@RequestMapping("/api/weighingBill")
-public class WeighingBillApi {
-	@Qualifier("weighingBillServiceImpl")
+@RequestMapping("/api/farmerWeighingBill")
+public class FarmerWeighingBillApi {
 	@Autowired
-	WeighingBillService weighingBillService;
+	FarmerWeghingBillService weighingBillService;
 
 	/**
 	 * 分页查询WeighingBill，返回easyui分页信息
