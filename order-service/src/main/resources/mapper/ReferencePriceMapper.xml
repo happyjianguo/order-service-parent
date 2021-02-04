@@ -18,7 +18,7 @@
         AND settlement_day=#{settlementDay}
     </select>
 
-    <select id="getGoodsRuleByGoodsIdAndTradeType" parameterType="Long" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
+    <select id="getGoodsRuleByGoodsIdAndTradeType" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
         SELECT
           reference_rule AS referenceRule,
           fixed_price AS fixedPrice

@@ -54,7 +54,7 @@ public class ReferencePriceApi {
             }
             return BaseOutput.successData(null);
         } catch (Exception e) {
-            LOGGER.error("获取商品参考价异常：" + e.getMessage());
+            LOGGER.error("获取商品参考价异常：" ,e);
             return BaseOutput.failure("500", "获取失败");
         }
     }
