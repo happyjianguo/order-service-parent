@@ -45,6 +45,10 @@ public class GoodsReferencePriceSetting extends BaseDomain {
     @Column(name = "`goods_name`")
     private String goodsName;
 
+    /** 交易类型 {@link TradingBillType}*/
+    @Column(name = "`trade_type`")
+    private Integer tradeType;
+
     /**
      * 参考价规则{@link com.dili.orders.domain.ReferenceRule}
      */
@@ -177,6 +181,16 @@ public class GoodsReferencePriceSetting extends BaseDomain {
      */
     public void setGoodsName(String goodsName) {
         this.goodsName = goodsName;
+    }
+
+    @FieldDef(label="trade_type")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Integer getTradeType() {
+        return tradeType;
+    }
+
+    public void setTradeType(Integer tradeType) {
+        this.tradeType = tradeType;
     }
 
     /**

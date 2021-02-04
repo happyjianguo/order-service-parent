@@ -59,11 +59,10 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
      * @return Long
      */
     @Override
-    public Long getReferencePriceByGoodsId(Long goodsId, Long marketId, String tradeType) {
-        LOGGER.info("--------------开始获取到市场" + marketId + "下该商品" + goodsId + "，交易类型为" + tradeType + "的参考价-------------");
+    public Long getReferencePriceByGoodsId(Long goodsId, Long marketId, String tradeType, Integer type) {
         int transCount = getTransCountByDictionary(marketId);
         // 根据goodsId查询参考价规则表获取商品规则
-        GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsId(goodsId, marketId);
+        GoodsReferencePriceSetting ruleSetting = getActualDao().getGoodsRuleByGoodsIdAndTradeType(goodsId, marketId, type);
         if (ruleSetting == null) {
             LOGGER.info("--------------当前市场下的商品暂无配置商品规则-------------");
             return null;
@@ -202,9 +201,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         value.setDdCode(DOWNWARD_RANGE);
         value.setFirmId(marketId);
         BaseOutput<List<DataDictionaryValue>> transCountOutput = dataDictionaryRpc.listDataDictionaryValue(value);
-        if (!transCountOutput.getCode().equals(ResultCode.OK)){
+        if (!transCountOutput.getCode().equals(ResultCode.OK)) {
             LOGGER.error("获取下浮幅度配置失败:{}", JSON.toJSONString(transCountOutput));
-            throw new BusinessException(ResultCode.DATA_ERROR,"获取下浮幅度配置失败");
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取下浮幅度配置失败");
         }
         List<DataDictionaryValue> valueList = transCountOutput.getData();
         if (CollectionUtils.isNotEmpty(valueList)) {
@@ -245,9 +244,9 @@ public class ReferencePriceServiceImpl extends BaseServiceImpl<WeighingReference
         value.setDdCode(TRANS_COUNT);
         value.setFirmId(marketId);
         BaseOutput<List<DataDictionaryValue>> transCountOutput = dataDictionaryRpc.listDataDictionaryValue(value);
-        if (!transCountOutput.getCode().equals(ResultCode.OK)){
+        if (!transCountOutput.getCode().equals(ResultCode.OK)) {
             LOGGER.error("获取交易笔数配置失败:{}", JSON.toJSONString(transCountOutput));
-            throw new BusinessException(ResultCode.DATA_ERROR,"获取交易笔数配置失败");
+            throw new BusinessException(ResultCode.DATA_ERROR, "获取交易笔数配置失败");
         }
         List<DataDictionaryValue> valueList = transCountOutput.getData();
         if (CollectionUtils.isNotEmpty(valueList)) {

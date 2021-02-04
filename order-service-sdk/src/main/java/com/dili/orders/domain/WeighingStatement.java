@@ -175,6 +175,12 @@ public class WeighingStatement extends BaseDomain {
 	/**
 	 * 支付订单号
 	 */
+	@Column(name = "`service_fee_pay_order_no`")
+	private String serviceFeePayOrderNo;
+
+	/**
+	 * 支付订单号
+	 */
 	@Column(name = "`pay_order_no`")
 	private String payOrderNo;
 
@@ -247,6 +253,14 @@ public class WeighingStatement extends BaseDomain {
 	@EditMode(editor = FieldEditor.Number, required = true)
 	public Long getId() {
 		return id;
+	}
+
+	public String getServiceFeePayOrderNo() {
+		return serviceFeePayOrderNo;
+	}
+
+	public void setServiceFeePayOrderNo(String serviceFeePayOrderNo) {
+		this.serviceFeePayOrderNo = serviceFeePayOrderNo;
 	}
 
 	/**

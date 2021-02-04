@@ -29,6 +29,7 @@
 		<result column="collection_record_id" jdbcType="BIGINT" property="collectionRecordId" />
 		<result column="state" jdbcType="TINYINT" property="state" />
 		<result column="pay_order_no" jdbcType="VARCHAR" property="payOrderNo" />
+		<result column="service_fee_pay_order_no" jdbcType="VARCHAR" property="serviceFeePayOrderNo" />
 		<result column="frozen_order_no" jdbcType="VARCHAR" property="frozenOrderNo" />
 		<result column="creator_id" jdbcType="BIGINT" property="creatorId" />
 		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
@@ -48,7 +49,7 @@
 		trade_amount, frozen_amount, staff_charges, packing_charges, collection_charges,
 		payment_state, payment_type, state, pay_order_no, frozen_order_no, creator_id, created_time,
 		modifier_id, modified_time, version, last_operation_time, last_operator_id, last_operator_name,
-		last_operator_user_name,collection_record_id
+		last_operator_user_name,collection_record_id,service_fee_pay_order_no
 	</sql>
 
 	<sql id="Join_Column_List">
@@ -78,7 +79,8 @@
 		ws.modified_time,
 		ws.last_operation_time,
 		ws.version,
-		collection_record_id
+		ws.collection_record_id,
+		ws.service_fee_pay_order_no
 	</sql>
 
 
