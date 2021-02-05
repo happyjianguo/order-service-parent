@@ -131,7 +131,8 @@ public class ProprietaryWeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "交易过磅结算,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput settle(@RequestParam Long id, @RequestParam String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId, HttpServletRequest request) {
+	public @ResponseBody BaseOutput settle(@RequestParam Long id, @RequestParam(required = false) String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId,
+			HttpServletRequest request) {
 		try {
 			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.settle(id, buyerPassword, operatorId, marketId);

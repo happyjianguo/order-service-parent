@@ -378,9 +378,17 @@
 				</foreach>
 			</when>
 		</choose>
-		<if test="tradingBillType != null">
-			AND trading_bill_type = #{tradingBillType}
-		</if>
+		<choose>
+            <when test="tradingBillType != null">
+                AND trading_bill_type = #{tradingBillType}
+            </when>
+            <when test="tradingBillTypeList != null and tradingBillTypeList.size() > 0">
+                AND trading_bill_type IN
+                <foreach close=")" collection="tradingBillTypeList" item="tradingBillType" open="(" separator=",">
+                    #{tradingBillType}
+                </foreach>
+            </when>
+        </choose>
 		) t1
 		WHERE 1=1
 		<if test="unitPriceStartValue != null">

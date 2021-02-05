@@ -153,7 +153,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Value("${orders.checkPrice:false}")
 	protected Boolean checkPrice;
 	@Autowired
-	private CustomerRpc customerRpc;
+	protected CustomerRpc customerRpc;
 	@Autowired
 	private FirmRpc firmRpc;
 	@Autowired
@@ -193,7 +193,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	private DataDictionaryRpc dataDictionaryRpc;
 	@Autowired
-	private DepartmentRpc departmentRpc;
+	protected DepartmentRpc departmentRpc;
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -1026,8 +1026,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			// 检查中间价
 			if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
 				// 获取商品中间价
-				Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId),
-						weighingBill.getTradeType().toString(),weighingBill.getTradingBillType());
+				Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId), weighingBill.getTradeType().toString(),
+						weighingBill.getTradingBillType());
 				if (referencePrice != null && referencePrice > 0) {
 					// 比较价格
 					Long actualPrice = this.getConvertUnitPrice(weighingBill);
@@ -2240,7 +2240,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return String.join(",", subTypeNameList);
 	}
 
-	private void setWeighingBillBuyerInfo(WeighingBill weighingBill) {
+	protected void setWeighingBillBuyerInfo(WeighingBill weighingBill) {
 		// 根据卡号查询账户信息
 		// 查询买家账户信息
 		UserAccountCardResponseDto buyerInfo = this.getBuyerInfo(weighingBill);
@@ -2256,7 +2256,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setBuyerCertificateNumber(buyerInfo.getCustomerCertificateNumber());
 	}
 
-	private void setBuyerCustomerMarketType(WeighingBill weighingBill, UserAccountCardResponseDto buyerAccountInfo) {
+	protected void setBuyerCustomerMarketType(WeighingBill weighingBill, UserAccountCardResponseDto buyerAccountInfo) {
 		// 买方代理人先取买方角色
 		BaseOutput<CustomerExtendDto> output = this.customerRpc.get(buyerAccountInfo.getCustomerId(), weighingBill.getMarketId());
 		if (output == null) {
@@ -2306,7 +2306,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return buyerOutput.getData();
 	}
 
-	private void setWeighingBillSellerInfo(WeighingBill weighingBill) {
+	protected void setWeighingBillSellerInfo(WeighingBill weighingBill) {
 		// 查询卖家账户信息
 		UserAccountCardResponseDto sellerInfo = this.getSellerInfo(weighingBill);
 		// 设置卖家信息
