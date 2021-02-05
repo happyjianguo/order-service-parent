@@ -1,5 +1,19 @@
 package com.dili.orders.api;
 
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.dili.logger.sdk.annotation.BusinessLogger;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
@@ -17,27 +31,14 @@ import com.dili.orders.service.WeighingBillService;
 import com.dili.orders.utils.WebUtil;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
  */
 @RestController
-@RequestMapping("/api/weighingBill")
-public class WeighingBillApi {
-	@Qualifier("weighingBillServiceImpl")
+@RequestMapping("/api/proprietaryWeighingBill")
+public class ProprietaryWeighingBillApi {
+	@Qualifier("proprietaryWeighingBillServiceImpl")
 	@Autowired
 	WeighingBillService weighingBillService;
 
@@ -130,7 +131,8 @@ public class WeighingBillApi {
 	 */
 	@BusinessLogger(businessType = "trading_orders", content = "交易过磅结算,过磅单号：${businessCode}，结算单号：${statementSerialNo}，所属市场id：${marketId}，操作员id:${operatorId}", systemCode = OrdersConstant.SYSTEM_CODE)
 	@RequestMapping(value = "/settle", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody BaseOutput settle(@RequestParam Long id, @RequestParam String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId, HttpServletRequest request) {
+	public @ResponseBody BaseOutput settle(@RequestParam Long id, @RequestParam(required = false) String buyerPassword, @RequestParam Long operatorId, @RequestParam Long marketId,
+			HttpServletRequest request) {
 		try {
 			LoggerContext.put(LoggerConstant.LOG_REMOTE_IP_KEY, WebUtil.getClientIP(request));
 			return weighingBillService.settle(id, buyerPassword, operatorId, marketId);

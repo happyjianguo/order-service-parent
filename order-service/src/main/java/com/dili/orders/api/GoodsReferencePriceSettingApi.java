@@ -1,6 +1,7 @@
 package com.dili.orders.api;
 
 import com.dili.orders.domain.GoodsReferencePriceSetting;
+import com.dili.orders.dto.ReferencePriceSettingRequestDto;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.AppException;
@@ -46,38 +47,15 @@ public class GoodsReferencePriceSettingApi {
         return goodsReferencePriceSettingService.detail(goodsReferencePriceSetting);
     }
 
-    /**
-     * 新增品类参考价
-     *
-     * @param goodsReferencePriceSetting
-     * @return BaseOutput
-     */
-    @RequestMapping(value = "/insert", method = {RequestMethod.POST})
-    public BaseOutput<GoodsReferencePriceSetting> insert(@RequestBody GoodsReferencePriceSetting goodsReferencePriceSetting) {
-        try {
-            if (goodsReferencePriceSetting.getCreatedTime() == null) {
-                goodsReferencePriceSetting.setCreatedTime(LocalDateTime.now());
-            }
-            goodsReferencePriceSettingService.insertGoodsReferencePriceSetting(goodsReferencePriceSetting);
-            return BaseOutput.successData(goodsReferencePriceSetting);
-        } catch (AppException e) {
-            return BaseOutput.failure("新增失败" + e.getMessage());
-        }
-    }
 
     /**
-     * 修改品类参考价
-     *
-     * @param goodsReferencePriceSetting
-     * @return BaseOutput
-     */
-    @RequestMapping(value = "/update", method = {RequestMethod.POST})
-    public BaseOutput<GoodsReferencePriceSetting> update(@RequestBody GoodsReferencePriceSetting goodsReferencePriceSetting) {
-        try {
-            goodsReferencePriceSettingService.updateGoodsReferencePriceSetting(goodsReferencePriceSetting);
-            return BaseOutput.successData(goodsReferencePriceSetting);
-        } catch (AppException e) {
-            return BaseOutput.failure("修改失败" + e.getMessage());
-        }
+    * 保存或者修改设置
+    * @author miaoguoxin
+    * @date 2021/2/1
+    */
+    @PostMapping("/saveOrEdit")
+    public BaseOutput<?> saveOrEdit(@RequestBody ReferencePriceSettingRequestDto requestDto){
+        goodsReferencePriceSettingService.saveOrEdit(requestDto);
+        return BaseOutput.success();
     }
 }

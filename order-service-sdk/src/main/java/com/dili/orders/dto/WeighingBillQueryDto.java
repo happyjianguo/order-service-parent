@@ -80,6 +80,8 @@ public class WeighingBillQueryDto extends WeighingBill {
 	private List<Long> departmentIds;
 	@Transient
 	private boolean exportData = false;
+	@Transient
+	private List<Integer> tradingBillTypeList;
 
 	/**
 	 * 是否过滤掉价格异常数据
@@ -236,6 +238,14 @@ public class WeighingBillQueryDto extends WeighingBill {
 
 	public void setExportData(boolean exportData) {
 		this.exportData = exportData;
+	}
+
+	public List<Integer> getTradingBillTypeList() {
+		return tradingBillTypeList;
+	}
+
+	public void setTradingBillTypeList(List<Integer> tradingBillTypeList) {
+		this.tradingBillTypeList = tradingBillTypeList;
 	}
 
 }

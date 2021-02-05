@@ -36,6 +36,11 @@ public class PaymentTradeCommitDto {
 	private String password;
 
 	/**
+	 * 协议号
+	 */
+	private Integer protocolId;
+
+	/**
 	 * 金额
 	 */
 	private Long amount;
@@ -75,6 +80,14 @@ public class PaymentTradeCommitDto {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Integer getProtocolId() {
+		return protocolId;
+	}
+
+	public void setProtocolId(Integer protocolId) {
+		this.protocolId = protocolId;
 	}
 
 	public Long getAmount() {

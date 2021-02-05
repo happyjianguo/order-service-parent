@@ -7,22 +7,29 @@
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="weighing_bill_id" jdbcType="BIGINT" property="weighingBillId" />
 		<result column="weighing_serial_no" jdbcType="VARCHAR" property="weighingSerialNo" />
-		<result column="statement_id" jdbcType="BIGINT" property="statementId" />
-		<result column="statement_serial_no" jdbcType="VARCHAR" property="statementSerialNo" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
 		<result column="buyer_name" jdbcType="VARCHAR" property="buyerName" />
 		<result column="buyer_actual_amount" jdbcType="BIGINT" property="buyerActualAmount" />
 		<result column="buyer_poundage" jdbcType="BIGINT" property="buyerPoundage" />
+		<result column="buyer_poundage_pay_order_no" jdbcType="VARCHAR" property="buyerPoundagePayOrderNo" />
 		<result column="seller_id" jdbcType="BIGINT" property="sellerId" />
 		<result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
 		<result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
 		<result column="seller_actual_amount" jdbcType="BIGINT" property="sellerActualAmount" />
 		<result column="seller_poundage" jdbcType="BIGINT" property="sellerPoundage" />
+		<result column="seller_poundage_pay_order_no" jdbcType="VARCHAR" property="sellerPoundagePayOrderNo" />
 		<result column="trade_amount" jdbcType="BIGINT" property="tradeAmount" />
 		<result column="frozen_amount" jdbcType="BIGINT" property="frozenAmount" />
+		<result column="staff_charges" jdbcType="BIGINT" property="staffCharges" />
+		<result column="packing_charges" jdbcType="BIGINT" property="packingCharges" />
+		<result column="collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+		<result column="payment_state" jdbcType="INTEGER" property="paymentState" />
+		<result column="payment_type" jdbcType="INTEGER" property="paymentType" />
+		<result column="collection_record_id" jdbcType="BIGINT" property="collectionRecordId" />
 		<result column="state" jdbcType="TINYINT" property="state" />
 		<result column="pay_order_no" jdbcType="VARCHAR" property="payOrderNo" />
+		<result column="service_fee_pay_order_no" jdbcType="VARCHAR" property="serviceFeePayOrderNo" />
 		<result column="frozen_order_no" jdbcType="VARCHAR" property="frozenOrderNo" />
 		<result column="creator_id" jdbcType="BIGINT" property="creatorId" />
 		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
@@ -32,16 +39,17 @@
 		<result column="last_operation_time" jdbcType="TIMESTAMP" property="lastOperationTime" />
 		<result column="last_operator_id" jdbcType="BIGINT" property="lastOperatorId" />
 		<result column="last_operator_name" jdbcType="VARCHAR" property="lastOperatorName" />
+		<result column="last_operator_user_name" jdbcType="VARCHAR" property="lastOperatorUserName" />
 	</resultMap>
 	<sql id="Base_Column_List">
 		<!-- WARNING - @mbg.generated -->
-		id, serial_no, weighing_bill_id, weighing_serial_no, statement_id, statement_serial_no,
-		buyer_id, buyer_card_no, buyer_name, buyer_actual_amount, buyer_poundage, seller_id,
-		seller_card_no,
-		seller_name, seller_actual_amount, seller_poundage, trade_amount,
-		frozen_amount, state, pay_order_no, frozen_order_no, creator_id, created_time, modifier_id,
-		modified_time, version,
-		last_operation_time, last_operator_id, last_operator_name
+		id, serial_no, weighing_bill_id, weighing_serial_no, buyer_id, buyer_card_no, buyer_name,
+		buyer_actual_amount, buyer_poundage, buyer_poundage_pay_order_no, seller_id, seller_card_no,
+		seller_name, seller_actual_amount, seller_poundage, seller_poundage_pay_order_no,
+		trade_amount, frozen_amount, staff_charges, packing_charges, collection_charges,
+		payment_state, payment_type, state, pay_order_no, frozen_order_no, creator_id, created_time,
+		modifier_id, modified_time, version, last_operation_time, last_operator_id, last_operator_name,
+		last_operator_user_name,collection_record_id,service_fee_pay_order_no
 	</sql>
 
 	<sql id="Join_Column_List">
@@ -70,7 +78,9 @@
 		ws.modifier_id,
 		ws.modified_time,
 		ws.last_operation_time,
-		ws.version
+		ws.version,
+		ws.collection_record_id,
+		ws.service_fee_pay_order_no
 	</sql>
 
 
@@ -120,7 +130,7 @@
 			AND wbor.operation_time <![CDATA[<=]]>
 			#{endTime}
 		</if>
-		<if test="accountIds != null and accountIds.size() > 0">
+		<if test="accountIds != null and accountIds.size() &gt; 0">
 			AND (wb.buyer_account IN
 			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
 				#{accountId}
@@ -132,11 +142,11 @@
 			)
 		</if>
 		<if test="sort !=null and sort!='' and order !=null and order !=''">
-            ORDER BY ${sort} ${order}
-        </if>
-        <if test="sort ==null or sort==''">
-            ORDER BY wbor.operation_time DESC
-        </if>
+			ORDER BY ${sort} ${order}
+		</if>
+		<if test="sort ==null or sort==''">
+			ORDER BY wbor.operation_time DESC
+		</if>
 	</select>
 
 	<select id="selectStateCount" parameterType="com.dili.orders.dto.WeighingStatementAppletQuery" resultMap="AppletStateCountRM">
@@ -170,7 +180,7 @@
 			AND wbor.operation_time <![CDATA[<=]]>
 			#{endTime}
 		</if>
-		<if test="accountIds != null and accountIds.size() > 0">
+		<if test="accountIds != null and accountIds.size() &gt; 0">
 			AND (wb.buyer_account IN
 			<foreach close=")" collection="accountIds" item="accountId" open="(" separator=",">
 				#{accountId}
@@ -183,6 +193,83 @@
 		</if>
 		GROUP BY
 		ws.state
+	</select>
+
+	<select id="listByIds" parameterType="com.dili.orders.domain.CollectionRecord" resultType="com.dili.orders.dto.WeighingCollectionStatementDto">
+		SELECT
+		ws.id AS 'weighingStatementId',
+		wb.id AS 'weighingBillId',
+		wb.serial_no AS 'weighingBillCode',
+		ws.last_operation_time AS 'lastOperationTime',
+		ws.serial_no AS 'weighingStatementCode',
+		wb.goods_name AS 'goodsName',
+        ROUND(wb.net_weight/200,2) AS 'netWeightY',
+		wb.unit_amount AS 'unitAmountY',
+        ROUND(wb.unit_price/50,2) AS 'unitPriceY',
+		ROUND(IFNULL(ws.trade_amount,0)/100,2) AS 'tradeAmountY',
+        ROUND(IFNULL(wb.staff_charges,0)/100,2) AS 'staffChargesY',
+        ROUND(IFNULL(wb.packing_charges,0)/100,2) AS 'packingChargesY',
+        ROUND(IFNULL(wb.collection_charges,0)/100,2) AS 'collectionChargesY',
+		wb.packing_type_name AS 'packingTypeName',
+        ROUND((IFNULL(ws.trade_amount,0)+IFNULL(wb.staff_charges,0)+IFNULL(wb.packing_charges,0)+IFNULL(wb.collection_charges,0))/100,2) AS 'totalAmountY',
+		ws.version AS 'version'
+		FROM
+		weighing_statement ws
+		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
+		WHERE 1 = 1
+		AND ws.state = 2
+		AND ws.payment_type = 2
+		AND ws.payment_state = 1
+		<if test="collectionRecordIds !=null and collectionRecordIds.size()&gt;0">
+			AND ws.id IN
+			<foreach close=")" collection="collectionRecordIds" item="collectionRecordId" open="(" separator=",">
+				#{collectionRecordId}
+			</foreach>
+		</if>
+		ORDER BY lastOperationTime DESC
+	</select>
+
+	<select id="groupListForDetail" parameterType="com.dili.orders.domain.CollectionRecord" resultType="java.util.Map">
+		SELECT
+		DATE_FORMAT(last_operation_time,'%Y-%m-%d') AS 'time',
+		ROUND(SUM(IFNULL(ws.trade_amount,0)+IFNULL(wb.staff_charges,0)+IFNULL(wb.packing_charges,0)+IFNULL(wb.collection_charges,0))/100,2) AS 'amount',
+		COUNT(ws.id) AS 'cnt',
+		GROUP_CONCAT(ws.id) AS 'ids'
+		FROM weighing_statement ws
+		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
+		WHERE 1 = 1
+		<if test="buyerId !=null">
+			AND ws.buyer_id = #{buyerId}
+		</if>
+		<if test="sellerId !=null">
+			AND ws.seller_id = #{sellerId}
+		</if>
+		<if test="accountBuyerId">
+			AND wb.buyer_card_account = #{accountBuyerId}
+		</if>
+		<if test="accountSellerId !=null">
+			AND wb.seller_card_account = #{accountSellerId}
+		</if>
+		AND ws.state = 2
+		AND ws.payment_type = 2
+		AND ws.payment_state = 1
+		AND market_id = #{marketId}
+		<if test="collectionRecordIds !=null and collectionRecordIds.size()&gt;0">
+			AND ws.id IN
+			(
+			<foreach close="" collection="collectionRecordIds" index="" item="collectionRecordId">
+				#{collectionRecordId}
+			</foreach>
+			)
+		</if>
+		<if test="departmentIds !=null and departmentIds.size()&gt;0">
+			AND wb.department_id IN
+			<foreach close=")" collection="departmentIds" item="departmentId" open="(" separator=",">
+				#{departmentId}
+			</foreach>
+		</if>
+		GROUP BY DATE_FORMAT(last_operation_time,'%Y-%m-%d')
+		ORDER BY time ASC
 	</select>
 
 

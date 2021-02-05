@@ -8,22 +8,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import tk.mybatis.mapper.annotation.Version;
 
 /**
  * 由MyBatis Generator工具自动生成
- *
- * This file was generated on 2020-09-18 08:48:36.
+ * 
+ * This file was generated on 2021-01-30 16:20:36.
  */
 @Table(name = "`weighing_bill`")
 public class WeighingBill extends BaseDomain {
@@ -31,6 +24,12 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`id`")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	/**
+	 * 交易单类型
+	 */
+	@Column(name = "`trading_bill_type`")
+	private Integer tradingBillType;
 
 	/**
 	 * 过磅单号
@@ -45,16 +44,10 @@ public class WeighingBill extends BaseDomain {
 	private String measureType;
 
 	/**
-	 * 交易类型
+	 * 交易类型编码
 	 */
 	@Column(name = "`trade_type`")
 	private String tradeType;
-
-	/**
-	 * 交易类型
-	 */
-	@Column(name = "`trade_type_id`")
-	private Long tradeTypeId;
 
 	/**
 	 * 买方id
@@ -105,7 +98,7 @@ public class WeighingBill extends BaseDomain {
 	private String buyerContact;
 
 	/**
-	 * 卖家身份类型
+	 * 买家身份类型
 	 */
 	@Column(name = "`buyer_type`")
 	private String buyerType;
@@ -122,9 +115,14 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`buyer_agent_name`")
 	private String buyerAgentName;
 
-	/** 买家身份号 */
-	@Column(name = "buyer_certificate_number")
+	/**
+	 * 买家证件号
+	 */
+	@Column(name = "`buyer_certificate_number`")
 	private String buyerCertificateNumber;
+
+	@Column(name = "`buyer_region_tag`")
+	private Integer buyerRegionTag;
 
 	/**
 	 * 卖方id
@@ -192,8 +190,10 @@ public class WeighingBill extends BaseDomain {
 	@Column(name = "`seller_agent_name`")
 	private String sellerAgentName;
 
-	/** 买家身份号 */
-	@Column(name = "seller_certificate_number")
+	/**
+	 * 卖家证件号
+	 */
+	@Column(name = "`seller_certificate_number`")
 	private String sellerCertificateNumber;
 
 	/**
@@ -239,7 +239,7 @@ public class WeighingBill extends BaseDomain {
 	private Integer unitAmount;
 
 	/**
-	 * 单价（分），元/斤
+	 * 单价（分），按重量算是元/斤，按件计价是元/件
 	 */
 	@Column(name = "`unit_price`")
 	private Long unitPrice;
@@ -259,9 +259,6 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 取重时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`fetch_weight_time`")
 	private LocalDateTime fetchWeightTime;
 
@@ -320,6 +317,48 @@ public class WeighingBill extends BaseDomain {
 	private String tareBillNumber;
 
 	/**
+	 * 人工费（分）
+	 */
+	@Column(name = "`staff_charges`")
+	private Long staffCharges;
+
+	/**
+	 * 包装费（分）
+	 */
+	@Column(name = "`packing_charges`")
+	private Long packingCharges;
+
+	/**
+	 * 代收费（分）
+	 */
+	@Column(name = "`collection_charges`")
+	private Long collectionCharges;
+
+	/**
+	 * 回款状态，1待回款，2已汇款
+	 */
+	@Column(name = "`payment_state`")
+	private Integer paymentState;
+
+	/**
+	 * 支付类型，1园区卡，2赊销
+	 */
+	@Column(name = "`payment_type`")
+	private Integer paymentType;
+
+	/**
+	 * 包装类型
+	 */
+	@Column(name = "`packing_type`")
+	private Integer packingType;
+
+	/**
+	 * 包装类型名称
+	 */
+	@Column(name = "`packing_type_name`")
+	private String packingTypeName;
+
+	/**
 	 * 状态
 	 */
 	@Column(name = "`state`")
@@ -328,27 +367,18 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 创建时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`created_time`")
 	private LocalDateTime createdTime;
 
 	/**
 	 * 修改时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`modified_time`")
 	private LocalDateTime modifiedTime;
 
 	/**
 	 * 结算时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`settlement_time`")
 	private LocalDateTime settlementTime;
 
@@ -397,9 +427,19 @@ public class WeighingBill extends BaseDomain {
 	/**
 	 * 版本号，乐观锁控制
 	 */
-	@Version
 	@Column(name = "`version`")
 	private Integer version;
+
+	@Column(name = "`trade_type_id`")
+	private Long tradeTypeId;
+
+	public Integer getBuyerRegionTag() {
+		return buyerRegionTag;
+	}
+
+	public void setBuyerRegionTag(Integer buyerRegionTag) {
+		this.buyerRegionTag = buyerRegionTag;
+	}
 
 	/**
 	 * @return id
@@ -415,6 +455,26 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	/**
+	 * 获取交易单类型
+	 *
+	 * @return trading_bill_type - 交易单类型
+	 */
+	@FieldDef(label = "交易单类型")
+	@EditMode(editor = FieldEditor.Number, required = true)
+	public Integer getTradingBillType() {
+		return tradingBillType;
+	}
+
+	/**
+	 * 设置交易单类型
+	 *
+	 * @param tradingBillType 交易单类型
+	 */
+	public void setTradingBillType(Integer tradingBillType) {
+		this.tradingBillType = tradingBillType;
 	}
 
 	/**
@@ -458,31 +518,23 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
-	 * 获取交易类型
+	 * 获取交易类型编码
 	 *
-	 * @return trade_type - 交易类型
+	 * @return trade_type - 交易类型编码
 	 */
-	@FieldDef(label = "交易类型", maxLength = 20)
+	@FieldDef(label = "交易类型编码", maxLength = 20)
 	@EditMode(editor = FieldEditor.Text, required = true)
 	public String getTradeType() {
 		return tradeType;
 	}
 
 	/**
-	 * 设置交易类型
+	 * 设置交易类型编码
 	 *
-	 * @param tradeType 交易类型
+	 * @param tradeType 交易类型编码
 	 */
 	public void setTradeType(String tradeType) {
 		this.tradeType = tradeType;
-	}
-
-	public Long getTradeTypeId() {
-		return tradeTypeId;
-	}
-
-	public void setTradeTypeId(Long tradeTypeId) {
-		this.tradeTypeId = tradeTypeId;
 	}
 
 	/**
@@ -566,6 +618,26 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
+	 * 获取买家持卡人姓名
+	 *
+	 * @return buyer_card_holder_name - 买家持卡人姓名
+	 */
+	@FieldDef(label = "买家持卡人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getBuyerCardHolderName() {
+		return buyerCardHolderName;
+	}
+
+	/**
+	 * 设置买家持卡人姓名
+	 *
+	 * @param buyerCardHolderName 买家持卡人姓名
+	 */
+	public void setBuyerCardHolderName(String buyerCardHolderName) {
+		this.buyerCardHolderName = buyerCardHolderName;
+	}
+
+	/**
 	 * 获取买方支付账号
 	 *
 	 * @return buyer_account - 买方支付账号
@@ -626,20 +698,20 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
-	 * 获取卖家身份类型
+	 * 获取买家身份类型
 	 *
-	 * @return buyer_type - 卖家身份类型
+	 * @return buyer_type - 买家身份类型
 	 */
-	@FieldDef(label = "卖家身份类型", maxLength = 50)
+	@FieldDef(label = "买家身份类型", maxLength = 50)
 	@EditMode(editor = FieldEditor.Text, required = false)
 	public String getBuyerType() {
 		return buyerType;
 	}
 
 	/**
-	 * 设置卖家身份类型
+	 * 设置买家身份类型
 	 *
-	 * @param buyerType 卖家身份类型
+	 * @param buyerType 买家身份类型
 	 */
 	public void setBuyerType(String buyerType) {
 		this.buyerType = buyerType;
@@ -683,6 +755,26 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setBuyerAgentName(String buyerAgentName) {
 		this.buyerAgentName = buyerAgentName;
+	}
+
+	/**
+	 * 获取买家证件号
+	 *
+	 * @return buyer_certificate_number - 买家证件号
+	 */
+	@FieldDef(label = "买家证件号", maxLength = 40)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getBuyerCertificateNumber() {
+		return buyerCertificateNumber;
+	}
+
+	/**
+	 * 设置买家证件号
+	 *
+	 * @param buyerCertificateNumber 买家证件号
+	 */
+	public void setBuyerCertificateNumber(String buyerCertificateNumber) {
+		this.buyerCertificateNumber = buyerCertificateNumber;
 	}
 
 	/**
@@ -763,6 +855,26 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setSellerCardAccount(Long sellerCardAccount) {
 		this.sellerCardAccount = sellerCardAccount;
+	}
+
+	/**
+	 * 获取卖方持卡人姓名
+	 *
+	 * @return seller_card_holder_name - 卖方持卡人姓名
+	 */
+	@FieldDef(label = "卖方持卡人姓名", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getSellerCardHolderName() {
+		return sellerCardHolderName;
+	}
+
+	/**
+	 * 设置卖方持卡人姓名
+	 *
+	 * @param sellerCardHolderName 卖方持卡人姓名
+	 */
+	public void setSellerCardHolderName(String sellerCardHolderName) {
+		this.sellerCardHolderName = sellerCardHolderName;
 	}
 
 	/**
@@ -883,6 +995,26 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setSellerAgentName(String sellerAgentName) {
 		this.sellerAgentName = sellerAgentName;
+	}
+
+	/**
+	 * 获取卖家证件号
+	 *
+	 * @return seller_certificate_number - 卖家证件号
+	 */
+	@FieldDef(label = "卖家证件号", maxLength = 40)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getSellerCertificateNumber() {
+		return sellerCertificateNumber;
+	}
+
+	/**
+	 * 设置卖家证件号
+	 *
+	 * @param sellerCertificateNumber 卖家证件号
+	 */
+	public void setSellerCertificateNumber(String sellerCertificateNumber) {
+		this.sellerCertificateNumber = sellerCertificateNumber;
 	}
 
 	/**
@@ -1026,20 +1158,20 @@ public class WeighingBill extends BaseDomain {
 	}
 
 	/**
-	 * 获取单价（分），元/斤
+	 * 获取单价（分），按重量算是元/斤，按件计价是元/件
 	 *
-	 * @return unit_price - 单价（分），元/斤
+	 * @return unit_price - 单价（分），按重量算是元/斤，按件计价是元/件
 	 */
-	@FieldDef(label = "单价（分），元/斤")
+	@FieldDef(label = "单价（分），按重量算是元/斤，按件计价是元/件")
 	@EditMode(editor = FieldEditor.Number, required = true)
 	public Long getUnitPrice() {
 		return unitPrice;
 	}
 
 	/**
-	 * 设置单价（分），元/斤
+	 * 设置单价（分），按重量算是元/斤，按件计价是元/件
 	 *
-	 * @param unitPrice 单价（分），元/斤
+	 * @param unitPrice 单价（分），按重量算是元/斤，按件计价是元/件
 	 */
 	public void setUnitPrice(Long unitPrice) {
 		this.unitPrice = unitPrice;
@@ -1162,10 +1294,6 @@ public class WeighingBill extends BaseDomain {
 	 * @param plateNumber 车牌号
 	 */
 	public void setPlateNumber(String plateNumber) {
-		if (StringUtils.isBlank(plateNumber)) {
-			this.plateNumber = null;
-			return;
-		}
 		this.plateNumber = plateNumber;
 	}
 
@@ -1287,6 +1415,146 @@ public class WeighingBill extends BaseDomain {
 	 */
 	public void setTareBillNumber(String tareBillNumber) {
 		this.tareBillNumber = tareBillNumber;
+	}
+
+	/**
+	 * 获取人工费（分）
+	 *
+	 * @return staff_charges - 人工费（分）
+	 */
+	@FieldDef(label = "人工费（分）")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getStaffCharges() {
+		return staffCharges;
+	}
+
+	/**
+	 * 设置人工费（分）
+	 *
+	 * @param staffCharges 人工费（分）
+	 */
+	public void setStaffCharges(Long staffCharges) {
+		this.staffCharges = staffCharges;
+	}
+
+	/**
+	 * 获取包装费（分）
+	 *
+	 * @return packing_charges - 包装费（分）
+	 */
+	@FieldDef(label = "包装费（分）")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getPackingCharges() {
+		return packingCharges;
+	}
+
+	/**
+	 * 设置包装费（分）
+	 *
+	 * @param packingCharges 包装费（分）
+	 */
+	public void setPackingCharges(Long packingCharges) {
+		this.packingCharges = packingCharges;
+	}
+
+	/**
+	 * 获取代收费（分）
+	 *
+	 * @return collection_charges - 代收费（分）
+	 */
+	@FieldDef(label = "代收费（分）")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getCollectionCharges() {
+		return collectionCharges;
+	}
+
+	/**
+	 * 设置代收费（分）
+	 *
+	 * @param collectionCharges 代收费（分）
+	 */
+	public void setCollectionCharges(Long collectionCharges) {
+		this.collectionCharges = collectionCharges;
+	}
+
+	/**
+	 * 获取回款状态，1待回款，2已汇款
+	 *
+	 * @return payment_state - 回款状态，1待回款，2已汇款
+	 */
+	@FieldDef(label = "回款状态，1待回款，2已汇款")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Integer getPaymentState() {
+		return paymentState;
+	}
+
+	/**
+	 * 设置回款状态，1待回款，2已汇款
+	 *
+	 * @param paymentState 回款状态，1待回款，2已汇款
+	 */
+	public void setPaymentState(Integer paymentState) {
+		this.paymentState = paymentState;
+	}
+
+	/**
+	 * 获取支付类型，1园区卡，2赊销
+	 *
+	 * @return payment_type - 支付类型，1园区卡，2赊销
+	 */
+	@FieldDef(label = "支付类型，1园区卡，2赊销")
+	@EditMode(editor = FieldEditor.Number, required = true)
+	public Integer getPaymentType() {
+		return paymentType;
+	}
+
+	/**
+	 * 设置支付类型，1园区卡，2赊销
+	 *
+	 * @param paymentType 支付类型，1园区卡，2赊销
+	 */
+	public void setPaymentType(Integer paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	/**
+	 * 获取包装类型
+	 *
+	 * @return packing_type - 包装类型
+	 */
+	@FieldDef(label = "包装类型")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Integer getPackingType() {
+		return packingType;
+	}
+
+	/**
+	 * 设置包装类型
+	 *
+	 * @param packingType 包装类型
+	 */
+	public void setPackingType(Integer packingType) {
+		this.packingType = packingType;
+	}
+
+	/**
+	 * 获取包装类型名称
+	 *
+	 * @return packing_type_name - 包装类型名称
+	 */
+	@FieldDef(label = "包装类型名称", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
+	public String getPackingTypeName() {
+		return packingTypeName;
+	}
+
+	/**
+	 * 设置包装类型名称
+	 *
+	 * @param packingTypeName 包装类型名称
+	 */
+	public void setPackingTypeName(String packingTypeName) {
+		this.packingTypeName = packingTypeName;
 	}
 
 	/**
@@ -1529,59 +1797,19 @@ public class WeighingBill extends BaseDomain {
 		this.version = version;
 	}
 
-	public String getBuyerCertificateNumber() {
-		return buyerCertificateNumber;
-	}
-
-	public void setBuyerCertificateNumber(String buyerCertificateNumber) {
-		this.buyerCertificateNumber = buyerCertificateNumber;
-	}
-
-	public String getSellerCertificateNumber() {
-		return sellerCertificateNumber;
-	}
-
-	public void setSellerCertificateNumber(String sellerCertificateNumber) {
-		this.sellerCertificateNumber = sellerCertificateNumber;
+	/**
+	 * @return trade_type_id
+	 */
+	@FieldDef(label = "tradeTypeId")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Long getTradeTypeId() {
+		return tradeTypeId;
 	}
 
 	/**
-	 * 获取买家持卡人姓名
-	 *
-	 * @return buyer_card_holder_name - 买家持卡人姓名
+	 * @param tradeTypeId
 	 */
-	@FieldDef(label = "买家持卡人姓名", maxLength = 50)
-	@EditMode(editor = FieldEditor.Text, required = false)
-	public String getBuyerCardHolderName() {
-		return buyerCardHolderName;
-	}
-
-	/**
-	 * 设置买家持卡人姓名
-	 *
-	 * @param buyerCardHolderName 买家持卡人姓名
-	 */
-	public void setBuyerCardHolderName(String buyerCardHolderName) {
-		this.buyerCardHolderName = buyerCardHolderName;
-	}
-
-	/**
-	 * 获取卖方持卡人姓名
-	 *
-	 * @return seller_card_holder_name - 卖方持卡人姓名
-	 */
-	@FieldDef(label = "卖方持卡人姓名", maxLength = 50)
-	@EditMode(editor = FieldEditor.Text, required = false)
-	public String getSellerCardHolderName() {
-		return sellerCardHolderName;
-	}
-
-	/**
-	 * 设置卖方持卡人姓名
-	 *
-	 * @param sellerCardHolderName 卖方持卡人姓名
-	 */
-	public void setSellerCardHolderName(String sellerCardHolderName) {
-		this.sellerCardHolderName = sellerCardHolderName;
+	public void setTradeTypeId(Long tradeTypeId) {
+		this.tradeTypeId = tradeTypeId;
 	}
 }

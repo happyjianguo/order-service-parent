@@ -8,24 +8,21 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import tk.mybatis.mapper.annotation.Version;
 
 /**
  * 由MyBatis Generator工具自动生成
  * 
- * This file was generated on 2020-09-18 17:19:55.
+ * This file was generated on 2021-01-30 16:37:59.
  */
 @Table(name = "`weighing_statement`")
 public class WeighingStatement extends BaseDomain {
+	/**
+	 * 主键
+	 */
 	@Id
 	@Column(name = "`id`")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,6 +77,12 @@ public class WeighingStatement extends BaseDomain {
 	private Long buyerPoundage;
 
 	/**
+	 * 买方手续费缴费支付订单号
+	 */
+	@Column(name = "`buyer_poundage_pay_order_no`")
+	private String buyerPoundagePayOrderNo;
+
+	/**
 	 * 卖家id
 	 */
 	@Column(name = "`seller_id`")
@@ -110,6 +113,12 @@ public class WeighingStatement extends BaseDomain {
 	private Long sellerPoundage;
 
 	/**
+	 * 卖方交易手续费缴费支付订单号
+	 */
+	@Column(name = "`seller_poundage_pay_order_no`")
+	private String sellerPoundagePayOrderNo;
+
+	/**
 	 * 交易金额(分)
 	 */
 	@Column(name = "`trade_amount`")
@@ -122,10 +131,52 @@ public class WeighingStatement extends BaseDomain {
 	private Long frozenAmount;
 
 	/**
+	 * 人工费
+	 */
+	@Column(name = "`staff_charges`")
+	private Long staffCharges;
+
+	/**
+	 * 包装费
+	 */
+	@Column(name = "`packing_charges`")
+	private Long packingCharges;
+
+	/**
+	 * 代收费
+	 */
+	@Column(name = "`collection_charges`")
+	private Long collectionCharges;
+
+	/**
+	 * 回款状态：1待回款，2已回款
+	 */
+	@Column(name = "`payment_state`")
+	private Integer paymentState;
+
+	/**
+	 * 结算方式：1园区卡，2赊销
+	 */
+	@Column(name = "`payment_type`")
+	private Integer paymentType;
+
+	/**
+	 * 回款单id
+	 */
+	@Column(name = "`collection_record_id`")
+	private Long collectionRecordId;
+
+	/**
 	 * 状态
 	 */
 	@Column(name = "`state`")
 	private Integer state;
+
+	/**
+	 * 支付订单号
+	 */
+	@Column(name = "`service_fee_pay_order_no`")
+	private String serviceFeePayOrderNo;
 
 	/**
 	 * 支付订单号
@@ -148,9 +199,6 @@ public class WeighingStatement extends BaseDomain {
 	/**
 	 * 创建时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`created_time`")
 	private LocalDateTime createdTime;
 
@@ -163,25 +211,18 @@ public class WeighingStatement extends BaseDomain {
 	/**
 	 * 更新时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`modified_time`")
 	private LocalDateTime modifiedTime;
 
 	/**
 	 * 版本号，事务控制
 	 */
-	@Version
 	@Column(name = "`version`")
 	private Integer version;
 
 	/**
 	 * 最后操作时间
 	 */
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@Column(name = "`last_operation_time`")
 	private LocalDateTime lastOperationTime;
 
@@ -198,22 +239,34 @@ public class WeighingStatement extends BaseDomain {
 	private String lastOperatorName;
 
 	/**
-	 * 最后操作员名称
+	 * 最后操作员工号
 	 */
 	@Column(name = "`last_operator_user_name`")
 	private String lastOperatorUserName;
 
 	/**
-	 * @return id
+	 * 获取主键
+	 *
+	 * @return id - 主键
 	 */
-	@FieldDef(label = "id")
+	@FieldDef(label = "主键")
 	@EditMode(editor = FieldEditor.Number, required = true)
 	public Long getId() {
 		return id;
 	}
 
+	public String getServiceFeePayOrderNo() {
+		return serviceFeePayOrderNo;
+	}
+
+	public void setServiceFeePayOrderNo(String serviceFeePayOrderNo) {
+		this.serviceFeePayOrderNo = serviceFeePayOrderNo;
+	}
+
 	/**
-	 * @param id
+	 * 设置主键
+	 *
+	 * @param id 主键
 	 */
 	public void setId(Long id) {
 		this.id = id;
@@ -379,6 +432,14 @@ public class WeighingStatement extends BaseDomain {
 		this.buyerPoundage = buyerPoundage;
 	}
 
+	public String getBuyerPoundagePayOrderNo() {
+		return buyerPoundagePayOrderNo;
+	}
+
+	public void setBuyerPoundagePayOrderNo(String buyerPoundagePayOrderNo) {
+		this.buyerPoundagePayOrderNo = buyerPoundagePayOrderNo;
+	}
+
 	/**
 	 * 获取卖家id
 	 *
@@ -479,6 +540,14 @@ public class WeighingStatement extends BaseDomain {
 		this.sellerPoundage = sellerPoundage;
 	}
 
+	public String getSellerPoundagePayOrderNo() {
+		return sellerPoundagePayOrderNo;
+	}
+
+	public void setSellerPoundagePayOrderNo(String sellerPoundagePayOrderNo) {
+		this.sellerPoundagePayOrderNo = sellerPoundagePayOrderNo;
+	}
+
 	/**
 	 * 获取交易金额(分)
 	 *
@@ -499,6 +568,14 @@ public class WeighingStatement extends BaseDomain {
 		this.tradeAmount = tradeAmount;
 	}
 
+	public Long getCollectionRecordId() {
+		return collectionRecordId;
+	}
+
+	public void setCollectionRecordId(Long collectionRecordId) {
+		this.collectionRecordId = collectionRecordId;
+	}
+
 	/**
 	 * 获取冻结金额(分)
 	 *
@@ -517,6 +594,70 @@ public class WeighingStatement extends BaseDomain {
 	 */
 	public void setFrozenAmount(Long frozenAmount) {
 		this.frozenAmount = frozenAmount;
+	}
+
+	public Long getStaffCharges() {
+		return staffCharges;
+	}
+
+	public void setStaffCharges(Long staffCharges) {
+		this.staffCharges = staffCharges;
+	}
+
+	public Long getPackingCharges() {
+		return packingCharges;
+	}
+
+	public void setPackingCharges(Long packingCharges) {
+		this.packingCharges = packingCharges;
+	}
+
+	public Long getCollectionCharges() {
+		return collectionCharges;
+	}
+
+	public void setCollectionCharges(Long collectionCharges) {
+		this.collectionCharges = collectionCharges;
+	}
+
+	/**
+	 * 获取回款状态：1待回款，2已回款
+	 *
+	 * @return payment_state - 回款状态：1待回款，2已回款
+	 */
+	@FieldDef(label = "回款状态：1待回款，2已回款")
+	@EditMode(editor = FieldEditor.Number, required = false)
+	public Integer getPaymentState() {
+		return paymentState;
+	}
+
+	/**
+	 * 设置回款状态：1待回款，2已回款
+	 *
+	 * @param paymentState 回款状态：1待回款，2已回款
+	 */
+	public void setPaymentState(Integer paymentState) {
+		this.paymentState = paymentState;
+	}
+
+	/**
+	 * 获取结算方式：1园区卡，2赊销
+	 *
+	 * @return payment_type - 结算方式：1园区卡，2赊销
+	 */
+	@FieldDef(label = "结算方式：1园区卡，2赊销")
+	@EditMode(editor = FieldEditor.Number, required = true)
+	public Integer getPaymentType() {
+		return paymentType;
+	}
+
+	/**
+	 * 设置结算方式：1园区卡，2赊销
+	 *
+	 * @param paymentType 结算方式：1园区卡，2赊销
+	 */
+	public void setPaymentType(Integer paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	/**
@@ -679,34 +820,82 @@ public class WeighingStatement extends BaseDomain {
 		this.version = version;
 	}
 
+	/**
+	 * 获取最后操作时间
+	 *
+	 * @return last_operation_time - 最后操作时间
+	 */
+	@FieldDef(label = "最后操作时间")
+	@EditMode(editor = FieldEditor.Datetime, required = false)
 	public LocalDateTime getLastOperationTime() {
 		return lastOperationTime;
 	}
 
+	/**
+	 * 设置最后操作时间
+	 *
+	 * @param lastOperationTime 最后操作时间
+	 */
 	public void setLastOperationTime(LocalDateTime lastOperationTime) {
 		this.lastOperationTime = lastOperationTime;
 	}
 
+	/**
+	 * 获取最后操作员id
+	 *
+	 * @return last_operator_id - 最后操作员id
+	 */
+	@FieldDef(label = "最后操作员id")
+	@EditMode(editor = FieldEditor.Number, required = false)
 	public Long getLastOperatorId() {
 		return lastOperatorId;
 	}
 
+	/**
+	 * 设置最后操作员id
+	 *
+	 * @param lastOperatorId 最后操作员id
+	 */
 	public void setLastOperatorId(Long lastOperatorId) {
 		this.lastOperatorId = lastOperatorId;
 	}
 
+	/**
+	 * 获取最后操作员名称
+	 *
+	 * @return last_operator_name - 最后操作员名称
+	 */
+	@FieldDef(label = "最后操作员名称", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
 	public String getLastOperatorName() {
 		return lastOperatorName;
 	}
 
+	/**
+	 * 设置最后操作员名称
+	 *
+	 * @param lastOperatorName 最后操作员名称
+	 */
 	public void setLastOperatorName(String lastOperatorName) {
 		this.lastOperatorName = lastOperatorName;
 	}
 
+	/**
+	 * 获取最后操作员工号
+	 *
+	 * @return last_operator_user_name - 最后操作员工号
+	 */
+	@FieldDef(label = "最后操作员工号", maxLength = 50)
+	@EditMode(editor = FieldEditor.Text, required = false)
 	public String getLastOperatorUserName() {
 		return lastOperatorUserName;
 	}
 
+	/**
+	 * 设置最后操作员工号
+	 *
+	 * @param lastOperatorUserName 最后操作员工号
+	 */
 	public void setLastOperatorUserName(String lastOperatorUserName) {
 		this.lastOperatorUserName = lastOperatorUserName;
 	}
