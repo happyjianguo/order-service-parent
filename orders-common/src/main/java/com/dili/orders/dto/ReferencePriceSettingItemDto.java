@@ -2,6 +2,7 @@ package com.dili.orders.dto;
 
 import com.dili.orders.domain.ReferenceRule;
 import com.dili.orders.validator.ConstantValidator;
+import com.dili.ss.util.MoneyUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -33,7 +34,12 @@ public class ReferencePriceSettingItemDto implements Serializable {
         return enabledState.getName();
     }
 
-
+    public String getFixedPriceText(){
+        if (fixedPrice == null){
+            return "";
+        }
+        return MoneyUtils.centToYuan(fixedPrice);
+    }
 
     public Long getCreatorId() {
         return creatorId;
