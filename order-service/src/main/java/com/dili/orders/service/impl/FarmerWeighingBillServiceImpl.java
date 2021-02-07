@@ -1,5 +1,7 @@
 package com.dili.orders.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,8 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
@@ -55,12 +59,15 @@ import com.dili.ss.exception.AppException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.User;
 
+import io.seata.spring.annotation.GlobalTransactional;
+
 /**
  * 由MyBatis Generator工具自动生成 This file was generated on 2020-06-19 14:20:28.
  */
 @Service
 public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl implements FarmerWeghingBillService {
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill bill) {
 		if (bill.getTradingBillType() == null) {
@@ -72,6 +79,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		return super.addWeighingBill(bill);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill bill) {
 		if (bill.getTradingBillType() == null) {
@@ -237,6 +245,8 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		return BaseOutput.successData(weighingStatement);
 	}
 
+	@GlobalTransactional
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> settle(Long id, String buyerPassword, Long operatorId, Long marketId) {
 		WeighingBill weighingBill = this.getWeighingBillById(id);
@@ -245,7 +255,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			return BaseOutput.failure("过磅单不存在");
 		}
 
-		if (weighingBill.getTradingBillType().equals(TradingBillType.FARMER.getValue())) {
+		if (!weighingBill.getTradingBillType().equals(TradingBillType.FARMER.getValue())) {
 			throw new AppException("单据类型不正确");
 		}
 
@@ -285,7 +295,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 				if (weighingBill.getPriceState() == null && weighingBill.getCheckPrice() != null && weighingBill.getCheckPrice()) {
 					// 获取商品中间价
 					Long referencePrice = this.referencePriceService.getReferencePriceByGoodsId(weighingBill.getGoodsId(), this.getMarketIdByOperatorId(operatorId),
-							weighingBill.getTradeType().toString(),weighingBill.getTradingBillType());
+							weighingBill.getTradeType().toString(), weighingBill.getTradingBillType());
 					if (referencePrice != null && referencePrice > 0) {
 						// 比较价格
 						Long actualPrice = this.getConvertUnitPrice(weighingBill);
@@ -454,7 +464,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			throw new AppException("更新结算单状态失败");
 		}
 
-		weighingBill.setSettlementTime(paymentOutput.getData().getWhen());
+		weighingBill.setSettlementTime(paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		rows = this.getActualDao().updateByPrimaryKeySelective(weighingBill);
 		if (rows <= 0) {
 			throw new AppException("更新过磅单状态失败");
@@ -462,7 +472,8 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		}
 
 		// 记录操作流水
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE, paymentOutput.getData().getWhen());
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE,
+				paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows < 0) {
 			throw new AppException("保存操作记录失败");
@@ -519,6 +530,54 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 	}
 
 	@Override
+	protected void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
+		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
+		if (!buyerFeeOutput.isSuccess()) {
+			throw new AppException(buyerFeeOutput.getMessage());
+		}
+		BigDecimal buyerTotalFee = new BigDecimal(0L);
+//		if (CollectionUtils.isEmpty(buyerFeeOutput.getData())) {
+//			throw new AppException("未匹配到计费规则，请联系管理员");
+//		}
+		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
+			if (qfo.getTotalFee() != null) {
+				buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
+			}
+		}
+		if (!isFreeze(weighingBill)) {
+			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+		}
+		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
+		ws.setBuyerId(weighingBill.getBuyerId());
+		ws.setBuyerName(weighingBill.getBuyerName());
+	}
+
+	@Override
+	protected void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
+		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
+		if (!sellerFeeOutput.isSuccess()) {
+			throw new AppException(sellerFeeOutput.getMessage());
+		}
+		BigDecimal sellerTotalFee = new BigDecimal(0L);
+//		if (CollectionUtils.isEmpty(sellerFeeOutput.getData())) {
+//			throw new AppException("未匹配到计费规则，请联系管理员");
+//		}
+		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
+			if (qfo.getTotalFee() != null) {
+				sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
+			}
+		}
+		if (!isFreeze(weighingBill)) {
+			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
+			ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
+		}
+		ws.setSellerCardNo(weighingBill.getSellerCardNo());
+		ws.setSellerId(weighingBill.getSellerId());
+		ws.setSellerName(weighingBill.getSellerName());
+	}
+
+	@Override
 	public BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
 		if (weighingBill == null) {
@@ -545,7 +604,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			return BaseOutput.failure("当前状态不能作废");
 		}
 
-		if (weighingBill.getPackingType().equals(PaymentType.CREDIT.getValue()) && weighingBill.getPaymentState().equals(PaymentState.RECEIVED.getValue())) {
+		if (weighingBill.getPaymentType().equals(PaymentType.CREDIT.getValue()) && weighingBill.getPaymentState().equals(PaymentState.RECEIVED.getValue())) {
 			return BaseOutput.failure("只能对未回款的单据进行撤销");
 		}
 

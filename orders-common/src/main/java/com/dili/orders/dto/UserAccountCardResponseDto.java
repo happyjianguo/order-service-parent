@@ -76,6 +76,18 @@ public class UserAccountCardResponseDto implements Serializable {
 	private String creator;
 	/** 创建人id */
 	private Long creatorId;
+	/**
+	 * 买家区域标签
+	 */
+	private Integer buyerRegionTag;
+
+	public Integer getBuyerRegionTag() {
+		return buyerRegionTag;
+	}
+
+	public void setBuyerRegionTag(Integer buyerRegionTag) {
+		this.buyerRegionTag = buyerRegionTag;
+	}
 
 	public Long getAccountPkId() {
 		return accountPkId;
