@@ -1081,7 +1081,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			return BaseOutput.failure("当前状态不能作废");
 		}
 
-		if (weighingBill.getPackingType().equals(PaymentType.CREDIT.getValue()) && weighingBill.getPaymentState().equals(PaymentState.RECEIVED.getValue())) {
+		if (weighingBill.getPaymentType().equals(PaymentType.CREDIT.getValue()) && weighingBill.getPaymentState().equals(PaymentState.RECEIVED.getValue())) {
 			return BaseOutput.failure("只能对未回款的单据进行撤销");
 		}
 
@@ -1203,13 +1203,19 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		}
 
 		// 重新生成一条过磅单
-		this.rebuildWeighingBill(paymentOutput.getData(), weighingBill, operatorId);
+		if (paymentOutput != null) {
+			this.rebuildWeighingBill(paymentOutput.getData(), weighingBill, operatorId);
+		} else {
+			PaymentTradeCommitResponseDto toBuildwb = new PaymentTradeCommitResponseDto();
+			toBuildwb.setWhen(now);
+			this.rebuildWeighingBill(toBuildwb, weighingBill, operatorId);
+		}
 
 		User operator = this.getUserById(operatorId);
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
 		weighingStatement.setModifierId(operatorId);
-		weighingStatement.setModifiedTime(paymentOutput.getData().getWhen());
-		weighingStatement.setLastOperationTime(paymentOutput.getData().getWhen());
+		weighingStatement.setModifiedTime(paymentOutput != null ? paymentOutput.getData().getWhen() : now);
+		weighingStatement.setLastOperationTime(paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
 		weighingStatement.setLastOperatorUserName(operator.getUserName());
@@ -1219,14 +1225,17 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		}
 
 		// 记录操作流水
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW, paymentOutput.getData().getWhen());
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW,
+				paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
 
 		// 记录撤销交易流水
-		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+		if (paymentOutput != null) {
+			this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+		}
 		if (buyerPoundagePaymentOutput != null) {
 			this.recordBuyerCreditWithdrawAccountFlow(operatorId, weighingStatement, buyerPoundagePaymentOutput.getData(), weighingBill);
 		}
@@ -1273,7 +1282,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			return BaseOutput.failure("当前状态不能作废");
 		}
 
-		if (weighingBill.getPackingType().equals(PaymentType.CREDIT.getValue()) && weighingBill.getPaymentState().equals(PaymentState.RECEIVED.getValue())) {
+		if (weighingBill.getPaymentType().equals(PaymentType.CREDIT.getValue()) && weighingBill.getPaymentState().equals(PaymentState.RECEIVED.getValue())) {
 			return BaseOutput.failure("只能对未回款的单据进行撤销");
 		}
 
@@ -1351,8 +1360,13 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			}
 		}
 
-		// 重新生成一条过磅单
-		this.rebuildWeighingBill(paymentOutput.getData(), weighingBill, operatorId);
+		if (paymentOutput != null) {
+			this.rebuildWeighingBill(paymentOutput.getData(), weighingBill, operatorId);
+		} else {
+			PaymentTradeCommitResponseDto toBuildwb = new PaymentTradeCommitResponseDto();
+			toBuildwb.setWhen(now);
+			this.rebuildWeighingBill(toBuildwb, weighingBill, operatorId);
+		}
 
 		User operator = this.getUserById(operatorId);
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
@@ -1368,14 +1382,18 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		}
 
 		// 记录操作流水
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW, paymentOutput.getData().getWhen());
+		// 记录操作流水
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW,
+				paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
 		}
 
-		// 记录撤销交易流水
-		this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+		if (paymentOutput != null) {
+			// 记录撤销交易流水
+			this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+		}
 		if (buyerPoundagePaymentOutput != null) {
 			this.recordBuyerCreditWithdrawAccountFlow(operatorId, weighingStatement, buyerPoundagePaymentOutput.getData(), weighingBill);
 		}
