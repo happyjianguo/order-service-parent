@@ -701,7 +701,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		}
 
 		// 记录操作流水
-		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE, paymentOutput != null ? paymentOutput.getData().getWhen() : now);
+		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.SETTLE,
+				paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows < 0) {
 			throw new AppException("保存操作记录失败");
@@ -1056,6 +1057,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		return commitOutput;
 	}
 
+	@GlobalTransactional(timeoutMills = Integer.MAX_VALUE)
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
@@ -1246,6 +1249,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		return BaseOutput.success();
 	}
 
+	@GlobalTransactional(timeoutMills = Integer.MAX_VALUE)
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId) {
 		WeighingBill weighingBill = this.getActualDao().selectByPrimaryKey(id);
