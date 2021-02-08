@@ -281,7 +281,6 @@
 		wb.department_name,
 		wb.payment_type,
 		wb.payment_state,
-		wb.trading_bill_type,
 		wb.buyer_region_tag,
 		wb.staff_charges,
 		wb.packing_charges,
