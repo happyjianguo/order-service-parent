@@ -186,6 +186,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
+		<result column="ws_staff_charges" jdbcType="BIGINT" property="staffCharges" />
+        <result column="ws_packing_charges" jdbcType="BIGINT" property="packingCharges" />
+        <result column="ws_collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+        <result column="ws_payment_state" jdbcType="INTEGER" property="paymentState" />
+        <result column="ws_payment_type" jdbcType="INTEGER" property="paymentType" />
 		<result column="last_operator_id" property="statement.lastOperatorId" />
 		<result column="last_operator_name" property="statement.lastOperatorName" />
 		<result column="last_operation_time" property="statement.lastOperationTime" />
@@ -205,6 +210,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
+        <result column="ws_staff_charges" jdbcType="BIGINT" property="staffCharges" />
+        <result column="ws_packing_charges" jdbcType="BIGINT" property="packingCharges" />
+        <result column="ws_collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+        <result column="ws_payment_state" jdbcType="INTEGER" property="paymentState" />
+        <result column="ws_payment_type" jdbcType="INTEGER" property="paymentType" />
 		<result column="operator_id" property="weighingOperatorId" />
 		<result column="operator_name" property="weighingOperatorName" />
 		<result column="operation_time" property="weighingOperationTime" />
@@ -285,8 +295,6 @@
 		wb.staff_charges,
 		wb.packing_charges,
 		wb.collection_charges,
-		wb.payment_state,
-		wb.payment_type,
 		wb.packing_type,
 		wb.packing_type_name
 	</sql>
@@ -307,11 +315,11 @@
 		ws.last_operator_user_name,
 		ws.buyer_poundage_pay_order_no,
 		ws.seller_poundage_pay_order_no,
-		ws.staff_charges,
-		ws.packing_charges,
-		ws.collection_charges,
-		ws.payment_state,
-		ws.payment_type,
+		ws.staff_charges AS ws_staff_charges,
+		ws.packing_charges AS ws_packing_charges,
+		ws.collection_charges AS ws_collection_charges,
+		ws.payment_state AS ws_payment_state,
+		ws.payment_type AS ws_payment_type,
 		ws.collection_record_id,
 		ws.service_fee_pay_order_no
 	</sql>
