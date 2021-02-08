@@ -1,26 +1,31 @@
 package com.dili.orders.api;
 
+import com.alibaba.fastjson.JSON;
 import com.dili.orders.domain.GoodsReferencePriceSetting;
 import com.dili.orders.dto.ReferencePriceSettingRequestDto;
 import com.dili.orders.service.GoodsReferencePriceSettingService;
 import com.dili.ss.domain.BaseOutput;
-import com.dili.ss.exception.AppException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Description: 品类参考价api类
  *
- * @date:    2020/8/21
- * @author:   Seabert.Zhan
+ * @date: 2020/8/21
+ * @author: Seabert.Zhan
  */
 @RestController
 @RequestMapping("/api/goodsReferencePriceSetting")
 public class GoodsReferencePriceSettingApi {
-
+    protected static final Logger LOGGER = LoggerFactory.getLogger(GoodsReferencePriceSettingApi.class);
     @Autowired
     GoodsReferencePriceSettingService goodsReferencePriceSettingService;
 
@@ -49,12 +54,13 @@ public class GoodsReferencePriceSettingApi {
 
 
     /**
-    * 保存或者修改设置
-    * @author miaoguoxin
-    * @date 2021/2/1
-    */
+     * 保存或者修改设置
+     * @author miaoguoxin
+     * @date 2021/2/1
+     */
     @PostMapping("/saveOrEdit")
-    public BaseOutput<?> saveOrEdit(@RequestBody ReferencePriceSettingRequestDto requestDto){
+    public BaseOutput<?> saveOrEdit(@RequestBody ReferencePriceSettingRequestDto requestDto) {
+        LOGGER.info("编辑中间价设置请求参数:{}", JSON.toJSONString(requestDto));
         goodsReferencePriceSettingService.saveOrEdit(requestDto);
         return BaseOutput.success();
     }
