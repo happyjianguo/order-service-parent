@@ -672,14 +672,18 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		} else {
 			weighingBill.setPaymentState(PaymentState.UNRECEIVED.getValue());
 			weighingStatement.setPaymentState(PaymentState.UNRECEIVED.getValue());
-			// 交手续费
-			buyerPaymentOutput = this.commitBuyerCreditTrade(weighingBill, weighingStatement);
-			if (!buyerPaymentOutput.isSuccess()) {
-				throw new AppException(buyerPaymentOutput.getMessage());
+			if (weighingStatement.getBuyerPoundage() != null && weighingStatement.getBuyerPoundage() > 0) {
+				// 交手续费
+				buyerPaymentOutput = this.commitBuyerCreditTrade(weighingBill, weighingStatement);
+				if (!buyerPaymentOutput.isSuccess()) {
+					throw new AppException(buyerPaymentOutput.getMessage());
+				}
 			}
-			sellerPaymentOutput = this.commitSellerCreditTrade(weighingBill, weighingStatement);
-			if (!sellerPaymentOutput.isSuccess()) {
-				throw new AppException(sellerPaymentOutput.getMessage());
+			if (weighingStatement.getSellerPoundage() != null && weighingStatement.getSellerPoundage() > 0) {
+				sellerPaymentOutput = this.commitSellerCreditTrade(weighingBill, weighingStatement);
+				if (!sellerPaymentOutput.isSuccess()) {
+					throw new AppException(sellerPaymentOutput.getMessage());
+				}
 			}
 		}
 
@@ -805,54 +809,22 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 	protected BaseOutput<?> prepareTrade(WeighingBill weighingBill, WeighingStatement ws) {
 		BaseOutput<CreateTradeResponseDto> paymentOutput = null;
 		ws.setState(WeighingStatementState.PAID.getValue());
-		if (weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
-			// 创建支付订单
-			PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
-			prepareDto.setAccountId(weighingBill.getSellerAccount());
-			prepareDto.setAmount(ws.getTradeAmount());
-			prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
-			prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
-			prepareDto.setType(PaymentTradeType.TRADE.getValue());
-			prepareDto.setDescription("自营交易过磅");
-			paymentOutput = this.payRpc.prepareTrade(prepareDto);
-			if (!paymentOutput.isSuccess()) {
-				return paymentOutput;
-			}
-			ws.setPayOrderNo(paymentOutput.getData().getTradeId());
-			ws.setState(WeighingStatementState.PAID.getValue());
-			if (!paymentOutput.isSuccess()) {
-				return paymentOutput;
-			}
+		// 创建支付订单
+		PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
+		prepareDto.setAccountId(weighingBill.getSellerAccount());
+		prepareDto.setAmount(ws.getTradeAmount());
+		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
+		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
+		prepareDto.setType(PaymentTradeType.TRADE.getValue());
+		prepareDto.setDescription("自营交易过磅");
+		paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		if (!paymentOutput.isSuccess()) {
 			return paymentOutput;
-		} else {
-			// 赊销调两次支付，买方卖方分开调用
-			PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
-			if (ws.getBuyerPoundage() > 0) {
-				prepareDto.setAccountId(weighingBill.getBuyerAccount());
-				prepareDto.setAmount(ws.getBuyerPoundage());
-				prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
-				prepareDto.setType(TradeType.FEE.getCode());
-				prepareDto.setDescription("自营交易赊销买方手续费");
-				paymentOutput = this.payRpc.prepareTrade(prepareDto);
-				if (!paymentOutput.isSuccess()) {
-					return paymentOutput;
-				}
-				ws.setBuyerPoundagePayOrderNo(paymentOutput.getData().getTradeId());
-			}
-
-			if (ws.getSellerPoundage() > 0) {
-				prepareDto = new PaymentTradePrepareDto();
-				prepareDto.setAccountId(weighingBill.getSellerAccount());
-				prepareDto.setAmount(ws.getSellerPoundage());
-				prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
-				prepareDto.setType(TradeType.FEE.getCode());
-				prepareDto.setDescription("自营交易赊销卖方手续费");
-				paymentOutput = this.payRpc.prepareTrade(prepareDto);
-				if (!paymentOutput.isSuccess()) {
-					return paymentOutput;
-				}
-				ws.setSellerPoundagePayOrderNo(paymentOutput.getData().getTradeId());
-			}
+		}
+		ws.setPayOrderNo(paymentOutput.getData().getTradeId());
+		ws.setState(WeighingStatementState.PAID.getValue());
+		if (!paymentOutput.isSuccess()) {
+			return paymentOutput;
 		}
 		return paymentOutput;
 	}
@@ -999,6 +971,17 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 	}
 
 	private BaseOutput<PaymentTradeCommitResponseDto> commitSellerCreditTrade(WeighingBill weighingBill, WeighingStatement ws) {
+		PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
+		prepareDto.setAccountId(weighingBill.getSellerAccount());
+		prepareDto.setAmount(ws.getSellerPoundage());
+		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
+		prepareDto.setType(TradeType.FEE.getCode());
+		prepareDto.setDescription("自营交易赊销卖方手续费");
+		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		if (!paymentOutput.isSuccess()) {
+			return BaseOutput.failure(paymentOutput.getMessage());
+		}
+		ws.setSellerPoundagePayOrderNo(paymentOutput.getData().getTradeId());
 		// 提交买方手续费缴费订单
 		PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
 		dto.setAccountId(weighingBill.getSellerAccount());
@@ -1024,6 +1007,18 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 	}
 
 	private BaseOutput<PaymentTradeCommitResponseDto> commitBuyerCreditTrade(WeighingBill weighingBill, WeighingStatement ws) {
+		// 赊销调两次支付，买方卖方分开调用
+		PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
+		prepareDto.setAccountId(weighingBill.getBuyerAccount());
+		prepareDto.setAmount(ws.getBuyerPoundage());
+		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
+		prepareDto.setType(TradeType.FEE.getCode());
+		prepareDto.setDescription("自营交易赊销买方手续费");
+		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		if (!paymentOutput.isSuccess()) {
+			return BaseOutput.failure(paymentOutput.getMessage());
+		}
+		ws.setBuyerPoundagePayOrderNo(paymentOutput.getData().getTradeId());
 		// 提交买方手续费缴费订单
 		PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
 		dto.setAccountId(weighingBill.getBuyerAccount());
