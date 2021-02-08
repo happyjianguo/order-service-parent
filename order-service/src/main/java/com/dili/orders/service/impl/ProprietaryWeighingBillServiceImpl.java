@@ -664,10 +664,10 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 					LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 					throw new AppException(paymentOutput.getMessage());
 				}
-				serviceFeePaymentOutput = this.commitServiceFeeTrade(weighingBill, buyerPassword, weighingStatement);
-				if (!serviceFeePaymentOutput.isSuccess()) {
-					throw new AppException(serviceFeePaymentOutput.getMessage());
-				}
+			}
+			serviceFeePaymentOutput = this.commitServiceFeeTrade(weighingBill, buyerPassword, weighingStatement);
+			if (!serviceFeePaymentOutput.isSuccess()) {
+				throw new AppException(serviceFeePaymentOutput.getMessage());
 			}
 		} else {
 			weighingBill.setPaymentState(PaymentState.UNRECEIVED.getValue());
@@ -739,21 +739,28 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 	}
 
 	private BaseOutput<PaymentTradeCommitResponseDto> commitServiceFeeTrade(WeighingBill weighingBill, String password, WeighingStatement weighingStatement) {
+		// 创建包装费转账交易
+		PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
+		prepareDto.setAccountId(weighingBill.getSellerAccount());
+		prepareDto.setAmount(weighingStatement.getTradeAmount());
+		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
+		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + weighingStatement.getSerialNo());
+		prepareDto.setType(PaymentTradeType.TRANSFER.getValue());
+		StringBuilder sb = new StringBuilder("老农交易服务费：");
+		Map<String, Long> feeMap = this.buildServiceFeeMap(weighingBill);
+		feeMap.entrySet().forEach(e -> sb.append(e.getKey()).append("=").append(e.getValue()));
+		prepareDto.setDescription(sb.toString());
+		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		if (!paymentOutput.isSuccess()) {
+			return BaseOutput.failure(paymentOutput.getMessage());
+		}
+		weighingStatement.setServiceFeePayOrderNo(paymentOutput.getData().getTradeId());
 		// 提交包装费转账订单
 		PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
 		dto.setAccountId(weighingBill.getBuyerAccount());
 		dto.setPassword(password);
 		dto.setTradeId(weighingStatement.getServiceFeePayOrderNo());
 		dto.setBusinessId(weighingBill.getBuyerCardAccount());
-//		List<FeeDto> fees = new ArrayList<FeeDto>(1);
-//		// 买家手续费
-//		FeeDto buyerFee = new FeeDto();
-//		buyerFee.setAmount(weighingStatement.getBuyerPoundage());
-//		buyerFee.setType(FundItem.TRANSFER.getCode());
-//		buyerFee.setTypeName(FundItem.TRANSFER.getName());
-//		buyerFee.setUseFor(FeeUse.BUYER.getValue());
-//		fees.add(buyerFee);
-//		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commit6(dto);
 		return commitOutput;
 	}
@@ -806,7 +813,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
 			prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
 			prepareDto.setType(PaymentTradeType.TRADE.getValue());
-			prepareDto.setDescription("老农交易过磅");
+			prepareDto.setDescription("自营交易过磅");
 			paymentOutput = this.payRpc.prepareTrade(prepareDto);
 			if (!paymentOutput.isSuccess()) {
 				return paymentOutput;
@@ -816,22 +823,6 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			if (!paymentOutput.isSuccess()) {
 				return paymentOutput;
 			}
-			// 创建包装费转账交易
-			prepareDto = new PaymentTradePrepareDto();
-			prepareDto.setAccountId(weighingBill.getSellerAccount());
-			prepareDto.setAmount(ws.getTradeAmount());
-			prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
-			prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
-			prepareDto.setType(PaymentTradeType.TRANSFER.getValue());
-			StringBuilder sb = new StringBuilder("老农交易服务费：");
-			Map<String, Long> feeMap = this.buildServiceFeeMap(weighingBill);
-			feeMap.entrySet().forEach(e -> sb.append(e.getKey()).append("=").append(e.getValue()));
-			prepareDto.setDescription(sb.toString());
-			paymentOutput = this.payRpc.prepareTrade(prepareDto);
-			if (!paymentOutput.isSuccess()) {
-				return paymentOutput;
-			}
-			ws.setServiceFeePayOrderNo(paymentOutput.getData().getTradeId());
 			return paymentOutput;
 		} else {
 			// 赊销调两次支付，买方卖方分开调用
