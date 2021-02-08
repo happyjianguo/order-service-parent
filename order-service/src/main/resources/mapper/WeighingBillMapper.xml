@@ -307,7 +307,7 @@
 		ws.last_operator_name,
 		ws.last_operator_user_name,
 		ws.buyer_poundage_pay_order_no,
-		ws.seller_poundage_pay_order_no
+		ws.seller_poundage_pay_order_no,
 		ws.staff_charges,
 		ws.packing_charges,
 		ws.collection_charges,
