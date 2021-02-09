@@ -792,11 +792,11 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		// 创建包装费转账交易
 		PaymentTradePrepareDto prepareDto = new PaymentTradePrepareDto();
 		prepareDto.setAccountId(weighingBill.getSellerAccount());
-		prepareDto.setAmount(weighingStatement.getTradeAmount());
+		prepareDto.setAmount(this.calculateServiceFee(weighingBill));
 		prepareDto.setBusinessId(weighingBill.getBuyerCardAccount());
 		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + weighingStatement.getSerialNo());
 		prepareDto.setType(PaymentTradeType.TRANSFER.getValue());
-		StringBuilder sb = new StringBuilder("老农交易服务费：");
+		StringBuilder sb = new StringBuilder("自营交易服务费：");
 		Map<String, Long> feeMap = this.buildServiceFeeMap(weighingBill);
 		feeMap.entrySet().forEach(e -> sb.append(e.getKey()).append("=").append(e.getValue()));
 		prepareDto.setDescription(sb.toString());
@@ -915,8 +915,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP));
 		}
 		if (weighingBill.getCollectionCharges() != null && weighingBill.getNetWeight() != null) {
-			// 代收费/100*2*净重
-			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getCollectionCharges() * 2 * weighingBill.getNetWeight()).divide(new BigDecimal(10000), 0, RoundingMode.HALF_UP));
+			// 代收费*净重
+			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getCollectionCharges() * weighingBill.getNetWeight()).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP));
 		}
 		if (weighingBill.getStaffCharges() != null && weighingBill.getUnitAmount() != null) {
 			// 人工费*件数
