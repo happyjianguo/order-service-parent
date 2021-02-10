@@ -911,10 +911,10 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 	// 计算代收费、服务费、人工费、包装费
 	private Long calculateServiceFee(WeighingBill weighingBill) {
 		BigDecimal tradeAmount = new BigDecimal(0);
-		if (weighingBill.getNetWeight() != null && weighingBill.getUnitPrice() != null) {
-			// 单价*2*净重
-			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP));
-		}
+//		if (weighingBill.getNetWeight() != null && weighingBill.getUnitPrice() != null) {
+//			// 单价*2*净重
+//			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP));
+//		}
 		if (weighingBill.getCollectionCharges() != null && weighingBill.getNetWeight() != null) {
 			// 代收费*2*净重
 			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getCollectionCharges() * 2 * weighingBill.getNetWeight()).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP));
@@ -923,9 +923,9 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			// 人工费*件数
 			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getStaffCharges() * weighingBill.getUnitAmount()));
 		}
-		if (weighingBill.getCollectionCharges() != null && weighingBill.getUnitAmount() != null) {
+		if (weighingBill.getPackingCharges() != null && weighingBill.getUnitAmount() != null) {
 			// 包装费*件数
-			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getCollectionCharges() * weighingBill.getUnitAmount()));
+			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getPackingCharges() * weighingBill.getUnitAmount()));
 		}
 		return tradeAmount.longValue();
 	}
