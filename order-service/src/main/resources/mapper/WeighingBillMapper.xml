@@ -8,6 +8,7 @@
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
 		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
@@ -20,6 +21,7 @@
 		<result column="buyer_agent_id" jdbcType="BIGINT" property="buyerAgentId" />
 		<result column="buyer_agent_name" jdbcType="VARCHAR" property="buyerAgentName" />
 		<result column="buyer_certificate_number" jdbcType="VARCHAR" property="buyerCertificateNumber" />
+		<result column="buyer_region_tag" jdbcType="INTEGER" property="buyerRegionTag" />
 		<result column="seller_id" jdbcType="BIGINT" property="sellerId" />
 		<result column="seller_code" jdbcType="VARCHAR" property="sellerCode" />
 		<result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
@@ -58,7 +60,7 @@
 		<result column="payment_state" jdbcType="INTEGER" property="paymentState" />
 		<result column="payment_type" jdbcType="INTEGER" property="paymentType" />
 		<result column="packing_type" jdbcType="INTEGER" property="packingType" />
-		<result column="packing_type_name" jdbcType="VARCHAR" property="packingTypeName" />
+		<result column="packing_type_name" jdbcType="INTEGER" property="packingTypeName" />
 		<result column="state" jdbcType="INTEGER" property="state" />
 		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
 		<result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
@@ -71,7 +73,6 @@
 		<result column="price_state" jdbcType="INTEGER" property="priceState" />
 		<result column="market_id" jdbcType="BIGINT" property="marketId" />
 		<result column="version" jdbcType="INTEGER" property="version" />
-		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 	</resultMap>
 
 	<resultMap id="ExportStatisticsResultMap" type="com.dili.orders.dto.WeighingBillListStatisticsDto">
@@ -155,6 +156,24 @@
 		<result column="unit_piece_price" property="unitPiecePrice" />
 	</resultMap>
 
+	<sql id="Base_Column_List">
+		<!-- WARNING - @mbg.generated -->
+		id, trading_bill_type, serial_no, measure_type, trade_type, trade_type_id, buyer_id,
+		buyer_code, buyer_card_no, buyer_card_account, buyer_card_holder_name, buyer_account,
+		buyer_name, buyer_contact,
+		buyer_type, buyer_agent_id, buyer_agent_name, buyer_certificate_number,
+		buyer_region_tag, seller_id, seller_code, seller_card_no, seller_card_account, seller_card_holder_name,
+		seller_account,
+		seller_name, seller_contact, seller_type, seller_agent_id, seller_agent_name,
+		seller_certificate_number, goods_id, goods_name, goods_code, goods_key_code, goods_origin_city_id,
+		goods_origin_city_name, unit_amount, unit_price, unit_weight, fetched_weight, fetch_weight_time,
+		rough_weight, net_weight, plate_number, tare_weight, subtraction_rate, subtraction_weight,
+		estimated_net_weight, frozen_amount, tare_bill_number, staff_charges, packing_charges,
+		collection_charges, payment_state, payment_type, packing_type, packing_type_name,
+		state, created_time,
+		modified_time, settlement_time, department_id, department_name,
+		creator_id, modifier_id, check_price, price_state, market_id, version
+	</sql>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
 		<result column="ws_id" property="statement.id" />
@@ -167,6 +186,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
+		<result column="ws_staff_charges" jdbcType="BIGINT" property="staffCharges" />
+        <result column="ws_packing_charges" jdbcType="BIGINT" property="packingCharges" />
+        <result column="ws_collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+        <result column="ws_payment_state" jdbcType="INTEGER" property="paymentState" />
+        <result column="ws_payment_type" jdbcType="INTEGER" property="paymentType" />
 		<result column="last_operator_id" property="statement.lastOperatorId" />
 		<result column="last_operator_name" property="statement.lastOperatorName" />
 		<result column="last_operation_time" property="statement.lastOperationTime" />
@@ -186,6 +210,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
+        <result column="ws_staff_charges" jdbcType="BIGINT" property="staffCharges" />
+        <result column="ws_packing_charges" jdbcType="BIGINT" property="packingCharges" />
+        <result column="ws_collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+        <result column="ws_payment_state" jdbcType="INTEGER" property="paymentState" />
+        <result column="ws_payment_type" jdbcType="INTEGER" property="paymentType" />
 		<result column="operator_id" property="weighingOperatorId" />
 		<result column="operator_name" property="weighingOperatorName" />
 		<result column="operation_time" property="weighingOperationTime" />
@@ -261,7 +290,13 @@
 		wb.department_id,
 		wb.department_name,
 		wb.payment_type,
-		wb.payment_state
+		wb.payment_state,
+		wb.buyer_region_tag,
+		wb.staff_charges,
+		wb.packing_charges,
+		wb.collection_charges,
+		wb.packing_type,
+		wb.packing_type_name
 	</sql>
 
 	<sql id="Ws_Join_Column_List">
@@ -277,7 +312,16 @@
 		ws.last_operation_time,
 		ws.last_operator_id,
 		ws.last_operator_name,
-		ws.last_operator_user_name
+		ws.last_operator_user_name,
+		ws.buyer_poundage_pay_order_no,
+		ws.seller_poundage_pay_order_no,
+		ws.staff_charges AS ws_staff_charges,
+		ws.packing_charges AS ws_packing_charges,
+		ws.collection_charges AS ws_collection_charges,
+		ws.payment_state AS ws_payment_state,
+		ws.payment_type AS ws_payment_type,
+		ws.collection_record_id,
+		ws.service_fee_pay_order_no
 	</sql>
 
 	<sql id="Wbor_Join_Column_List">
@@ -371,7 +415,7 @@
 			<when test="departmentId != null">
 				AND department_id = #{departmentId}
 			</when>
-			<when test="departmentIds != null and departmentIds.size() > 0">
+			<when test="departmentIds != null and departmentIds.size() &gt; 0">
 				AND department_id IN
 				<foreach close=")" collection="departmentIds" item="deptId" open="(" separator=",">
 					#{deptId}
@@ -379,16 +423,16 @@
 			</when>
 		</choose>
 		<choose>
-            <when test="tradingBillType != null">
-                AND trading_bill_type = #{tradingBillType}
-            </when>
-            <when test="tradingBillTypeList != null and tradingBillTypeList.size() > 0">
-                AND trading_bill_type IN
-                <foreach close=")" collection="tradingBillTypeList" item="tradingBillType" open="(" separator=",">
-                    #{tradingBillType}
-                </foreach>
-            </when>
-        </choose>
+			<when test="tradingBillType != null">
+				AND trading_bill_type = #{tradingBillType}
+			</when>
+			<when test="tradingBillTypeList != null and tradingBillTypeList.size() &gt; 0">
+				AND trading_bill_type IN
+				<foreach close=")" collection="tradingBillTypeList" item="tradingBillType" open="(" separator=",">
+					#{tradingBillType}
+				</foreach>
+			</when>
+		</choose>
 		) t1
 		WHERE 1=1
 		<if test="unitPriceStartValue != null">

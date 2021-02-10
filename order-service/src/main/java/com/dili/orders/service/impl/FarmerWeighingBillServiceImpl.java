@@ -520,13 +520,9 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 	@Override
 	protected BaseOutput<List<QueryFeeOutput>> calculatePoundage(WeighingBill weighingBill, WeighingStatement statement, Long marketId, String businessType) {
 		// 无需查询计费规则，返回空
-		if (weighingBill.getPaymentType().equals(PaymentType.CREDIT.getValue())) {
-			BaseOutput<List<QueryFeeOutput>> output = BaseOutput.success();
-			output.setData(new ArrayList<QueryFeeOutput>(0));
-			return output;
-		} else {
-			return super.calculatePoundage(weighingBill, statement, marketId, businessType);
-		}
+		BaseOutput<List<QueryFeeOutput>> output = BaseOutput.success();
+		output.setData(new ArrayList<QueryFeeOutput>(0));
+		return output;
 	}
 
 	@Override

@@ -1308,16 +1308,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 		Long marketId = this.getMarketIdByOperatorId(dto.getModifierId());
 
-		if (ws.getState().equals(WeighingStatementState.UNPAID.getValue())) {
-			// 修改状态是“未结算”单据时，卖方信息不可修改，其它均可修改；->买方信息可以修改
-			weighingBill.setBuyerCardNo(dto.getBuyerCardNo());
-			this.setWeighingBillBuyerInfo(weighingBill);
-		} else {
-			// 修改状态是“已冻结”单据时，“买方、卖方、毛重”不能修改；其它可以修改；->判断下毛重是否被修改
-			if (this.isWeighingBillRoughWeightUpdated(weighingBill, dto)) {
-				return BaseOutput.failure("冻结单毛重不能修改");
-			}
-		}
 		// 更新结算单买卖家信息，重新算费用
 		if (this.isFreeze(weighingBill)) {
 			this.setWeighingStatementFrozenAmount(weighingBill, ws);
@@ -1339,23 +1329,26 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		LocalDateTime now = LocalDateTime.now();
 		ws.setModifierId(dto.getModifierId());
 		ws.setModifiedTime(now);
-		ws.setLastOperationTime(now);
-		ws.setLastOperatorId(dto.getModifierId());
-		ws.setLastOperatorName(operator.getRealName());
-		ws.setLastOperatorUserName(operator.getUserName());
-		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
-		if (rows <= 0) {
-			throw new AppException("更新过磅单失败");
-		}
 
 		// 判断是否是未结算单，否则记录过磅时间
 		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+
+			// 更新操作人信息
+			ws.setLastOperationTime(now);
+			ws.setLastOperatorId(dto.getModifierId());
+			ws.setLastOperatorName(operator.getRealName());
+			ws.setLastOperatorUserName(operator.getUserName());
+
 			// 插入一条过磅信息
 			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.WEIGH, now);
 			rows = this.wbrMapper.insertSelective(wbor);
 			if (rows <= 0) {
 				throw new AppException("保存操作记录失败");
 			}
+		}
+		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
+		if (rows <= 0) {
+			throw new AppException("更新过磅单失败");
 		}
 
 		// 记录日志系统
@@ -2409,6 +2402,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		weighingBill.setModifiedTime(LocalDateTime.now());
 		weighingBill.setModifierId(dto.getModifierId());
 		weighingBill.setPlateNumber(dto.getPlateNumber());
+		if (weighingBill.getState().equals(WeighingBillState.FROZEN.getValue())) {
+			// 修改状态是“已冻结”单据时，“买方、卖方、毛重”不能修改；其它可以修改；->判断下毛重是否被修改
+			if (this.isWeighingBillRoughWeightUpdated(weighingBill, dto)) {
+				throw new AppException("冻结单毛重不能修改");
+			}
+		}
 		weighingBill.setRoughWeight(dto.getRoughWeight());
 		weighingBill.setSubtractionRate(dto.getSubtractionRate());
 		weighingBill.setSubtractionWeight(dto.getSubtractionWeight());
