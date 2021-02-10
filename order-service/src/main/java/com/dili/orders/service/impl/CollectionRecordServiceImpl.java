@@ -9,6 +9,7 @@ import com.dili.orders.domain.*;
 import com.dili.orders.dto.*;
 import com.dili.orders.domain.PaymentWays;
 import com.dili.orders.mapper.CollectionRecordMapper;
+import com.dili.orders.mapper.WeighingBillMapper;
 import com.dili.orders.mapper.WeighingBillOperationRecordMapper;
 import com.dili.orders.mapper.WeighingStatementMapper;
 import com.dili.orders.rpc.CardRpc;
@@ -50,6 +51,9 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
 
     @Autowired
     private WeighingStatementMapper weighingStatementMapper;
+
+    @Autowired
+    private WeighingBillMapper weighingBillMapper;
 
     @Autowired
     private WeighingBillOperationRecordMapper weighingBillOperationRecordMapper;
@@ -267,6 +271,17 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
             weighingStatement.setLastOperatorUserName(collectionRecord.getOperationUserName());
             //设置回款单id
             weighingStatement.setCollectionRecordId(collectionRecord.getId());
+
+            //设置过磅单数据
+            WeighingBill weighingBill = new WeighingBill();
+            weighingBill.setId(list.get(i).getWeighingBillId());
+            weighingBill.setPaymentState(PaymentState.RECEIVED.getValue());
+
+            int i1 = weighingBillMapper.updateByPrimaryKeySelective(weighingBill);
+            if (i1 <= 0) {
+                return BaseOutput.failure("过磅单修改失败");
+            }
+
             //更新交易过磅单数据
             int iweighingStatement = weighingStatementMapper.updateByPrimaryKeySelective(weighingStatement);
             if (iweighingStatement <= 0) {
