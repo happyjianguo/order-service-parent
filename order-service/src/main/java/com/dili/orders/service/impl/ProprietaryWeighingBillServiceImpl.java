@@ -217,6 +217,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 	@Override
 	protected void updateWeihingBillInfo(WeighingBill weighingBill, WeighingBill dto) {
 		super.updateWeihingBillInfo(weighingBill, dto);
+		weighingBill.setPaymentType(dto.getPaymentType());
 		weighingBill.setStaffCharges(dto.getStaffCharges());
 		weighingBill.setCollectionCharges(dto.getCollectionCharges());
 		weighingBill.setPackingCharges(dto.getPackingCharges());
@@ -488,7 +489,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			}
 		} else {
 			if (buyerBanlance < weighingStatement.getBuyerPoundage()) {
-				return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getBuyerPoundage() + weighingStatement.getSellerPoundage() - buyerBanlance)));
+				return BaseOutput.failure(String.format("买方卡账户余额不足，还需充值%s元", MoneyUtils.centToYuan(weighingStatement.getBuyerPoundage() - buyerBanlance)));
 			}
 			// 判断卖方余额是否足够-手续费
 			balanceQuery = new AccountRequestDto();
@@ -563,7 +564,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			}
 		}
 
-		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue()) && weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
 			BaseOutput<?> output = this.prepareTrade(weighingBill, weighingStatement);
 			if (!output.isSuccess()) {
 				LOGGER.error(String.format("交易过磅结算调用支付系统创建支付订单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
@@ -1035,15 +1036,13 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		dto.setTradeId(ws.getSellerPoundagePayOrderNo());
 		dto.setBusinessId(weighingBill.getSellerCardAccount());
 		List<FeeDto> fees = new ArrayList<FeeDto>(1);
-		if (ws.getSellerPoundage() != null && ws.getSellerPoundage() > 0) {
-			// 买家手续费
-			FeeDto buyerFee = new FeeDto();
-			buyerFee.setAmount(ws.getSellerPoundage());
-			buyerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
-			buyerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
-			buyerFee.setUseFor(FeeUse.SELLER.getValue());
-			fees.add(buyerFee);
-		}
+		// 卖家手续费
+		FeeDto buyerFee = new FeeDto();
+		buyerFee.setAmount(ws.getSellerPoundage());
+		buyerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
+		buyerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
+		buyerFee.setUseFor(FeeUse.SELLER.getValue());
+		fees.add(buyerFee);
 		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.pay(dto);
 		if (!commitOutput.isSuccess()) {
@@ -1072,15 +1071,13 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		dto.setTradeId(ws.getBuyerPoundagePayOrderNo());
 		dto.setBusinessId(weighingBill.getBuyerCardAccount());
 		List<FeeDto> fees = new ArrayList<FeeDto>(1);
-		if (ws.getBuyerPoundage() != null && ws.getBuyerPoundage() > 0) {
-			// 买家手续费
-			FeeDto buyerFee = new FeeDto();
-			buyerFee.setAmount(ws.getBuyerPoundage());
-			buyerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
-			buyerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
-			buyerFee.setUseFor(FeeUse.BUYER.getValue());
-			fees.add(buyerFee);
-		}
+		// 买家手续费
+		FeeDto buyerFee = new FeeDto();
+		buyerFee.setAmount(ws.getBuyerPoundage());
+		buyerFee.setType(FundItem.TRADE_SERVICE_FEE.getCode());
+		buyerFee.setTypeName(FundItem.TRADE_SERVICE_FEE.getName());
+		buyerFee.setUseFor(FeeUse.BUYER.getValue());
+		fees.add(buyerFee);
 		dto.setFees(fees);
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.pay(dto);
 		if (!commitOutput.isSuccess()) {
@@ -1392,6 +1389,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			}
 		}
 
+		// 重新生成一条过磅单
 		if (paymentOutput != null) {
 			this.rebuildWeighingBill(paymentOutput.getData(), weighingBill, operatorId);
 		} else {
@@ -1403,8 +1401,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		User operator = this.getUserById(operatorId);
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
 		weighingStatement.setModifierId(operatorId);
-		weighingStatement.setModifiedTime(paymentOutput.getData().getWhen());
-		weighingStatement.setLastOperationTime(paymentOutput.getData().getWhen());
+		weighingStatement.setModifiedTime(paymentOutput != null ? paymentOutput.getData().getWhen() : now);
+		weighingStatement.setLastOperationTime(paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
 		weighingStatement.setLastOperatorUserName(operator.getUserName());
@@ -1414,7 +1412,6 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		}
 
 		// 记录操作流水
-		// 记录操作流水
 		WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, weighingStatement, operator, WeighingOperationType.WITHDRAW,
 				paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		rows = this.wbrMapper.insertSelective(wbor);
@@ -1422,8 +1419,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			throw new AppException("保存操作记录失败");
 		}
 
+		// 记录撤销交易流水
 		if (paymentOutput != null) {
-			// 记录撤销交易流水
 			this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
 		}
 		if (buyerPoundagePaymentOutput != null) {
