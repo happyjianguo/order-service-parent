@@ -41,6 +41,12 @@ public class WeighingBillApi {
 	@Autowired
 	WeighingBillService weighingBillService;
 
+	/**
+	 * 根据id获取过磅单
+	 * 
+	 * @param id 过磅单id
+	 * @return
+	 */
 	@RequestMapping("/findById")
 	public BaseOutput<Object> findById(@RequestParam Long id) {
 		return BaseOutput.successData(this.weighingBillService.get(id));
