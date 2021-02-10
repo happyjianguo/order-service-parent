@@ -41,6 +41,11 @@ public class WeighingBillApi {
 	@Autowired
 	WeighingBillService weighingBillService;
 
+	@RequestMapping("/findById")
+	public BaseOutput<Object> findById(@RequestParam Long id) {
+		return BaseOutput.successData(this.weighingBillService.get(id));
+	}
+
 	/**
 	 * 分页查询WeighingBill，返回easyui分页信息
 	 *
