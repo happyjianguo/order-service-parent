@@ -208,7 +208,7 @@
 		ws.serial_no AS 'weighingStatementCode',
 		wb.goods_name
 		AS 'goodsName',
-		ROUND(wb.net_weight/200,2) AS 'netWeightY',
+		ROUND(wb.net_weight/100,2) AS 'netWeightY',
 		wb.goods_name AS 'goodsName',
         ROUND(wb.net_weight/100,2) AS 'netWeightY',
 		wb.unit_amount AS 'unitAmountY',
