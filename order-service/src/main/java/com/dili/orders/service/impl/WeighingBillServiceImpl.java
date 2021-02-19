@@ -191,7 +191,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	private TradeTypeRpc tradeTypeRpc;
 	@Autowired
-	private DataDictionaryRpc dataDictionaryRpc;
+	protected DataDictionaryRpc dataDictionaryRpc;
 	@Autowired
 	protected DepartmentRpc departmentRpc;
 
