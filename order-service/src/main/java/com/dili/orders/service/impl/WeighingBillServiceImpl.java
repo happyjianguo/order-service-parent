@@ -1616,6 +1616,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			}
 			map.put("tradeTypeId", this.getTradeIdByCode(weighingBill.getTradeType()));
 			map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
+			map.put("tradingBillType", weighingBill.getTradingBillType());
 			queryFeeInput.setCalcParams(map);
 			queryFeeInput.setConditionParams(map);
 			queryFeeInputList.add(queryFeeInput);

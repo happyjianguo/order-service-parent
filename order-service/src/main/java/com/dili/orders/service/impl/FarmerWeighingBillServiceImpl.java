@@ -92,6 +92,12 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 	}
 
 	@Override
+	protected void updateWeihingBillInfo(WeighingBill weighingBill, WeighingBill dto) {
+		super.updateWeihingBillInfo(weighingBill, dto);
+		weighingBill.setPaymentType(dto.getPaymentType());
+	}
+
+	@Override
 	protected WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
 		WeighingStatement ws = super.buildWeighingStatement(weighingBill, marketId);
 		ws.setPaymentState(weighingBill.getPaymentType());
@@ -432,25 +438,20 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		if (weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
 			weighingBill.setPaymentState(PaymentState.RECEIVED.getValue());
 			weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
-			// 判断单据状态，如果是冻结单走确认预授权扣款，否则走即时交易
-			if (originalState.equals(WeighingBillState.FROZEN.getValue())) {
-				paymentOutput = this.confirmTrade(weighingBill, weighingStatement, buyerPassword);
-				if (paymentOutput == null) {
-					throw new AppException("调用支付系统无响应");
+			if (weighingStatement.getPayOrderNo() == null) {
+				BaseOutput<?> output = this.prepareTrade(weighingBill, weighingStatement);
+				if (!output.isSuccess()) {
+					LOGGER.error(String.format("交易过磅结算调用支付系统创建支付订单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
+					throw new AppException(output.getMessage());
 				}
-				if (!paymentOutput.isSuccess()) {
-					LOGGER.error(String.format("交易过磅结算调用支付系统确认冻结交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
-					throw new AppException(paymentOutput.getMessage());
-				}
-			} else {
-				paymentOutput = this.commitTrade(weighingBill, weighingStatement, buyerPassword);
-				if (paymentOutput == null) {
-					throw new AppException("调用支付系统无响应");
-				}
-				if (!paymentOutput.isSuccess()) {
-					LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
-					throw new AppException(paymentOutput.getMessage());
-				}
+			}
+			paymentOutput = this.commitTrade(weighingBill, weighingStatement, buyerPassword);
+			if (paymentOutput == null) {
+				throw new AppException("调用支付系统无响应");
+			}
+			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+				throw new AppException(paymentOutput.getMessage());
 			}
 		}
 
