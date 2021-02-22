@@ -698,7 +698,8 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
         serialRecordDo.setOperatorNo(transitionDepartureSettlement.getOperatorCode());
         serialRecordDo.setFirmId(oneAccountCard.getData().getFirmId());
         serialRecordDo.setOperateTime(transitionDepartureSettlement.getRevocatorTime());
-
+        //持卡人保存到交易记录中
+        serialRecordDo.setHoldName(transitionDepartureSettlement.getHoldName());
         // 判断是转场还是离场1.转场 2.离场
 //        if (Objects.equals(transitionDepartureSettlement.getBizType(), 1)) {
         if (Objects.equals(transitionDepartureSettlement.getBizType(), BizTypeEnum.TRANSITION.getCode())) {
