@@ -42,6 +42,17 @@ public class WeighingBillApi {
 	WeighingBillService weighingBillService;
 
 	/**
+	 * 根据id获取过磅单
+	 * 
+	 * @param id 过磅单id
+	 * @return
+	 */
+	@RequestMapping("/findById")
+	public BaseOutput<Object> findById(@RequestParam Long id) {
+		return BaseOutput.successData(this.weighingBillService.get(id));
+	}
+
+	/**
 	 * 分页查询WeighingBill，返回easyui分页信息
 	 *
 	 * @param

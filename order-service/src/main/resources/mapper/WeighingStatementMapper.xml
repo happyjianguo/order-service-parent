@@ -41,7 +41,7 @@
 		<result column="last_operator_name" jdbcType="VARCHAR" property="lastOperatorName" />
 		<result column="last_operator_user_name" jdbcType="VARCHAR" property="lastOperatorUserName" />
 	</resultMap>
-	
+
 	<sql id="Base_Column_List">
 		<!-- WARNING - @mbg.generated -->
 		id, serial_no, weighing_bill_id, weighing_serial_no, buyer_id, buyer_card_no, buyer_name,
@@ -55,7 +55,7 @@
 		last_operator_id, last_operator_name,
 		last_operator_user_name
 	</sql>
-	
+
 	<sql id="Join_Column_List">
 		<!-- WARNING - @mbg.generated -->
 		ws.id,
@@ -208,15 +208,17 @@
 		ws.serial_no AS 'weighingStatementCode',
 		wb.goods_name
 		AS 'goodsName',
-		ROUND(wb.net_weight/200,2) AS 'netWeightY',
+		ROUND(wb.net_weight/100,2) AS 'netWeightY',
+		wb.goods_name AS 'goodsName',
+        ROUND(wb.net_weight/100,2) AS 'netWeightY',
 		wb.unit_amount AS 'unitAmountY',
 		ROUND(wb.unit_price/50,2) AS 'unitPriceY',
 		ROUND(IFNULL(ws.trade_amount,0)/100,2) AS 'tradeAmountY',
-		ROUND(IFNULL(wb.staff_charges,0)/100,2) AS 'staffChargesY',
-		ROUND(IFNULL(wb.packing_charges,0)/100,2) AS 'packingChargesY',
-		ROUND(IFNULL(wb.collection_charges,0)/100,2) AS 'collectionChargesY',
+		ROUND(IFNULL(wb.staff_charges,0)/100*unit_amount,2) AS 'staffChargesY',
+		ROUND(IFNULL(wb.packing_charges,0)/100*unit_amount,2) AS 'packingChargesY',
+		ROUND(IFNULL(wb.collection_charges,0)/10000*2*net_weight,2) AS 'collectionChargesY',
 		wb.packing_type_name AS 'packingTypeName',
-		ROUND((IFNULL(ws.trade_amount,0)+IFNULL(wb.staff_charges,0)+IFNULL(wb.packing_charges,0)+IFNULL(wb.collection_charges,0))/100,2) AS 'totalAmountY',
+		ROUND((IFNULL(ws.trade_amount,0)/100+IFNULL(wb.staff_charges,0)/100*unit_amount+IFNULL(wb.packing_charges,0)/10000*2*net_weight+IFNULL(wb.collection_charges,0)/10000*2*net_weight),2) AS 'totalAmountY',
 		ws.version AS 'version'
 		FROM
 		weighing_statement ws
@@ -237,7 +239,7 @@
 	<select id="groupListForDetail" parameterType="com.dili.orders.domain.CollectionRecord" resultType="java.util.Map">
 		SELECT
 		DATE_FORMAT(last_operation_time,'%Y-%m-%d') AS 'time',
-		ROUND(SUM(IFNULL(ws.trade_amount,0)+IFNULL(wb.staff_charges,0)+IFNULL(wb.packing_charges,0)+IFNULL(wb.collection_charges,0))/100,2) AS
+		ROUND(SUM(IFNULL(ws.trade_amount,0)/100+IFNULL(wb.staff_charges,0)/100*unit_amount+IFNULL(wb.packing_charges,0)/100*unit_amount+IFNULL(wb.collection_charges,0)/10000*2*net_weight),2) AS
 		'amount',
 		COUNT(ws.id) AS 'cnt',
 		GROUP_CONCAT(ws.id) AS 'ids'
