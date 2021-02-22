@@ -186,11 +186,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
-		<result column="ws_staff_charges" jdbcType="BIGINT" property="staffCharges" />
-        <result column="ws_packing_charges" jdbcType="BIGINT" property="packingCharges" />
-        <result column="ws_collection_charges" jdbcType="BIGINT" property="collectionCharges" />
-        <result column="ws_payment_state" jdbcType="INTEGER" property="paymentState" />
-        <result column="ws_payment_type" jdbcType="INTEGER" property="paymentType" />
+		<result column="ws_staff_charges" jdbcType="BIGINT" property="statement.staffCharges" />
+        <result column="ws_packing_charges" jdbcType="BIGINT" property="statement.packingCharges" />
+        <result column="ws_collection_charges" jdbcType="BIGINT" property="statement.collectionCharges" />
+        <result column="ws_payment_state" jdbcType="INTEGER" property="statement.paymentState" />
+        <result column="ws_payment_type" jdbcType="INTEGER" property="statement.paymentType" />
 		<result column="last_operator_id" property="statement.lastOperatorId" />
 		<result column="last_operator_name" property="statement.lastOperatorName" />
 		<result column="last_operation_time" property="statement.lastOperationTime" />
