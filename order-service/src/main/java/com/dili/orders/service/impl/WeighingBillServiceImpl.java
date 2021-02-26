@@ -134,7 +134,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	/**
 	 * 结算单状态对应过磅单的操作记录配置，用于打印结算单时根据结算单状态获取过磅单操作记录
 	 */
-	private static final Map<WeighingStatementState, WeighingOperationType> WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG = new HashMap<WeighingStatementState, WeighingOperationType>();
+	protected static final Map<WeighingStatementState, WeighingOperationType> WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG = new HashMap<WeighingStatementState, WeighingOperationType>();
 	static {
 		WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG.put(WeighingStatementState.FROZEN, WeighingOperationType.FREEZE);
 		WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG.put(WeighingStatementState.PAID, WeighingOperationType.SETTLE);
@@ -1799,7 +1799,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return weighingBill.getCreatedTime();
 	}
 
-	private WeighingStatement getWeighingStatementBySerialNo(String serialNo) {
+	protected WeighingStatement getWeighingStatementBySerialNo(String serialNo) {
 		WeighingStatement wsQuery = new WeighingStatement();
 		wsQuery.setSerialNo(serialNo);
 		return this.weighingStatementMapper.selectOne(wsQuery);
