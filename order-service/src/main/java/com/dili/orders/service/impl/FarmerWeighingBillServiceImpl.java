@@ -23,6 +23,7 @@ import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
 import com.dili.orders.constants.OrdersConstant;
+import com.dili.orders.domain.MeasureType;
 import com.dili.orders.domain.PaymentState;
 import com.dili.orders.domain.PaymentType;
 import com.dili.orders.domain.PriceApproveRecord;
@@ -46,16 +47,20 @@ import com.dili.orders.dto.PaymentTradeCommitDto;
 import com.dili.orders.dto.PaymentTradeCommitResponseDto;
 import com.dili.orders.dto.PaymentTradePrepareDto;
 import com.dili.orders.dto.PaymentTradeType;
+import com.dili.orders.dto.PrintTemplateDataDto;
 import com.dili.orders.dto.SerialRecordDo;
 import com.dili.orders.dto.UserAccountCardResponseDto;
 import com.dili.orders.dto.WeighingBillClientListDto;
 import com.dili.orders.dto.WeighingBillListPageDto;
+import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
+import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.orders.service.FarmerWeghingBillService;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
+import com.dili.ss.util.BeanConver;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.User;
 
@@ -810,4 +815,76 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		weighingBill.setTradingBillType(TradingBillType.FARMER.getValue());
 		return super.listByExampleModified(weighingBill);
 	}
+
+	@Override
+	public PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(Long id) {
+		PrintTemplateDataDto<WeighingBillPrintDto> result = super.getWeighingBillPrintData(id);
+		result.setTemplate("ProprietaryTradingDocument");
+		return result;
+	}
+
+	@Override
+	public PrintTemplateDataDto<WeighingStatementPrintDto> getWeighingStatementPrintData(String serialNo) {
+		WeighingStatement weighingStatement = this.getWeighingStatementBySerialNo(serialNo);
+		if (weighingStatement == null) {
+			return null;
+		}
+		WeighingStatementPrintDto dto = BeanConver.copyBean(weighingStatement, WeighingStatementPrintDto.class);
+		// 设置过磅信息
+		WeighingBill wbQuery = new WeighingBill();
+		wbQuery.setId(weighingStatement.getWeighingBillId());
+		WeighingBill wb = this.getActualDao().selectOne(wbQuery);
+		dto.setUnitWeight(wb.getUnitWeight());
+		dto.setUnitPrice(wb.getUnitPrice());
+		dto.setMeasureType(wb.getMeasureType());
+		dto.setTareWeight(wb.getTareWeight());
+		dto.setRoughWeight(wb.getRoughWeight());
+		dto.setNetWeight(wb.getNetWeight());
+		dto.setUnitAmount(wb.getUnitAmount());
+		dto.setBuyerCode(wb.getBuyerCode());
+		dto.setSellerCode(wb.getSellerCode());
+		dto.setGoodsName(wb.getGoodsName());
+		dto.setPlateNumber(wb.getPlateNumber());
+		dto.setTradeType(wb.getTradeType());
+		dto.setSubtractionRate(wb.getSubtractionRate());
+		dto.setSubtractionWeight(wb.getSubtractionWeight());
+		dto.setPackingTypeName(wb.getPackingTypeName());
+
+		// 设置结算员信息
+		WeighingBillOperationRecord wborQuery = new WeighingBillOperationRecord();
+		wborQuery.setWeighingBillId(weighingStatement.getWeighingBillId());
+		wborQuery.setStatementSerialNo(serialNo);
+		wborQuery.setOperationType(WEIGHING_STATEMENT_STATE_MAPPING_OPERATION_TYPE_CONFIG.get(WeighingStatementState.valueOf(weighingStatement.getState())).getValue());
+		WeighingBillOperationRecord settleOp = this.wbrMapper.selectOne(wborQuery);
+		if (settleOp == null) {
+			throw new AppException("未找到过磅操作信息");
+		}
+		dto.setSettlementOperatorName(settleOp.getOperatorName());
+		dto.setSettlementOperatorUserName(settleOp.getOperatorUserName());
+
+		// 设置过磅员信息
+		wborQuery = new WeighingBillOperationRecord();
+		wborQuery.setWeighingBillId(weighingStatement.getWeighingBillId());
+		wborQuery.setStatementSerialNo(serialNo);
+		wborQuery.setOperationType(WeighingOperationType.WEIGH.getValue());
+		wborQuery.setSort("operation_time");
+		wborQuery.setOrder("desc");
+		List<WeighingBillOperationRecord> weighingOpList = this.wbrMapper.select(wborQuery);
+		WeighingBillOperationRecord weighingOp = weighingOpList.get(0);
+		dto.setWeighingOperatorName(weighingOp.getOperatorName());
+		dto.setWeighingOperatorUserName(weighingOp.getOperatorUserName());
+
+		// 查询买方余额
+		AccountRequestDto balanceQuery = new AccountRequestDto();
+		balanceQuery.setAccountId(wb.getBuyerAccount());
+		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
+		if (!balanceOutput.isSuccess()) {
+			LOGGER.error(String.format("打印结算单调用支付系统查询买方余额失败:code=%s,message=%s", balanceOutput.getCode(), balanceOutput.getMessage()));
+			return null;
+		}
+		dto.setBuyerBalance(balanceOutput.getData().getAvailableAmount());
+		String tempName = wb.getMeasureType().equals(MeasureType.WEIGHT.getValue()) ? "ProprietarySettlementDocument" : "ProprietarySettlementPieceDocument";
+		return new PrintTemplateDataDto<WeighingStatementPrintDto>(tempName, dto);
+	}
+
 }
