@@ -1,6 +1,7 @@
 package com.dili.orders.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 账户信息（包含余额）
@@ -19,6 +20,8 @@ public class AccountSimpleResponseDto implements Serializable {
 	private UserAccountCardResponseDto accountInfo;
 
 	private Integer buyerRegionTag;
+
+	private List<String> customerCharacterTypes;
 
 	public Integer getBuyerRegionTag() {
 		return buyerRegionTag;
@@ -50,5 +53,13 @@ public class AccountSimpleResponseDto implements Serializable {
 
 	public void setAccountInfo(UserAccountCardResponseDto accountInfo) {
 		this.accountInfo = accountInfo;
+	}
+
+	public List<String> getCustomerCharacterTypes() {
+		return customerCharacterTypes;
+	}
+
+	public void setCustomerCharacterTypes(List<String> customerCharacterTypes) {
+		this.customerCharacterTypes = customerCharacterTypes;
 	}
 }

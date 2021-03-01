@@ -208,25 +208,33 @@
 		ws.serial_no AS 'weighingStatementCode',
 		wb.goods_name
 		AS 'goodsName',
-		ROUND(wb.net_weight/100,2) AS 'netWeightY',
+		ROUND( wb.net_weight / 100, 2 ) AS 'netWeightY',
 		wb.goods_name AS 'goodsName',
-        ROUND(wb.net_weight/100,2) AS 'netWeightY',
+		ROUND( wb.net_weight / 100, 2 ) AS 'netWeightY',
 		wb.unit_amount AS 'unitAmountY',
-		ROUND(wb.unit_price/50,2) AS 'unitPriceY',
-		ROUND(IFNULL(ws.trade_amount,0)/100,2) AS 'tradeAmountY',
-		ROUND(IFNULL(wb.staff_charges,0)/100*unit_amount,2) AS 'staffChargesY',
-		ROUND(IFNULL(wb.packing_charges,0)/100*unit_amount,2) AS 'packingChargesY',
-		ROUND(IFNULL(wb.collection_charges,0)/10000*2*net_weight,2) AS 'collectionChargesY',
+		ROUND( wb.unit_price / 50,
+		2 ) AS 'unitPriceY',
+		ROUND( IFNULL( ws.trade_amount, 0 )/ 100, 2 ) AS 'tradeAmountY',
+		ROUND( IFNULL( wb.staff_charges, 0 )/ 100 * unit_amount, 2 ) AS 'staffChargesY',
+		ROUND( IFNULL( wb.packing_charges,
+		0 )/ 100 * unit_amount, 2 ) AS 'packingChargesY',
+		ROUND( IFNULL( wb.collection_charges, 0 )/ 10000 * 2 * net_weight, 2 ) AS 'collectionChargesY',
 		wb.packing_type_name AS 'packingTypeName',
-		ROUND((IFNULL(ws.trade_amount,0)/100+IFNULL(wb.staff_charges,0)/100*unit_amount+IFNULL(wb.packing_charges,0)/10000*2*net_weight+IFNULL(wb.collection_charges,0)/10000*2*net_weight),2) AS 'totalAmountY',
+		ROUND((
+		IFNULL( ws.trade_amount, 0 )/ 100+IFNULL ( wb.staff_charges, 0 )/ 100 * unit_amount + IFNULL( wb.packing_charges, 0 )/ 100* unit_amount + IFNULL( wb.collection_charges, 0 )/ 10000 * 2 * net_weight
+		),
+		2
+		) AS 'totalAmountY',
 		ws.version AS 'version'
 		FROM
 		weighing_statement ws
-		INNER JOIN weighing_bill wb ON ws.weighing_bill_id=wb.id
-		WHERE 1 = 1
+		INNER JOIN weighing_bill wb ON ws.weighing_bill_id = wb.id
+		WHERE
+		1 = 1
 		AND ws.state = 2
 		AND ws.payment_type = 2
-		AND ws.payment_state = 1
+		AND ws.payment_state
+		= 1
 		<if test="collectionRecordIds !=null and collectionRecordIds.size()&gt;0">
 			AND ws.id IN
 			<foreach close=")" collection="collectionRecordIds" item="collectionRecordId" open="(" separator=",">
