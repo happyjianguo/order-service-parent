@@ -105,7 +105,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 	@Override
 	protected WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
 		WeighingStatement ws = super.buildWeighingStatement(weighingBill, marketId);
-		ws.setPaymentState(weighingBill.getPaymentType());
+		ws.setPaymentType(weighingBill.getPaymentType());
 		return ws;
 	}
 
