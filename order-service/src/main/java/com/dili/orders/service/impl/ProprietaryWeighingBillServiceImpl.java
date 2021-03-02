@@ -1606,8 +1606,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		buyerExpense.setStartBalance(sellerBalance);
 		buyerExpense.setEndBalance(sellerBalance + buyerExpenseStream.getAmount());
 		buyerExpense.setFirmId(firmId);
-		buyerExpense.setFundItem(FundItem.TRANSFER.getCode());
-		buyerExpense.setFundItemName(FundItem.TRANSFER.getName());
+		buyerExpense.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
+		buyerExpense.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
 		buyerExpense.setOperateTime(tradeResponse.getWhen());
 		buyerExpense.setOperatorId(operatorId);
 		buyerExpense.setOperatorName(operator.getRealName());
@@ -1646,8 +1646,8 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		sellerExpense.setStartBalance(sellerBalance);
 		sellerExpense.setEndBalance(sellerBalance + sellerExpenseStream.getAmount());
 		sellerExpense.setFirmId(firmId);
-		sellerExpense.setFundItem(FundItem.TRANSFER.getCode());
-		sellerExpense.setFundItemName(FundItem.TRANSFER.getName());
+		sellerExpense.setFundItem(FundItem.TRADE_SERVICE_FEE.getCode());
+		sellerExpense.setFundItemName(FundItem.TRADE_SERVICE_FEE.getName());
 		sellerExpense.setOperateTime(tradeResponse.getWhen());
 		sellerExpense.setOperatorId(operatorId);
 		sellerExpense.setOperatorName(operator.getRealName());
