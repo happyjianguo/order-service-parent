@@ -163,7 +163,7 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         BalanceResponseDto buyerAccountFund = buyerAccountSimple.getData().getAccountFund();
 
         // 余额不足
-        if (Math.abs(buyerAccountFund.getBalance() - collectionRecord.getAmountActually()) < 0) {
+        if (buyerAccountFund.getBalance() - collectionRecord.getAmountActually() < 0) {
             return BaseOutput.failure("付款账户余额不足");
         }
         // 先校验一次密码，如果密码不正确直接返回
