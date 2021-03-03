@@ -4,9 +4,11 @@
 	<resultMap id="BaseResultMap" type="com.dili.orders.domain.WeighingBill">
 		<!-- WARNING - @mbg.generated -->
 		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="trading_bill_type" jdbcType="INTEGER" property="tradingBillType" />
 		<result column="serial_no" jdbcType="VARCHAR" property="serialNo" />
 		<result column="measure_type" jdbcType="VARCHAR" property="measureType" />
 		<result column="trade_type" jdbcType="VARCHAR" property="tradeType" />
+		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 		<result column="buyer_id" jdbcType="BIGINT" property="buyerId" />
 		<result column="buyer_code" jdbcType="VARCHAR" property="buyerCode" />
 		<result column="buyer_card_no" jdbcType="VARCHAR" property="buyerCardNo" />
@@ -19,6 +21,7 @@
 		<result column="buyer_agent_id" jdbcType="BIGINT" property="buyerAgentId" />
 		<result column="buyer_agent_name" jdbcType="VARCHAR" property="buyerAgentName" />
 		<result column="buyer_certificate_number" jdbcType="VARCHAR" property="buyerCertificateNumber" />
+		<result column="buyer_region_tag" jdbcType="INTEGER" property="buyerRegionTag" />
 		<result column="seller_id" jdbcType="BIGINT" property="sellerId" />
 		<result column="seller_code" jdbcType="VARCHAR" property="sellerCode" />
 		<result column="seller_card_no" jdbcType="VARCHAR" property="sellerCardNo" />
@@ -37,13 +40,13 @@
 		<result column="goods_key_code" jdbcType="VARCHAR" property="goodsKeyCode" />
 		<result column="goods_origin_city_id" jdbcType="BIGINT" property="goodsOriginCityId" />
 		<result column="goods_origin_city_name" jdbcType="VARCHAR" property="goodsOriginCityName" />
-		<result column="unit_amount" jdbcType="BIGINT" property="unitAmount" />
+		<result column="unit_amount" jdbcType="INTEGER" property="unitAmount" />
 		<result column="unit_price" jdbcType="BIGINT" property="unitPrice" />
 		<result column="unit_weight" jdbcType="INTEGER" property="unitWeight" />
 		<result column="fetched_weight" jdbcType="INTEGER" property="fetchedWeight" />
 		<result column="fetch_weight_time" jdbcType="TIMESTAMP" property="fetchWeightTime" />
-		<result column="rough_weight" jdbcType="BIGINT" property="roughWeight" />
-		<result column="net_weight" jdbcType="BIGINT" property="netWeight" />
+		<result column="rough_weight" jdbcType="INTEGER" property="roughWeight" />
+		<result column="net_weight" jdbcType="INTEGER" property="netWeight" />
 		<result column="plate_number" jdbcType="VARCHAR" property="plateNumber" />
 		<result column="tare_weight" jdbcType="INTEGER" property="tareWeight" />
 		<result column="subtraction_rate" jdbcType="INTEGER" property="subtractionRate" />
@@ -51,6 +54,13 @@
 		<result column="estimated_net_weight" jdbcType="INTEGER" property="estimatedNetWeight" />
 		<result column="frozen_amount" jdbcType="BIGINT" property="frozenAmount" />
 		<result column="tare_bill_number" jdbcType="VARCHAR" property="tareBillNumber" />
+		<result column="staff_charges" jdbcType="BIGINT" property="staffCharges" />
+		<result column="packing_charges" jdbcType="BIGINT" property="packingCharges" />
+		<result column="collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+		<result column="payment_state" jdbcType="INTEGER" property="paymentState" />
+		<result column="payment_type" jdbcType="INTEGER" property="paymentType" />
+		<result column="packing_type" jdbcType="INTEGER" property="packingType" />
+		<result column="packing_type_name" jdbcType="INTEGER" property="packingTypeName" />
 		<result column="state" jdbcType="INTEGER" property="state" />
 		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
 		<result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
@@ -63,7 +73,6 @@
 		<result column="price_state" jdbcType="INTEGER" property="priceState" />
 		<result column="market_id" jdbcType="BIGINT" property="marketId" />
 		<result column="version" jdbcType="INTEGER" property="version" />
-		<result column="trade_type_id" jdbcType="BIGINT" property="tradeTypeId" />
 	</resultMap>
 
 	<resultMap id="ExportStatisticsResultMap" type="com.dili.orders.dto.WeighingBillListStatisticsDto">
@@ -147,24 +156,23 @@
 		<result column="unit_piece_price" property="unitPiecePrice" />
 	</resultMap>
 
-
 	<sql id="Base_Column_List">
 		<!-- WARNING - @mbg.generated -->
-		id, serial_no, measure_type, trade_type, buyer_id, buyer_code, buyer_card_no, buyer_card_account,
-		buyer_card_holder_name, buyer_account, buyer_name, buyer_contact, buyer_type, buyer_agent_id,
-		buyer_agent_name, buyer_certificate_number, seller_id, seller_code, seller_card_no,
-		seller_card_account, seller_card_holder_name, seller_account, seller_name, seller_contact,
-		seller_type,
-		seller_agent_id, seller_agent_name, seller_certificate_number, goods_id,
-		goods_name, goods_code, goods_key_code, goods_origin_city_id, goods_origin_city_name,
-		unit_amount, unit_price, unit_weight,
-		fetched_weight, fetch_weight_time, rough_weight,
-		net_weight, plate_number, tare_weight, subtraction_rate, subtraction_weight, estimated_net_weight,
-		frozen_amount, tare_bill_number, state,
-		created_time, modified_time, settlement_time,
-		department_id, department_name, creator_id, modifier_id, check_price, price_state,
-		process_instance_id, process_definition_id, market_id, version,
-		trade_type_id
+		id, trading_bill_type, serial_no, measure_type, trade_type, trade_type_id, buyer_id,
+		buyer_code, buyer_card_no, buyer_card_account, buyer_card_holder_name, buyer_account,
+		buyer_name, buyer_contact,
+		buyer_type, buyer_agent_id, buyer_agent_name, buyer_certificate_number,
+		buyer_region_tag, seller_id, seller_code, seller_card_no, seller_card_account, seller_card_holder_name,
+		seller_account,
+		seller_name, seller_contact, seller_type, seller_agent_id, seller_agent_name,
+		seller_certificate_number, goods_id, goods_name, goods_code, goods_key_code, goods_origin_city_id,
+		goods_origin_city_name, unit_amount, unit_price, unit_weight, fetched_weight, fetch_weight_time,
+		rough_weight, net_weight, plate_number, tare_weight, subtraction_rate, subtraction_weight,
+		estimated_net_weight, frozen_amount, tare_bill_number, staff_charges, packing_charges,
+		collection_charges, payment_state, payment_type, packing_type, packing_type_name,
+		state, created_time,
+		modified_time, settlement_time, department_id, department_name,
+		creator_id, modifier_id, check_price, price_state, market_id, version
 	</sql>
 
 	<resultMap extends="BaseResultMap" id="PageResultMap" type="com.dili.orders.dto.WeighingBillListPageDto">
@@ -178,6 +186,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
+		<result column="ws_staff_charges" jdbcType="BIGINT" property="statement.staffCharges" />
+		<result column="ws_packing_charges" jdbcType="BIGINT" property="statement.packingCharges" />
+		<result column="ws_collection_charges" jdbcType="BIGINT" property="statement.collectionCharges" />
+		<result column="ws_payment_state" jdbcType="INTEGER" property="statement.paymentState" />
+		<result column="ws_payment_type" jdbcType="INTEGER" property="statement.paymentType" />
 		<result column="last_operator_id" property="statement.lastOperatorId" />
 		<result column="last_operator_name" property="statement.lastOperatorName" />
 		<result column="last_operation_time" property="statement.lastOperationTime" />
@@ -197,6 +210,11 @@
 		<result column="seller_poundage" property="statement.sellerPoundage" />
 		<result column="seller_actual_amount" property="statement.sellerActualAmount" />
 		<result column="ws_state" property="statement.state" />
+		<result column="ws_staff_charges" jdbcType="BIGINT" property="staffCharges" />
+		<result column="ws_packing_charges" jdbcType="BIGINT" property="packingCharges" />
+		<result column="ws_collection_charges" jdbcType="BIGINT" property="collectionCharges" />
+		<result column="ws_payment_state" jdbcType="INTEGER" property="paymentState" />
+		<result column="ws_payment_type" jdbcType="INTEGER" property="paymentType" />
 		<result column="operator_id" property="weighingOperatorId" />
 		<result column="operator_name" property="weighingOperatorName" />
 		<result column="operation_time" property="weighingOperationTime" />
@@ -214,6 +232,8 @@
 			<result column="seller_actual_amount" property="sellerActualAmount" />
 			<result column="ws_frozen_amount" property="frozenAmount" />
 			<result column="ws_state" property="state" />
+			<result column="payment_type" property="paymentType" />
+			<result column="payment_state" property="paymentTtate" />
 		</association>
 		<collection javaType="java.util.ArrayList" ofType="com.dili.orders.domain.WeighingBillOperationRecord" property="records">
 			<result column="wopr_id" jdbcType="BIGINT" property="id" />
@@ -228,6 +248,7 @@
 
 	<sql id="Base_Join_Column_List">
 		wb.id,
+		wb.trading_bill_type,
 		wb.measure_type,
 		wb.serial_no,
 		wb.buyer_id,
@@ -267,7 +288,15 @@
 		wb.settlement_time,
 		wb.estimated_net_weight,
 		wb.department_id,
-		wb.department_name
+		wb.department_name,
+		wb.payment_type,
+		wb.payment_state,
+		wb.buyer_region_tag,
+		wb.staff_charges,
+		wb.packing_charges,
+		wb.collection_charges,
+		wb.packing_type,
+		wb.packing_type_name
 	</sql>
 
 	<sql id="Ws_Join_Column_List">
@@ -283,7 +312,17 @@
 		ws.last_operation_time,
 		ws.last_operator_id,
 		ws.last_operator_name,
-		ws.last_operator_user_name
+		ws.last_operator_user_name,
+		ws.buyer_poundage_pay_order_no,
+		ws.seller_poundage_pay_order_no,
+		ws.staff_charges AS
+		ws_staff_charges,
+		ws.packing_charges AS ws_packing_charges,
+		ws.collection_charges AS ws_collection_charges,
+		ws.payment_state AS ws_payment_state,
+		ws.payment_type AS ws_payment_type,
+		ws.collection_record_id,
+		ws.service_fee_pay_order_no
 	</sql>
 
 	<sql id="Wbor_Join_Column_List">
@@ -373,12 +412,28 @@
 		<if test="operatorId != null">
 			AND ws.last_operator_id = #{operatorId}
 		</if>
-		<if test="departmentIds != null and departmentIds.size() > 0">
-			AND department_id IN
-			<foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
-				#{deptId}
-			</foreach>
-		</if>
+		<choose>
+			<when test="departmentId != null">
+				AND department_id = #{departmentId}
+			</when>
+			<when test="departmentIds != null and departmentIds.size() &gt; 0">
+				AND department_id IN
+				<foreach close=")" collection="departmentIds" item="deptId" open="(" separator=",">
+					#{deptId}
+				</foreach>
+			</when>
+		</choose>
+		<choose>
+			<when test="tradingBillType != null">
+				AND trading_bill_type = #{tradingBillType}
+			</when>
+			<when test="tradingBillTypeList != null and tradingBillTypeList.size() &gt; 0">
+				AND trading_bill_type IN
+				<foreach close=")" collection="tradingBillTypeList" item="tradingBillType" open="(" separator=",">
+					#{tradingBillType}
+				</foreach>
+			</when>
+		</choose>
 		) t1
 		WHERE 1=1
 		<if test="unitPriceStartValue != null">
@@ -502,9 +557,9 @@
 		<if test="operatorId != null">
 			AND ws.last_operator_id = #{operatorId}
 		</if>
-		<if test="departmentIds != null and departmentIds.size() > 0">
+		<if test="departmentIds != null and departmentIds.size() &gt; 0">
 			AND department_id IN
-			<foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
+			<foreach close=")" collection="departmentIds" item="deptId" open="(" separator=",">
 				#{deptId}
 			</foreach>
 		</if>
@@ -553,6 +608,9 @@
 		<if test="idStart != null">
 			AND wb.id <![CDATA[>]]>
 			#{idStart}
+		</if>
+		<if test="tradingBillType != null">
+			AND wb.trading_bill_type = #{tradingBillType}
 		</if>
 		<if test="state != null">
 			AND wb.state=#{state}
@@ -617,12 +675,12 @@
 				#{item}
 			</foreach>
 		</if>
-		<if test="departmentIds != null and departmentIds.size() > 0">
-            AND department_id IN
-            <foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
-                #{deptId}
-            </foreach>
-        </if>
+		<if test="departmentIds != null and departmentIds.size() &gt; 0">
+			AND department_id IN
+			<foreach close=")" collection="departmentIds" item="deptId" open="(" separator=",">
+				#{deptId}
+			</foreach>
+		</if>
 		<if test="creatorId != null">
 			AND wb.creator_id = #{creatorId}
 		</if>

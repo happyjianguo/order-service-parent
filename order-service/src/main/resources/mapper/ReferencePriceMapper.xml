@@ -18,14 +18,15 @@
         AND settlement_day=#{settlementDay}
     </select>
 
-    <select id="getGoodsRuleByGoodsId" parameterType="Long" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
+    <select id="getGoodsRuleByGoodsIdAndTradeType" resultType="com.dili.orders.domain.GoodsReferencePriceSetting" >
         SELECT
-          reference_rule referenceRule,
-          fixed_price fixedPrice
+          reference_rule AS referenceRule,
+          fixed_price AS fixedPrice
         FROM
           goods_reference_price_setting
-        WHERE goods_id = #{goodsId,jdbcType=BIGINT}
-        AND market_id = #{marketId,jdbcType=BIGINT}
+        WHERE goods_id = #{goodsId}
+        AND market_id = #{marketId}
+        AND trade_type= #{tradeType}
     </select>
 
 

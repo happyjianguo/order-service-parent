@@ -5,9 +5,9 @@ package com.dili.orders.domain;
  * @author Seabert.Zhan
  */
 public enum ReferenceRule {
-    UNSETTLED(1, "规则1"),
-    SETTLED(2, "规则2"),
-    RESCINDED(3, "规则3"),
+    UNSETTLED(1, "规则1：去掉最高、最低价的交易总额/交易量"),
+    SETTLED(2, "规则2：交易总额/交易量"),
+    RESCINDED(3, "规则3：固定价格"),
     CLOSED(4, "无");
 
     private String name;

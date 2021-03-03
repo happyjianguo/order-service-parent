@@ -1,6 +1,7 @@
 package com.dili.orders.service;
 
 import com.dili.orders.domain.GoodsReferencePriceSetting;
+import com.dili.orders.dto.ReferencePriceSettingRequestDto;
 import com.dili.ss.base.BaseService;
 import com.dili.ss.domain.BaseOutput;
 
@@ -45,4 +46,11 @@ public interface GoodsReferencePriceSettingService extends BaseService<GoodsRefe
 	 * @return
 	 */
 	BaseOutput<GoodsReferencePriceSetting> updateGoodsReferencePriceSetting(GoodsReferencePriceSetting goodsReferencePriceSetting);
+
+	/**
+	* 保存/修改设置(v2)
+	* @author miaoguoxin
+	* @date 2021/2/1
+	*/
+	void saveOrEdit(ReferencePriceSettingRequestDto requestDto);
 }

@@ -55,7 +55,7 @@ public interface PayRpc {
 	 */
 	@RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
 	BaseOutput<PaymentTradeCommitResponseDto> commitTrade(@RequestBody PaymentTradeCommitDto dto);
-	
+
 	/**
 	 * 确认预授权
 	 *
@@ -85,10 +85,20 @@ public interface PayRpc {
 
 	/**
 	 * 校验资金账户密码
-	 * 
+	 *
 	 * @param dto
 	 * @return
 	 */
 	@RequestMapping(value = "/payment/api/gateway.do?service=payment.permission.service:password", method = RequestMethod.POST)
 	BaseOutput<Object> validateAccountPassword(@RequestBody AccountPasswordValidateDto dto);
+
+	/**
+	 * 转账
+	 *
+	 * @param dto
+	 * @return
+	 */
+	@RequestMapping(value = "/payment/api/gateway.do?service=payment.trade.service:commit", method = RequestMethod.POST)
+	BaseOutput<PaymentTradeCommitResponseDto> commit6(@RequestBody PaymentTradeCommitDto dto);
+
 }

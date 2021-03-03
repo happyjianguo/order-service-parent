@@ -2,7 +2,7 @@ package com.dili.orders.dto;
 
 public enum PaymentTradeType {
 
-	TRADE("即时交易", 20), PREAUTHORIZED("预授权", 21);
+	PAY("缴费", 12), TRADE("即时交易", 20), PREAUTHORIZED("预授权", 21), TRANSFER("转账", 23);
 
 	private PaymentTradeType(String name, Integer value) {
 		this.name = name;

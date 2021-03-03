@@ -89,4 +89,14 @@ public class OrdersConstant {
 	 */
 	public static final String WEIGHING_MODULE_PREFIX = "GB_";
 
+	/**
+	 * 赊销支付协议号
+	 */
+	public static final Integer CREDIT_PAY_PROTOCAL_ID = 9527;
+
+	/**
+	 * 包装类型数据字典code
+	 */
+	public static final String PACKING_TYPE_DD_CODE = "packing_type";
+
 }

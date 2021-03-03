@@ -109,6 +109,11 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 	 */
 	private Integer subtractionWeight;
 
+	/**
+	 * 包装箱名称
+	 */
+	private String packingTypeName;
+
 	public String getWeighingOperatorUserName() {
 		return weighingOperatorUserName;
 	}
@@ -280,6 +285,14 @@ public class WeighingStatementPrintDto extends WeighingStatement {
 
 	public void setSubtractionWeight(Integer subtractionWeight) {
 		this.subtractionWeight = subtractionWeight;
+	}
+
+	public String getPackingTypeName() {
+		return packingTypeName;
+	}
+
+	public void setPackingTypeName(String packingTypeName) {
+		this.packingTypeName = packingTypeName;
 	}
 
 }
