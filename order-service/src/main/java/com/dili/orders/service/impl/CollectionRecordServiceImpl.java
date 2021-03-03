@@ -2,6 +2,8 @@ package com.dili.orders.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
+import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
+import com.dili.customer.sdk.rpc.CustomerRpc;
 import com.dili.logger.sdk.base.LoggerContext;
 import com.dili.logger.sdk.glossary.LoggerConstant;
 import com.dili.orders.config.RabbitMQConfig;
@@ -23,6 +25,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -70,6 +73,8 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
     @Autowired
     private UidRpc uidRpc;
 
+    @Autowired
+    private CustomerRpc customerRpc;
 
     @Override
     public PageOutput<List<CollectionRecord>> listByQueryParams(CollectionRecord collectionRecord) {
@@ -399,6 +404,22 @@ public class CollectionRecordServiceImpl extends BaseServiceImpl<CollectionRecor
         serialRecordDo.setCustomerId(accountInfo.getCustomerId());
         serialRecordDo.setCustomerName(accountInfo.getCustomerName());
         serialRecordDo.setCustomerNo(accountInfo.getCustomerCode());
+        // 根据客户的id获取客户信息
+        BaseOutput<CustomerExtendDto> customerBaseOutput = customerRpc.get(accountInfo.getCustomerId(), collectionRecord.getMarketId());
+        if (!customerBaseOutput.isSuccess()) {
+            throw new RuntimeException("客户数据请求失败");
+        }
+        CustomerExtendDto customer = customerBaseOutput.getData();
+        if (Objects.isNull(customer)) {
+            throw new RuntimeException("客户数据请求失败");
+        }
+        //客户身份类型，多个，过滤掉为空的
+        List<String> characterTypeList = customer.getCharacterTypeList().stream().filter(x -> StringUtils.isNotBlank(x.getSubType())).map(x -> x.getSubType()).collect(Collectors.toList());
+        //判断集合是否为空，如果不为空则设置
+        if (CollectionUtils.isNotEmpty(characterTypeList)) {
+            String join = String.join(",", characterTypeList);
+            serialRecordDo.setCustomerType(join);
+        }
         serialRecordDo.setOperatorId(collectionRecord.getOperationId());
         serialRecordDo.setOperatorName(collectionRecord.getOperationName());
         serialRecordDo.setOperatorNo(collectionRecord.getOperationUserName());
