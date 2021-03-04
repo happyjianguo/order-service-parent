@@ -496,6 +496,9 @@
 		weighing_bill wb ON wb.id = ws.weighing_bill_id
 		WHERE
 		1 = 1
+		<if test="tradingBillType != null">
+			AND wb.trading_bill_type = #{tradingBillType}
+		</if>
 		<if test="statementStates != null">
 			AND ws.state IN
 			<foreach close=")" collection="statementStates" item="item" open="(" separator=",">
