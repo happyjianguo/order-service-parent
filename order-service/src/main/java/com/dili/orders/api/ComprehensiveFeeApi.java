@@ -18,10 +18,18 @@ import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static tk.mybatis.spring.annotation.MapperScannerRegistrar.LOGGER;
 
@@ -217,8 +225,9 @@ public class ComprehensiveFeeApi {
                     //条件指标
                     Map<String, Object> map = new HashMap<>(4);
                     //设置身份类型
-                    map.put("characterSubType", jsonMap.get("subType"));
-
+                    //map.put("characterSubType", jsonMap.get("subType"));
+                    map.put("customerType", jsonMap.get("subType"));
+                    map.put("customerId", customerId);
                     queryFeeInput.setConditionParams(map);
 
                     queryFeeInputList.add(queryFeeInput);

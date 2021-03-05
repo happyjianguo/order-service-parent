@@ -497,7 +497,7 @@
 		WHERE
 		1 = 1
 		<if test="tradingBillType != null">
-			AND trading_bill_type = #{tradingBillType}
+			AND wb.trading_bill_type = #{tradingBillType}
 		</if>
 		<if test="statementStates != null">
 			AND ws.state IN
