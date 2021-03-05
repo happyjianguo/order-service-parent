@@ -736,6 +736,7 @@ public class TransitionDepartureSettlementServiceImpl extends BaseServiceImpl<Tr
 			BalanceResponseDto accountFund = oneAccountCard1.getData().getAccountFund();
 			serialRecordDo.setTradeType(TradeType.FEE.getCode());
 			serialRecordDo.setTradeNo(transitionDepartureSettlement.getPaymentNo());
+			serialRecordDo.setAmount(0L);
 			serialRecordDo.setStartBalance(accountFund.getAvailableAmount());
 			serialRecordDo.setEndBalance(accountFund.getAvailableAmount());
 			serialRecordDo.setOperateTime(now);
