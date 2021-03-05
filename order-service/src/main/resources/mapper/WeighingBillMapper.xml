@@ -496,6 +496,9 @@
 		weighing_bill wb ON wb.id = ws.weighing_bill_id
 		WHERE
 		1 = 1
+		<if test="tradingBillType != null">
+			AND trading_bill_type = #{tradingBillType}
+		</if>
 		<if test="statementStates != null">
 			AND ws.state IN
 			<foreach close=")" collection="statementStates" item="item" open="(" separator=",">
@@ -582,27 +585,14 @@
 		,
 		<include refid="Ws_Join_Column_List" />
 		,
-		<include refid="Wbor_Join_Column_List" />
+		ws.last_operator_id AS operator_id,
+		ws.last_operator_name AS operator_name,
+		ws.last_operation_time AS operation_time,
+		ws.last_operator_user_name AS operator_user_name
 		FROM
 		weighing_bill wb
-		INNER JOIN weighing_statement ws ON wb.id = ws.weighing_bill_id
-		LEFT JOIN (
-		SELECT
-		id,
-		weighing_bill_id,
-		operator_id,
-		operation_type,
-		operation_type_name,
-		operator_user_name,
-		operator_name,
-		MAX( operation_time ) AS operation_time
-		FROM
-		weighing_bill_operation_record
-		WHERE
-		operation_type = 1
-		GROUP BY
-		weighing_bill_id
-		) wbor ON wb.id = wbor.weighing_bill_id
+		INNER JOIN
+		weighing_statement ws ON wb.id = ws.weighing_bill_id
 		WHERE
 		1 = 1
 		<if test="idStart != null">
@@ -637,7 +627,7 @@
 			AND ws.serial_no = #{wsSerialNo}
 		</if>
 		<if test="operatorId != null">
-			AND ((ws.modifier_id IS NULL AND ws.creator_id = #{operatorId}) OR ws.modifier_id = #{operatorId})
+			AND ws.last_operator_id = #{operatorId}
 		</if>
 		<if test="createdStart != null">
 			AND wb.created_time <![CDATA[>=]]>
@@ -648,11 +638,11 @@
 			#{createdEnd}
 		</if>
 		<if test="modifiedStart != null">
-			AND wb.modified_time<![CDATA[>=]]>
+			AND ws.last_operation_time<![CDATA[>=]]>
 			#{modifiedStart}
 		</if>
 		<if test="modifiedEnd != null">
-			AND wb.modified_time <![CDATA[<=]]>
+			AND ws.last_operation_time <![CDATA[<=]]>
 			#{modifiedEnd}
 		</if>
 		<if test="plateNumber != null">
