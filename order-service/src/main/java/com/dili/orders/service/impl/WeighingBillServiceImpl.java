@@ -1829,7 +1829,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return true;
 	}
 
-	private boolean isRepeatFreeze(WeighingBill weighingBill, WeighingStatement ws) {
+	protected boolean isRepeatFreeze(WeighingBill weighingBill, WeighingStatement ws) {
 		return this.isFreeze(weighingBill) && ws.getState().equals(WeighingStatementState.FROZEN.getValue());
 	}
 
