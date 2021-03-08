@@ -1080,15 +1080,15 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		if (weighingBill.getCollectionCharges() != null && weighingBill.getNetWeight() != null) {
 			// 代收费/100*2*净重
 			map.put("代收费",
-					MoneyUtils.centToYuan(new BigDecimal(weighingBill.getCollectionCharges() * 2 * weighingBill.getNetWeight()).divide(new BigDecimal(10000), 0, RoundingMode.HALF_UP).longValue()));
+					MoneyUtils.centToYuan(new BigDecimal(weighingBill.getCollectionCharges() * 2 * weighingBill.getNetWeight()).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP).longValue()));
 		}
 		if (weighingBill.getStaffCharges() != null && weighingBill.getUnitAmount() != null) {
 			// 人工费*件数
 			map.put("人工费", MoneyUtils.centToYuan(new BigDecimal(weighingBill.getStaffCharges() * weighingBill.getUnitAmount()).longValue()));
 		}
-		if (weighingBill.getCollectionCharges() != null && weighingBill.getUnitAmount() != null) {
+		if (weighingBill.getPackingCharges() != null && weighingBill.getUnitAmount() != null) {
 			// 包装费*件数
-			map.put("包装费", MoneyUtils.centToYuan(new BigDecimal(weighingBill.getCollectionCharges() * weighingBill.getUnitAmount()).longValue()));
+			map.put("包装费", MoneyUtils.centToYuan(new BigDecimal(weighingBill.getPackingCharges() * weighingBill.getUnitAmount()).longValue()));
 		}
 		return map;
 	}
@@ -1618,13 +1618,16 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		sellerExpense.setStartBalance(sellerBalance);
 		sellerExpense.setEndBalance(sellerBalance + sellerExpenseStream.getAmount());
 		sellerExpense.setFirmId(firmId);
-		sellerExpense.setFundItem(FundItem.TRADE_PAYMENT.getCode());
-		sellerExpense.setFundItemName(FundItem.TRADE_PAYMENT.getName());
+		sellerExpense.setFundItem(FundItem.TRANSFER.getCode());
+		sellerExpense.setFundItemName(FundItem.TRANSFER.getName());
 		sellerExpense.setOperateTime(tradeResponse.getWhen());
 		sellerExpense.setOperatorId(operatorId);
 		sellerExpense.setOperatorName(operator.getRealName());
 		sellerExpense.setOperatorNo(operator.getUserName());
-		sellerExpense.setNotes(String.format("撤销，卖方，结算单号%s", ws.getSerialNo()));
+		StringBuilder sb = new StringBuilder("自营交易服务费：");
+		Map<String, String> feeMap = this.buildServiceFeeMap(weighingBill);
+		feeMap.entrySet().forEach(e -> sb.append(e.getKey()).append(e.getValue()).append("元，"));
+		sellerExpense.setNotes(sb.toString().substring(0, sb.length() - 1));
 		srList.add(sellerExpense);
 
 		// 买家退款
@@ -1652,7 +1655,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		buyerRefund.setOperatorId(operatorId);
 		buyerRefund.setOperatorName(operator.getRealName());
 		buyerRefund.setOperatorNo(operator.getUserName());
-		buyerRefund.setNotes(String.format("撤销，买方，结算单号%s", ws.getSerialNo()));
+		buyerRefund.setNotes(sb.toString().substring(0, sb.length() - 1));
 		srList.add(buyerRefund);
 
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
