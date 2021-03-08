@@ -516,6 +516,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		}
 
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = null;
+		BaseOutput<PaymentTradeCommitResponseDto> unfreezeOutput = null;
 		if (weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
 			weighingBill.setPaymentState(PaymentState.RECEIVED.getValue());
 			weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
@@ -533,6 +534,20 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			if (!paymentOutput.isSuccess()) {
 				LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
+			}
+		} else {
+			// 如果是冻结单园区卡转赊销需要解冻
+			if (originalState.equals(WeighingBillState.FROZEN.getValue()) && StringUtils.isNotBlank(weighingStatement.getPayOrderNo())) {
+				PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
+				dto.setTradeId(weighingStatement.getPayOrderNo());
+				unfreezeOutput = this.payRpc.cancel(dto);
+				if (unfreezeOutput == null) {
+					throw new AppException("解冻金额调用支付系统无响应");
+				}
+				if (!unfreezeOutput.isSuccess()) {
+					LOGGER.error(String.format("交易过磅解冻调用支付系统确认交易失败:code=%s,message=%s", unfreezeOutput.getCode(), unfreezeOutput.getMessage()));
+					throw new AppException(unfreezeOutput.getMessage());
+				}
 			}
 		}
 
@@ -564,6 +579,9 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		if (weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
 			// 记录资金账户交易流水
 			this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
+		}
+		if (unfreezeOutput != null) {
+			this.recordUnfreezeAccountFlow(operatorId, weighingBill, weighingStatement, unfreezeOutput.getData());
 		}
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
