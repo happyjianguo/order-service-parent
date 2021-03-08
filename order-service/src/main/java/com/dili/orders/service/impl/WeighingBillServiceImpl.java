@@ -1829,7 +1829,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return true;
 	}
 
-	private boolean isRepeatFreeze(WeighingBill weighingBill, WeighingStatement ws) {
+	protected boolean isRepeatFreeze(WeighingBill weighingBill, WeighingStatement ws) {
 		return this.isFreeze(weighingBill) && ws.getState().equals(WeighingStatementState.FROZEN.getValue());
 	}
 
@@ -2008,7 +2008,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		this.mqService.send(RabbitMQConfig.EXCHANGE_ACCOUNT_SERIAL, RabbitMQConfig.ROUTING_ACCOUNT_SERIAL, JSON.toJSONString(srList));
 	}
 
-	private void recordUnfreezeAccountFlow(Long operatorId, WeighingBill weighingBill, WeighingStatement ws, PaymentTradeCommitResponseDto tradeResponse) {
+	protected void recordUnfreezeAccountFlow(Long operatorId, WeighingBill weighingBill, WeighingStatement ws, PaymentTradeCommitResponseDto tradeResponse) {
 		// 解冻
 		User operator = this.getUserById(operatorId);
 		List<SerialRecordDo> srList = new ArrayList<SerialRecordDo>();

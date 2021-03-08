@@ -87,13 +87,89 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill bill) {
+		LOGGER.info("修改交易过磅接收参数：{}", JSON.toJSONString(bill));
 		if (bill.getTradingBillType() == null) {
 			return BaseOutput.failure("单据类型不能为空");
 		}
 		if (!bill.getTradingBillType().equals(TradingBillType.FARMER.getValue())) {
 			return BaseOutput.failure("单据类型不正确");
 		}
-		return super.updateWeighingBill(bill);
+		WeighingBill weighingBill = this.getWeighingBillById(bill.getId());
+		if (weighingBill == null) {
+			return BaseOutput.failure("过磅单不存在");
+		}
+		if (!weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue()) && !weighingBill.getState().equals(WeighingBillState.FROZEN.getValue())) {
+			return BaseOutput.failure("当前状态不能修改过磅单");
+		}
+		this.updateWeihingBillInfo(weighingBill, bill);
+		// 查询未结算单
+		WeighingStatement ws = this.getNoSettlementWeighingStatementByWeighingBillId(weighingBill.getId());
+		if (ws == null) {
+			return BaseOutput.failure("未找到结算单");
+		}
+
+		// 判断重复冻结
+		if (this.isRepeatFreeze(bill, ws)) {
+			return BaseOutput.failure("不能重复冻结");
+		}
+
+		ws.setPaymentType(bill.getPaymentType());
+
+		Long marketId = this.getMarketIdByOperatorId(bill.getModifierId());
+
+		// 更新结算单买卖家信息，重新算费用
+		if (this.isFreeze(weighingBill)) {
+			this.setWeighingStatementFrozenAmount(weighingBill, ws);
+			if (weighingBill.getFrozenAmount() != null) {
+				weighingBill.setFrozenAmount(ws.getFrozenAmount());
+			}
+		} else {
+			this.setWeighingStatementTradeAmount(weighingBill, ws);
+		}
+		this.setWeighingStatementBuyerInfo(weighingBill, ws, marketId);
+		this.setWeighingStatementSellerInfo(weighingBill, ws, marketId);
+
+		int rows = this.getActualDao().updateByPrimaryKey(weighingBill);
+		if (rows <= 0) {
+			throw new AppException("更新过磅单失败");
+		}
+
+		User operator = this.getUserById(weighingBill.getModifierId());
+		LocalDateTime now = LocalDateTime.now();
+		ws.setModifierId(bill.getModifierId());
+		ws.setModifiedTime(now);
+
+		// 判断是否是未结算单，否则记录过磅时间
+		if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
+
+			// 更新操作人信息
+			ws.setLastOperationTime(now);
+			ws.setLastOperatorId(bill.getModifierId());
+			ws.setLastOperatorName(operator.getRealName());
+			ws.setLastOperatorUserName(operator.getUserName());
+
+			// 插入一条过磅信息
+			WeighingBillOperationRecord wbor = this.buildOperationRecord(weighingBill, ws, operator, WeighingOperationType.WEIGH, now);
+			rows = this.wbrMapper.insertSelective(wbor);
+			if (rows <= 0) {
+				throw new AppException("保存操作记录失败");
+			}
+		}
+		rows = this.weighingStatementMapper.updateByPrimaryKey(ws);
+		if (rows <= 0) {
+			throw new AppException("更新过磅单失败");
+		}
+
+		// 记录日志系统
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
+		LoggerContext.put("statementId", ws.getId());
+		LoggerContext.put("statementSerialNo", ws.getSerialNo());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_ID_KEY, weighingBill.getModifierId());
+		LoggerContext.put(LoggerConstant.LOG_OPERATOR_NAME_KEY, operator.getRealName());
+		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
+
+		return BaseOutput.successData(ws);
 	}
 
 	@Override
@@ -440,6 +516,7 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		}
 
 		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = null;
+		BaseOutput<PaymentTradeCommitResponseDto> unfreezeOutput = null;
 		if (weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
 			weighingBill.setPaymentState(PaymentState.RECEIVED.getValue());
 			weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
@@ -457,6 +534,20 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			if (!paymentOutput.isSuccess()) {
 				LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
 				throw new AppException(paymentOutput.getMessage());
+			}
+		} else {
+			// 如果是冻结单园区卡转赊销需要解冻
+			if (originalState.equals(WeighingBillState.FROZEN.getValue()) && StringUtils.isNotBlank(weighingStatement.getPayOrderNo())) {
+				PaymentTradeCommitDto dto = new PaymentTradeCommitDto();
+				dto.setTradeId(weighingStatement.getPayOrderNo());
+				unfreezeOutput = this.payRpc.cancel(dto);
+				if (unfreezeOutput == null) {
+					throw new AppException("解冻金额调用支付系统无响应");
+				}
+				if (!unfreezeOutput.isSuccess()) {
+					LOGGER.error(String.format("交易过磅解冻调用支付系统确认交易失败:code=%s,message=%s", unfreezeOutput.getCode(), unfreezeOutput.getMessage()));
+					throw new AppException(unfreezeOutput.getMessage());
+				}
 			}
 		}
 
@@ -488,6 +579,9 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		if (weighingBill.getPaymentType().equals(PaymentType.CARD.getValue())) {
 			// 记录资金账户交易流水
 			this.recordSettlementAccountFlow(weighingBill, weighingStatement, paymentOutput.getData(), operatorId);
+		}
+		if (unfreezeOutput != null) {
+			this.recordUnfreezeAccountFlow(operatorId, weighingBill, weighingStatement, unfreezeOutput.getData());
 		}
 		// 发送mq通知中间价计算模块计算中间价
 		this.sendCalculateReferencePriceMessage(weighingBill, marketId, weighingStatement.getTradeAmount());
