@@ -223,7 +223,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		if (this.isRepeatFreeze(bill, ws)) {
 			return BaseOutput.failure("不能重复冻结");
 		}
-		
+
 		ws.setPaymentType(bill.getPaymentType());
 
 		Long marketId = this.getMarketIdByOperatorId(bill.getModifierId());
@@ -282,29 +282,6 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 
 		return BaseOutput.successData(ws);
 	}
-
-//	@Override
-//	protected void setWeighingStatementTradeAmount(WeighingBill weighingBill, WeighingStatement ws) {
-////		BigDecimal tradeAmount = new BigDecimal(0);
-////		if (weighingBill.getNetWeight() != null && weighingBill.getUnitPrice() != null) {
-////			// 单价*2*净重
-////			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP));
-////		}
-////		if (weighingBill.getCollectionCharges() != null && weighingBill.getNetWeight() != null) {
-////			// 代收费/100*2*净重
-////			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getCollectionCharges() * 2 * weighingBill.getNetWeight()).divide(new BigDecimal(10000), 0, RoundingMode.HALF_UP));
-////		}
-////		if (weighingBill.getStaffCharges() != null && weighingBill.getUnitAmount() != null) {
-////			// 人工费*件数
-////			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getStaffCharges() * weighingBill.getUnitAmount()));
-////		}
-////		if (weighingBill.getCollectionCharges() != null && weighingBill.getUnitAmount() != null) {
-////			// 包装费*件数
-////			tradeAmount = tradeAmount.add(new BigDecimal(weighingBill.getCollectionCharges() * weighingBill.getUnitAmount()));
-////		}
-////		ws.setTradeAmount(tradeAmount.longValue());
-//		ws.setTradeAmount(new BigDecimal(weighingBill.getNetWeight() * weighingBill.getUnitPrice() * 2).divide(new BigDecimal(100), 0, RoundingMode.HALF_UP).longValue());
-//	}
 
 	@Override
 	protected void setBuyerCustomerMarketType(WeighingBill weighingBill, UserAccountCardResponseDto buyerAccountInfo) {
@@ -562,7 +539,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		ws.setSellerName(weighingBill.getSellerName());
 	}
 
-	@GlobalTransactional(timeoutMills = Integer.MAX_VALUE)
+	@GlobalTransactional
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> settle(Long id, String buyerPassword, Long operatorId, Long marketId) {
@@ -847,7 +824,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		} else {
 			// 记录资金账户交易流水
 			if (unfreezeOutput != null) {
-				this.recordUnfreezeAccountFlow(weighingBill, weighingStatement, buyerPaymentOutput.getData(), operator);
+				this.recordUnfreezeAccountFlow(weighingBill, weighingStatement, unfreezeOutput.getData(), operator);
 			}
 			if (weighingStatement.getBuyerPoundage() > 0) {
 				this.recordBuyerCreditAccountFlow(weighingBill, weighingStatement, buyerPaymentOutput.getData(), operatorId);
@@ -1231,7 +1208,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		return commitOutput;
 	}
 
-	@GlobalTransactional(timeoutMills = Integer.MAX_VALUE)
+	@GlobalTransactional
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId) {
@@ -1432,7 +1409,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		return BaseOutput.success();
 	}
 
-	@GlobalTransactional(timeoutMills = Integer.MAX_VALUE)
+	@GlobalTransactional
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<Object> operatorWithdraw(Long id, Long operatorId) {
