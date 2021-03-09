@@ -12,6 +12,7 @@ import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -797,10 +798,25 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			}
 		}
 
+		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = null;
+		// 退款
+		if (weighingStatement.getPayOrderNo() != null) {
+			PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+			cancelDto.setTradeId(weighingStatement.getPayOrderNo());
+			paymentOutput = this.payRpc.cancel(cancelDto);
+			if (paymentOutput == null) {
+				throw new AppException("交易过磅撤销调用支付系统撤销交易无响应");
+			}
+			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(String.format("交易过磅撤销调用支付系统撤销交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+				throw new AppException(paymentOutput.getMessage());
+			}
+		}
+
 		// 重新生成一条过磅单
 		PaymentTradeCommitResponseDto dtoToWhen = new PaymentTradeCommitResponseDto();
 		dtoToWhen.setWhen(now);
-		this.rebuildWeighingBill(dtoToWhen, weighingBill, operatorId);
+		this.rebuildWeighingBill(paymentOutput != null ? paymentOutput.getData() : dtoToWhen, weighingBill, operatorId);
 
 		User operator = this.getUserById(operatorId);
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
@@ -822,6 +838,11 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			throw new AppException("保存操作记录失败");
 		}
 
+		if (paymentOutput != null) {
+			// 记录撤销交易流水
+			this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
+		}
+
 		// 记录日志系统
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_CODE_KEY, weighingBill.getSerialNo());
 		LoggerContext.put(LoggerConstant.LOG_BUSINESS_ID_KEY, weighingBill.getId());
@@ -832,6 +853,43 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
+	}
+
+	@Override
+	protected WeighingBill rebuildWeighingBill(PaymentTradeCommitResponseDto paymentOutput, WeighingBill weighingBill, Long operatorId) {
+		WeighingBill wb = new WeighingBill();
+		BeanUtils.copyProperties(weighingBill, wb, "id", "buyerAgentId", "buyerAgentName", "sellerAgentId", "sellerAgentName", "state", "createdTime", "modifiedTime", "modifierId", "settlementTime",
+				"version","paymentState");
+		wb.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+
+		int rows = this.getActualDao().insertSelective(wb);
+		if (rows <= 0) {
+			throw new AppException("保存过磅单失败");
+		}
+
+		User operator = this.getUserById(wb.getCreatorId());
+		WeighingStatement statement = this.buildWeighingStatement(wb, weighingBill.getMarketId());
+		statement.setCreatorId(operatorId);
+		statement.setLastOperationTime(paymentOutput.getWhen());
+		statement.setLastOperatorId(operatorId);
+		statement.setLastOperatorName(operator.getRealName());
+		statement.setLastOperatorUserName(operator.getUserName());
+		rows = this.weighingStatementMapper.insertSelective(statement);
+		if (rows <= 0) {
+			throw new AppException("保存结算单失败");
+		}
+
+		WeighingBillOperationRecord wbor = this.getActualDao().selectLastWeighingOperationRecord(weighingBill.getId());
+		if (wbor == null) {
+			throw new AppException("未查询到过磅记录");
+		}
+
+		WeighingBillOperationRecord newRecord = this.buildOperationRecord(wb, statement, operator, WeighingOperationType.WEIGH, wbor.getOperationTime());
+		rows = this.wbrMapper.insertSelective(newRecord);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
+		}
+		return wb;
 	}
 
 	@Override
@@ -888,16 +946,31 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 			}
 		}
 
+		BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = null;
+		// 退款
+		if (weighingStatement.getPayOrderNo() != null) {
+			PaymentTradeCommitDto cancelDto = new PaymentTradeCommitDto();
+			cancelDto.setTradeId(weighingStatement.getPayOrderNo());
+			paymentOutput = this.payRpc.cancel(cancelDto);
+			if (paymentOutput == null) {
+				throw new AppException("交易过磅撤销调用支付系统撤销交易无响应");
+			}
+			if (!paymentOutput.isSuccess()) {
+				LOGGER.error(String.format("交易过磅撤销调用支付系统撤销交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+				throw new AppException(paymentOutput.getMessage());
+			}
+		}
+
 		// 重新生成一条过磅单
 		PaymentTradeCommitResponseDto dtoToWhen = new PaymentTradeCommitResponseDto();
 		dtoToWhen.setWhen(now);
-		this.rebuildWeighingBill(dtoToWhen, weighingBill, operatorId);
+		this.rebuildWeighingBill(paymentOutput != null ? paymentOutput.getData() : dtoToWhen, weighingBill, operatorId);
 
 		User operator = this.getUserById(operatorId);
 		weighingStatement.setState(WeighingStatementState.REFUNDED.getValue());
 		weighingStatement.setModifierId(operatorId);
 		weighingStatement.setModifiedTime(now);
-		weighingStatement.setLastOperationTime(now);
+		weighingStatement.setLastOperationTime(paymentOutput != null ? paymentOutput.getData().getWhen() : now);
 		weighingStatement.setLastOperatorId(operatorId);
 		weighingStatement.setLastOperatorName(operator.getRealName());
 		weighingStatement.setLastOperatorUserName(operator.getUserName());
@@ -911,6 +984,11 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		rows = this.wbrMapper.insertSelective(wbor);
 		if (rows <= 0) {
 			throw new AppException("保存操作记录失败");
+		}
+
+		if (paymentOutput != null) {
+			// 记录撤销交易流水
+			this.recordWithdrawAccountFlow(operatorId, paymentOutput.getData(), weighingBill, weighingStatement);
 		}
 
 		// 记录日志系统
