@@ -14,6 +14,7 @@ import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1407,6 +1408,43 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 		LoggerContext.put(LoggerConstant.LOG_MARKET_ID_KEY, weighingBill.getMarketId());
 
 		return BaseOutput.success();
+	}
+
+	@Override
+	protected WeighingBill rebuildWeighingBill(PaymentTradeCommitResponseDto paymentOutput, WeighingBill weighingBill, Long operatorId) {
+		WeighingBill wb = new WeighingBill();
+		BeanUtils.copyProperties(weighingBill, wb, "id", "buyerAgentId", "buyerAgentName", "sellerAgentId", "sellerAgentName", "state", "createdTime", "modifiedTime", "modifierId", "settlementTime",
+				"version", "paymentState");
+		wb.setState(WeighingBillState.NO_SETTLEMENT.getValue());
+
+		int rows = this.getActualDao().insertSelective(wb);
+		if (rows <= 0) {
+			throw new AppException("保存过磅单失败");
+		}
+
+		User operator = this.getUserById(wb.getCreatorId());
+		WeighingStatement statement = this.buildWeighingStatement(wb, weighingBill.getMarketId());
+		statement.setCreatorId(operatorId);
+		statement.setLastOperationTime(paymentOutput.getWhen());
+		statement.setLastOperatorId(operatorId);
+		statement.setLastOperatorName(operator.getRealName());
+		statement.setLastOperatorUserName(operator.getUserName());
+		rows = this.weighingStatementMapper.insertSelective(statement);
+		if (rows <= 0) {
+			throw new AppException("保存结算单失败");
+		}
+
+		WeighingBillOperationRecord wbor = this.getActualDao().selectLastWeighingOperationRecord(weighingBill.getId());
+		if (wbor == null) {
+			throw new AppException("未查询到过磅记录");
+		}
+
+		WeighingBillOperationRecord newRecord = this.buildOperationRecord(wb, statement, operator, WeighingOperationType.WEIGH, wbor.getOperationTime());
+		rows = this.wbrMapper.insertSelective(newRecord);
+		if (rows <= 0) {
+			throw new AppException("保存操作记录失败");
+		}
+		return wb;
 	}
 
 	@GlobalTransactional
