@@ -742,7 +742,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			weighingBill.setPaymentState(PaymentState.RECEIVED.getValue());
 			weighingStatement.setPaymentState(PaymentState.RECEIVED.getValue());
 			// 判断单据状态，如果是冻结单走确认预授权扣款，否则走即时交易
-			if (originalState.equals(WeighingBillState.FROZEN.getValue())) {
+			if (originalState.equals(WeighingBillState.FROZEN.getValue()) && weighingStatement.getPayOrderNo() != null) {
 				paymentOutput = this.confirmTrade(weighingBill, weighingStatement, buyerPassword);
 				if (paymentOutput == null) {
 					throw new AppException("调用支付系统无响应");
@@ -752,6 +752,16 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 					throw new AppException(paymentOutput.getMessage());
 				}
 			} else {
+				if (weighingStatement.getPayOrderNo() == null) {
+					BaseOutput<?> preparePaymentOutput = this.prepareTrade(weighingBill, weighingStatement);
+					if (preparePaymentOutput == null) {
+						throw new AppException("调用支付系统无响应");
+					}
+					if (!preparePaymentOutput.isSuccess()) {
+						LOGGER.error(String.format("交易过磅结算调用支付系统创建交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+						throw new AppException(paymentOutput.getMessage());
+					}
+				}
 				paymentOutput = this.commitTrade(weighingBill, weighingStatement, buyerPassword);
 				if (paymentOutput == null) {
 					throw new AppException("调用支付系统无响应");
