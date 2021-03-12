@@ -457,7 +457,7 @@ public class ProprietaryWeighingBillServiceImpl extends WeighingBillServiceImpl 
 			SerialRecordDo srDto = new SerialRecordDo();
 			srDto.setCustomerType(weighingBill.getBuyerType());
 			srDto.setAccountId(weighingBill.getBuyerCardAccount());
-			srDto.setTradeNo(weighingStatement.getPayOrderNo());
+			srDto.setTradeNo(weighingStatement.getFrozenOrderNo());
 			srDto.setTradeType(PaymentTradeType.PREAUTHORIZED.getValue());
 			srDto.setSerialNo(weighingStatement.getSerialNo());
 			srDto.setAction(ActionType.EXPENSE.getCode());
