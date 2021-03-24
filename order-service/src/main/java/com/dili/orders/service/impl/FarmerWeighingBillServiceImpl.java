@@ -1,7 +1,5 @@
 package com.dili.orders.service.impl;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -60,7 +57,8 @@ import com.dili.orders.dto.WeighingBillPrintDto;
 import com.dili.orders.dto.WeighingBillQueryDto;
 import com.dili.orders.dto.WeighingStatementPrintDto;
 import com.dili.orders.service.FarmerWeghingBillService;
-import com.dili.rule.sdk.domain.output.QueryFeeOutput;
+import com.dili.orders.service.component.FeeCalculator;
+import com.dili.orders.service.component.impl.PoundageCalculateParam;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.domain.PageOutput;
 import com.dili.ss.exception.AppException;
@@ -75,6 +73,11 @@ import io.seata.spring.annotation.GlobalTransactional;
  */
 @Service
 public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl implements FarmerWeghingBillService {
+
+	public FarmerWeighingBillServiceImpl(FeeCalculator<PoundageCalculateParam> buyerPoundageCalculator, FeeCalculator<PoundageCalculateParam> sellerPoundageCalculator) {
+		super.buyerPoundageCalculator = buyerPoundageCalculator;
+		super.sellerPoundageCalculator = sellerPoundageCalculator;
+	}
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -845,62 +848,6 @@ public class FarmerWeighingBillServiceImpl extends WeighingBillServiceImpl imple
 		} else {
 			super.setWeighingStatementFrozenAmount(weighingBill, ws);
 		}
-	}
-
-	@Override
-	protected BaseOutput<List<QueryFeeOutput>> calculatePoundage(WeighingBill weighingBill, WeighingStatement statement, Long marketId, String businessType) {
-		// 无需查询计费规则，返回空
-		BaseOutput<List<QueryFeeOutput>> output = BaseOutput.success();
-		output.setData(new ArrayList<QueryFeeOutput>(0));
-		return output;
-	}
-
-	@Override
-	protected void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
-		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
-		if (!buyerFeeOutput.isSuccess()) {
-			throw new AppException(buyerFeeOutput.getMessage());
-		}
-		BigDecimal buyerTotalFee = new BigDecimal(0L);
-//		if (CollectionUtils.isEmpty(buyerFeeOutput.getData())) {
-//			throw new AppException("未匹配到计费规则，请联系管理员");
-//		}
-		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
-			if (qfo.getTotalFee() != null) {
-				buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-			}
-		}
-		if (!isFreeze(weighingBill)) {
-			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
-			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
-		}
-		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
-		ws.setBuyerId(weighingBill.getBuyerId());
-		ws.setBuyerName(weighingBill.getBuyerName());
-	}
-
-	@Override
-	protected void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
-		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
-		if (!sellerFeeOutput.isSuccess()) {
-			throw new AppException(sellerFeeOutput.getMessage());
-		}
-		BigDecimal sellerTotalFee = new BigDecimal(0L);
-//		if (CollectionUtils.isEmpty(sellerFeeOutput.getData())) {
-//			throw new AppException("未匹配到计费规则，请联系管理员");
-//		}
-		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
-			if (qfo.getTotalFee() != null) {
-				sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-			}
-		}
-		if (!isFreeze(weighingBill)) {
-			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
-			ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
-		}
-		ws.setSellerCardNo(weighingBill.getSellerCardNo());
-		ws.setSellerId(weighingBill.getSellerId());
-		ws.setSellerName(weighingBill.getSellerName());
 	}
 
 	@Override

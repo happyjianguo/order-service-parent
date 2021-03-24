@@ -18,21 +18,18 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
-import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TradeTypeDto;
-import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
-import com.dili.assets.sdk.rpc.BusinessChargeItemRpc;
 import com.dili.assets.sdk.rpc.TradeTypeRpc;
 import com.dili.bpmc.sdk.domain.ProcessInstanceMapping;
 import com.dili.bpmc.sdk.dto.TaskIdentityDto;
 import com.dili.bpmc.sdk.rpc.RuntimeRpc;
 import com.dili.bpmc.sdk.rpc.TaskRpc;
-import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.commons.rabbitmq.RabbitMQMessageService;
 import com.dili.customer.sdk.domain.CharacterType;
 import com.dili.customer.sdk.domain.dto.CustomerExtendDto;
@@ -91,12 +88,11 @@ import com.dili.orders.mapper.WeighingStatementMapper;
 import com.dili.orders.rpc.AccountRpc;
 import com.dili.orders.rpc.JmsfRpc;
 import com.dili.orders.rpc.PayRpc;
-import com.dili.orders.rpc.UidRpc;
 import com.dili.orders.service.ReferencePriceService;
 import com.dili.orders.service.WeighingBillService;
-import com.dili.rule.sdk.domain.input.QueryFeeInput;
-import com.dili.rule.sdk.domain.output.QueryFeeOutput;
-import com.dili.rule.sdk.rpc.ChargeRuleRpc;
+import com.dili.orders.service.component.FeeCalculator;
+import com.dili.orders.service.component.SerialNumberGenerator;
+import com.dili.orders.service.component.impl.PoundageCalculateParam;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.datasource.DataSourceType;
 import com.dili.ss.datasource.SwitchDataSource;
@@ -146,10 +142,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Autowired
 	private AccountRpc accountRpc;
-	@Autowired
-	private BusinessChargeItemRpc businessChargeItemRpc;
-	@Autowired
-	private ChargeRuleRpc chargeRuleRpc;
 	@Value("${orders.checkPrice:false}")
 	protected Boolean checkPrice;
 	@Autowired
@@ -172,8 +164,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 
 	@Autowired
 	protected RuntimeRpc runtimeRpc;
-	@Autowired
-	protected UidRpc uidRpc;
+
 	@Autowired
 	private UserRpc userRpc;
 	@Autowired
@@ -195,18 +186,23 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	@Autowired
 	protected DepartmentRpc departmentRpc;
 
+	@Autowired
+	protected SerialNumberGenerator weighingBillSerialNoGenerator;
+	@Autowired
+	protected SerialNumberGenerator weighingStatementNoGenerator;
+	@Qualifier("buyerPoundageCalculator")
+	@Autowired
+	protected FeeCalculator<PoundageCalculateParam> buyerPoundageCalculator;
+	@Qualifier("sellerPoundageCalculator")
+	@Autowired
+	protected FeeCalculator<PoundageCalculateParam> sellerPoundageCalculator;
+
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public BaseOutput<WeighingStatement> addWeighingBill(WeighingBill bill) {
 		LOGGER.info("新增交易过磅接收参数：{}", JSON.toJSONString(bill));
-		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_BILL_SERIAL_NO_GENERATE_RULE_CODE);
-		if (output == null) {
-			return BaseOutput.failure("调用过磅单号生成服务无响应");
-		}
-		if (!output.isSuccess()) {
-			return BaseOutput.failure(output.getMessage());
-		}
-		bill.setSerialNo(output.getData());
+
+		bill.setSerialNo(this.weighingBillSerialNoGenerator.generate());
 		bill.setState(WeighingBillState.NO_SETTLEMENT.getValue());
 
 		// 设置交易类型id
@@ -1557,15 +1553,8 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	protected WeighingStatement buildWeighingStatement(WeighingBill weighingBill, Long marketId) {
-		BaseOutput<String> output = this.uidRpc.bizNumber(OrdersConstant.WEIGHING_STATEMENT_SERIAL_NO_GENERATE_RULE_CODE);
-		if (output == null) {
-			throw new AppException("调用过磅单号生成服务无响应");
-		}
-		if (!output.isSuccess()) {
-			throw new AppException(output.getMessage());
-		}
 		WeighingStatement ws = new WeighingStatement();
-		ws.setSerialNo(output.getData());
+		ws.setSerialNo(this.weighingStatementNoGenerator.generate());
 		ws.setWeighingBillId(weighingBill.getId());
 		ws.setWeighingSerialNo(weighingBill.getSerialNo());
 
@@ -1579,49 +1568,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		ws.setState(WeighingStatementState.UNPAID.getValue());
 		return ws;
 
-	}
-
-	protected BaseOutput<List<QueryFeeOutput>> calculatePoundage(WeighingBill weighingBill, WeighingStatement statement, Long marketId, String businessType) {
-		List<Long> chargeItemIds = this.getBuyerSellerRuleId(businessType, marketId);
-		List<QueryFeeInput> queryFeeInputList = new ArrayList<QueryFeeInput>(chargeItemIds.size());
-		chargeItemIds.forEach(c -> {
-			QueryFeeInput queryFeeInput = new QueryFeeInput();
-			Map<String, Object> map = new HashMap<>();
-			// 设置市场id
-			queryFeeInput.setMarketId(marketId);
-			// 设置业务类型
-			queryFeeInput.setBusinessType(businessType);
-			queryFeeInput.setChargeItem(c);
-			if (businessType.equals(OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE)) {
-				map.put("customerType", weighingBill.getBuyerType());
-				map.put("customerId", weighingBill.getBuyerId());
-			} else {
-				map.put("customerType", weighingBill.getSellerType());
-				map.put("customerId", weighingBill.getSellerId());
-			}
-			map.put("goodsId", weighingBill.getGoodsId());
-			LocalDateTime tradeTime = statement.getCreatedTime();
-			if (tradeTime == null) {
-				tradeTime = LocalDateTime.now();
-			}
-			map.put("tradeTime", tradeTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-			if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-				// 单价转换为元/公斤
-				map.put("unitPrice", new BigDecimal(MoneyUtils.centToYuan(new BigDecimal(weighingBill.getUnitPrice() * 2).longValue())));
-				map.put("totalWeight", new BigDecimal(MoneyUtils.centToYuan(weighingBill.getNetWeight())));
-			} else {
-				// 斤转换为公斤
-				map.put("unitPrice", new BigDecimal(getConvertDoubleUnitPrice(weighingBill)).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP));
-				map.put("totalWeight", new BigDecimal(weighingBill.getUnitAmount() * weighingBill.getUnitWeight()).divide(new BigDecimal(200)).setScale(2, RoundingMode.HALF_UP));
-			}
-			map.put("tradeTypeId", this.getTradeIdByCode(weighingBill.getTradeType()));
-			map.put("tradeAmount", new BigDecimal(MoneyUtils.centToYuan(statement.getTradeAmount())));
-			map.put("tradingBillType", weighingBill.getTradingBillType());
-			queryFeeInput.setCalcParams(map);
-			queryFeeInput.setConditionParams(map);
-			queryFeeInputList.add(queryFeeInput);
-		});
-		return chargeRuleRpc.batchQueryFee(queryFeeInputList);
 	}
 
 	protected Long getTradeIdByCode(String tradeType) {
@@ -1704,30 +1650,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return commitOutput;
 	}
 
-	private List<Long> getBuyerSellerRuleId(String businessType, Long marketId) {
-		BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
-		// 业务类型
-		businessChargeItemDto.setBusinessType(businessType);
-		// 是否必须
-		businessChargeItemDto.setIsRequired(YesOrNoEnum.YES.getCode());
-		businessChargeItemDto.setIsEnable(YesOrNoEnum.YES.getCode());
-		// 收费
-		businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
-		// 市场id
-		businessChargeItemDto.setMarketId(marketId);
-		BaseOutput<List<BusinessChargeItemDto>> listBaseOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
-		// 判断是否成功
-		if (!listBaseOutput.isSuccess()) {
-			throw new AppException(listBaseOutput.getMessage());
-		}
-		if (CollectionUtils.isEmpty(listBaseOutput.getData())) {
-			return null;
-		}
-		List<Long> ruleIds = new ArrayList<Long>(listBaseOutput.getData().size());
-		listBaseOutput.getData().forEach(bci -> ruleIds.add(bci.getId()));
-		return ruleIds;
-	}
-
 	// 获取单价，如果按件计价需要转换为按斤计价
 	protected Long getConvertUnitPrice(WeighingBill weighingBill) {
 		Long actualPrice = null;
@@ -1736,18 +1658,6 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		} else {
 			// 转换为斤的价格，保留到分，四舍五入
 			actualPrice = new BigDecimal(weighingBill.getUnitPrice()).divide(new BigDecimal(weighingBill.getUnitWeight()), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
-		}
-		return actualPrice;
-	}
-
-	// 获取单价，如果按件计价需要转换为按公斤斤计价
-	private Long getConvertDoubleUnitPrice(WeighingBill weighingBill) {
-		Long actualPrice = null;
-		if (weighingBill.getMeasureType().equals(MeasureType.WEIGHT.getValue())) {
-			actualPrice = weighingBill.getUnitPrice() * 2;
-		} else {
-			// 转换为斤的价格，保留到分，四舍五入
-			actualPrice = new BigDecimal(weighingBill.getUnitPrice() * 2).divide(new BigDecimal(weighingBill.getUnitWeight()), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).longValue();
 		}
 		return actualPrice;
 	}
@@ -2327,22 +2237,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	protected void setWeighingStatementBuyerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
-		BaseOutput<List<QueryFeeOutput>> buyerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE);
-		if (!buyerFeeOutput.isSuccess()) {
-			throw new AppException(buyerFeeOutput.getMessage());
-		}
-		BigDecimal buyerTotalFee = new BigDecimal(0L);
-		if (CollectionUtils.isEmpty(buyerFeeOutput.getData())) {
-			throw new AppException("未匹配到计费规则，请联系管理员");
-		}
-		for (QueryFeeOutput qfo : buyerFeeOutput.getData()) {
-			if (qfo.getTotalFee() != null) {
-				buyerTotalFee = buyerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-			}
-		}
 		if (!isFreeze(weighingBill)) {
-			ws.setBuyerActualAmount(ws.getTradeAmount() + MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
-			ws.setBuyerPoundage(MoneyUtils.yuanToCent(buyerTotalFee.doubleValue()));
+			PoundageCalculateParam param = new PoundageCalculateParam(OrdersConstant.WEIGHING_BILL_BUYER_POUNDAGE_BUSINESS_TYPE, weighingBill, ws);
+			Long buyerTotalFee = this.buyerPoundageCalculator.calculate(param);
+			ws.setBuyerActualAmount(ws.getTradeAmount() + buyerTotalFee);
+			ws.setBuyerPoundage(buyerTotalFee);
 		}
 		ws.setBuyerCardNo(weighingBill.getBuyerCardNo());
 		ws.setBuyerId(weighingBill.getBuyerId());
@@ -2359,22 +2258,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	protected void setWeighingStatementSellerInfo(WeighingBill weighingBill, WeighingStatement ws, Long marketId) {
-		BaseOutput<List<QueryFeeOutput>> sellerFeeOutput = this.calculatePoundage(weighingBill, ws, marketId, OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE);
-		if (!sellerFeeOutput.isSuccess()) {
-			throw new AppException(sellerFeeOutput.getMessage());
-		}
-		BigDecimal sellerTotalFee = new BigDecimal(0L);
-		if (CollectionUtils.isEmpty(sellerFeeOutput.getData())) {
-			throw new AppException("未匹配到计费规则，请联系管理员");
-		}
-		for (QueryFeeOutput qfo : sellerFeeOutput.getData()) {
-			if (qfo.getTotalFee() != null) {
-				sellerTotalFee = sellerTotalFee.add(qfo.getTotalFee().setScale(2, RoundingMode.HALF_UP));
-			}
-		}
 		if (!isFreeze(weighingBill)) {
-			ws.setSellerActualAmount(ws.getTradeAmount() - MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
-			ws.setSellerPoundage(MoneyUtils.yuanToCent(sellerTotalFee.doubleValue()));
+			PoundageCalculateParam param = new PoundageCalculateParam(OrdersConstant.WEIGHING_BILL_SELLER_POUNDAGE_BUSINESS_TYPE, weighingBill, ws);
+			Long sellerTotalFee = this.sellerPoundageCalculator.calculate(param);
+			ws.setSellerActualAmount(ws.getTradeAmount() - sellerTotalFee);
+			ws.setSellerPoundage(sellerTotalFee);
 		}
 		ws.setSellerCardNo(weighingBill.getSellerCardNo());
 		ws.setSellerId(weighingBill.getSellerId());
