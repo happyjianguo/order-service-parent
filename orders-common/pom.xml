@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>com.dili</groupId>
 			<artifactId>order-service-sdk</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<!-- spring boot 基类 -->
 		<dependency>
