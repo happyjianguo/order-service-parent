@@ -756,6 +756,7 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		return BaseOutput.success();
 	}
 
+	@SwitchDataSource(type = DataSourceType.SLAVE)
 	@Override
 	public List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill) {
 		return this.getActualDao().selectByExampleModified(weighingBill);
