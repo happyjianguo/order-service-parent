@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<!-- 日志名称 -->
-	<property name="LOG_NAME" value="order-service"/>
-	<!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
-	<property name="LOG_HOME" value="logs"/>
+	<property name="LOG_NAME" value="order-service" />
+	<!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径 -->
+	<property name="LOG_HOME" value="logs" />
 
-	<!-- 日志文件存放的历史天数  可以在nacos 或者 bootstrap.properties 中配置，此处配置的变量名为：log.maxHistory -->
-	<!--<springProperty scope="context" name="maxHistory" source="log.maxHistory"/>-->
+	<!-- 日志文件存放的历史天数 可以在nacos 或者 bootstrap.properties 中配置，此处配置的变量名为：log.maxHistory -->
+	<!--<springProperty scope="context" name="maxHistory" source="log.maxHistory"/> -->
 
 	<!-- 日志控制台输出 -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -18,11 +18,11 @@
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOG_HOME}/${LOG_NAME}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!--日志文件输出的文件名-->
+			<!--日志文件输出的文件名 -->
 			<fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${LOG_NAME}_%i.log.zip</fileNamePattern>
-			<!--日志文件保留天数(FileNamePattern中的%d 格式有关，如果yyyy-MM-dd 则是天数)-->
+			<!--日志文件保留天数(FileNamePattern中的%d 格式有关，如果yyyy-MM-dd 则是天数) -->
 			<maxHistory>30</maxHistory>
-			<!--日志文件最大的大小-->
+			<!--日志文件最大的大小 -->
 			<maxFileSize>10MB</maxFileSize>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -32,22 +32,26 @@
 
 	<!-- 开发环境 -->
 	<springProfile name="dev">
+		<logger name="com.dili.orders" level="DEBUG" />
 		<root level="INFO">
-			<appender-ref ref="CONSOLE"/>
-			<appender-ref ref="FILE"/>
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="FILE" />
 		</root>
 	</springProfile>
 	<!-- 测试环境 -->
 	<springProfile name="test">
-		<root level="INFO">
-			<appender-ref ref="FILE"/>
+	   <logger name="com.dili.ss.base" level="DEBUG" />
+		<!-- <logger name="com.dili.orders" level="DEBUG" /> -->
+		<root level="ERROR">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="FILE" />
 		</root>
 	</springProfile>
 	<!-- 灰度、生产环境 -->
 	<springProfile name="pre,prod">
-		<jmxConfigurator/>
+		<jmxConfigurator />
 		<root level="INFO">
-			<appender-ref ref="FILE"/>
+			<appender-ref ref="FILE" />
 		</root>
 	</springProfile>
 
