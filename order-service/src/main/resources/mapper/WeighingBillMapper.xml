@@ -695,6 +695,7 @@
 
 	<select id="selectDetailById" parameterType="Long" resultMap="DetailResultMap">
 		SELECT
+
 		<include refid="Base_Join_Column_List" />
 		,
 		<include refid="Ws_Join_Column_List" />
@@ -715,6 +716,7 @@
 		operator_name,
 		MAX( operation_time ) AS operation_time
 		FROM weighing_bill_operation_record
+		WHERE statement_id = #{id}
 		GROUP BY
 		statement_id,operation_type
 		) wbor ON ws.id = wbor.statement_id
