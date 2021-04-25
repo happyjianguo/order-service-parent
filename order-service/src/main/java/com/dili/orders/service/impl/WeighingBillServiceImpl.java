@@ -318,7 +318,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		RelatedQuery agentQuery = new RelatedQuery();
 		agentQuery.setCustomerId(customerInfo.getCustomerId());
 		agentQuery.setMarketId(weighingBill.getMarketId());
+		LOGGER.debug("开始调用客户查询卖方代理人关联信息，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<List<RelatedDto>> relatedOutput = this.relatedRpc.getParent(agentQuery);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用客户查询卖方代理人关联信息，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (!relatedOutput.isSuccess()) {
 			LOGGER.error(String.format("查询卖方代理人失败:code=%s,message=%s", relatedOutput.getMessage(), relatedOutput.getCode(), relatedOutput.getMessage()));
 			throw new AppException(relatedOutput.getMessage());
@@ -326,7 +330,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (CollectionUtils.isEmpty(relatedOutput.getData())) {
 			return null;
 		}
+		LOGGER.debug("开始调用客户查询卖方代理人信息，过磅单id：{}", weighingBill.getId());
+		start = System.currentTimeMillis();
 		BaseOutput<CustomerExtendDto> agentOutput = this.customerRpc.get(relatedOutput.getData().get(0).getParent(), weighingBill.getMarketId());
+		end = System.currentTimeMillis();
+		LOGGER.debug("结束调用客户查询卖方代理人关联信息，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (!agentOutput.isSuccess()) {
 			LOGGER.error(String.format("查询卖方代理人失败:code=%s,message=%s", relatedOutput.getMessage(), relatedOutput.getCode(), relatedOutput.getMessage()));
 			throw new AppException(agentOutput.getMessage());
@@ -417,7 +425,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 判断余额是否足够
 		AccountRequestDto balanceQuery = new AccountRequestDto();
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
+		LOGGER.debug("开始调用支付系统查询买方余额，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统查询买方余额，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (balanceOutput == null) {
 			return BaseOutput.failure("调用支付系统查询买方账户余额无响应");
 		}
@@ -439,7 +451,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + weighingStatement.getSerialNo());
 		prepareDto.setType(PaymentTradeType.PREAUTHORIZED.getValue());
 		prepareDto.setDescription("交易过磅");
+		LOGGER.debug("开始调用支付系统创建支付订单，过磅单id：{}", weighingBill.getId());
+		start = System.currentTimeMillis();
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统创建支付订单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (paymentOutput == null) {
 			return BaseOutput.failure("调用支付系统创建冻结支付订单无响应");
 		}
@@ -468,7 +484,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		dto.setAmount(weighingStatement.getFrozenAmount());
 		dto.setTradeId(weighingStatement.getPayOrderNo());
 		dto.setPassword(buyerPassword);
+		LOGGER.debug("开始调用支付系统提交支付订单，过磅单id：{}", weighingBill.getId());
+		start = System.currentTimeMillis();
 		BaseOutput<PaymentTradeCommitResponseDto> freezeOutput = this.payRpc.commitTrade(dto);
+		end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统提交支付订单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 
 		if (freezeOutput == null) {
 			throw new AppException("交易冻结调用支付系统无响应");
@@ -1006,7 +1026,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 判断余额是否足够
 		AccountRequestDto balanceQuery = new AccountRequestDto();
 		balanceQuery.setAccountId(weighingBill.getBuyerAccount());
+		LOGGER.debug("开始调用支付系统查询买方余额，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<AccountBalanceDto> balanceOutput = this.payRpc.queryAccountBalance(balanceQuery);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统查询买方余额，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (!balanceOutput.isSuccess()) {
 			LOGGER.error(String.format("交易过磅结算调用支付系统查询买方余额失败:code=%s,message=%s", balanceOutput.getCode(), balanceOutput.getMessage()));
 			return BaseOutput.failure(balanceOutput.getMessage());
@@ -1060,8 +1084,12 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 						if (rows <= 0) {
 							BaseOutput.failure("更新过磅单价格状态失败");
 						}
+						LOGGER.debug("开始调用流控中心创建价格审批流程，过磅单id：{}", weighingBill.getId());
+						start = System.currentTimeMillis();
 						BaseOutput<ProcessInstanceMapping> output = this.runtimeRpc.startProcessInstanceByKey(OrdersConstant.PRICE_APPROVE_PROCESS_DEFINITION_KEY, approve.getId().toString(),
 								operatorId.toString(), new HashMap<String, Object>());
+						end = System.currentTimeMillis();
+						LOGGER.debug("结束调用流控中心创建价格审批流程，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 						if (!output.isSuccess()) {
 							throw new AppException(output.getMessage());
 						}
@@ -1091,7 +1119,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		if (StringUtils.isNotBlank(weighingBill.getTareBillNumber())) {
 			// 判断是否是d牌
 			// 通过c端传入的数据，去jmsf获取皮重当相关信息
+			LOGGER.debug("开始进门收费系统获取皮重单，过磅单id：{}", weighingBill.getId());
+			start = System.currentTimeMillis();
 			BaseOutput<TruckDTO> byId = this.jsmfRpc.getTruckById(Long.valueOf(weighingBill.getTareBillNumber()));
+			end = System.currentTimeMillis();
+			LOGGER.debug("结束进门收费系统获取皮重单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 			// 判断是否查询成功
 			if (byId == null) {
 				throw new AppException("交易结算调用进门系统查询信息无响应");
@@ -1104,7 +1136,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 				// 在判断车牌号是否相等，想的就删除过磅单
 				if (Objects.equals(weighingBill.getPlateNumber(), byId.getData().getPlate())) {
 					// 删除皮重单
+					LOGGER.debug("开始进门收费系统删除皮重单，过磅单id：{}", weighingBill.getId());
+					start = System.currentTimeMillis();
 					BaseOutput<Object> jmsfOutput = this.jsmfRpc.removeTareNumber(Long.valueOf(weighingBill.getTareBillNumber()));
+					end = System.currentTimeMillis();
+					LOGGER.debug("结束进门收费系统获取皮重单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 					if (jmsfOutput == null) {
 						throw new AppException("交易结算调用进门系统无响应");
 					}
@@ -1616,7 +1652,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			fees.add(sellerFee);
 		}
 		dto.setFees(fees);
+		LOGGER.debug("开始调用支付系统提交订单，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.commitTrade(dto);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统提交订单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		return commitOutput;
 	}
 
@@ -1647,7 +1687,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 			fees.add(sellerFee);
 		}
 		dto.setFees(fees);
+		LOGGER.debug("开始调用支付系统提交预授权订单，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<PaymentTradeCommitResponseDto> commitOutput = this.payRpc.confirm(dto);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统提交预授权订单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		return commitOutput;
 	}
 
@@ -1684,7 +1728,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 	}
 
 	protected User getUserById(Long operatorId) {
+		LOGGER.debug("开始调用UAP系统查询操作员信息，操作员id：{}", operatorId);
+		long start = System.currentTimeMillis();
 		BaseOutput<User> output = this.userRpc.get(operatorId);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用UAP系统查询操作员信息，操作员id：{}，耗时{}毫秒", operatorId, end - start);
 		if (!output.isSuccess()) {
 			throw new AppException(output.getMessage());
 		}
@@ -1760,7 +1808,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		prepareDto.setSerialNo(OrdersConstant.WEIGHING_MODULE_PREFIX + ws.getSerialNo());
 		prepareDto.setType(PaymentTradeType.TRADE.getValue());
 		prepareDto.setDescription("交易过磅");
+		LOGGER.debug("开始调用支付系统创建支付订单，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<CreateTradeResponseDto> paymentOutput = this.payRpc.prepareTrade(prepareDto);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用支付系统创建支付订单，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (!paymentOutput.isSuccess()) {
 			return paymentOutput;
 		}
@@ -2204,7 +2256,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 查询买家账户信息
 		CardQueryDto buyerQueryDto = new CardQueryDto();
 		buyerQueryDto.setCardNo(weighingBill.getBuyerCardNo());
+		LOGGER.debug("开始调用客户查询买方信息，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<UserAccountCardResponseDto> buyerOutput = this.accountRpc.getSingle(buyerQueryDto);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用客户查询买方信息，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (!buyerOutput.isSuccess()) {
 			throw new AppException(buyerOutput.getMessage());
 		}
@@ -2230,7 +2286,11 @@ public class WeighingBillServiceImpl extends BaseServiceImpl<WeighingBill, Long>
 		// 查询卖家账户信息
 		CardQueryDto sellerQueryDto = new CardQueryDto();
 		sellerQueryDto.setCardNo(weighingBill.getSellerCardNo());
+		LOGGER.debug("开始调用客户查询卖方信息，过磅单id：{}", weighingBill.getId());
+		long start = System.currentTimeMillis();
 		BaseOutput<UserAccountCardResponseDto> sellerOutput = this.accountRpc.getSingle(sellerQueryDto);
+		long end = System.currentTimeMillis();
+		LOGGER.debug("结束调用客户查询卖方信息，过磅单id：{}，耗时{}毫秒", weighingBill.getId(), end - start);
 		if (!sellerOutput.isSuccess()) {
 			throw new AppException(sellerOutput.getMessage());
 		}
