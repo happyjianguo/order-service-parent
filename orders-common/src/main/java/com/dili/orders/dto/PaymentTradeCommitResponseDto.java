@@ -9,108 +9,108 @@ import java.util.List;
 
 public class PaymentTradeCommitResponseDto {
 
-	/**
-	 * 账户id
-	 */
-	private Long accountId;
-	/**
-	 * 期初余额
-	 */
-	private Long balance;
-	/**
-	 * 操作金额-为0
-	 */
-	private Long amount;
+    /**
+     * 账户id
+     */
+    private Long accountId;
+    /**
+     * 期初余额
+     */
+    private Long balance;
+    /**
+     * 操作金额-为0
+     */
+    private Long amount;
 
-	/**
-	 * 期初冻结金额
-	 */
-	private Long frozenBalance;
+    /**
+     * 期初冻结金额
+     */
+    private Long frozenBalance;
 
-	/**
-	 * 冻结/解冻金额-当前有值
-	 */
-	private Long frozenAmount;
-	/**
-	 * 发生时间
-	 */
-	/**
-	 * 发生时间
-	 */
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime when;
+    /**
+     * 冻结/解冻金额-当前有值
+     */
+    private Long frozenAmount;
+    /**
+     * 发生时间
+     */
+    /**
+     * 发生时间
+     */
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime when;
 
-	private List<PaymentStream> streams;
+    private List<PaymentStream> streams;
 
-	/**
-	 * 如果是即时交易，这个字段是卖方账户交易信息
-	 */
-	private PaymentTradeCommitResponseDto relation;
+    /**
+     * 如果是即时交易，这个字段是卖方账户交易信息
+     */
+    private PaymentTradeCommitResponseDto relation;
 
-	public Long getAccountId() {
-		return accountId;
-	}
+    public Long getAccountId() {
+        return accountId;
+    }
 
-	public void setAccountId(Long accountId) {
-		this.accountId = accountId;
-	}
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
 
-	public Long getBalance() {
-		return balance;
-	}
+    public Long getBalance() {
+        return balance;
+    }
 
-	public void setBalance(Long balance) {
-		this.balance = balance;
-	}
+    public void setBalance(Long balance) {
+        this.balance = balance;
+    }
 
-	public Long getAmount() {
-		return amount;
-	}
+    public Long getAmount() {
+        return amount;
+    }
 
-	public void setAmount(Long amount) {
-		this.amount = amount;
-	}
+    public void setAmount(Long amount) {
+        this.amount = amount;
+    }
 
-	public Long getFrozenBalance() {
-		return frozenBalance;
-	}
+    public Long getFrozenBalance() {
+        return frozenBalance;
+    }
 
-	public void setFrozenBalance(Long frozenBalance) {
-		this.frozenBalance = frozenBalance;
-	}
+    public void setFrozenBalance(Long frozenBalance) {
+        this.frozenBalance = frozenBalance;
+    }
 
-	public Long getFrozenAmount() {
-		return frozenAmount;
-	}
+    public Long getFrozenAmount() {
+        return frozenAmount;
+    }
 
-	public void setFrozenAmount(Long frozenAmount) {
-		this.frozenAmount = frozenAmount;
-	}
+    public void setFrozenAmount(Long frozenAmount) {
+        this.frozenAmount = frozenAmount;
+    }
 
-	public LocalDateTime getWhen() {
-		return when;
-	}
+    public LocalDateTime getWhen() {
+        return when;
+    }
 
-	public void setWhen(LocalDateTime when) {
-		this.when = when;
-	}
+    public void setWhen(LocalDateTime when) {
+        this.when = when;
+    }
 
-	public List<PaymentStream> getStreams() {
-		return streams;
-	}
+    public List<PaymentStream> getStreams() {
+        return streams;
+    }
 
-	public void setStreams(List<PaymentStream> streams) {
-		this.streams = streams;
-	}
+    public void setStreams(List<PaymentStream> streams) {
+        this.streams = streams;
+    }
 
-	public PaymentTradeCommitResponseDto getRelation() {
-		return relation;
-	}
+    public PaymentTradeCommitResponseDto getRelation() {
+        return relation;
+    }
 
-	public void setRelation(PaymentTradeCommitResponseDto relation) {
-		this.relation = relation;
-	}
+    public void setRelation(PaymentTradeCommitResponseDto relation) {
+        this.relation = relation;
+    }
 
 }

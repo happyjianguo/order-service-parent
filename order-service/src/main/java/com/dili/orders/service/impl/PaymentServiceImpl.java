@@ -2,7 +2,6 @@ package com.dili.orders.service.impl;
 
 import com.dili.orders.constants.OrdersConstant;
 import com.dili.orders.domain.WeighingBill;
-import com.dili.orders.domain.WeighingBillState;
 import com.dili.orders.domain.WeighingStatement;
 import com.dili.orders.domain.WeighingStatementState;
 import com.dili.orders.dto.*;
@@ -22,7 +21,6 @@ import java.util.List;
 @Component
 public class PaymentServiceImpl implements PaymentService {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
     @Autowired
     private PayRpc payRpc;
@@ -33,31 +31,18 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentTradeCommitResponseDto pay(WeighingStatement statement, String buyerPassword) {
         WeighingBill weighingBill = this.weighingBillMapper.selectByPrimaryKey(statement.getWeighingBillId());
         BaseOutput<PaymentTradeCommitResponseDto> paymentOutput;
-        if (weighingBill.getState().equals(WeighingBillState.FROZEN.getValue())) {
-            paymentOutput = this.confirmTrade(weighingBill, statement, buyerPassword);
-            if (paymentOutput == null) {
-                throw new AppException("调用支付系统无响应");
-            }
-            if (!paymentOutput.isSuccess()) {
-                LOGGER.error(String.format("交易过磅结算调用支付系统确认冻结交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
-                throw new AppException(paymentOutput.getMessage());
-            }
-        } else if (weighingBill.getState().equals(WeighingBillState.NO_SETTLEMENT.getValue())) {
-            BaseOutput<?> output = this.prepareTrade(weighingBill, statement);
-            if (!output.isSuccess()) {
-                LOGGER.error(String.format("交易过磅结算调用支付系统创建支付订单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
-                throw new AppException(output.getMessage());
-            }
-            paymentOutput = this.commitTrade(weighingBill, statement, buyerPassword);
-            if (paymentOutput == null) {
-                throw new AppException("调用支付系统无响应");
-            }
-            if (!paymentOutput.isSuccess()) {
-                LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
-                throw new AppException(paymentOutput.getMessage());
-            }
-        } else {
-            throw new AppException("当前结算单状态不能进行支付操作");
+        BaseOutput<?> output = this.prepareTrade(weighingBill, statement);
+        if (!output.isSuccess()) {
+            LOGGER.error(String.format("交易过磅结算调用支付系统创建支付订单失败:code=%s,message=%s", output.getCode(), output.getMessage()));
+            throw new AppException(output.getMessage());
+        }
+        paymentOutput = this.commitTrade(weighingBill, statement, buyerPassword);
+        if (paymentOutput == null) {
+            throw new AppException("调用支付系统无响应");
+        }
+        if (!paymentOutput.isSuccess()) {
+            LOGGER.error(String.format("交易过磅结算调用支付系统确认交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+            throw new AppException(paymentOutput.getMessage());
         }
         return paymentOutput.getData();
     }
@@ -169,7 +154,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentTradeCommitResponseDto freezePay(WeighingStatement statement, String buyerPassword) {
+    public PaymentTradeCommitResponseDto freeze(WeighingStatement statement, String buyerPassword) {
         // 冻结交易
         Long buyerAmount = statement.getFrozenAmount();
         // 创建支付订单
@@ -218,7 +203,26 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public AccountBalanceDto queryBanlance(Long accountId) {
+    public PaymentTradeCommitResponseDto unfreeze(String serialNo) {
+        return this.refound(serialNo);
+    }
+
+    @Override
+    public PaymentTradeCommitResponseDto freezePay(WeighingStatement statement, String buyerPassword) {
+        WeighingBill weighingBill = this.weighingBillMapper.selectByPrimaryKey(statement.getWeighingBillId());
+        BaseOutput<PaymentTradeCommitResponseDto> paymentOutput = this.confirmTrade(weighingBill, statement, buyerPassword);
+        if (paymentOutput == null) {
+            throw new AppException("调用支付系统无响应");
+        }
+        if (!paymentOutput.isSuccess()) {
+            LOGGER.error(String.format("交易过磅结算调用支付系统确认冻结交易失败:code=%s,message=%s", paymentOutput.getCode(), paymentOutput.getMessage()));
+            throw new AppException(paymentOutput.getMessage());
+        }
+        return paymentOutput.getData();
+    }
+
+    @Override
+    public AccountBalanceDto queryBalance(Long accountId) {
         // 判断余额是否足够
         AccountRequestDto balanceQuery = new AccountRequestDto();
         balanceQuery.setAccountId(accountId);
