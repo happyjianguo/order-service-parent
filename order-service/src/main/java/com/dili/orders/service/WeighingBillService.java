@@ -23,143 +23,149 @@ import com.dili.ss.domain.PageOutput;
  */
 public interface WeighingBillService extends BaseService<WeighingBill, Long> {
 
-	/**
-	 * 新增过磅单
-	 *
-	 * @param weighingBill
-	 * @return
-	 */
-	BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill);
+    /**
+     * 新增过磅单
+     *
+     * @param weighingBill
+     * @return
+     */
+    BaseOutput<WeighingStatement> addWeighingBill(WeighingBill weighingBill);
 
-	/**
-	 * 关闭
-	 *
-	 * @return
-	 */
-	BaseOutput<Object> autoClose();
+    /**
+     * 关闭
+     *
+     * @return
+     */
+    BaseOutput<Object> autoClose();
 
-	/**
-	 * 过磅单详情
-	 *
-	 * @param id
-	 * @return
-	 */
-	WeighingBillDetailDto detail(Long id);
+    /**
+     * 过磅单详情
+     *
+     * @param id
+     * @return
+     */
+    WeighingBillDetailDto detail(Long id);
 
-	/**
-	 * 冻结过磅单
-	 *
-	 * @param id
-	 * @param buyerPassword
-	 * @param operatorId
-	 * @return
-	 */
-	BaseOutput<WeighingStatement> freeze(Long id, String buyerPassword, Long operatorId);
+    /**
+     * 冻结过磅单
+     *
+     * @param id
+     * @param buyerPassword
+     * @param operatorId
+     * @return
+     */
+    BaseOutput<WeighingStatement> freeze(Long id, String buyerPassword, Long operatorId);
 
-	/**
-	 * 作废过磅单
-	 *
-	 * @param id             过磅单号
-	 * @param buyerPassword  买家交易密码
-	 * @param sellerPassword 卖家交易密码
-	 * @param operatorId     操作员id
-	 * @return
-	 */
-	BaseOutput<Object> invalidate(Long id, String buyerPassword, String sellerPassword, Long operatorId);
+    /**
+     * 作废过磅单
+     *
+     * @param id             过磅单号
+     * @param buyerPassword  买家交易密码
+     * @param sellerPassword 卖家交易密码
+     * @param operatorId     操作员id
+     * @return
+     */
+    BaseOutput<Object> invalidate(Long id, String buyerPassword, String sellerPassword, Long operatorId);
 
-	/**
-	 * 分页查询
-	 *
-	 * @param query
-	 * @return
-	 */
-	PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query);
+    /**
+     * 分页查询
+     *
+     * @param query
+     * @return
+     */
+    PageOutput<List<WeighingBillListPageDto>> listPage(WeighingBillQueryDto query);
 
-	/**
-	 * 打印列表数据
-	 * 
-	 * @param query
-	 * @return
-	 */
-	BaseOutput<WeighingBillPrintListDto> printList(WeighingBillQueryDto query);
+    /**
+     * 打印列表数据
+     *
+     * @param query
+     * @return
+     */
+    BaseOutput<WeighingBillPrintListDto> printList(WeighingBillQueryDto query);
 
-	/**
-	 * 操作员作废过磅单
-	 *
-	 * @param id         过磅id
-	 * @param operatorId 操作员id
-	 * @return
-	 */
-	BaseOutput<Object> operatorInvalidate(Long id, Long operatorId);
+    /**
+     * 操作员作废过磅单
+     *
+     * @param id         过磅id
+     * @param operatorId 操作员id
+     * @return
+     */
+    BaseOutput<Object> operatorInvalidate(Long id, Long operatorId);
 
-	/**
-	 * 操作员撤销过磅单
-	 *
-	 * @param id         过磅id
-	 * @param operatorId 操作员id
-	 * @return
-	 */
-	BaseOutput<Object> operatorWithdraw(Long id, Long operatorId);
+    /**
+     * 操作员撤销过磅单
+     *
+     * @param id         过磅id
+     * @param operatorId 操作员id
+     * @return
+     */
+    BaseOutput<Object> operatorWithdraw(Long id, Long operatorId);
 
-	/**
-	 * 结算
-	 *
-	 * @param id            过磅单号
-	 * @param buyerPassword 买家交易密码
-	 * @param operatorId    TODO
-	 * @return
-	 */
-	BaseOutput<WeighingStatement> settle(Long id, String buyerPassword, Long operatorId, Long marketId);
+    /**
+     * 结算
+     *
+     * @param id            过磅单号
+     * @param buyerPassword 买家交易密码
+     * @param operatorId    TODO
+     * @return
+     */
+    BaseOutput<WeighingStatement> settle(Long id, String buyerPassword, Long operatorId, Long marketId);
 
-	/**
-	 * 修改过磅单
-	 *
-	 * @param weighingBill
-	 * @return
-	 */
-	BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill weighingBill);
+    /**
+     * 修改过磅单
+     *
+     * @param weighingBill
+     * @return
+     */
+    BaseOutput<WeighingStatement> updateWeighingBill(WeighingBill weighingBill);
 
-	/**
-	 * 撤销过磅单
-	 *
-	 * @param id             过磅单号
-	 * @param buyerPassword  买家交易密码
-	 * @param sellerPassword 卖家交易密码
-	 * @param operatorId     TODO
-	 * @return
-	 */
-	BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId);
+    /**
+     * 撤销过磅单
+     *
+     * @param id             过磅单号
+     * @param buyerPassword  买家交易密码
+     * @param sellerPassword 卖家交易密码
+     * @param operatorId     TODO
+     * @return
+     */
+    BaseOutput<Object> withdraw(Long id, String buyerPassword, String sellerPassword, Long operatorId);
 
-	/**
-	 * 自定义条件查询过磅单
-	 *
-	 * @param weighingBill
-	 * @return
-	 */
-	List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill);
+    /**
+     * 自定义条件查询过磅单
+     *
+     * @param weighingBill
+     * @return
+     */
+    List<WeighingBillClientListDto> listByExampleModified(WeighingBillQueryDto weighingBill);
 
-	/**
-	 * 自定义条件查询过磅单(分页)
-	 *
-	 * @param weighingBill
-	 * @return
-	 */
-	List<WeighingBillClientListDto> listByExampleModifiedPage(WeighingBillQueryDto weighingBill);
+    /**
+     * 自定义条件查询过磅单(分页)
+     *
+     * @param weighingBill
+     * @return
+     */
+    List<WeighingBillClientListDto> listByExampleModifiedPage(WeighingBillQueryDto weighingBill);
 
-	/**
-	 * 获取过磅单打印数据
-	 *
-	 * @param id 过磅单号
-	 * @return
-	 */
-	PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(Long id);
+    /**
+     * 获取过磅单打印数据
+     *
+     * @param id 过磅单号
+     * @return
+     */
+    PrintTemplateDataDto<WeighingBillPrintDto> getWeighingBillPrintData(Long id);
 
-	/**
-	 * 获取结算单打印数据
-	 *
-	 * @param serialNo 结算单号
-	 * @return
-	 */
-	PrintTemplateDataDto<WeighingStatementPrintDto> getWeighingStatementPrintData(String serialNo);
+    /**
+     * 获取结算单打印数据
+     *
+     * @param serialNo 结算单号
+     * @return
+     */
+    PrintTemplateDataDto<WeighingStatementPrintDto> getWeighingStatementPrintData(String serialNo);
 
+    /**
+     * 订单检测值同步
+     *
+     * @return
+     */
+    BaseOutput<Object> sourceSync();
 }

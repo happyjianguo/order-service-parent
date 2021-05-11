@@ -13,25 +13,32 @@ import com.dili.ss.base.MyMapper;
 
 public interface WeighingBillMapper extends MyMapper<WeighingBill> {
 
-	List<WeighingBillListPageDto> listPage(WeighingBillQueryDto query);
+    List<WeighingBillListPageDto> listPage(WeighingBillQueryDto query);
 
-	WeighingBillDetailDto selectDetailById(Long id);
+    WeighingBillDetailDto selectDetailById(Long id);
 
-	List<WeighingBillClientListDto> selectByExampleModified(WeighingBillQueryDto weighingBill);
+    List<WeighingBillClientListDto> selectByExampleModified(WeighingBillQueryDto weighingBill);
 
-	/**
-	 * 查询最后一次过磅操作记录
-	 * 
-	 * @param id 过磅单id
-	 * @return
-	 */
-	WeighingBillOperationRecord selectLastWeighingOperationRecord(Long id);
+    /**
+     * 查询最后一次过磅操作记录
+     *
+     * @param id 过磅单id
+     * @return
+     */
+    WeighingBillOperationRecord selectLastWeighingOperationRecord(Long id);
 
-	/**
-	 * 导出统计重量、金额合计
-	 * 
-	 * @param query
-	 * @return
-	 */
-	WeighingBillListStatisticsDto selectExportStatistics(WeighingBillQueryDto query);
+    /**
+     * 导出统计重量、金额合计
+     *
+     * @param query
+     * @return
+     */
+    WeighingBillListStatisticsDto selectExportStatistics(WeighingBillQueryDto query);
+
+    /**
+     * 查询待同步检测值得数据
+     *
+     * @return
+     */
+    List<WeighingBillClientListDto> listSourceSyncData();
 }
