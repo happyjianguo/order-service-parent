@@ -13,7 +13,7 @@ import java.util.List;
  * @Date: 2020/11/6 14:16
  * @Description: 溯源rpc
  */
-@FeignClient(name = "quality-trace", contextId = "qualityTraceRpc", url = "http://10.28.1.5")
+@FeignClient(name = "quality-trace", contextId = "qualityTraceRpc", url = "${qualityTrace.url}")
 public interface QualityTraceRpc {
 
     /**
